@@ -28,7 +28,7 @@ class BookingRepositoryImpl implements BookingRepository {
         'notes': booking.notes,
         'estimatedCompletionDate': booking.estimatedCompletionDate,
         'createdAt': booking.createdAt,
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToBooking(result.first);
     } catch (e) {
@@ -56,7 +56,7 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM bookings WHERE public_token = @publicToken',
-        parameters: {'publicToken': publicToken},
+        parameters: {'publicToken': publicToken} as Map<String, dynamic>,
       );
 
       if (result.isEmpty) return null;
@@ -71,7 +71,7 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM bookings WHERE customer_id = @customerId ORDER BY created_at DESC',
-        parameters: {'customerId': customerId},
+        parameters: {'customerId': customerId} as Map<String, dynamic>,
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -84,7 +84,7 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM bookings WHERE vehicle_id = @vehicleId ORDER BY created_at DESC',
-        parameters: {'vehicleId': vehicleId},
+        parameters: {'vehicleId': vehicleId} as Map<String, dynamic>,
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -107,7 +107,7 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM bookings WHERE status = @status ORDER BY created_at DESC',
-        parameters: {'status': status},
+        parameters: {'status': status} as Map<String, dynamic>,
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -132,7 +132,7 @@ class BookingRepositoryImpl implements BookingRepository {
         'notes': booking.notes,
         'estimatedCompletionDate': booking.estimatedCompletionDate,
         'updatedAt': DateTime.now().toUtc(),
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToBooking(result.first);
     } catch (e) {

@@ -24,7 +24,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
         'serviceId': bookingService.serviceId,
         'priceSyp': bookingService.priceSYP,
         'notes': bookingService.notes,
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToBookingService(result.first);
     } catch (e) {

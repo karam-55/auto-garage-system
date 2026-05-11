@@ -26,7 +26,8 @@ class ServiceRepositoryImpl implements ServiceRepository {
         'estimatedDurationMinutes': service.estimatedDurationMinutes,
         'isActive': service.isActive,
         'createdAt': service.createdAt,
-      });
+        'updatedAt': service.updatedAt,
+      } as Map<String, dynamic>);
 
       return _mapRowToService(result.first);
     } catch (e) {
@@ -82,7 +83,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
         'estimatedDurationMinutes': service.estimatedDurationMinutes,
         'isActive': service.isActive,
         'updatedAt': DateTime.now().toUtc(),
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToService(result.first);
     } catch (e) {

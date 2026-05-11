@@ -24,7 +24,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
         'phone': customer.phone,
         'address': customer.address,
         'createdAt': customer.createdAt,
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToCustomer(result.first);
     } catch (e) {
@@ -52,7 +52,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM customers WHERE phone = @phone',
-        parameters: {'phone': phone},
+        parameters: {'phone': phone} as Map<String, dynamic>,
       );
 
       if (result.isEmpty) return null;
@@ -86,7 +86,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
         'phone': customer.phone,
         'address': customer.address,
         'updatedAt': DateTime.now().toUtc(),
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToCustomer(result.first);
     } catch (e) {

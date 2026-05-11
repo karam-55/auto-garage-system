@@ -26,7 +26,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
         'status': assignment.status.value,
         'notes': assignment.notes,
         'assignedAt': assignment.assignedAt,
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToMechanicAssignment(result.first);
     } catch (e) {
@@ -54,7 +54,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM mechanic_assignments WHERE booking_id = @bookingId',
-        parameters: {'bookingId': bookingId},
+        parameters: {'bookingId': bookingId} as Map<String, dynamic>,
       );
 
       if (result.isEmpty) return null;
@@ -69,7 +69,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM mechanic_assignments WHERE mechanic_user_id = @mechanicUserId ORDER BY assigned_at DESC',
-        parameters: {'mechanicUserId': mechanicUserId},
+        parameters: {'mechanicUserId': mechanicUserId} as Map<String, dynamic>,
       );
       return result.map(_mapRowToMechanicAssignment).toList();
     } catch (e) {
@@ -110,7 +110,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
         'status': assignment.status.value,
         'notes': assignment.notes,
         'updatedAt': DateTime.now().toUtc(),
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToMechanicAssignment(result.first);
     } catch (e) {

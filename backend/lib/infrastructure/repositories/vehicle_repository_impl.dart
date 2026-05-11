@@ -27,7 +27,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
         'licensePlate': vehicle.licensePlate,
         'vin': vehicle.vin,
         'createdAt': vehicle.createdAt,
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToVehicle(result.first);
     } catch (e) {
@@ -55,7 +55,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC',
-        parameters: {'customerId': customerId},
+        parameters: {'customerId': customerId} as Map<String, dynamic>,
       );
       return result.map(_mapRowToVehicle).toList();
     } catch (e) {
@@ -91,7 +91,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
         'licensePlate': vehicle.licensePlate,
         'vin': vehicle.vin,
         'updatedAt': DateTime.now().toUtc(),
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToVehicle(result.first);
     } catch (e) {

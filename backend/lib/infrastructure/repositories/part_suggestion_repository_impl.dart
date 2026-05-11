@@ -29,7 +29,8 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
         'priceSyp': suggestion.priceSYP,
         'status': suggestion.status.value,
         'createdAt': suggestion.createdAt,
-      });
+        'updatedAt': suggestion.updatedAt,
+      } as Map<String, dynamic>);
 
       return _mapRowToPartSuggestion(result.first);
     } catch (e) {
@@ -57,7 +58,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM part_suggestions WHERE booking_id = @bookingId ORDER BY created_at DESC',
-        parameters: {'bookingId': bookingId},
+        parameters: {'bookingId': bookingId} as Map<String, dynamic>,
       );
       return result.map(_mapRowToPartSuggestion).toList();
     } catch (e) {
@@ -70,7 +71,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM part_suggestions WHERE mechanic_user_id = @mechanicUserId ORDER BY created_at DESC',
-        parameters: {'mechanicUserId': mechanicUserId},
+        parameters: {'mechanicUserId': mechanicUserId} as Map<String, dynamic>,
       );
       return result.map(_mapRowToPartSuggestion).toList();
     } catch (e) {
@@ -83,7 +84,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM part_suggestions WHERE status = @status ORDER BY created_at DESC',
-        parameters: {'status': status},
+        parameters: {'status': status} as Map<String, dynamic>,
       );
       return result.map(_mapRowToPartSuggestion).toList();
     } catch (e) {
@@ -106,7 +107,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
         'priceSyp': suggestion.priceSYP,
         'status': suggestion.status.value,
         'updatedAt': DateTime.now().toUtc(),
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToPartSuggestion(result.first);
     } catch (e) {

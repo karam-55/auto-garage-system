@@ -30,7 +30,7 @@ class UserRepositoryImpl implements UserRepository {
         'isActive': user.isActive,
         'createdAt': user.createdAt,
         'updatedAt': user.updatedAt,
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToUser(result.first);
     } catch (e) {
@@ -43,7 +43,7 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM users WHERE id = @id',
-        parameters: {'id': id},
+        parameters: {'id': id} as Map<String, dynamic>,
       );
 
       if (result.isEmpty) return null;
@@ -59,7 +59,7 @@ class UserRepositoryImpl implements UserRepository {
       print('Finding user by username: $username');
       final result = await _db.connection.execute(
         'SELECT * FROM users WHERE username = @username AND is_active = true',
-        parameters: {'username': username},
+        parameters: {'username': username} as Map<String, dynamic>,
       );
 
       if (result.isEmpty) {
@@ -101,7 +101,7 @@ class UserRepositoryImpl implements UserRepository {
         'role': user.role.value,
         'isActive': user.isActive,
         'updatedAt': DateTime.now().toUtc(),
-      });
+      } as Map<String, dynamic>);
 
       return _mapRowToUser(result.first);
     } catch (e) {
@@ -112,7 +112,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute('DELETE FROM users WHERE id = @id', parameters: {'id': id});
+      await _db.connection.execute('DELETE FROM users WHERE id = @id', parameters: {'id': id} as Map<String, dynamic>);
     } catch (e) {
       throw DatabaseException('Failed to delete user: $e');
     }
@@ -123,7 +123,7 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final result = await _db.connection.execute(
         'SELECT * FROM users WHERE role = @role ORDER BY created_at DESC',
-        parameters: {'role': role},
+        parameters: {'role': role} as Map<String, dynamic>,
       );
       return result.map(_mapRowToUser).toList();
     } catch (e) {

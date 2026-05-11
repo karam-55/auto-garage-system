@@ -113,8 +113,8 @@ class VehicleRepositoryImpl implements VehicleRepository {
 
   Vehicle _mapRowToVehicle(ResultRow row) {
     return Vehicle(
-      id: row['id'].toString(),
-      customerId: row['customer_id'].toString(),
+      id: row['id'] as String,
+      customerId: row['customer_id'] as String,
       make: row['make'] as String,
       model: row['model'] as String,
       year: row['year'] as int,

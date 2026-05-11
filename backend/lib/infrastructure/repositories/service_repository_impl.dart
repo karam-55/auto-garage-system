@@ -104,7 +104,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
 
   Service _mapRowToService(ResultRow row) {
     return Service(
-      id: row['id'].toString(),
+      id: row['id'] as String,
       name: row['name'] as String,
       description: row['description'] as String?,
       priceSYP: row['price_syp'] as double,

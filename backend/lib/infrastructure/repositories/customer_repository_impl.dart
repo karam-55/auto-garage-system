@@ -108,7 +108,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
 
   Customer _mapRowToCustomer(ResultRow row) {
     return Customer(
-      id: row['id'].toString(),
+      id: row['id'] as String,
       fullName: row['full_name'] as String,
       phone: row['phone'] as String,
       address: row['address'] as String?,

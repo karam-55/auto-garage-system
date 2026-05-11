@@ -86,9 +86,9 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
 
   BookingService _mapRowToBookingService(ResultRow row) {
     return BookingService(
-      id: row['id'].toString(),
-      bookingId: row['booking_id'].toString(),
-      serviceId: row['service_id'].toString(),
+      id: row['id'] as String,
+      bookingId: row['booking_id'] as String,
+      serviceId: row['service_id'] as String,
       priceSYP: row['price_syp'] as double,
       notes: row['notes'] as String?,
     );

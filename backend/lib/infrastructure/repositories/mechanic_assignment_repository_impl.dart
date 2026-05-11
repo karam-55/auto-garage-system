@@ -132,13 +132,13 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
 
   MechanicAssignment _mapRowToMechanicAssignment(ResultRow row) {
     return MechanicAssignment(
-      id: row['id'].toString(),
-      bookingId: row['booking_id'].toString(),
-      mechanicUserId: row['mechanic_user_id'].toString(),
-      status: MechanicAssignmentStatus.fromString(row['status']),
-      notes: row['notes'],
-      assignedAt: row['assigned_at'],
-      updatedAt: row['updated_at'],
+      id: row['id'] as String,
+      bookingId: row['booking_id'] as String,
+      mechanicUserId: row['mechanic_user_id'] as String,
+      status: MechanicAssignmentStatus.fromString(row['status'] as String),
+      notes: row['notes'] as String?,
+      assignedAt: row['assigned_at'] as DateTime,
+      updatedAt: row['updated_at'] as DateTime?,
     );
   }
 }

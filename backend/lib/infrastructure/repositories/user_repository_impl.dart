@@ -8,7 +8,6 @@ import '../../domain/repositories/user_repository.dart';
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../database/database_connection.dart';
-import '../../core/utils/app_constants.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final DatabaseConnection _db;
@@ -230,10 +229,10 @@ class UserRepositoryImpl implements UserRepository {
 
   User _mapRowToUser(ResultRow row) {
     return User(
-      id: row['id'].toString(),
+      id: row['id'] as String,
       fullName: row['full_name'] as String,
       username: row['username'] as String,
-      passwordHash: row['password_hash'] as String,
+      passwordHash: row['password_hash'] as String?,
       role: Role.fromString(row['role'] as String),
       createdAt: row['created_at'] as DateTime,
       updatedAt: row['updated_at'] as DateTime?,

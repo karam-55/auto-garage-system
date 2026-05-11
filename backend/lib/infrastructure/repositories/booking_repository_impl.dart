@@ -158,9 +158,9 @@ class BookingRepositoryImpl implements BookingRepository {
 
   Booking _mapRowToBooking(ResultRow row) {
     return Booking(
-      id: row['id'].toString(),
-      customerId: row['customer_id'].toString(),
-      vehicleId: row['vehicle_id'].toString(),
+      id: row['id'] as String,
+      customerId: row['customer_id'] as String,
+      vehicleId: row['vehicle_id'] as String,
       status: BookingStatus.fromString(row['status'] as String),
       publicToken: row['public_token'] as String,
       notes: row['notes'] as String?,

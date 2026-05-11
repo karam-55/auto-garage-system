@@ -128,9 +128,9 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
 
   PartSuggestion _mapRowToPartSuggestion(ResultRow row) {
     return PartSuggestion(
-      id: row['id'].toString(),
-      bookingId: row['booking_id'].toString(),
-      mechanicUserId: row['mechanic_user_id'].toString(),
+      id: row['id'] as String,
+      bookingId: row['booking_id'] as String,
+      mechanicUserId: row['mechanic_user_id'] as String,
       type: PartType.fromString(row['type'] as String),
       description: row['description'] as String,
       priceSYP: row['price_syp'] as double?,

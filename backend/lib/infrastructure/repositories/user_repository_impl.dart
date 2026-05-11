@@ -1,7 +1,6 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bcrypt/bcrypt.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/user_repository.dart';
@@ -18,11 +17,11 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User> create(User user) async {
     try {
-      final result = await _db.connection.query('''
-        INSERT INTO users (id, full_name, username, password_hash, role, is_active, created_at)
-        VALUES (@id, @fullName, @username, @passwordHash, @role, @isActive, @createdAt)
+      final result = await _db.connection.execute('''
+        INSERT INTO users (id, full_name, username, password_hash, role, is_active, created_at, updated_at)
+        VALUES (@id, @fullName, @username, @passwordHash, @role, @isActive, @createdAt, @updatedAt)
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': user.id.isEmpty ? _uuid.v4() : user.id,
         'fullName': user.fullName,
         'username': user.username,
@@ -30,6 +29,7 @@ class UserRepositoryImpl implements UserRepository {
         'role': user.role.value,
         'isActive': user.isActive,
         'createdAt': user.createdAt,
+        'updatedAt': user.updatedAt,
       });
 
       return _mapRowToUser(result.first);
@@ -41,9 +41,9 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> findById(String id) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM users WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) return null;
@@ -56,9 +56,9 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> findByUsername(String username) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM users WHERE username = @username',
-        substitutionValues: {'username': username},
+        parameters: {'username': username},
       );
 
       if (result.isEmpty) return null;
@@ -71,7 +71,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<List<User>> findAll() async {
     try {
-      final result = await _db.connection.query('SELECT * FROM users ORDER BY created_at DESC');
+      final result = await _db.connection.execute('SELECT * FROM users ORDER BY created_at DESC');
       return result.map(_mapRowToUser).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all users: $e');
@@ -81,12 +81,12 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User> update(User user) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         UPDATE users 
         SET full_name = @fullName, username = @username, role = @role, is_active = @isActive, updated_at = @updatedAt
         WHERE id = @id
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': user.id,
         'fullName': user.fullName,
         'username': user.username,
@@ -104,10 +104,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.query(
-        'DELETE FROM users WHERE id = @id',
-        substitutionValues: {'id': id},
-      );
+      await _db.connection.execute('DELETE FROM users WHERE id = @id', parameters: {'id': id});
     } catch (e) {
       throw DatabaseException('Failed to delete user: $e');
     }
@@ -116,9 +113,9 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<List<User>> findByRole(String role) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM users WHERE role = @role ORDER BY created_at DESC',
-        substitutionValues: {'role': role},
+        parameters: {'role': role},
       );
       return result.map(_mapRowToUser).toList();
     } catch (e) {
@@ -228,15 +225,16 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   User _mapRowToUser(ResultRow row) {
+    final data = row.toColumnMap();
     return User(
-      id: row['id'] as String,
-      fullName: row['full_name'] as String,
-      username: row['username'] as String,
-      passwordHash: row['password_hash'] as String?,
-      role: Role.fromString(row['role'] as String),
-      createdAt: row['created_at'] as DateTime,
-      updatedAt: row['updated_at'] as DateTime?,
-      isActive: row['is_active'] as bool,
+      id: data['id'].toString(),
+      fullName: data['full_name'] as String,
+      username: data['username'] as String,
+      passwordHash: data['password_hash'] as String?,
+      role: Role.fromString(data['role'] as String),
+      createdAt: data['created_at'] as DateTime,
+      updatedAt: data['updated_at'] as DateTime?,
+      isActive: data['is_active'] as bool,
     );
   }
 }

@@ -4,7 +4,7 @@ import 'package:logger/logger.dart';
 
 class DatabaseConnection {
   static DatabaseConnection? _instance;
-  late PostgreSQLConnection _connection;
+  late Connection _connection;
   final Logger _logger = Logger();
 
   DatabaseConnection._internal();
@@ -30,7 +30,7 @@ class DatabaseConnection {
     final username = uri.userInfo.split(':')[0];
     final password = uri.userInfo.split(':')[1];
 
-    _connection = await PostgreSQLConnection.open(
+    _connection = await Connection.open(
       Endpoint(
         host: host,
         port: port,
@@ -43,7 +43,7 @@ class DatabaseConnection {
     _logger.i('Database connected successfully');
   }
 
-  PostgreSQLConnection get connection => _connection;
+  Connection get connection => _connection;
 
   Future<void> close() async {
     await _connection.close();

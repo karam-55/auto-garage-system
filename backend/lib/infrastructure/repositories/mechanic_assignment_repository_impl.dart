@@ -15,11 +15,11 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment> create(MechanicAssignment assignment) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         INSERT INTO mechanic_assignments (id, booking_id, mechanic_user_id, status, notes, assigned_at)
         VALUES (@id, @bookingId, @mechanicUserId, @status, @notes, @assignedAt)
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': assignment.id.isEmpty ? _uuid.v4() : assignment.id,
         'bookingId': assignment.bookingId,
         'mechanicUserId': assignment.mechanicUserId,
@@ -37,9 +37,9 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment?> findById(String id) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM mechanic_assignments WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) return null;
@@ -52,9 +52,9 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment?> findByBookingId(String bookingId) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM mechanic_assignments WHERE booking_id = @bookingId',
-        substitutionValues: {'bookingId': bookingId},
+        parameters: {'bookingId': bookingId},
       );
 
       if (result.isEmpty) return null;
@@ -67,9 +67,9 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<List<MechanicAssignment>> findByMechanicUserId(String mechanicUserId) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM mechanic_assignments WHERE mechanic_user_id = @mechanicUserId ORDER BY assigned_at DESC',
-        substitutionValues: {'mechanicUserId': mechanicUserId},
+        parameters: {'mechanicUserId': mechanicUserId},
       );
       return result.map(_mapRowToMechanicAssignment).toList();
     } catch (e) {
@@ -81,7 +81,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   Future<List<MechanicAssignment>> findAvailableBookings() async {
     try {
       // Find bookings that don't have a mechanic assignment
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         SELECT b.id, b.customer_id, b.vehicle_id, b.status, b.public_token, b.notes, b.estimated_completion_date, b.created_at, b.updated_at
         FROM bookings b
         LEFT JOIN mechanic_assignments ma ON b.id = ma.booking_id
@@ -100,12 +100,12 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment> update(MechanicAssignment assignment) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         UPDATE mechanic_assignments 
         SET status = @status, notes = @notes, updated_at = @updatedAt
         WHERE id = @id
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': assignment.id,
         'status': assignment.status.value,
         'notes': assignment.notes,
@@ -121,9 +121,9 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.query(
+      await _db.connection.execute(
         'DELETE FROM mechanic_assignments WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
     } catch (e) {
       throw DatabaseException('Failed to delete mechanic assignment: $e');
@@ -131,14 +131,15 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   }
 
   MechanicAssignment _mapRowToMechanicAssignment(ResultRow row) {
+    final data = row.toColumnMap();
     return MechanicAssignment(
-      id: row['id'] as String,
-      bookingId: row['booking_id'] as String,
-      mechanicUserId: row['mechanic_user_id'] as String,
-      status: MechanicAssignmentStatus.fromString(row['status'] as String),
-      notes: row['notes'] as String?,
-      assignedAt: row['assigned_at'] as DateTime,
-      updatedAt: row['updated_at'] as DateTime?,
+      id: data['id'].toString(),
+      bookingId: data['booking_id'].toString(),
+      mechanicUserId: data['mechanic_user_id'].toString(),
+      status: MechanicAssignmentStatus.fromString(data['status'] as String),
+      notes: data['notes'] as String?,
+      assignedAt: data['assigned_at'] as DateTime,
+      updatedAt: data['updated_at'] as DateTime?,
     );
   }
 }

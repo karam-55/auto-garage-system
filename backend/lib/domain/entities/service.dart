@@ -24,7 +24,7 @@ class Service {
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
-      priceSYP: json['priceSYP'] as double,
+      priceSYP: (json['priceSYP'] as num).toDouble(),
       estimatedDurationMinutes: json['estimatedDurationMinutes'] as int?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null 

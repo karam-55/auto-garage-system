@@ -14,11 +14,11 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<BookingService> create(BookingService bookingService) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         INSERT INTO booking_services (id, booking_id, service_id, price_syp, notes)
         VALUES (@id, @bookingId, @serviceId, @priceSyp, @notes)
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': bookingService.id.isEmpty ? _uuid.v4() : bookingService.id,
         'bookingId': bookingService.bookingId,
         'serviceId': bookingService.serviceId,
@@ -35,9 +35,9 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<BookingService?> findById(String id) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM booking_services WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) return null;
@@ -50,9 +50,9 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<List<BookingService>> findByBookingId(String bookingId) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM booking_services WHERE booking_id = @bookingId',
-        substitutionValues: {'bookingId': bookingId},
+        parameters: {'bookingId': bookingId},
       );
       return result.map(_mapRowToBookingService).toList();
     } catch (e) {
@@ -63,9 +63,9 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.query(
+      await _db.connection.execute(
         'DELETE FROM booking_services WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
     } catch (e) {
       throw DatabaseException('Failed to delete booking service: $e');
@@ -75,9 +75,9 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<void> deleteByBookingId(String bookingId) async {
     try {
-      await _db.connection.query(
+      await _db.connection.execute(
         'DELETE FROM booking_services WHERE booking_id = @bookingId',
-        substitutionValues: {'bookingId': bookingId},
+        parameters: {'bookingId': bookingId},
       );
     } catch (e) {
       throw DatabaseException('Failed to delete booking services by booking id: $e');
@@ -85,12 +85,13 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   }
 
   BookingService _mapRowToBookingService(ResultRow row) {
+    final data = row.toColumnMap();
     return BookingService(
-      id: row['id'] as String,
-      bookingId: row['booking_id'] as String,
-      serviceId: row['service_id'] as String,
-      priceSYP: row['price_syp'] as double,
-      notes: row['notes'] as String?,
+      id: data['id'].toString(),
+      bookingId: data['booking_id'].toString(),
+      serviceId: data['service_id'].toString(),
+      priceSYP: (data['price_syp'] as num).toDouble(),
+      notes: data['notes'] as String?,
     );
   }
 }

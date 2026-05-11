@@ -18,7 +18,7 @@ class BookingService {
       id: json['id'] as String,
       bookingId: json['bookingId'] as String,
       serviceId: json['serviceId'] as String,
-      priceSYP: json['priceSYP'] as double,
+      priceSYP: (json['priceSYP'] as num).toDouble(),
       notes: json['notes'] as String?,
     );
   }

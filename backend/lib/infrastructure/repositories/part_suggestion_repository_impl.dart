@@ -16,11 +16,11 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<PartSuggestion> create(PartSuggestion suggestion) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         INSERT INTO part_suggestions (id, booking_id, mechanic_user_id, type, description, price_syp, status, created_at)
         VALUES (@id, @bookingId, @mechanicUserId, @type, @description, @priceSyp, @status, @createdAt)
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': suggestion.id.isEmpty ? _uuid.v4() : suggestion.id,
         'bookingId': suggestion.bookingId,
         'mechanicUserId': suggestion.mechanicUserId,
@@ -40,9 +40,9 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<PartSuggestion?> findById(String id) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM part_suggestions WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) return null;
@@ -55,9 +55,9 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<List<PartSuggestion>> findByBookingId(String bookingId) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM part_suggestions WHERE booking_id = @bookingId ORDER BY created_at DESC',
-        substitutionValues: {'bookingId': bookingId},
+        parameters: {'bookingId': bookingId},
       );
       return result.map(_mapRowToPartSuggestion).toList();
     } catch (e) {
@@ -68,9 +68,9 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<List<PartSuggestion>> findByMechanicUserId(String mechanicUserId) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM part_suggestions WHERE mechanic_user_id = @mechanicUserId ORDER BY created_at DESC',
-        substitutionValues: {'mechanicUserId': mechanicUserId},
+        parameters: {'mechanicUserId': mechanicUserId},
       );
       return result.map(_mapRowToPartSuggestion).toList();
     } catch (e) {
@@ -81,9 +81,9 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<List<PartSuggestion>> findByStatus(String status) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM part_suggestions WHERE status = @status ORDER BY created_at DESC',
-        substitutionValues: {'status': status},
+        parameters: {'status': status},
       );
       return result.map(_mapRowToPartSuggestion).toList();
     } catch (e) {
@@ -94,12 +94,12 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<PartSuggestion> update(PartSuggestion suggestion) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         UPDATE part_suggestions 
         SET type = @type, description = @description, price_syp = @priceSyp, status = @status, updated_at = @updatedAt
         WHERE id = @id
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': suggestion.id,
         'type': suggestion.type.value,
         'description': suggestion.description,
@@ -117,9 +117,9 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.query(
+      await _db.connection.execute(
         'DELETE FROM part_suggestions WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
     } catch (e) {
       throw DatabaseException('Failed to delete part suggestion: $e');
@@ -127,16 +127,17 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   }
 
   PartSuggestion _mapRowToPartSuggestion(ResultRow row) {
+    final data = row.toColumnMap();
     return PartSuggestion(
-      id: row['id'] as String,
-      bookingId: row['booking_id'] as String,
-      mechanicUserId: row['mechanic_user_id'] as String,
-      type: PartType.fromString(row['type'] as String),
-      description: row['description'] as String,
-      priceSYP: row['price_syp'] as double?,
-      status: PartSuggestionStatus.fromString(row['status'] as String),
-      createdAt: row['created_at'] as DateTime,
-      updatedAt: row['updated_at'] as DateTime?,
+      id: data['id'].toString(),
+      bookingId: data['booking_id'].toString(),
+      mechanicUserId: data['mechanic_user_id'].toString(),
+      type: PartType.fromString(data['type'] as String),
+      description: data['description'] as String,
+      priceSYP: data['price_syp'] != null ? (data['price_syp'] as num).toDouble() : null,
+      status: PartSuggestionStatus.fromString(data['status'] as String),
+      createdAt: data['created_at'] as DateTime,
+      updatedAt: data['updated_at'] as DateTime?,
     );
   }
 

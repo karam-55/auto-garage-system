@@ -14,11 +14,11 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer> create(Customer customer) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         INSERT INTO customers (id, full_name, phone, address, created_at)
         VALUES (@id, @fullName, @phone, @address, @createdAt)
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': customer.id.isEmpty ? _uuid.v4() : customer.id,
         'fullName': customer.fullName,
         'phone': customer.phone,
@@ -35,9 +35,9 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer?> findById(String id) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM customers WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) return null;
@@ -50,9 +50,9 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer?> findByPhone(String phone) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM customers WHERE phone = @phone',
-        substitutionValues: {'phone': phone},
+        parameters: {'phone': phone},
       );
 
       if (result.isEmpty) return null;
@@ -65,7 +65,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<List<Customer>> findAll() async {
     try {
-      final result = await _db.connection.query('SELECT * FROM customers ORDER BY created_at DESC');
+      final result = await _db.connection.execute('SELECT * FROM customers ORDER BY created_at DESC');
       return result.map(_mapRowToCustomer).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all customers: $e');
@@ -75,12 +75,12 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer> update(Customer customer) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         UPDATE customers 
         SET full_name = @fullName, phone = @phone, address = @address, updated_at = @updatedAt
         WHERE id = @id
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': customer.id,
         'fullName': customer.fullName,
         'phone': customer.phone,
@@ -97,9 +97,9 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.query(
+      await _db.connection.execute(
         'DELETE FROM customers WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
     } catch (e) {
       throw DatabaseException('Failed to delete customer: $e');
@@ -107,13 +107,14 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   Customer _mapRowToCustomer(ResultRow row) {
+    final data = row.toColumnMap();
     return Customer(
-      id: row['id'] as String,
-      fullName: row['full_name'] as String,
-      phone: row['phone'] as String,
-      address: row['address'] as String?,
-      createdAt: row['created_at'] as DateTime,
-      updatedAt: row['updated_at'] as DateTime?,
+      id: data['id'].toString(),
+      fullName: data['full_name'] as String,
+      phone: data['phone'] as String,
+      address: data['address'] as String?,
+      createdAt: data['created_at'] as DateTime,
+      updatedAt: data['updated_at'] as DateTime?,
     );
   }
 }

@@ -31,7 +31,7 @@ class PartSuggestion {
       mechanicUserId: json['mechanicUserId'] as String,
       type: PartType.fromString(json['type'] as String),
       description: json['description'] as String,
-      priceSYP: json['priceSYP'] as double?,
+      priceSYP: json['priceSYP'] != null ? (json['priceSYP'] as num).toDouble() : null,
       status: PartSuggestionStatus.fromString(json['status'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null 

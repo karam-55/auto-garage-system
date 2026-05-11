@@ -23,7 +23,6 @@ import '../lib/presentation/routes/dashboard_routes.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
 import '../lib/presentation/middlewares/logging_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
-import '../lib/core/utils/app_constants.dart';
 
 void main(List<String> args) async {
   // Load environment variables
@@ -98,7 +97,7 @@ void main(List<String> args) async {
 
   // Start server
   final ip = InternetAddress.anyIPv4;
-  final port = int.parse(env[AppConstants.portEnv] ?? AppConstants.defaultPort.toString());
+  final port = int.parse(env['PORT'] ?? '8080');
 
   final server = await serve(pipeline, ip, port);
   print('Server listening on http://${server.address.host}:${server.port}');

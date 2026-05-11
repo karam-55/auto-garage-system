@@ -14,11 +14,11 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle> create(Vehicle vehicle) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         INSERT INTO vehicles (id, customer_id, make, model, year, license_plate, vin, created_at)
         VALUES (@id, @customerId, @make, @model, @year, @licensePlate, @vin, @createdAt)
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': vehicle.id.isEmpty ? _uuid.v4() : vehicle.id,
         'customerId': vehicle.customerId,
         'make': vehicle.make,
@@ -38,9 +38,9 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle?> findById(String id) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM vehicles WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) return null;
@@ -53,9 +53,9 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<List<Vehicle>> findByCustomerId(String customerId) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC',
-        substitutionValues: {'customerId': customerId},
+        parameters: {'customerId': customerId},
       );
       return result.map(_mapRowToVehicle).toList();
     } catch (e) {
@@ -66,7 +66,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<List<Vehicle>> findAll() async {
     try {
-      final result = await _db.connection.query('SELECT * FROM vehicles ORDER BY created_at DESC');
+      final result = await _db.connection.execute('SELECT * FROM vehicles ORDER BY created_at DESC');
       return result.map(_mapRowToVehicle).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all vehicles: $e');
@@ -76,13 +76,13 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle> update(Vehicle vehicle) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         UPDATE vehicles 
         SET customer_id = @customerId, make = @make, model = @model, year = @year, 
             license_plate = @licensePlate, vin = @vin, updated_at = @updatedAt
         WHERE id = @id
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': vehicle.id,
         'customerId': vehicle.customerId,
         'make': vehicle.make,
@@ -102,9 +102,9 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.query(
+      await _db.connection.execute(
         'DELETE FROM vehicles WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
     } catch (e) {
       throw DatabaseException('Failed to delete vehicle: $e');
@@ -112,16 +112,17 @@ class VehicleRepositoryImpl implements VehicleRepository {
   }
 
   Vehicle _mapRowToVehicle(ResultRow row) {
+    final data = row.toColumnMap();
     return Vehicle(
-      id: row['id'] as String,
-      customerId: row['customer_id'] as String,
-      make: row['make'] as String,
-      model: row['model'] as String,
-      year: row['year'] as int,
-      licensePlate: row['license_plate'] as String?,
-      vin: row['vin'] as String?,
-      createdAt: row['created_at'] as DateTime,
-      updatedAt: row['updated_at'] as DateTime?,
+      id: data['id'].toString(),
+      customerId: data['customer_id'].toString(),
+      make: data['make'] as String,
+      model: data['model'] as String,
+      year: data['year'] as int,
+      licensePlate: data['license_plate'] as String?,
+      vin: data['vin'] as String?,
+      createdAt: data['created_at'] as DateTime,
+      updatedAt: data['updated_at'] as DateTime?,
     );
   }
 }

@@ -14,11 +14,11 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<Service> create(Service service) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         INSERT INTO services (id, name, description, price_syp, estimated_duration_minutes, is_active, created_at)
         VALUES (@id, @name, @description, @priceSyp, @estimatedDurationMinutes, @isActive, @createdAt)
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': service.id.isEmpty ? _uuid.v4() : service.id,
         'name': service.name,
         'description': service.description,
@@ -37,9 +37,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<Service?> findById(String id) async {
     try {
-      final result = await _db.connection.query(
+      final result = await _db.connection.execute(
         'SELECT * FROM services WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) return null;
@@ -58,7 +58,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
       }
       query += ' ORDER BY created_at DESC';
 
-      final result = await _db.connection.query(query);
+      final result = await _db.connection.execute(query);
       return result.map(_mapRowToService).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all services: $e');
@@ -68,13 +68,13 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<Service> update(Service service) async {
     try {
-      final result = await _db.connection.query('''
+      final result = await _db.connection.execute('''
         UPDATE services 
         SET name = @name, description = @description, price_syp = @priceSyp, 
             estimated_duration_minutes = @estimatedDurationMinutes, is_active = @isActive, updated_at = @updatedAt
         WHERE id = @id
         RETURNING *
-      ''', substitutionValues: {
+      ''', parameters: {
         'id': service.id,
         'name': service.name,
         'description': service.description,
@@ -93,9 +93,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.query(
+      await _db.connection.execute(
         'DELETE FROM services WHERE id = @id',
-        substitutionValues: {'id': id},
+        parameters: {'id': id},
       );
     } catch (e) {
       throw DatabaseException('Failed to delete service: $e');
@@ -103,15 +103,16 @@ class ServiceRepositoryImpl implements ServiceRepository {
   }
 
   Service _mapRowToService(ResultRow row) {
+    final data = row.toColumnMap();
     return Service(
-      id: row['id'] as String,
-      name: row['name'] as String,
-      description: row['description'] as String?,
-      priceSYP: row['price_syp'] as double,
-      estimatedDurationMinutes: row['estimated_duration_minutes'] as int?,
-      createdAt: row['created_at'] as DateTime,
-      updatedAt: row['updated_at'] as DateTime?,
-      isActive: row['is_active'] as bool,
+      id: data['id'].toString(),
+      name: data['name'] as String,
+      description: data['description'] as String?,
+      priceSYP: (data['price_syp'] as num).toDouble(),
+      estimatedDurationMinutes: data['estimated_duration_minutes'] as int?,
+      createdAt: data['created_at'] as DateTime,
+      updatedAt: data['updated_at'] as DateTime?,
+      isActive: data['is_active'] as bool,
     );
   }
 }

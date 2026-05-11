@@ -17,20 +17,23 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User> create(User user) async {
     try {
-      final result = await _db.connection.execute('''
-        INSERT INTO users (id, full_name, username, password_hash, role, is_active, created_at, updated_at)
-        VALUES (@id, @fullName, @username, @passwordHash, @role, @isActive, @createdAt, @updatedAt)
-        RETURNING *
-      ''', parameters: {
-        'id': user.id.isEmpty ? _uuid.v4() : user.id,
-        'fullName': user.fullName,
-        'username': user.username,
-        'passwordHash': user.passwordHash,
-        'role': user.role.value,
-        'isActive': user.isActive,
-        'createdAt': user.createdAt,
-        'updatedAt': user.updatedAt,
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          INSERT INTO users (id, full_name, username, password_hash, role, is_active, created_at, updated_at)
+          VALUES (@id, @fullName, @username, @passwordHash, @role, @isActive, @createdAt, @updatedAt)
+          RETURNING *
+        '''),
+        parameters: {
+          'id': user.id.isEmpty ? _uuid.v4() : user.id,
+          'fullName': user.fullName,
+          'username': user.username,
+          'passwordHash': user.passwordHash,
+          'role': user.role.value,
+          'isActive': user.isActive,
+          'createdAt': user.createdAt,
+          'updatedAt': user.updatedAt,
+        },
+      );
 
       return _mapRowToUser(result.first);
     } catch (e) {
@@ -42,8 +45,8 @@ class UserRepositoryImpl implements UserRepository {
   Future<User?> findById(String id) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM users WHERE id = @id',
-        parameters: {'id': id} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM users WHERE id = @id'),
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) return null;
@@ -58,8 +61,8 @@ class UserRepositoryImpl implements UserRepository {
     try {
       print('Finding user by username: $username');
       final result = await _db.connection.execute(
-        'SELECT * FROM users WHERE username = @username AND is_active = true',
-        parameters: {'username': username} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM users WHERE username = @username AND is_active = true'),
+        parameters: {'username': username},
       );
 
       if (result.isEmpty) {
@@ -89,19 +92,22 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User> update(User user) async {
     try {
-      final result = await _db.connection.execute('''
-        UPDATE users 
-        SET full_name = @fullName, username = @username, role = @role, is_active = @isActive, updated_at = @updatedAt
-        WHERE id = @id
-        RETURNING *
-      ''', parameters: {
-        'id': user.id,
-        'fullName': user.fullName,
-        'username': user.username,
-        'role': user.role.value,
-        'isActive': user.isActive,
-        'updatedAt': DateTime.now().toUtc(),
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          UPDATE users 
+          SET full_name = @fullName, username = @username, role = @role, is_active = @isActive, updated_at = @updatedAt
+          WHERE id = @id
+          RETURNING *
+        '''),
+        parameters: {
+          'id': user.id,
+          'fullName': user.fullName,
+          'username': user.username,
+          'role': user.role.value,
+          'isActive': user.isActive,
+          'updatedAt': DateTime.now().toUtc(),
+        },
+      );
 
       return _mapRowToUser(result.first);
     } catch (e) {
@@ -112,7 +118,10 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute('DELETE FROM users WHERE id = @id', parameters: {'id': id} as Map<String, dynamic>);
+      await _db.connection.execute(
+        Sql.named('DELETE FROM users WHERE id = @id'),
+        parameters: {'id': id},
+      );
     } catch (e) {
       throw DatabaseException('Failed to delete user: $e');
     }
@@ -122,8 +131,8 @@ class UserRepositoryImpl implements UserRepository {
   Future<List<User>> findByRole(String role) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM users WHERE role = @role ORDER BY created_at DESC',
-        parameters: {'role': role} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM users WHERE role = @role ORDER BY created_at DESC'),
+        parameters: {'role': role},
       );
       return result.map(_mapRowToUser).toList();
     } catch (e) {

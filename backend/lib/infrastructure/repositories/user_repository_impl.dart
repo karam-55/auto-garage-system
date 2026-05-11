@@ -61,9 +61,9 @@ class UserRepositoryImpl implements UserRepository {
   Future<User?> findByUsername(String username) async {
     try {
       print('Finding user by username: $username');
+      // Use simple query without Sql.named for better compatibility
       final result = await _db.connection.execute(
-        Sql.named('SELECT * FROM users WHERE username = @username AND is_active = true'),
-        parameters: {'username': username},
+        "SELECT * FROM users WHERE username = '$username' AND is_active = true",
       );
 
       if (result.isEmpty) {
@@ -73,6 +73,7 @@ class UserRepositoryImpl implements UserRepository {
 
       final user = _mapRowToUser(result.first);
       print('User found: ${user.username}');
+      print('User has password hash: ${user.passwordHash != null && user.passwordHash!.isNotEmpty}');
       return user;
     } catch (e) {
       print('Error finding user by username: $e');
@@ -144,26 +145,37 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User> authenticate(String username, String password) async {
     try {
+      print('Authenticating user: $username');
       final user = await findByUsername(username);
       if (user == null) {
+        print('User not found during authentication: $username');
         throw AuthenticationException('Invalid username or password', statusCode: 401);
       }
 
+      print('User found: ${user.username}, isActive: ${user.isActive}');
+      
       if (!user.isActive) {
+        print('User account is inactive: ${user.username}');
         throw AuthenticationException('User account is inactive', statusCode: 401);
       }
 
       if (user.passwordHash == null || user.passwordHash!.isEmpty) {
+        print('User has no password set: ${user.username}');
         throw AuthenticationException('User has no password set', statusCode: 401);
       }
 
+      print('Verifying password...');
       final isValid = BCrypt.checkpw(password, user.passwordHash!);
+      print('Password verification result: $isValid');
+      
       if (!isValid) {
         throw AuthenticationException('Invalid username or password', statusCode: 401);
       }
 
+      print('Authentication successful for: ${user.username}');
       return user;
     } catch (e) {
+      print('Authentication error: $e');
       if (e is AuthenticationException) {
         rethrow;
       }

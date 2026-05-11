@@ -8,6 +8,7 @@ import '../../domain/entities/part_suggestion.dart';
 import '../../domain/entities/part_suggestion_status.dart';
 import '../../domain/entities/part_type.dart';
 import '../../domain/entities/role.dart';
+import '../../domain/entities/user.dart';
 import '../../domain/repositories/mechanic_assignment_repository.dart';
 import '../../domain/repositories/part_suggestion_repository.dart';
 import '../../domain/repositories/booking_repository.dart';
@@ -86,8 +87,10 @@ class MechanicRoutes {
       return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
     }
 
+    final typedUser = user as User;
+
     try {
-      final assignments = await _mechanicAssignmentRepository.findByMechanicUserId(user.id);
+      final assignments = await _mechanicAssignmentRepository.findByMechanicUserId(typedUser.id);
       return Response.ok(
         jsonEncode(assignments.map((a) => a.toJson()).toList()),
       );
@@ -104,6 +107,8 @@ class MechanicRoutes {
       return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
     }
 
+    final typedUser = user as User;
+
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
@@ -116,7 +121,7 @@ class MechanicRoutes {
 
     try {
       final useCase = AssignMechanicUseCase(_mechanicAssignmentRepository, _bookingRepository);
-      final assignment = await useCase.execute(bookingId, user.id);
+      final assignment = await useCase.execute(bookingId, typedUser.id);
       return Response.ok(jsonEncode(assignment.toJson()));
     } catch (e) {
       return Response.internalServerError(
@@ -166,6 +171,8 @@ class MechanicRoutes {
       return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
     }
 
+    final typedUser = user as User;
+
     final bookingId = request.params['bookingId'];
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
@@ -181,13 +188,10 @@ class MechanicRoutes {
     }
 
     try {
-      final useCase = CreatePartSuggestionUseCase(
-        _partSuggestionRepository,
-        NotificationServiceImpl(),
-      );
+      final useCase = CreatePartSuggestionUseCase(_partSuggestionRepository);
       final suggestion = await useCase.execute(
         bookingId!,
-        user.id,
+        typedUser.id,
         partType,
         description,
         priceSYP,

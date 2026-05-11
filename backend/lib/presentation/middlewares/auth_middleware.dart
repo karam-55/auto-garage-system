@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../../domain/entities/role.dart';
+import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../domain/repositories/user_repository.dart' as user_repo;
 
@@ -14,18 +16,18 @@ class AuthMiddleware {
         final authHeader = request.headers['Authorization'];
         
         if (authHeader == null || !authHeader.startsWith('Bearer ')) {
-          return Response.unauthorized(jsonBody: {'error': 'Missing or invalid authorization header'});
+          return Response.unauthorized(body: jsonEncode({'error': 'Missing or invalid authorization header'}));
         }
 
         final token = authHeader.substring(7);
         final user = await _userRepository.verifyToken(token);
 
         if (user == null) {
-          return Response.unauthorized(jsonBody: {'error': 'Invalid token'});
+          return Response.unauthorized(body: jsonEncode({'error': 'Invalid token'}));
         }
 
         if (!user.isActive) {
-          return Response.forbidden(jsonBody: {'error': 'User account is inactive'});
+          return Response.forbidden(body: jsonEncode({'error': 'User account is inactive'}));
         }
 
         // Add user to request context
@@ -40,13 +42,16 @@ class AuthMiddleware {
         final user = request.context['user'];
         
         if (user == null) {
-          return Response.unauthorized(jsonBody: {'error': 'Not authenticated'});
+          return Response.unauthorized(body: jsonEncode({'error': 'Not authenticated'}));
         }
 
+        // Cast user to User type
+        final typedUser = user as User;
+
         // Check if user has the required role or higher privilege
-        final userRole = user.role;
+        final userRole = typedUser.role;
         if (!_hasRequiredRole(userRole, requiredRole)) {
-          return Response.forbidden(jsonBody: {'error': 'Insufficient permissions'});
+          return Response.forbidden(body: jsonEncode({'error': 'Insufficient permissions'}));
         }
 
         return innerHandler(request);

@@ -1,21 +1,33 @@
-# Use latest stable channel SDK.
+# Use latest stable Dart SDK
 FROM dart:stable AS build
 
-# Resolve app dependencies.
+# Set working directory
 WORKDIR /app
+
+# Copy pubspec files and install dependencies
 COPY pubspec.* ./
 RUN dart pub get
 
-# Copy app source code (except anything in .dockerignore) and AOT compile app.
+# Copy source code
 COPY . .
-RUN dart build cli --target bin/server.dart -o output
 
-# Build minimal serving image from AOT-compiled `/server`
-# and the pre-built AOT-runtime in the `/runtime/` directory of the base image.
-FROM scratch
-COPY --from=build /runtime/ /
-COPY --from=build /app/output/bundle/ /app/
+# Compile the server
+RUN dart compile exe bin/server.dart -o /app/server
 
-# Start server.
+# Runtime stage - use lightweight image
+FROM debian:bullseye-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Copy compiled binary from build stage
+COPY --from=build /app/server /app/server
+
+# Expose port
 EXPOSE 8080
-CMD ["/app/bin/server"]
+
+# Set environment variable
+ENV PORT=8080
+
+# Run the server
+CMD ["/app/server"]

@@ -1,0 +1,16 @@
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.git/
+.gitignore
+.metadata
+.packages
+.pub/
+build/
+.idea/
+.vscode/
+*.iml
+*.lock
+.project
+.settings/
+test/

@@ -1,0 +1,33 @@
+name: admin_frontend
+description: "Admin Dashboard for Auto Garage System"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI Components
+  cupertino_icons: ^1.0.8
+  
+  # HTTP
+  http: ^1.2.2
+  
+  # State Management
+  provider: ^6.1.2
+  
+  # Internationalization
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

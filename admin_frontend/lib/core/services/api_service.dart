@@ -11,6 +11,10 @@ class ApiService {
   // Set token for authentication
   void setToken(String? token) {
     _token = token;
+    print('Token set: ${token != null ? "Token is set" : "Token is null"}');
+    if (token != null && token.length > 50) {
+      print('Token preview: ${token.substring(0, 50)}...');
+    }
   }
 
   // Generic GET request
@@ -80,6 +84,9 @@ class ApiService {
     
     if (_token != null) {
       headers['Authorization'] = 'Bearer $_token';
+      print('Authorization header added: Bearer ${_token!.substring(0, 50)}...');
+    } else {
+      print('Warning: No token available, Authorization header not added');
     }
     
     return headers;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/services/api_service.dart';
+import 'core/services/auth_service.dart';
 import 'core/constants/api_constants.dart';
 
 void main() {
@@ -28,13 +29,133 @@ class AdminDashboardApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Cairo',
       ),
-      home: const DashboardScreen(),
+      home: const LoginScreen(),
+    );
+  }
+}
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isLoading = true);
+      try {
+        await _authService.login(
+          _usernameController.text,
+          _passwordController.text,
+        );
+        
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DashboardScreen(
+                token: _authService.token,
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('خطأ: $e')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.admin_panel_settings, size: 64, color: Colors.blue),
+                const SizedBox(height: 24),
+                const Text(
+                  'نظام ورشة السيارات',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'لوحة التحكم',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+                const SizedBox(height: 48),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'اسم المستخدم',
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(
+                    labelText: 'كلمة المرور',
+                    prefixIcon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+                ),
+                const SizedBox(height: 24),
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: _handleLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade900,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        child: const Text('تسجيل الدخول'),
+                      ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final String? token;
+
+  const DashboardScreen({super.key, this.token});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -42,23 +163,48 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
+  late ApiService _apiService;
 
-  final List<Widget> _screens = [
-    const OverviewScreen(),
-    const BookingsScreen(),
-    const CustomersScreen(),
-    const ServicesScreen(),
-    const EmployeesScreen(),
-    const ReportsScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _apiService = ApiService();
+    _apiService.setToken(widget.token);
+  }
+
+  @override
+  void dispose() {
+    _apiService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      const OverviewScreen(),
+      BookingsScreen(apiService: _apiService),
+      CustomersScreen(apiService: _apiService),
+      ServicesScreen(apiService: _apiService),
+      EmployeesScreen(apiService: _apiService),
+      const ReportsScreen(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('نظام ورشة السيارات - لوحة التحكم'),
         backgroundColor: Colors.blue.shade900,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Row(
         children: [
@@ -107,7 +253,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const VerticalDivider(thickness: 1, width: 1),
           // Main Content
           Expanded(
-            child: _screens[_selectedIndex],
+            child: screens[_selectedIndex],
           ),
         ],
       ),
@@ -140,14 +286,15 @@ class OverviewScreen extends StatelessWidget {
 }
 
 class BookingsScreen extends StatefulWidget {
-  const BookingsScreen({super.key});
+  final ApiService apiService;
+
+  const BookingsScreen({super.key, required this.apiService});
 
   @override
   State<BookingsScreen> createState() => _BookingsScreenState();
 }
 
 class _BookingsScreenState extends State<BookingsScreen> {
-  final ApiService _apiService = ApiService();
   List<dynamic> _bookings = [];
   bool _isLoading = false;
 
@@ -160,7 +307,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
   Future<void> _loadBookings() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get(ApiConstants.bookings);
+      final response = await widget.apiService.get(ApiConstants.bookings);
       setState(() {
         _bookings = response['data'] ?? [];
         _isLoading = false;
@@ -276,7 +423,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
             onPressed: () async {
               if (formKey.currentState?.validate() ?? false) {
                 try {
-                  await _apiService.post(ApiConstants.bookings, {
+                  await widget.apiService.post(ApiConstants.bookings, {
                     'customerId': customerIdController.text,
                     'vehicleId': vehicleIdController.text,
                     'notes': notesController.text,
@@ -302,14 +449,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
 }
 
 class CustomersScreen extends StatefulWidget {
-  const CustomersScreen({super.key});
+  final ApiService apiService;
+
+  const CustomersScreen({super.key, required this.apiService});
 
   @override
   State<CustomersScreen> createState() => _CustomersScreenState();
 }
 
 class _CustomersScreenState extends State<CustomersScreen> {
-  final ApiService _apiService = ApiService();
   List<dynamic> _customers = [];
   bool _isLoading = false;
 
@@ -322,7 +470,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   Future<void> _loadCustomers() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get(ApiConstants.customers);
+      final response = await widget.apiService.get(ApiConstants.customers);
       setState(() {
         _customers = response['data'] ?? [];
         _isLoading = false;
@@ -441,7 +589,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
             onPressed: () async {
               if (formKey.currentState?.validate() ?? false) {
                 try {
-                  await _apiService.post('/customers', {
+                  await widget.apiService.post(ApiConstants.customers, {
                     'fullName': fullNameController.text,
                     'phone': phoneController.text,
                     'address': addressController.text,
@@ -468,7 +616,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   Future<void> _deleteCustomer(String? id) async {
     if (id == null) return;
     try {
-      await _apiService.delete(ApiConstants.customer(id));
+      await widget.apiService.delete(ApiConstants.customer(id));
       _loadCustomers();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حذف العميل بنجاح')),
@@ -482,14 +630,15 @@ class _CustomersScreenState extends State<CustomersScreen> {
 }
 
 class ServicesScreen extends StatefulWidget {
-  const ServicesScreen({super.key});
+  final ApiService apiService;
+
+  const ServicesScreen({super.key, required this.apiService});
 
   @override
   State<ServicesScreen> createState() => _ServicesScreenState();
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  final ApiService _apiService = ApiService();
   List<dynamic> _services = [];
   bool _isLoading = false;
 
@@ -502,7 +651,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Future<void> _loadServices() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get(ApiConstants.services);
+      final response = await widget.apiService.get(ApiConstants.services);
       setState(() {
         _services = response['data'] ?? [];
         _isLoading = false;
@@ -628,7 +777,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
             onPressed: () async {
               if (formKey.currentState?.validate() ?? false) {
                 try {
-                  await _apiService.post(ApiConstants.services, {
+                  await widget.apiService.post(ApiConstants.services, {
                     'name': nameController.text,
                     'description': descriptionController.text,
                     'priceSYP': double.parse(priceController.text),
@@ -658,7 +807,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Future<void> _deleteService(String? id) async {
     if (id == null) return;
     try {
-      await _apiService.delete(ApiConstants.service(id));
+      await widget.apiService.delete(ApiConstants.service(id));
       _loadServices();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حذف الخدمة بنجاح')),
@@ -672,14 +821,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
 }
 
 class EmployeesScreen extends StatefulWidget {
-  const EmployeesScreen({super.key});
+  final ApiService apiService;
+
+  const EmployeesScreen({super.key, required this.apiService});
 
   @override
   State<EmployeesScreen> createState() => _EmployeesScreenState();
 }
 
 class _EmployeesScreenState extends State<EmployeesScreen> {
-  final ApiService _apiService = ApiService();
   List<dynamic> _employees = [];
   bool _isLoading = false;
 
@@ -692,7 +842,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Future<void> _loadEmployees() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get(ApiConstants.employees);
+      final response = await widget.apiService.get(ApiConstants.employees);
       setState(() {
         _employees = response['data'] ?? [];
         _isLoading = false;
@@ -826,7 +976,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
             onPressed: () async {
               if (formKey.currentState?.validate() ?? false) {
                 try {
-                  await _apiService.post('/auth/register', {
+                  await widget.apiService.post(ApiConstants.register, {
                     'fullName': fullNameController.text,
                     'username': usernameController.text,
                     'password': passwordController.text,
@@ -854,7 +1004,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Future<void> _deleteEmployee(String? id) async {
     if (id == null) return;
     try {
-      await _apiService.delete(ApiConstants.employee(id));
+      await widget.apiService.delete(ApiConstants.employee(id));
       _loadEmployees();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حذف الموظف بنجاح')),

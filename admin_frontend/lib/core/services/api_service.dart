@@ -4,9 +4,15 @@ import '../constants/api_constants.dart';
 
 class ApiService {
   final http.Client _client;
-  
+  String? _token;
+
   ApiService({http.Client? client}) : _client = client ?? http.Client();
-  
+
+  // Set token for authentication
+  void setToken(String? token) {
+    _token = token;
+  }
+
   // Generic GET request
   Future<Map<String, dynamic>> get(String endpoint) async {
     try {
@@ -67,10 +73,16 @@ class ApiService {
   
   // Get headers
   Map<String, String> _getHeaders() {
-    return {
+    final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
+    
+    if (_token != null) {
+      headers['Authorization'] = 'Bearer $_token';
+    }
+    
+    return headers;
   }
   
   // Handle response

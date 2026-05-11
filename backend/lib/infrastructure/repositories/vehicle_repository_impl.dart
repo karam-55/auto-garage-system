@@ -1,8 +1,8 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
-import '../../../domain/entities/vehicle.dart';
-import '../../../domain/repositories/vehicle_repository.dart';
-import '../../../core/errors/exceptions.dart';
+import '../../domain/entities/vehicle.dart';
+import '../../domain/repositories/vehicle_repository.dart';
+import '../../core/errors/exceptions.dart';
 import '../database/database_connection.dart';
 
 class VehicleRepositoryImpl implements VehicleRepository {

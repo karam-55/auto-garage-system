@@ -1,6 +1,7 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bcrypt/bcrypt.dart';
+import 'dart:convert';
 import '../../domain/entities/user.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/user_repository.dart';
@@ -212,7 +213,7 @@ class UserRepositoryImpl implements UserRepository {
 
       final payloadStr = parts[1];
       final decoded = _base64UrlDecode(payloadStr);
-      final payload = _parsePayload(decoded);
+      final payload = jsonDecode(decoded) as Map<String, dynamic>;
 
       if (payload == null) return null;
 
@@ -221,6 +222,7 @@ class UserRepositoryImpl implements UserRepository {
 
       return await findById(userId);
     } catch (e) {
+      print('Token verification failed: $e');
       return null;
     }
   }
@@ -230,27 +232,10 @@ class UserRepositoryImpl implements UserRepository {
     while (normalized.length % 4 != 0) {
       normalized += '=';
     }
-    return normalized;
+    final bytes = base64.decode(normalized);
+    return utf8.decode(bytes);
   }
 
-  Map<String, dynamic>? _parsePayload(String str) {
-    // Simplified parsing - replace with proper JSON decoder in production
-    try {
-      final pairs = str.split(',');
-      final Map<String, dynamic> result = {};
-      for (final pair in pairs) {
-        final parts = pair.split(':');
-        if (parts.length == 2) {
-          final key = parts[0].trim().replaceAll('{', '').replaceAll('"', '');
-          final value = parts[1].trim().replaceAll('}', '').replaceAll('"', '');
-          result[key] = value;
-        }
-      }
-      return result;
-    } catch (e) {
-      return null;
-    }
-  }
 
   User _mapRowToUser(ResultRow row) {
     final data = row.toColumnMap();

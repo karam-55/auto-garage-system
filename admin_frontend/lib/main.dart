@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/services/api_service.dart';
+import 'core/constants/api_constants.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -159,7 +160,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
   Future<void> _loadBookings() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get('/bookings');
+      final response = await _apiService.get(ApiConstants.bookings);
       setState(() {
         _bookings = response['data'] ?? [];
         _isLoading = false;
@@ -275,7 +276,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
             onPressed: () async {
               if (formKey.currentState?.validate() ?? false) {
                 try {
-                  await _apiService.post('/bookings', {
+                  await _apiService.post(ApiConstants.bookings, {
                     'customerId': customerIdController.text,
                     'vehicleId': vehicleIdController.text,
                     'notes': notesController.text,
@@ -321,7 +322,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   Future<void> _loadCustomers() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get('/customers');
+      final response = await _apiService.get(ApiConstants.customers);
       setState(() {
         _customers = response['data'] ?? [];
         _isLoading = false;
@@ -467,7 +468,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   Future<void> _deleteCustomer(String? id) async {
     if (id == null) return;
     try {
-      await _apiService.delete('/customers/$id');
+      await _apiService.delete(ApiConstants.customer(id));
       _loadCustomers();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حذف العميل بنجاح')),
@@ -501,7 +502,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Future<void> _loadServices() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get('/services');
+      final response = await _apiService.get(ApiConstants.services);
       setState(() {
         _services = response['data'] ?? [];
         _isLoading = false;
@@ -627,7 +628,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
             onPressed: () async {
               if (formKey.currentState?.validate() ?? false) {
                 try {
-                  await _apiService.post('/services', {
+                  await _apiService.post(ApiConstants.services, {
                     'name': nameController.text,
                     'description': descriptionController.text,
                     'priceSYP': double.parse(priceController.text),
@@ -657,7 +658,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Future<void> _deleteService(String? id) async {
     if (id == null) return;
     try {
-      await _apiService.delete('/services/$id');
+      await _apiService.delete(ApiConstants.service(id));
       _loadServices();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حذف الخدمة بنجاح')),
@@ -691,7 +692,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Future<void> _loadEmployees() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get('/users');
+      final response = await _apiService.get(ApiConstants.employees);
       setState(() {
         _employees = response['data'] ?? [];
         _isLoading = false;
@@ -853,7 +854,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Future<void> _deleteEmployee(String? id) async {
     if (id == null) return;
     try {
-      await _apiService.delete('/users/$id');
+      await _apiService.delete(ApiConstants.employee(id));
       _loadEmployees();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حذف الموظف بنجاح')),

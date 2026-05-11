@@ -23,12 +23,12 @@ class ApiConstants {
   static String service(String id) => '$apiVersion/services/$id';
   
   // Booking endpoints
-  static const String bookings = '$apiVersion/bookings';
-  static String booking(String id) => '$apiVersion/bookings/$id';
+  static const String bookings = '/api/bookings';
+  static String booking(String id) => '/api/bookings/$id';
   
   // Employee endpoints
-  static const String employees = '$apiVersion/users';
-  static String employee(String id) => '$apiVersion/users/$id';
+  static const String employees = '/api/users';
+  static String employee(String id) => '/api/users/$id';
   
   // Dashboard endpoints
   static const String dashboardStats = '$apiVersion/dashboard/stats';

@@ -16,6 +16,7 @@ import '../../application/usecases/assign_mechanic_usecase.dart';
 import '../../application/usecases/create_part_suggestion_usecase.dart';
 import '../middlewares/json_middleware.dart';
 import '../middlewares/auth_middleware.dart';
+import '../../application/services/notification_service.dart';
 import 'package:uuid/uuid.dart';
 
 class MechanicRoutes {
@@ -188,7 +189,10 @@ class MechanicRoutes {
     }
 
     try {
-      final useCase = CreatePartSuggestionUseCase(_partSuggestionRepository);
+      final useCase = CreatePartSuggestionUseCase(
+        _partSuggestionRepository,
+        NotificationServiceImpl(),
+      );
       final suggestion = await useCase.execute(
         bookingId!,
         typedUser.id,

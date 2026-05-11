@@ -10,7 +10,7 @@ import '../../../core/errors/failures.dart';
 import '../database/database_connection.dart';
 import '../../../core/utils/app_constants.dart';
 
-class UserRepositoryImpl implements UserRepository, AuthRepository {
+class UserRepositoryImpl implements UserRepository {
   final DatabaseConnection _db;
   final Uuid _uuid = const Uuid();
 

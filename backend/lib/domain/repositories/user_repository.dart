@@ -9,10 +9,7 @@ abstract class UserRepository {
   Future<User> update(User user);
   Future<void> delete(String id);
   Future<List<User>> findByRole(String role);
-}
-
-abstract class AuthRepository {
-  Future<User> authenticate(String username, String password);
   Future<String> generateToken(User user);
   Future<User?> verifyToken(String token);
+  Future<User> authenticate(String username, String password);
 }

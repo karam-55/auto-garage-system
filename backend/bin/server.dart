@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:dotenv/dotenv.dart';
+import 'package:bcrypt/bcrypt.dart';
+import 'package:uuid/uuid.dart';
 
 import '../lib/infrastructure/database/database_connection.dart';
 import '../lib/infrastructure/repositories/user_repository_impl.dart';
@@ -23,6 +25,8 @@ import '../lib/presentation/routes/dashboard_routes.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
 import '../lib/presentation/middlewares/logging_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
+import '../lib/domain/entities/user.dart';
+import '../lib/domain/entities/role.dart';
 import 'dart:io';
 
 void main(List<String> args) async {
@@ -38,6 +42,9 @@ void main(List<String> args) async {
     // Execute schema (in production, you might want to use migrations)
     await db.executeSchema();
     print('Database schema executed successfully');
+    
+    // Create default admin user if not exists
+    await _createDefaultAdminUser(db);
   } catch (e) {
     print('Failed to initialize database: $e');
     rethrow;
@@ -117,6 +124,38 @@ void main(List<String> args) async {
   print('  POST   /api/mechanics/assign');
   print('  GET    /api/dashboard/stats');
   print('  GET    /public/bookings/<publicToken>');
+}
+
+Future<void> _createDefaultAdminUser(DatabaseConnection db) async {
+  try {
+    final userRepository = UserRepositoryImpl(db);
+    
+    // Try to create default admin user
+    // If it already exists, it will fail silently
+    final passwordHash = BCrypt.hashpw('admin123', BCrypt.gensalt());
+    final adminUser = User(
+      id: const Uuid().v4(),
+      fullName: 'System Admin',
+      username: 'admin',
+      passwordHash: passwordHash,
+      role: Role.OWNER,
+      createdAt: DateTime.now().toUtc(),
+    );
+    
+    try {
+      await userRepository.create(adminUser);
+      print('Default admin user created successfully');
+      print('Username: admin');
+      print('Password: admin123');
+      print('⚠️  Please change the password after first login!');
+    } catch (e) {
+      // User might already exist, that's okay
+      print('Admin user already exists or creation failed: $e');
+    }
+  } catch (e) {
+    print('Failed to create default admin user: $e');
+    // Don't rethrow - this is not critical for the server to start
+  }
 }
 
 Middleware _corsMiddleware() {

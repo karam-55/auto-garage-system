@@ -2,6 +2,7 @@ import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/part_suggestion.dart';
 import '../../domain/entities/part_suggestion_status.dart';
+import '../../domain/entities/part_type.dart';
 import '../../domain/repositories/part_suggestion_repository.dart';
 import '../../core/errors/exceptions.dart';
 import '../database/database_connection.dart';
@@ -125,7 +126,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
     }
   }
 
-  PartSuggestion _mapRowToPartSuggestion(PostgreSQLResultRow row) {
+  PartSuggestion _mapRowToPartSuggestion(ResultRow row) {
     return PartSuggestion(
       id: row['id'].toString(),
       bookingId: row['booking_id'].toString(),

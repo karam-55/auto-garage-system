@@ -84,7 +84,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
     }
   }
 
-  BookingService _mapRowToBookingService(PostgreSQLResultRow row) {
+  BookingService _mapRowToBookingService(ResultRow row) {
     return BookingService(
       id: row['id'].toString(),
       bookingId: row['booking_id'].toString(),

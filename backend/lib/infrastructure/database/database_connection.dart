@@ -1,7 +1,6 @@
 import 'package:postgres/postgres.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:logger/logger.dart';
-import '../core/utils/app_constants.dart';
 
 class DatabaseConnection {
   static DatabaseConnection? _instance;
@@ -16,9 +15,9 @@ class DatabaseConnection {
   }
 
   Future<void> initialize() async {
-    final env = DotEnv(includeEnvFile: true)..load();
+    final env = DotEnv()..load();
     
-    final databaseUrl = env[AppConstants.databaseUrlEnv];
+    final databaseUrl = env['DATABASE_URL'];
     if (databaseUrl == null) {
       throw Exception('DATABASE_URL environment variable is not set');
     }
@@ -31,21 +30,17 @@ class DatabaseConnection {
     final username = uri.userInfo.split(':')[0];
     final password = uri.userInfo.split(':')[1];
 
-    _connection = PostgreSQLConnection(
-      host,
-      port,
-      databaseName,
-      username: username,
-      password: password,
+    _connection = await PostgreSQLConnection.open(
+      Endpoint(
+        host: host,
+        port: port,
+        database: databaseName,
+        username: username,
+        password: password,
+      ),
     );
 
-    try {
-      await _connection.open();
-      _logger.i('Database connected successfully');
-    } catch (e) {
-      _logger.e('Failed to connect to database: $e');
-      rethrow;
-    }
+    _logger.i('Database connected successfully');
   }
 
   PostgreSQLConnection get connection => _connection;

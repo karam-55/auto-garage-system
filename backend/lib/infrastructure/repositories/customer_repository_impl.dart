@@ -106,7 +106,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
     }
   }
 
-  Customer _mapRowToCustomer(PostgreSQLResultRow row) {
+  Customer _mapRowToCustomer(ResultRow row) {
     return Customer(
       id: row['id'].toString(),
       fullName: row['full_name'],

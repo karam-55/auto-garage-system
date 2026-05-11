@@ -130,7 +130,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
     }
   }
 
-  MechanicAssignment _mapRowToMechanicAssignment(PostgreSQLResultRow row) {
+  MechanicAssignment _mapRowToMechanicAssignment(ResultRow row) {
     return MechanicAssignment(
       id: row['id'].toString(),
       bookingId: row['booking_id'].toString(),

@@ -156,7 +156,7 @@ class BookingRepositoryImpl implements BookingRepository {
     return _uuid.v4().replaceAll('-', '');
   }
 
-  Booking _mapRowToBooking(PostgreSQLResultRow row) {
+  Booking _mapRowToBooking(ResultRow row) {
     return Booking(
       id: row['id'].toString(),
       customerId: row['customer_id'].toString(),

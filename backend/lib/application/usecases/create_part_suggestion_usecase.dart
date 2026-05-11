@@ -1,5 +1,6 @@
 import '../../domain/entities/part_suggestion.dart';
 import '../../domain/entities/part_suggestion_status.dart';
+import '../../domain/entities/part_type.dart';
 import '../../domain/repositories/part_suggestion_repository.dart';
 import '../../core/errors/failures.dart';
 import '../services/notification_service.dart';

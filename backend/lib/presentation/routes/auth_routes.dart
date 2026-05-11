@@ -19,6 +19,8 @@ class AuthRoutes {
       : _authService = AuthService(_userRepository),
         _authMiddleware = AuthMiddleware(_userRepository);
 
+  AuthMiddleware get authMiddleware => _authMiddleware;
+
   Router get router {
     final router = Router();
 

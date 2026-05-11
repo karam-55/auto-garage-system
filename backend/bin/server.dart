@@ -27,7 +27,7 @@ import '../lib/core/utils/app_constants.dart';
 
 void main(List<String> args) async {
   // Load environment variables
-  final env = DotEnv(includeEnvFile: true)..load();
+  final env = DotEnv()..load();
 
   // Initialize database
   final db = DatabaseConnection.instance;
@@ -55,26 +55,26 @@ void main(List<String> args) async {
 
   // Initialize routes
   final authRoutes = AuthRoutes(userRepository);
-  final customerRoutes = CustomerRoutes(customerRepository, authRoutes._authMiddleware);
-  final vehicleRoutes = VehicleRoutes(vehicleRepository, authRoutes._authMiddleware);
-  final serviceRoutes = ServiceRoutes(serviceRepository, authRoutes._authMiddleware);
+  final customerRoutes = CustomerRoutes(customerRepository, authRoutes.authMiddleware);
+  final vehicleRoutes = VehicleRoutes(vehicleRepository, authRoutes.authMiddleware);
+  final serviceRoutes = ServiceRoutes(serviceRepository, authRoutes.authMiddleware);
   final bookingRoutes = BookingRoutes(
     bookingRepository,
     bookingServiceRepository,
-    authRoutes._authMiddleware,
+    authRoutes.authMiddleware,
   );
   final mechanicRoutes = MechanicRoutes(
     mechanicAssignmentRepository,
     partSuggestionRepository,
     bookingRepository,
-    authRoutes._authMiddleware,
+    authRoutes.authMiddleware,
   );
   final dashboardRoutes = DashboardRoutes(
     bookingRepository,
     customerRepository,
     vehicleRepository,
     bookingServiceRepository,
-    authRoutes._authMiddleware,
+    authRoutes.authMiddleware,
   );
 
   // Combine all routes

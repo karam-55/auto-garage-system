@@ -122,6 +122,19 @@ void main(List<String> args) async {
 Middleware _corsMiddleware() {
   return (Handler innerHandler) {
     return (Request request) async {
+      // Handle preflight OPTIONS request
+      if (request.method == 'OPTIONS') {
+        return Response.ok(
+          null,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '86400',
+          },
+        );
+      }
+
       final response = await innerHandler(request);
       return response.change(
         headers: {

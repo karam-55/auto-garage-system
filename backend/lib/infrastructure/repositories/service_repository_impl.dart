@@ -102,16 +102,16 @@ class ServiceRepositoryImpl implements ServiceRepository {
     }
   }
 
-  Service _mapRowToService(PostgreSQLResultRow row) {
+  Service _mapRowToService(ResultRow row) {
     return Service(
       id: row['id'].toString(),
-      name: row['name'],
-      description: row['description'],
-      priceSYP: row['price_syp'],
-      estimatedDurationMinutes: row['estimated_duration_minutes'],
-      createdAt: row['created_at'],
-      updatedAt: row['updated_at'],
-      isActive: row['is_active'],
+      name: row['name'] as String,
+      description: row['description'] as String?,
+      priceSYP: row['price_syp'] as double,
+      estimatedDurationMinutes: row['estimated_duration_minutes'] as int?,
+      createdAt: row['created_at'] as DateTime,
+      updatedAt: row['updated_at'] as DateTime?,
+      isActive: row['is_active'] as bool,
     );
   }
 }

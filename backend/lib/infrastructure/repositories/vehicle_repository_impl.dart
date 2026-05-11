@@ -111,17 +111,17 @@ class VehicleRepositoryImpl implements VehicleRepository {
     }
   }
 
-  Vehicle _mapRowToVehicle(PostgreSQLResultRow row) {
+  Vehicle _mapRowToVehicle(ResultRow row) {
     return Vehicle(
       id: row['id'].toString(),
       customerId: row['customer_id'].toString(),
-      make: row['make'],
-      model: row['model'],
-      year: row['year'],
-      licensePlate: row['license_plate'],
-      vin: row['vin'],
-      createdAt: row['created_at'],
-      updatedAt: row['updated_at'],
+      make: row['make'] as String,
+      model: row['model'] as String,
+      year: row['year'] as int,
+      licensePlate: row['license_plate'] as String?,
+      vin: row['vin'] as String?,
+      createdAt: row['created_at'] as DateTime,
+      updatedAt: row['updated_at'] as DateTime?,
     );
   }
 }

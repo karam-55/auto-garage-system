@@ -228,16 +228,16 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  User _mapRowToUser(PostgreSQLResultRow row) {
+  User _mapRowToUser(ResultRow row) {
     return User(
       id: row['id'].toString(),
-      fullName: row['full_name'],
-      username: row['username'],
-      passwordHash: row['password_hash'],
-      role: Role.fromString(row['role']),
-      createdAt: row['created_at'],
-      updatedAt: row['updated_at'],
-      isActive: row['is_active'],
+      fullName: row['full_name'] as String,
+      username: row['username'] as String,
+      passwordHash: row['password_hash'] as String,
+      role: Role.fromString(row['role'] as String),
+      createdAt: row['created_at'] as DateTime,
+      updatedAt: row['updated_at'] as DateTime?,
+      isActive: row['is_active'] as bool,
     );
   }
 }

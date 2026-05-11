@@ -89,8 +89,8 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
       id: row['id'].toString(),
       bookingId: row['booking_id'].toString(),
       serviceId: row['service_id'].toString(),
-      priceSYP: row['price_syp'],
-      notes: row['notes'],
+      priceSYP: row['price_syp'] as double,
+      notes: row['notes'] as String?,
     );
   }
 }

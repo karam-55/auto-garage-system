@@ -161,12 +161,12 @@ class BookingRepositoryImpl implements BookingRepository {
       id: row['id'].toString(),
       customerId: row['customer_id'].toString(),
       vehicleId: row['vehicle_id'].toString(),
-      status: BookingStatus.fromString(row['status']),
-      publicToken: row['public_token'],
-      notes: row['notes'],
-      createdAt: row['created_at'],
-      updatedAt: row['updated_at'],
-      estimatedCompletionDate: row['estimated_completion_date'],
+      status: BookingStatus.fromString(row['status'] as String),
+      publicToken: row['public_token'] as String,
+      notes: row['notes'] as String?,
+      createdAt: row['created_at'] as DateTime,
+      updatedAt: row['updated_at'] as DateTime?,
+      estimatedCompletionDate: row['estimated_completion_date'] as DateTime?,
     );
   }
 }

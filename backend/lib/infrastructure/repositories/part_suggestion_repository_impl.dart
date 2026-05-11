@@ -131,12 +131,12 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
       id: row['id'].toString(),
       bookingId: row['booking_id'].toString(),
       mechanicUserId: row['mechanic_user_id'].toString(),
-      type: PartType.fromString(row['type']),
-      description: row['description'],
-      priceSYP: row['price_syp'],
-      status: PartSuggestionStatus.fromString(row['status']),
-      createdAt: row['created_at'],
-      updatedAt: row['updated_at'],
+      type: PartType.fromString(row['type'] as String),
+      description: row['description'] as String,
+      priceSYP: row['price_syp'] as double?,
+      status: PartSuggestionStatus.fromString(row['status'] as String),
+      createdAt: row['created_at'] as DateTime,
+      updatedAt: row['updated_at'] as DateTime?,
     );
   }
 

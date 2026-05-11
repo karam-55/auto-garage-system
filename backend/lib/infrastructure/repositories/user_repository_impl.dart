@@ -125,21 +125,32 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<User> authenticate(String username, String password) async {
-    final user = await findByUsername(username);
-    if (user == null) {
-      throw AuthenticationException('Invalid username or password', statusCode: 401);
-    }
+    try {
+      final user = await findByUsername(username);
+      if (user == null) {
+        throw AuthenticationException('Invalid username or password', statusCode: 401);
+      }
 
-    if (!user.isActive) {
-      throw AuthenticationException('User account is inactive', statusCode: 401);
-    }
+      if (!user.isActive) {
+        throw AuthenticationException('User account is inactive', statusCode: 401);
+      }
 
-    final isValid = BCrypt.checkpw(password, user.passwordHash ?? '');
-    if (!isValid) {
-      throw AuthenticationException('Invalid username or password', statusCode: 401);
-    }
+      if (user.passwordHash == null || user.passwordHash!.isEmpty) {
+        throw AuthenticationException('User has no password set', statusCode: 401);
+      }
 
-    return user;
+      final isValid = BCrypt.checkpw(password, user.passwordHash!);
+      if (!isValid) {
+        throw AuthenticationException('Invalid username or password', statusCode: 401);
+      }
+
+      return user;
+    } catch (e) {
+      if (e is AuthenticationException) {
+        rethrow;
+      }
+      throw AuthenticationException('Authentication failed: $e', statusCode: 500);
+    }
   }
 
   @override

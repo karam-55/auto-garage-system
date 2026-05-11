@@ -56,14 +56,22 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> findByUsername(String username) async {
     try {
+      print('Finding user by username: $username');
       final result = await _db.connection.execute(
-        'SELECT * FROM users WHERE username = @username',
+        'SELECT * FROM users WHERE username = @username AND is_active = true',
         parameters: {'username': username},
       );
 
-      if (result.isEmpty) return null;
-      return _mapRowToUser(result.first);
+      if (result.isEmpty) {
+        print('User not found: $username');
+        return null;
+      }
+
+      final user = _mapRowToUser(result.first);
+      print('User found: ${user.username}');
+      return user;
     } catch (e) {
+      print('Error finding user by username: $e');
       throw DatabaseException('Failed to find user by username: $e');
     }
   }

@@ -34,21 +34,25 @@ class AuthRoutes {
   }
 
   Future<Response> _login(Request request) async {
-    final body = await JsonMiddleware.parseJsonBody(request);
-    if (body == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
-    }
-
-    final username = body['username'] as String?;
-    final password = body['password'] as String?;
-
-    if (username == null || password == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'Username and password are required'}));
-    }
-
     try {
+      final body = await JsonMiddleware.parseJsonBody(request);
+      if (body == null) {
+        return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+      }
+
+      final username = body['username'] as String?;
+      final password = body['password'] as String?;
+
+      if (username == null || password == null) {
+        return Response.badRequest(body: jsonEncode({'error': 'Username and password are required'}));
+      }
+
+      print('Login attempt for username: $username');
+
       final user = await _authService.login(username, password);
       final token = await _authService.generateToken(user);
+
+      print('Login successful for username: $username');
 
       return Response.ok(
         jsonEncode({
@@ -62,6 +66,7 @@ class AuthRoutes {
         }),
       );
     } catch (e) {
+      print('Login failed: $e');
       return Response.internalServerError(
         body: jsonEncode({'error': 'Login failed: $e'}),
       );

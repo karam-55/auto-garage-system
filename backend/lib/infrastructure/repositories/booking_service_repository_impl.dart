@@ -1,8 +1,8 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
-import '../../../domain/entities/booking_service.dart';
-import '../../../domain/repositories/booking_service_repository.dart';
-import '../../../core/errors/exceptions.dart';
+import '../../domain/entities/booking_service.dart';
+import '../../domain/repositories/booking_service_repository.dart';
+import '../../core/errors/exceptions.dart';
 import '../database/database_connection.dart';
 
 class BookingServiceRepositoryImpl implements BookingServiceRepository {

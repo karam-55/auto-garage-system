@@ -1,10 +1,6 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'part_type.dart';
 import 'part_suggestion_status.dart';
 
-part 'part_suggestion.g.dart';
-
-@JsonSerializable()
 class PartSuggestion {
   final String id;
   final String bookingId;
@@ -28,8 +24,35 @@ class PartSuggestion {
     this.updatedAt,
   });
 
-  factory PartSuggestion.fromJson(Map<String, dynamic> json) => _$PartSuggestionFromJson(json);
-  Map<String, dynamic> toJson() => _$PartSuggestionToJson(this);
+  factory PartSuggestion.fromJson(Map<String, dynamic> json) {
+    return PartSuggestion(
+      id: json['id'] as String,
+      bookingId: json['bookingId'] as String,
+      mechanicUserId: json['mechanicUserId'] as String,
+      type: PartType.fromString(json['type'] as String),
+      description: json['description'] as String,
+      priceSYP: json['priceSYP'] as double?,
+      status: PartSuggestionStatus.fromString(json['status'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] != null 
+          ? DateTime.parse(json['updatedAt'] as String) 
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'bookingId': bookingId,
+      'mechanicUserId': mechanicUserId,
+      'type': type.value,
+      'description': description,
+      'priceSYP': priceSYP,
+      'status': status.value,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+    };
+  }
 
   PartSuggestion copyWith({
     String? id,

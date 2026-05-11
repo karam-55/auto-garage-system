@@ -1,9 +1,5 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'booking_status.dart';
 
-part 'booking.g.dart';
-
-@JsonSerializable()
 class Booking {
   final String id;
   final String customerId;
@@ -27,8 +23,37 @@ class Booking {
     this.estimatedCompletionDate,
   });
 
-  factory Booking.fromJson(Map<String, dynamic> json) => _$BookingFromJson(json);
-  Map<String, dynamic> toJson() => _$BookingToJson(this);
+  factory Booking.fromJson(Map<String, dynamic> json) {
+    return Booking(
+      id: json['id'] as String,
+      customerId: json['customerId'] as String,
+      vehicleId: json['vehicleId'] as String,
+      status: BookingStatus.fromString(json['status'] as String),
+      publicToken: json['publicToken'] as String,
+      notes: json['notes'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] != null 
+          ? DateTime.parse(json['updatedAt'] as String) 
+          : null,
+      estimatedCompletionDate: json['estimatedCompletionDate'] != null
+          ? DateTime.parse(json['estimatedCompletionDate'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'customerId': customerId,
+      'vehicleId': vehicleId,
+      'status': status.value,
+      'publicToken': publicToken,
+      'notes': notes,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'estimatedCompletionDate': estimatedCompletionDate?.toIso8601String(),
+    };
+  }
 
   Booking copyWith({
     String? id,

@@ -1,8 +1,3 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'customer.g.dart';
-
-@JsonSerializable()
 class Customer {
   final String id;
   final String fullName;
@@ -20,8 +15,29 @@ class Customer {
     this.updatedAt,
   });
 
-  factory Customer.fromJson(Map<String, dynamic> json) => _$CustomerFromJson(json);
-  Map<String, dynamic> toJson() => _$CustomerToJson(this);
+  factory Customer.fromJson(Map<String, dynamic> json) {
+    return Customer(
+      id: json['id'] as String,
+      fullName: json['fullName'] as String,
+      phone: json['phone'] as String,
+      address: json['address'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] != null 
+          ? DateTime.parse(json['updatedAt'] as String) 
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'fullName': fullName,
+      'phone': phone,
+      'address': address,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+    };
+  }
 
   Customer copyWith({
     String? id,

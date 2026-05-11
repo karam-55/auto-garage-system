@@ -1,9 +1,9 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
-import '../../../domain/entities/mechanic_assignment.dart';
-import '../../../domain/entities/mechanic_assignment_status.dart';
-import '../../../domain/repositories/mechanic_assignment_repository.dart';
-import '../../../core/errors/exceptions.dart';
+import '../../domain/entities/mechanic_assignment.dart';
+import '../../domain/entities/mechanic_assignment_status.dart';
+import '../../domain/repositories/mechanic_assignment_repository.dart';
+import '../../core/errors/exceptions.dart';
 import '../database/database_connection.dart';
 
 class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {

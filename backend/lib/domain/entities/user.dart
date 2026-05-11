@@ -1,14 +1,9 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'role.dart';
 
-part 'user.g.dart';
-
-@JsonSerializable()
 class User {
   final String id;
   final String fullName;
   final String username;
-  @JsonKey(includeToJson: false, includeFromJson: false)
   final String? passwordHash;
   final Role role;
   final DateTime createdAt;
@@ -26,8 +21,32 @@ class User {
     this.isActive = true,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
-  Map<String, dynamic> toJson() => _$UserToJson(this);
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] as String,
+      fullName: json['fullName'] as String,
+      username: json['username'] as String,
+      passwordHash: json['passwordHash'] as String?,
+      role: Role.fromString(json['role'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] != null 
+          ? DateTime.parse(json['updatedAt'] as String) 
+          : null,
+      isActive: json['isActive'] as bool? ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'fullName': fullName,
+      'username': username,
+      'role': role.value,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'isActive': isActive,
+    };
+  }
 
   User copyWith({
     String? id,

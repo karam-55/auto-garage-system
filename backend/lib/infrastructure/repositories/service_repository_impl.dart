@@ -1,8 +1,8 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
-import '../../../domain/entities/service.dart';
-import '../../../domain/repositories/service_repository.dart';
-import '../../../core/errors/exceptions.dart';
+import '../../domain/entities/service.dart';
+import '../../domain/repositories/service_repository.dart';
+import '../../core/errors/exceptions.dart';
 import '../database/database_connection.dart';
 
 class ServiceRepositoryImpl implements ServiceRepository {

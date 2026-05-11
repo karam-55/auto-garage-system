@@ -2,13 +2,13 @@ import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import '../../../domain/entities/user.dart';
-import '../../../domain/entities/role.dart';
-import '../../../domain/repositories/user_repository.dart';
-import '../../../core/errors/exceptions.dart';
-import '../../../core/errors/failures.dart';
+import '../../domain/entities/user.dart';
+import '../../domain/entities/role.dart';
+import '../../domain/repositories/user_repository.dart';
+import '../../core/errors/exceptions.dart';
+import '../../core/errors/failures.dart';
 import '../database/database_connection.dart';
-import '../../../core/utils/app_constants.dart';
+import '../../core/utils/app_constants.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final DatabaseConnection _db;

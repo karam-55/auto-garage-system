@@ -1,8 +1,3 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'booking_service.g.dart';
-
-@JsonSerializable()
 class BookingService {
   final String id;
   final String bookingId;
@@ -18,8 +13,25 @@ class BookingService {
     this.notes,
   });
 
-  factory BookingService.fromJson(Map<String, dynamic> json) => _$BookingServiceFromJson(json);
-  Map<String, dynamic> toJson() => _$BookingServiceToJson(this);
+  factory BookingService.fromJson(Map<String, dynamic> json) {
+    return BookingService(
+      id: json['id'] as String,
+      bookingId: json['bookingId'] as String,
+      serviceId: json['serviceId'] as String,
+      priceSYP: json['priceSYP'] as double,
+      notes: json['notes'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'bookingId': bookingId,
+      'serviceId': serviceId,
+      'priceSYP': priceSYP,
+      'notes': notes,
+    };
+  }
 
   BookingService copyWith({
     String? id,

@@ -1,8 +1,3 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'service.g.dart';
-
-@JsonSerializable()
 class Service {
   final String id;
   final String name;
@@ -24,8 +19,33 @@ class Service {
     this.isActive = true,
   });
 
-  factory Service.fromJson(Map<String, dynamic> json) => _$ServiceFromJson(json);
-  Map<String, dynamic> toJson() => _$ServiceToJson(this);
+  factory Service.fromJson(Map<String, dynamic> json) {
+    return Service(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String?,
+      priceSYP: json['priceSYP'] as double,
+      estimatedDurationMinutes: json['estimatedDurationMinutes'] as int?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] != null 
+          ? DateTime.parse(json['updatedAt'] as String) 
+          : null,
+      isActive: json['isActive'] as bool? ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'priceSYP': priceSYP,
+      'estimatedDurationMinutes': estimatedDurationMinutes,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'isActive': isActive,
+    };
+  }
 
   Service copyWith({
     String? id,

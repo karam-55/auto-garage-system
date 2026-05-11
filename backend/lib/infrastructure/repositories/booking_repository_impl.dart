@@ -1,9 +1,9 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
-import '../../../domain/entities/booking.dart';
-import '../../../domain/entities/booking_status.dart';
-import '../../../domain/repositories/booking_repository.dart';
-import '../../../core/errors/exceptions.dart';
+import '../../domain/entities/booking.dart';
+import '../../domain/entities/booking_status.dart';
+import '../../domain/repositories/booking_repository.dart';
+import '../../core/errors/exceptions.dart';
 import '../database/database_connection.dart';
 
 class BookingRepositoryImpl implements BookingRepository {

@@ -1,9 +1,5 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'mechanic_assignment_status.dart';
 
-part 'mechanic_assignment.g.dart';
-
-@JsonSerializable()
 class MechanicAssignment {
   final String id;
   final String bookingId;
@@ -23,8 +19,31 @@ class MechanicAssignment {
     this.updatedAt,
   });
 
-  factory MechanicAssignment.fromJson(Map<String, dynamic> json) => _$MechanicAssignmentFromJson(json);
-  Map<String, dynamic> toJson() => _$MechanicAssignmentToJson(this);
+  factory MechanicAssignment.fromJson(Map<String, dynamic> json) {
+    return MechanicAssignment(
+      id: json['id'] as String,
+      bookingId: json['bookingId'] as String,
+      mechanicUserId: json['mechanicUserId'] as String,
+      status: MechanicAssignmentStatus.fromString(json['status'] as String),
+      notes: json['notes'] as String?,
+      assignedAt: DateTime.parse(json['assignedAt'] as String),
+      updatedAt: json['updatedAt'] != null 
+          ? DateTime.parse(json['updatedAt'] as String) 
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'bookingId': bookingId,
+      'mechanicUserId': mechanicUserId,
+      'status': status.value,
+      'notes': notes,
+      'assignedAt': assignedAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+    };
+  }
 
   MechanicAssignment copyWith({
     String? id,

@@ -1,8 +1,8 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
-import '../../../domain/entities/customer.dart';
-import '../../../domain/repositories/customer_repository.dart';
-import '../../../core/errors/exceptions.dart';
+import '../../domain/entities/customer.dart';
+import '../../domain/repositories/customer_repository.dart';
+import '../../core/errors/exceptions.dart';
 import '../database/database_connection.dart';
 
 class CustomerRepositoryImpl implements CustomerRepository {

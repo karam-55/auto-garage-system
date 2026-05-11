@@ -1,6 +1,7 @@
 import 'package:postgres/postgres.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:logger/logger.dart';
+import 'dart:io';
 
 class DatabaseConnection {
   static DatabaseConnection? _instance;
@@ -15,9 +16,11 @@ class DatabaseConnection {
   }
 
   Future<void> initialize() async {
+    // In production, read from environment variables directly
+    // In development, try to load from .env file
     final env = DotEnv()..load();
     
-    final databaseUrl = env['DATABASE_URL'];
+    final databaseUrl = Platform.environment['DATABASE_URL'] ?? env['DATABASE_URL'];
     if (databaseUrl == null) {
       throw Exception('DATABASE_URL environment variable is not set');
     }

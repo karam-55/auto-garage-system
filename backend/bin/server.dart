@@ -23,6 +23,7 @@ import '../lib/presentation/routes/dashboard_routes.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
 import '../lib/presentation/middlewares/logging_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
+import 'dart:io';
 
 void main(List<String> args) async {
   // Load environment variables

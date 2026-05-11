@@ -1,0 +1,248 @@
+import 'dart:convert';
+import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
+import '../../domain/entities/mechanic_assignment.dart';
+import '../../domain/entities/mechanic_assignment_status.dart';
+import '../../domain/entities/booking_status.dart';
+import '../../domain/entities/part_suggestion.dart';
+import '../../domain/entities/part_suggestion_status.dart';
+import '../../domain/entities/part_type.dart';
+import '../../domain/entities/role.dart';
+import '../../domain/repositories/mechanic_assignment_repository.dart';
+import '../../domain/repositories/part_suggestion_repository.dart';
+import '../../domain/repositories/booking_repository.dart';
+import '../../application/usecases/assign_mechanic_usecase.dart';
+import '../../application/usecases/create_part_suggestion_usecase.dart';
+import '../middlewares/json_middleware.dart';
+import '../middlewares/auth_middleware.dart';
+import 'package:uuid/uuid.dart';
+
+class MechanicRoutes {
+  final MechanicAssignmentRepository _mechanicAssignmentRepository;
+  final PartSuggestionRepository _partSuggestionRepository;
+  final BookingRepository _bookingRepository;
+  final AuthMiddleware _authMiddleware;
+
+  MechanicRoutes(
+    this._mechanicAssignmentRepository,
+    this._partSuggestionRepository,
+    this._bookingRepository,
+    this._authMiddleware,
+  );
+
+  Router get router {
+    final router = Router();
+
+    // GET /api/mechanics/available-bookings
+    router.get('/api/mechanics/available-bookings', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MECHANIC)(_getAvailableBookings)));
+
+    // GET /api/mechanics/my-assignments
+    router.get('/api/mechanics/my-assignments', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MECHANIC)(_getMyAssignments)));
+
+    // POST /api/mechanics/assign
+    router.post('/api/mechanics/assign', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MECHANIC)(_assignBooking)));
+
+    // PATCH /api/mechanics/assignments/:id/status
+    router.patch('/api/mechanics/assignments/<id>/status', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MECHANIC)(_updateAssignmentStatus)));
+
+    // POST /api/mechanics/bookings/:id/part-suggestions
+    router.post('/api/mechanics/bookings/<bookingId>/part-suggestions', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MECHANIC)(_createPartSuggestion)));
+
+    // GET /api/mechanics/bookings/:id/part-suggestions
+    router.get('/api/mechanics/bookings/<bookingId>/part-suggestions', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MECHANIC)(_getPartSuggestions)));
+
+    // PATCH /api/part-suggestions/:id/status (for customer approval via public API)
+    router.patch('/public/part-suggestions/<id>/status', _updatePartSuggestionStatus);
+
+    return router;
+  }
+
+  Future<Response> _getAvailableBookings(Request request) async {
+    try {
+      // Get bookings that don't have a mechanic assignment
+      final allBookings = await _bookingRepository.findAll();
+      final availableBookings = <dynamic>[];
+
+      for (final booking in allBookings) {
+        final assignment = await _mechanicAssignmentRepository.findByBookingId(booking.id);
+        if (assignment == null && 
+            booking.status != BookingStatus.DELIVERED && 
+            booking.status != BookingStatus.CANCELLED) {
+          availableBookings.add(booking.toJson());
+        }
+      }
+
+      return Response.ok(jsonEncode(availableBookings));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get available bookings: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _getMyAssignments(Request request) async {
+    final user = request.context['user'];
+    if (user == null) {
+      return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+    }
+
+    try {
+      final assignments = await _mechanicAssignmentRepository.findByMechanicUserId(user.id);
+      return Response.ok(
+        jsonEncode(assignments.map((a) => a.toJson()).toList()),
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get assignments: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _assignBooking(Request request) async {
+    final user = request.context['user'];
+    if (user == null) {
+      return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+    }
+
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    final bookingId = body['bookingId'] as String?;
+    if (bookingId == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'bookingId is required'}));
+    }
+
+    try {
+      final useCase = AssignMechanicUseCase(_mechanicAssignmentRepository, _bookingRepository);
+      final assignment = await useCase.execute(bookingId, user.id);
+      return Response.ok(jsonEncode(assignment.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to assign booking: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _updateAssignmentStatus(Request request) async {
+    final id = request.params['id'];
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    final statusStr = body['status'] as String?;
+    final notes = body['notes'] as String?;
+
+    if (statusStr == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'status is required'}));
+    }
+
+    try {
+      final existingAssignment = await _mechanicAssignmentRepository.findById(id!);
+      if (existingAssignment == null) {
+        return Response.notFound(jsonEncode({'error': 'Assignment not found'}));
+      }
+
+      final updatedAssignment = existingAssignment.copyWith(
+        status: MechanicAssignmentStatus.fromString(statusStr),
+        notes: notes ?? existingAssignment.notes,
+        updatedAt: DateTime.now().toUtc(),
+      );
+
+      final result = await _mechanicAssignmentRepository.update(updatedAssignment);
+      return Response.ok(jsonEncode(result.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to update assignment status: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _createPartSuggestion(Request request) async {
+    final user = request.context['user'];
+    if (user == null) {
+      return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+    }
+
+    final bookingId = request.params['bookingId'];
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    final partType = body['type'] as String?;
+    final description = body['description'] as String?;
+    final priceSYP = body['priceSYP'] as double?;
+
+    if (partType == null || description == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'type and description are required'}));
+    }
+
+    try {
+      final useCase = CreatePartSuggestionUseCase(
+        _partSuggestionRepository,
+        NotificationServiceImpl(),
+      );
+      final suggestion = await useCase.execute(
+        bookingId!,
+        user.id,
+        partType,
+        description,
+        priceSYP,
+      );
+      return Response.ok(jsonEncode(suggestion.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to create part suggestion: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _getPartSuggestions(Request request) async {
+    final bookingId = request.params['bookingId'];
+    try {
+      final suggestions = await _partSuggestionRepository.findByBookingId(bookingId!);
+      return Response.ok(
+        jsonEncode(suggestions.map((s) => s.toJson()).toList()),
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get part suggestions: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _updatePartSuggestionStatus(Request request) async {
+    final id = request.params['id'];
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    final statusStr = body['status'] as String?;
+    if (statusStr == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'status is required'}));
+    }
+
+    try {
+      final existingSuggestion = await _partSuggestionRepository.findById(id!);
+      if (existingSuggestion == null) {
+        return Response.notFound(jsonEncode({'error': 'Part suggestion not found'}));
+      }
+
+      final updatedSuggestion = existingSuggestion.copyWith(
+        status: PartSuggestionStatus.fromString(statusStr),
+        updatedAt: DateTime.now().toUtc(),
+      );
+
+      final result = await _partSuggestionRepository.update(updatedSuggestion);
+      return Response.ok(jsonEncode(result.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to update part suggestion status: $e'}),
+      );
+    }
+  }
+}

@@ -1,0 +1,181 @@
+import 'package:postgres/postgres.dart';
+import 'package:dotenv/dotenv.dart';
+import 'package:logger/logger.dart';
+import '../core/utils/app_constants.dart';
+
+class DatabaseConnection {
+  static DatabaseConnection? _instance;
+  late PostgreSQLConnection _connection;
+  final Logger _logger = Logger();
+
+  DatabaseConnection._internal();
+
+  static DatabaseConnection get instance {
+    _instance ??= DatabaseConnection._internal();
+    return _instance!;
+  }
+
+  Future<void> initialize() async {
+    final env = DotEnv(includeEnvFile: true)..load();
+    
+    final databaseUrl = env[AppConstants.databaseUrlEnv];
+    if (databaseUrl == null) {
+      throw Exception('DATABASE_URL environment variable is not set');
+    }
+
+    // Parse DATABASE_URL
+    final uri = Uri.parse(databaseUrl);
+    final host = uri.host;
+    final port = uri.port != 0 ? uri.port : 5432;
+    final databaseName = uri.path.substring(1); // Remove leading /
+    final username = uri.userInfo.split(':')[0];
+    final password = uri.userInfo.split(':')[1];
+
+    _connection = PostgreSQLConnection(
+      host,
+      port,
+      databaseName,
+      username: username,
+      password: password,
+    );
+
+    try {
+      await _connection.open();
+      _logger.i('Database connected successfully');
+    } catch (e) {
+      _logger.e('Failed to connect to database: $e');
+      rethrow;
+    }
+  }
+
+  PostgreSQLConnection get connection => _connection;
+
+  Future<void> close() async {
+    await _connection.close();
+    _logger.i('Database connection closed');
+  }
+
+  Future<void> executeSchema() async {
+    try {
+      final schema = await _readSchemaFile();
+      final statements = schema.split(';').where((s) => s.trim().isNotEmpty);
+      
+      for (final statement in statements) {
+        await _connection.execute(statement.trim());
+      }
+      
+      _logger.i('Database schema executed successfully');
+    } catch (e) {
+      _logger.e('Failed to execute schema: $e');
+      rethrow;
+    }
+  }
+
+  Future<String> _readSchemaFile() async {
+    // In production, you might want to read from a file
+    // For now, we'll return the schema inline
+    return '''
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    full_name VARCHAR(255) NOT NULL,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('OWNER', 'MANAGER', 'RECEPTIONIST', 'MECHANIC')),
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS customers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    full_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    address TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS vehicles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    make VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    year INTEGER NOT NULL,
+    license_plate VARCHAR(20),
+    vin VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS services (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price_syp DECIMAL(12, 2) NOT NULL,
+    estimated_duration_minutes INTEGER,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS bookings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'IN_PROGRESS', 'WAITING_PARTS', 'READY', 'DELIVERED', 'CANCELLED')),
+    public_token VARCHAR(255) UNIQUE NOT NULL,
+    notes TEXT,
+    estimated_completion_date TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS booking_services (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+    service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+    price_syp DECIMAL(12, 2) NOT NULL,
+    notes TEXT,
+    UNIQUE(booking_id, service_id)
+);
+
+CREATE TABLE IF NOT EXISTS mechanic_assignments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+    mechanic_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(50) NOT NULL DEFAULT 'ASSIGNED' CHECK (status IN ('ASSIGNED', 'IN_PROGRESS', 'WAITING_PARTS', 'READY', 'DELIVERED')),
+    notes TEXT,
+    assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE,
+    UNIQUE(booking_id)
+);
+
+CREATE TABLE IF NOT EXISTS part_suggestions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+    mechanic_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('ORIGINAL', 'COMMERCIAL', 'USED')),
+    description TEXT NOT NULL,
+    price_syp DECIMAL(12, 2),
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING_CUSTOMER_APPROVAL' CHECK (status IN ('PENDING_CUSTOMER_APPROVAL', 'APPROVED', 'REJECTED')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
+CREATE INDEX IF NOT EXISTS idx_vehicles_customer_id ON vehicles(customer_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_customer_id ON bookings(customer_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_vehicle_id ON bookings(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+CREATE INDEX IF NOT EXISTS idx_bookings_public_token ON bookings(public_token);
+CREATE INDEX IF NOT EXISTS idx_booking_services_booking_id ON booking_services(booking_id);
+CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_booking_id ON mechanic_assignments(booking_id);
+CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_mechanic_user_id ON mechanic_assignments(mechanic_user_id);
+CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_status ON mechanic_assignments(status);
+CREATE INDEX IF NOT EXISTS idx_part_suggestions_booking_id ON part_suggestions(booking_id);
+CREATE INDEX IF NOT EXISTS idx_part_suggestions_status ON part_suggestions(status);
+''';
+  }
+}

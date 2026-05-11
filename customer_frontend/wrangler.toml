@@ -1,0 +1,15 @@
+# Cloudflare Pages Configuration for Customer Frontend
+name = "auto-garage-customer-frontend"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "flutter build web"
+cwd = "."
+
+[build.environment]
+FLUTTER_VERSION = "3.19.0"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

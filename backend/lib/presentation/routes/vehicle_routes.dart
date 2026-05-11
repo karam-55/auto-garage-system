@@ -1,0 +1,164 @@
+import 'dart:convert';
+import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
+import '../../domain/entities/vehicle.dart';
+import '../../domain/entities/role.dart';
+import '../../domain/repositories/vehicle_repository.dart';
+import '../middlewares/json_middleware.dart';
+import '../middlewares/auth_middleware.dart';
+import 'package:uuid/uuid.dart';
+
+class VehicleRoutes {
+  final VehicleRepository _vehicleRepository;
+  final AuthMiddleware _authMiddleware;
+
+  VehicleRoutes(this._vehicleRepository, this._authMiddleware);
+
+  Router get router {
+    final router = Router();
+
+    // GET /api/vehicles
+    router.get('/api/vehicles', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getAllVehicles)));
+
+    // GET /api/vehicles/:id
+    router.get('/api/vehicles/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getVehicleById)));
+
+    // GET /api/vehicles/customer/:customerId
+    router.get('/api/vehicles/customer/<customerId>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getVehiclesByCustomerId)));
+
+    // POST /api/vehicles
+    router.post('/api/vehicles', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_createVehicle)));
+
+    // PUT /api/vehicles/:id
+    router.put('/api/vehicles/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateVehicle)));
+
+    // DELETE /api/vehicles/:id
+    router.delete('/api/vehicles/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_deleteVehicle)));
+
+    return router;
+  }
+
+  Future<Response> _getAllVehicles(Request request) async {
+    try {
+      final vehicles = await _vehicleRepository.findAll();
+      return Response.ok(
+        jsonEncode(vehicles.map((v) => v.toJson()).toList()),
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get vehicles: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _getVehicleById(Request request) async {
+    final id = request.params['id'];
+    try {
+      final vehicle = await _vehicleRepository.findById(id!);
+      if (vehicle == null) {
+        return Response.notFound(jsonEncode({'error': 'Vehicle not found'}));
+      }
+      return Response.ok(jsonEncode(vehicle.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get vehicle: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _getVehiclesByCustomerId(Request request) async {
+    final customerId = request.params['customerId'];
+    try {
+      final vehicles = await _vehicleRepository.findByCustomerId(customerId!);
+      return Response.ok(
+        jsonEncode(vehicles.map((v) => v.toJson()).toList()),
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get vehicles: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _createVehicle(Request request) async {
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    final customerId = body['customerId'] as String?;
+    final make = body['make'] as String?;
+    final model = body['model'] as String?;
+    final year = body['year'] as int?;
+    final licensePlate = body['licensePlate'] as String?;
+    final vin = body['vin'] as String?;
+
+    if (customerId == null || make == null || model == null || year == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'customerId, make, model, and year are required'}));
+    }
+
+    try {
+      final vehicle = Vehicle(
+        id: const Uuid().v4(),
+        customerId: customerId,
+        make: make,
+        model: model,
+        year: year,
+        licensePlate: licensePlate,
+        vin: vin,
+        createdAt: DateTime.now().toUtc(),
+      );
+
+      final createdVehicle = await _vehicleRepository.create(vehicle);
+      return Response.ok(jsonEncode(createdVehicle.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to create vehicle: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _updateVehicle(Request request) async {
+    final id = request.params['id'];
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    try {
+      final existingVehicle = await _vehicleRepository.findById(id!);
+      if (existingVehicle == null) {
+        return Response.notFound(jsonEncode({'error': 'Vehicle not found'}));
+      }
+
+      final updatedVehicle = existingVehicle.copyWith(
+        customerId: body['customerId'] as String? ?? existingVehicle.customerId,
+        make: body['make'] as String? ?? existingVehicle.make,
+        model: body['model'] as String? ?? existingVehicle.model,
+        year: body['year'] as int? ?? existingVehicle.year,
+        licensePlate: body['licensePlate'] as String?,
+        vin: body['vin'] as String?,
+        updatedAt: DateTime.now().toUtc(),
+      );
+
+      final result = await _vehicleRepository.update(updatedVehicle);
+      return Response.ok(jsonEncode(result.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to update vehicle: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _deleteVehicle(Request request) async {
+    final id = request.params['id'];
+    try {
+      await _vehicleRepository.delete(id!);
+      return Response.ok(jsonEncode({'message': 'Vehicle deleted successfully'}));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to delete vehicle: $e'}),
+      );
+    }
+  }
+}

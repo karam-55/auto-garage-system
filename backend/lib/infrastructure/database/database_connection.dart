@@ -212,18 +212,21 @@ CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 CREATE INDEX IF NOT EXISTS idx_vehicles_customer_id ON vehicles(customer_id);
 CREATE INDEX IF NOT EXISTS idx_vehicles_license_plate ON vehicles(license_plate);
-CREATE INDEX IF NOT EXISTS idx_vehicles_public_car_id ON vehicles(public_car_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_customer_id ON bookings(customer_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_vehicle_id ON bookings(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
-CREATE INDEX IF NOT EXISTS idx_bookings_public_token ON bookings(public_token);
-CREATE INDEX IF NOT EXISTS idx_services_is_active ON services(is_active);
+CREATE INDEX IF NOT EXISTS idx_bookings_created_at ON bookings(created_at);
+
 CREATE INDEX IF NOT EXISTS idx_booking_services_booking_id ON booking_services(booking_id);
+CREATE INDEX IF NOT EXISTS idx_booking_services_service_id ON booking_services(service_id);
+
 CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_booking_id ON mechanic_assignments(booking_id);
 CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_mechanic_user_id ON mechanic_assignments(mechanic_user_id);
 CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_status ON mechanic_assignments(status);
+
 CREATE INDEX IF NOT EXISTS idx_part_suggestions_booking_id ON part_suggestions(booking_id);
+CREATE INDEX IF NOT EXISTS idx_part_suggestions_mechanic_user_id ON part_suggestions(mechanic_user_id);
 CREATE INDEX IF NOT EXISTS idx_part_suggestions_status ON part_suggestions(status);
 ''';
-  }
+}
 }

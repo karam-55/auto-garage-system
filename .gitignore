@@ -30,3 +30,6 @@ build/
 
 # OS
 Thumbs.db
+
+# Generated archives
+report.zip

@@ -95,14 +95,30 @@ class VehicleRoutes {
     final customerId = (body['customerId'] as String?)?.trim();
     final make = (body['make'] as String?)?.trim();
     final model = (body['model'] as String?)?.trim();
-    final year = body['year'] as int?;
+    final year = body['year'];
     final licensePlate = (body['licensePlate'] as String?)?.trim();
     final vin = (body['vin'] as String?)?.trim();
+
+    // Handle year type safely
+    int? yearInt;
+    if (year == null) {
+      yearInt = null;
+    } else if (year is int) {
+      yearInt = year as int;
+    } else if (year is String) {
+      try {
+        yearInt = int.parse(year as String);
+      } catch (e) {
+        return Response.badRequest(body: jsonEncode({'error': 'year must be a valid integer'}));
+      }
+    } else {
+      return Response.badRequest(body: jsonEncode({'error': 'year must be an integer'}));
+    }
 
     if (customerId == null || customerId.isEmpty ||
         make == null || make.isEmpty ||
         model == null || model.isEmpty ||
-        year == null || year < 1900 || year > DateTime.now().year + 1) {
+        yearInt == null || yearInt < 1900 || yearInt > DateTime.now().year + 1) {
       return Response.badRequest(body: jsonEncode({'error': 'customerId, make, model, and a valid year (1900-${DateTime.now().year + 1}) are required'}));
     }
 
@@ -112,7 +128,7 @@ class VehicleRoutes {
         customerId: customerId,
         make: make,
         model: model,
-        year: year,
+        year: yearInt,
         licensePlate: licensePlate,
         vin: vin,
         createdAt: DateTime.now().toUtc(),

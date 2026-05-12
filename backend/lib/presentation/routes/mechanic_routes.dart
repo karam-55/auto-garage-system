@@ -178,7 +178,23 @@ class MechanicRoutes {
 
     final partType = (body['type'] as String?)?.trim();
     final description = (body['description'] as String?)?.trim();
-    final priceSYP = body['priceSYP'] as double?;
+    final priceSYP = body['priceSYP'];
+
+    // Handle priceSYP type safely
+    double? priceSYPDouble;
+    if (priceSYP == null) {
+      priceSYPDouble = null;
+    } else if (priceSYP is num) {
+      priceSYPDouble = (priceSYP as num).toDouble();
+    } else if (priceSYP is String) {
+      try {
+        priceSYPDouble = double.parse(priceSYP as String);
+      } catch (e) {
+        return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
+      }
+    } else {
+      return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a number'}));
+    }
 
     if (partType == null || partType.isEmpty || description == null || description.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'type and description are required'}));
@@ -194,7 +210,7 @@ class MechanicRoutes {
         typedUser.id,
         partType,
         description,
-        priceSYP,
+        priceSYPDouble,
       );
       return Response.ok(jsonEncode(suggestion.toJson()));
     } catch (e) {

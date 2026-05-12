@@ -75,20 +75,52 @@ class ServiceRoutes {
 
     final name = (body['name'] as String?)?.trim();
     final description = (body['description'] as String?)?.trim();
-    final priceSYP = body['priceSYP'] as double?;
-    final estimatedDurationMinutes = body['estimatedDurationMinutes'] as int?;
+    final priceSYP = body['priceSYP'];
+    final estimatedDurationMinutes = body['estimatedDurationMinutes'];
 
-    if (name == null || name.isEmpty || priceSYP == null) {
+    // Handle priceSYP type safely
+    double? priceSYPDouble;
+    if (priceSYP == null) {
+      priceSYPDouble = null;
+    } else if (priceSYP is num) {
+      priceSYPDouble = (priceSYP as num).toDouble();
+    } else if (priceSYP is String) {
+      try {
+        priceSYPDouble = double.parse(priceSYP as String);
+      } catch (e) {
+        return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
+      }
+    } else {
+      return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a number'}));
+    }
+
+    // Handle estimatedDurationMinutes type safely
+    int? estimatedDurationMinutesInt;
+    if (estimatedDurationMinutes == null) {
+      estimatedDurationMinutesInt = null;
+    } else if (estimatedDurationMinutes is int) {
+      estimatedDurationMinutesInt = estimatedDurationMinutes as int;
+    } else if (estimatedDurationMinutes is String) {
+      try {
+        estimatedDurationMinutesInt = int.parse(estimatedDurationMinutes as String);
+      } catch (e) {
+        return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be a valid integer'}));
+      }
+    } else {
+      return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be an integer'}));
+    }
+
+    if (name == null || name.isEmpty || priceSYPDouble == null) {
       return Response.badRequest(body: jsonEncode({'error': 'name and priceSYP are required and cannot be empty'}));
     }
 
     // Validate price
-    if (priceSYP <= 0) {
+    if (priceSYPDouble <= 0) {
       return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be greater than 0'}));
     }
 
     // Validate estimated duration if provided
-    if (estimatedDurationMinutes != null && estimatedDurationMinutes! < 0) {
+    if (estimatedDurationMinutesInt != null && estimatedDurationMinutesInt! < 0) {
       return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be greater than or equal to 0'}));
     }
 
@@ -97,8 +129,8 @@ class ServiceRoutes {
         id: const Uuid().v4(),
         name: name,
         description: description,
-        priceSYP: priceSYP,
-        estimatedDurationMinutes: estimatedDurationMinutes,
+        priceSYP: priceSYPDouble,
+        estimatedDurationMinutes: estimatedDurationMinutesInt,
         createdAt: DateTime.now().toUtc(),
       );
 

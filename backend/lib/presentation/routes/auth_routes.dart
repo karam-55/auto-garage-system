@@ -16,7 +16,7 @@ class AuthRoutes {
   final UserRepository _userRepository;
   final AuthMiddleware _authMiddleware;
   final AuthService _authService;
-  final Map<String, List<int>> _rateLimitStore = {};
+  final Map<String, List<DateTime>> _rateLimitStore = {};
   final Map<String, int> _attemptCount = {};
 
   AuthRoutes(

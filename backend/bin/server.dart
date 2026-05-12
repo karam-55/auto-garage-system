@@ -71,21 +71,23 @@ void main(List<String> args) async {
   final partSuggestionRepository = PartSuggestionRepositoryImpl(db);
 
   // Initialize routes
-  final authRoutes = AuthRoutes(userRepository);
-  final customerRoutes = CustomerRoutes(customerRepository, authRoutes.authMiddleware);
-  final vehicleRoutes = VehicleRoutes(vehicleRepository, authRoutes.authMiddleware);
-  final serviceRoutes = ServiceRoutes(serviceRepository, authRoutes.authMiddleware);
+  final authMiddleware = AuthMiddleware(userRepository);
+  final authService = AuthService(userRepository);
+  final authRoutes = AuthRoutes(userRepository, authMiddleware, authService);
+  final customerRoutes = CustomerRoutes(customerRepository, authMiddleware);
+  final vehicleRoutes = VehicleRoutes(vehicleRepository, authMiddleware);
+  final serviceRoutes = ServiceRoutes(serviceRepository, authMiddleware);
   final bookingRoutes = BookingRoutes(
     bookingRepository,
     bookingServiceRepository,
-    authRoutes.authMiddleware,
+    authMiddleware,
     db,
   );
   final mechanicRoutes = MechanicRoutes(
     mechanicAssignmentRepository,
     partSuggestionRepository,
     bookingRepository,
-    authRoutes.authMiddleware,
+    authMiddleware,
   );
   final dashboardRoutes = DashboardRoutes(
     bookingRepository,

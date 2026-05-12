@@ -21,6 +21,7 @@ class PublicRoutes {
 
   Future<Response> _getCarByPublicId(Request request) async {
     final publicCarId = request.params['publicCarId'];
+    print('DEBUG: Public car request received. publicCarId: $publicCarId');
     
     if (publicCarId == null || publicCarId.isEmpty) {
       return Response.notFound(jsonEncode({'error': 'Public car ID is required'}));

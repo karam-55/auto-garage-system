@@ -34,14 +34,20 @@ class ApiService {
   // Generic POST request
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
     try {
+      print('ApiService.post() called for endpoint: $endpoint');
+      print('Data to send: $data');
       final response = await _client.post(
         Uri.parse('${ApiConstants.baseUrl}$endpoint'),
         headers: _getHeaders(),
         body: jsonEncode(data),
       );
       
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      
       return _handleResponse(response);
     } catch (e) {
+      print('ApiService.post() error: $e');
       throw Exception('فشل الاتصال بالخادم: $e');
     }
   }
@@ -81,6 +87,10 @@ class ApiService {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
+    
+    print('ApiService._getHeaders() called');
+    print('Token is ${_token != null ? "SET" : "NULL"}');
+    print('Token length: ${_token?.length ?? 0}');
     
     if (_token != null) {
       headers['Authorization'] = 'Bearer $_token';

@@ -71,15 +71,15 @@ class DatabaseConnection {
 
   Future<void> executeSchema() async {
     try {
+      // Run migrations first for existing databases
+      await _runMigrations();
+
       final schema = await _readSchemaFile();
       final statements = schema.split(';').where((s) => s.trim().isNotEmpty);
 
       for (final statement in statements) {
         await _pool.execute(statement.trim());
       }
-
-      // Add migration for existing databases
-      await _runMigrations();
 
       _logger.i('Database schema executed successfully');
     } catch (e) {

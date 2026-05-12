@@ -65,9 +65,12 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<List<Customer>> findAll() async {
     try {
+      print('Finding all customers...');
       final result = await _db.connection.execute('SELECT * FROM customers ORDER BY created_at DESC');
+      print('Found ${result.length} customers');
       return result.map(_mapRowToCustomer).toList();
     } catch (e) {
+      print('Error finding all customers: $e');
       throw DatabaseException('Failed to find all customers: $e');
     }
   }
@@ -107,14 +110,21 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   Customer _mapRowToCustomer(ResultRow row) {
-    final data = row.toColumnMap();
-    return Customer(
-      id: data['id'].toString(),
-      fullName: data['full_name'] as String,
-      phone: data['phone'] as String,
-      address: data['address'] as String?,
-      createdAt: data['created_at'] as DateTime,
-      updatedAt: data['updated_at'] as DateTime?,
-    );
+    try {
+      final data = row.toColumnMap();
+      print('Mapping customer row: $data');
+      return Customer(
+        id: data['id'].toString(),
+        fullName: data['full_name'] as String,
+        phone: data['phone'] as String,
+        address: data['address'] as String?,
+        createdAt: data['created_at'] as DateTime,
+        updatedAt: data['updated_at'] as DateTime?,
+      );
+    } catch (e) {
+      print('Error mapping customer row: $e');
+      print('Row data: ${row.toColumnMap()}');
+      rethrow;
+    }
   }
 }

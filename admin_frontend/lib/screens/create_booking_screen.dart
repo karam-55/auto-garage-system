@@ -224,7 +224,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
       'CUSTOMER_FRONTEND_URL',
       defaultValue: 'https://auto-garage-customer.pages.dev',
     );
-    final trackingUrl = '$customerFrontendUrl/car/$publicCarId';
+    final trackingUrl = '$customerFrontendUrl?car=$publicCarId';
 
     showDialog(
       context: context,

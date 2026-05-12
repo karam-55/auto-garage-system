@@ -1,13 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/services/api_service.dart';
+import '../core/constants/api_constants.dart';
 import '../models/booking.dart';
 import '../models/mechanic_assignment.dart';
 import '../models/part_suggestion.dart';
-import 'auth_provider.dart';
 
 class MechanicProvider with ChangeNotifier {
-  final SupabaseClient _supabase = Supabase.instance.client;
-  final AuthProvider _authProvider;
+  final ApiService _apiService;
   
   List<Booking> _availableBookings = [];
   List<MechanicAssignment> _myAssignments = [];
@@ -15,7 +15,7 @@ class MechanicProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   
-  MechanicProvider(this._authProvider);
+  MechanicProvider() : _apiService = ApiService();
   
   List<Booking> get availableBookings => _availableBookings;
   List<MechanicAssignment> get myAssignments => _myAssignments;
@@ -29,32 +29,14 @@ class MechanicProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      final data = await _supabase
-          .from('bookings')
-          .select('''
-            id,
-            status,
-            notes,
-            estimated_completion_date,
-            created_at,
-            vehicles:customer_id!inner(
-              id,
-              make,
-              model,
-              year,
-              license_plate,
-              public_car_id
-            ),
-            customers:customer_id!inner(
-              id,
-              full_name,
-              phone
-            )
-          ''')
-          .eq('status', 'PENDING')
-          .order('created_at', ascending: false);
+      final response = await _apiService.get(ApiConstants.availableBookings);
       
-      _availableBookings = data.map((json) => Booking.fromJson(json)).toList();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        _availableBookings = data.map((json) => Booking.fromJson(json)).toList();
+      } else {
+        _errorMessage = 'Failed to load available bookings: ${response.statusCode}';
+      }
     } catch (e) {
       _errorMessage = 'Error loading available bookings: $e';
     }
@@ -69,25 +51,23 @@ class MechanicProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      final mechanicUserId = _authProvider.userId;
-      if (mechanicUserId == null) {
-        _errorMessage = 'User not authenticated';
+      final response = await _apiService.post(
+        ApiConstants.assignBooking,
+        body: {'bookingId': bookingId},
+      );
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchMyAssignments();
+        await fetchAvailableBookings();
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = 'Failed to assign booking: ${response.statusCode}';
         _isLoading = false;
         notifyListeners();
         return false;
       }
-      
-      await _supabase.from('mechanic_assignments').insert({
-        'booking_id': bookingId,
-        'mechanic_user_id': mechanicUserId,
-        'status': 'ASSIGNED',
-      });
-      
-      await fetchMyAssignments();
-      await fetchAvailableBookings();
-      _isLoading = false;
-      notifyListeners();
-      return true;
     } catch (e) {
       _errorMessage = 'Error assigning booking: $e';
       _isLoading = false;
@@ -102,47 +82,14 @@ class MechanicProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      final mechanicUserId = _authProvider.userId;
-      if (mechanicUserId == null) {
-        _errorMessage = 'User not authenticated';
-        _isLoading = false;
-        notifyListeners();
-        return;
+      final response = await _apiService.get(ApiConstants.myAssignments);
+      
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        _myAssignments = data.map((json) => MechanicAssignment.fromJson(json)).toList();
+      } else {
+        _errorMessage = 'Failed to load assignments: ${response.statusCode}';
       }
-      
-      final data = await _supabase
-          .from('mechanic_assignments')
-          .select('''
-            id,
-            status,
-            notes,
-            assigned_at,
-            updated_at,
-            bookings:booking_id!inner(
-              id,
-              status,
-              notes,
-              estimated_completion_date,
-              created_at,
-              vehicles:vehicle_id!inner(
-                id,
-                make,
-                model,
-                year,
-                license_plate,
-                public_car_id
-              ),
-              customers:customer_id!inner(
-                id,
-                full_name,
-                phone
-              )
-            )
-          ''')
-          .eq('mechanic_user_id', mechanicUserId)
-          .order('assigned_at', ascending: false);
-      
-      _myAssignments = data.map((json) => MechanicAssignment.fromJson(json)).toList();
     } catch (e) {
       _errorMessage = 'Error loading assignments: $e';
     }
@@ -157,19 +104,25 @@ class MechanicProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      await _supabase
-          .from('mechanic_assignments')
-          .update({
-            'status': status,
-            if (notes != null) 'notes': notes,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', assignmentId);
+      final response = await _apiService.patch(
+        '${ApiConstants.updateAssignmentStatus}$assignmentId/status',
+        body: {
+          'status': status,
+          if (notes != null) 'notes': notes,
+        },
+      );
       
-      await fetchMyAssignments();
-      _isLoading = false;
-      notifyListeners();
-      return true;
+      if (response.statusCode == 200) {
+        await fetchMyAssignments();
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = 'Failed to update status: ${response.statusCode}';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
     } catch (e) {
       _errorMessage = 'Error updating status: $e';
       _isLoading = false;
@@ -184,26 +137,25 @@ class MechanicProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      final mechanicUserId = _authProvider.userId;
-      if (mechanicUserId == null) {
-        _errorMessage = 'User not authenticated';
+      final response = await _apiService.post(
+        '${ApiConstants.createPartSuggestion}$bookingId/part-suggestions',
+        body: {
+          'type': type,
+          'description': description,
+          if (priceSYP != null) 'priceSYP': priceSYP,
+        },
+      );
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = 'Failed to create part suggestion: ${response.statusCode}';
         _isLoading = false;
         notifyListeners();
         return false;
       }
-      
-      await _supabase.from('part_suggestions').insert({
-        'booking_id': bookingId,
-        'mechanic_user_id': mechanicUserId,
-        'type': type,
-        'description': description,
-        if (priceSYP != null) 'price_syp': priceSYP,
-        'status': 'PENDING_CUSTOMER_APPROVAL',
-      });
-      
-      _isLoading = false;
-      notifyListeners();
-      return true;
     } catch (e) {
       _errorMessage = 'Error creating part suggestion: $e';
       _isLoading = false;
@@ -218,13 +170,14 @@ class MechanicProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      final data = await _supabase
-          .from('part_suggestions')
-          .select('*')
-          .eq('booking_id', bookingId)
-          .order('created_at', ascending: false);
+      final response = await _apiService.get('${ApiConstants.getPartSuggestions}$bookingId/part-suggestions');
       
-      _partSuggestions = data.map((json) => PartSuggestion.fromJson(json)).toList();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        _partSuggestions = data.map((json) => PartSuggestion.fromJson(json)).toList();
+      } else {
+        _errorMessage = 'Failed to load part suggestions: ${response.statusCode}';
+      }
     } catch (e) {
       _errorMessage = 'Error loading part suggestions: $e';
     }

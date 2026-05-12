@@ -1,17 +1,19 @@
-import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:crypto/crypto.dart';
 import 'dart:convert';
-import '../core/constants/supabase_constants.dart';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import '../core/services/storage_service.dart';
+import '../core/constants/api_constants.dart';
 
 class AuthProvider with ChangeNotifier {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  final StorageService _storageService;
   
   String? _userName;
   String? _userId;
   String? _userRole;
   bool _isLoading = false;
   String? _errorMessage;
+  
+  AuthProvider() : _storageService = StorageService();
   
   String? get userName => _userName;
   String? get userId => _userId;
@@ -25,17 +27,10 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      final session = _supabase.auth.currentSession;
-      if (session != null) {
-        final user = await _supabase
-            .from('users')
-            .select('id, full_name, role')
-            .eq('id', session.user.id)
-            .single();
-        
-        _userId = user['id'] as String;
-        _userName = user['full_name'] as String;
-        _userRole = user['role'] as String;
+      final isLoggedIn = await _storageService.isLoggedIn();
+      if (isLoggedIn) {
+        _userName = await _storageService.getUserName();
+        _userId = await _storageService.getUserId();
       }
       _isLoading = false;
       notifyListeners();
@@ -54,55 +49,36 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      // First, get the user by username
-      final users = await _supabase
-          .from('users')
-          .select('id, password_hash, full_name, role, is_active')
-          .eq('username', username)
-          .limit(1);
-      
-      if (users.isEmpty) {
-        _errorMessage = 'Invalid username or password';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-      
-      final user = users.first;
-      
-      // Check if user is active
-      if (user['is_active'] == false) {
-        _errorMessage = 'User account is inactive';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-      
-      // Verify password (simple hash for demo - in production use proper bcrypt)
-      final passwordBytes = utf8.encode(password);
-      final passwordHash = sha256.convert(passwordBytes).toString();
-      
-      if (passwordHash != user['password_hash']) {
-        _errorMessage = 'Invalid username or password';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-      
-      // Create a session using Supabase Auth
-      // We'll use the user ID as the email for auth
-      await _supabase.auth.signInWithPassword(
-        email: '${username}@mechanic.local',
-        password: password,
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.login}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
       );
       
-      _userId = user['id'] as String;
-      _userName = user['full_name'] as String;
-      _userRole = user['role'] as String;
-      
-      _isLoading = false;
-      notifyListeners();
-      return true;
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final token = data['token'] as String;
+        final userData = data['user'] as Map<String, dynamic>;
+        
+        _userName = userData['fullName'] as String;
+        _userId = userData['id'] as String;
+        _userRole = userData['role'] as String;
+        
+        await _storageService.saveToken(token);
+        await _storageService.saveUserInfo(_userId!, _userName!);
+        
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = 'Login failed: ${response.statusCode}';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
     } catch (e) {
       _errorMessage = 'Login error: $e';
       _isLoading = false;
@@ -112,9 +88,9 @@ class AuthProvider with ChangeNotifier {
   }
   
   Future<void> logout() async {
-    await _supabase.auth.signOut();
-    _userId = null;
+    await _storageService.clearAll();
     _userName = null;
+    _userId = null;
     _userRole = null;
     notifyListeners();
   }

@@ -203,19 +203,24 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
         index: 2,
       ),
       _SidebarDestination(
+        icon: Icons.directions_car_rounded,
+        label: 'السيارات',
+        index: 3,
+      ),
+      _SidebarDestination(
         icon: Icons.build_rounded,
         label: 'الخدمات',
-        index: 3,
+        index: 4,
       ),
       _SidebarDestination(
         icon: Icons.work_rounded,
         label: 'الموظفين',
-        index: 4,
+        index: 5,
       ),
       _SidebarDestination(
         icon: Icons.bar_chart_rounded,
         label: 'التقارير',
-        index: 5,
+        index: 6,
       ),
     ];
 

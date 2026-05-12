@@ -12,6 +12,7 @@ import 'screens/customers_screen.dart';
 import 'screens/services_screen.dart';
 import 'screens/employees_screen.dart';
 import 'screens/reports_screen.dart';
+import 'screens/vehicles_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -271,6 +272,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       OverviewScreen(apiService: _apiService),
       BookingsScreen(apiService: _apiService),
       CustomersScreen(apiService: _apiService),
+      VehiclesScreen(apiService: _apiService),
       ServicesScreen(apiService: _apiService),
       EmployeesScreen(apiService: _apiService),
       ReportsScreen(apiService: _apiService),

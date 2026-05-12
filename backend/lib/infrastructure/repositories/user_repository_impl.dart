@@ -46,22 +46,18 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> findById(String id) async {
     try {
-      print('Finding user by id: $id');
       final result = await _db.connection.execute(
         Sql.named('SELECT * FROM users WHERE id = @id'),
         parameters: {'id': id},
       );
 
       if (result.isEmpty) {
-        print('User not found by id: $id');
         return null;
       }
-      
+
       final user = _mapRowToUser(result.first);
-      print('User found by id: ${user.username}');
       return user;
     } catch (e) {
-      print('Error finding user by id: $e');
       throw DatabaseException('Failed to find user by id: $e');
     }
   }
@@ -69,23 +65,18 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> findByUsername(String username) async {
     try {
-      print('Finding user by username: $username');
       final result = await _db.connection.execute(
         Sql.named('SELECT * FROM users WHERE username = @username AND is_active = true'),
         parameters: {'username': username},
       );
 
       if (result.isEmpty) {
-        print('User not found: $username');
         return null;
       }
 
       final user = _mapRowToUser(result.first);
-      print('User found: ${user.username}');
-      print('User has password hash: ${user.passwordHash != null && user.passwordHash!.isNotEmpty}');
       return user;
     } catch (e) {
-      print('Error finding user by username: $e');
       throw DatabaseException('Failed to find user by username: $e');
     }
   }

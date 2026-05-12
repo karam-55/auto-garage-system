@@ -14,7 +14,6 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer> create(Customer customer) async {
     try {
-      print('Creating customer: ${customer.fullName}');
       final result = await _db.connection.execute(
         Sql.named('''
           INSERT INTO customers (id, full_name, phone, address, created_at)
@@ -30,10 +29,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
         },
       );
 
-      print('Customer created successfully');
       return _mapRowToCustomer(result.first);
     } catch (e) {
-      print('Error creating customer: $e');
       throw DatabaseException('Failed to create customer: $e');
     }
   }
@@ -71,12 +68,9 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<List<Customer>> findAll() async {
     try {
-      print('Finding all customers...');
       final result = await _db.connection.execute('SELECT * FROM customers ORDER BY created_at DESC');
-      print('Found ${result.length} customers');
       return result.map(_mapRowToCustomer).toList();
     } catch (e) {
-      print('Error finding all customers: $e');
       throw DatabaseException('Failed to find all customers: $e');
     }
   }
@@ -84,7 +78,6 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer> update(Customer customer) async {
     try {
-      print('Updating customer: ${customer.id}');
       final result = await _db.connection.execute(
         Sql.named('''
           UPDATE customers 
@@ -101,10 +94,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
         },
       );
 
-      print('Customer updated successfully');
       return _mapRowToCustomer(result.first);
     } catch (e) {
-      print('Error updating customer: $e');
       throw DatabaseException('Failed to update customer: $e');
     }
   }
@@ -124,7 +115,6 @@ class CustomerRepositoryImpl implements CustomerRepository {
   Customer _mapRowToCustomer(ResultRow row) {
     try {
       final data = row.toColumnMap();
-      print('Mapping customer row: $data');
       return Customer(
         id: data['id'].toString(),
         fullName: data['full_name'] as String,
@@ -134,8 +124,6 @@ class CustomerRepositoryImpl implements CustomerRepository {
         updatedAt: data['updated_at'] as DateTime?,
       );
     } catch (e) {
-      print('Error mapping customer row: $e');
-      print('Row data: ${row.toColumnMap()}');
       rethrow;
     }
   }

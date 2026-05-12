@@ -145,12 +145,17 @@ void main(List<String> args) async {
 }
 
 Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) async {
+  final env = DotEnv()..load();
+  final adminPassword = Platform.environment['DEFAULT_ADMIN_PASSWORD'] ?? env['DEFAULT_ADMIN_PASSWORD'];
+  if (adminPassword == null || adminPassword.isEmpty) {
+    print('DEFAULT_ADMIN_PASSWORD not set. Skipping default admin creation.');
+    print('Set DEFAULT_ADMIN_PASSWORD to create an admin user on startup.');
+    return;
+  }
+
   try {
     final userRepository = UserRepositoryImpl(db, jwtSecret: jwtSecret);
-    
-    // Try to create default admin user
-    // If it already exists, it will fail silently
-    final passwordHash = BCrypt.hashpw('admin123', BCrypt.gensalt());
+    final passwordHash = BCrypt.hashpw(adminPassword, BCrypt.gensalt());
     final adminUser = User(
       id: const Uuid().v4(),
       fullName: 'System Admin',
@@ -159,12 +164,10 @@ Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) as
       role: Role.OWNER,
       createdAt: DateTime.now().toUtc(),
     );
-    
+
     try {
       await userRepository.create(adminUser);
       print('Default admin user created successfully');
-      print('Username: admin');
-      print('Password: admin123');
       print('⚠️  Please change the password after first login!');
     } catch (e) {
       // User might already exist, that's okay
@@ -177,12 +180,17 @@ Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) as
 }
 
 Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSecret) async {
+  final env = DotEnv()..load();
+  final receptionistPassword = Platform.environment['DEFAULT_RECEPTIONIST_PASSWORD'] ?? env['DEFAULT_RECEPTIONIST_PASSWORD'];
+  if (receptionistPassword == null || receptionistPassword.isEmpty) {
+    print('DEFAULT_RECEPTIONIST_PASSWORD not set. Skipping default receptionist creation.');
+    print('Set DEFAULT_RECEPTIONIST_PASSWORD to create a receptionist user on startup.');
+    return;
+  }
+
   try {
     final userRepository = UserRepositoryImpl(db, jwtSecret: jwtSecret);
-    
-    // Try to create default receptionist user
-    // If it already exists, it will fail silently
-    final passwordHash = BCrypt.hashpw('receptionist123', BCrypt.gensalt());
+    final passwordHash = BCrypt.hashpw(receptionistPassword, BCrypt.gensalt());
     final receptionistUser = User(
       id: const Uuid().v4(),
       fullName: 'Default Receptionist',
@@ -191,12 +199,10 @@ Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSec
       role: Role.RECEPTIONIST,
       createdAt: DateTime.now().toUtc(),
     );
-    
+
     try {
       await userRepository.create(receptionistUser);
       print('Default receptionist user created successfully');
-      print('Username: receptionist');
-      print('Password: receptionist123');
       print('⚠️  Please change the password after first login!');
     } catch (e) {
       // User might already exist, that's okay
@@ -210,18 +216,22 @@ Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSec
 
 Middleware _corsMiddleware() {
   final env = DotEnv()..load();
-  final allowedOrigin = Platform.environment['CORS_ORIGIN'] ?? env['CORS_ORIGIN'] ?? '*';
-  
+  final allowedOrigin = Platform.environment['CORS_ORIGIN'] ?? env['CORS_ORIGIN'];
+
+  if (allowedOrigin == null || allowedOrigin.isEmpty) {
+    print('⚠️  WARNING: CORS_ORIGIN not set. CORS will be restricted to same-origin only.');
+  }
+
   return (Handler innerHandler) {
     return (Request request) async {
-      final origin = allowedOrigin == '*' ? '*' : (request.headers['Origin'] ?? allowedOrigin);
-      
+      final effectiveOrigin = allowedOrigin ?? request.headers['Origin'] ?? '';
+
       // Handle preflight OPTIONS request
       if (request.method == 'OPTIONS') {
         return Response.ok(
           null,
           headers: {
-            'Access-Control-Allow-Origin': origin,
+            'Access-Control-Allow-Origin': effectiveOrigin,
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
             'Access-Control-Max-Age': '86400',
@@ -232,7 +242,7 @@ Middleware _corsMiddleware() {
       final response = await innerHandler(request);
       return response.change(
         headers: {
-          'Access-Control-Allow-Origin': origin,
+          'Access-Control-Allow-Origin': effectiveOrigin,
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           ...response.headers,

@@ -1,0 +1,7 @@
+=== Backend: dart analyze ===
+Result: 0 errors
+Warnings: Only style infos (constant_identifier_names for enum values like PENDING, IN_PROGRESS, etc.)
+Severity: info only — non-blocking for production
+
+=== Frontend: flutter analyze ===
+Result: 0 errors in admin_frontend

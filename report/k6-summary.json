@@ -1,0 +1,18 @@
+{
+  "note": "Load testing requires a running server with PostgreSQL. k6 is not installed in this environment.",
+  "recommendation": "Before production deployment, run the following load test:",
+  "test_plan": {
+    "target_rps": 100,
+    "duration": "2m",
+    "endpoints": [
+      "GET /api/customers",
+      "GET /api/bookings"
+    ],
+    "success_criteria": {
+      "error_rate": "< 1%",
+      "p95_latency": "< 1500ms",
+      "db_connections": "no exhaustion"
+    }
+  },
+  "preparedness": "Code is optimized for performance: N+1 queries eliminated, batch queries added, indexes present. Load test pending runtime environment."
+}

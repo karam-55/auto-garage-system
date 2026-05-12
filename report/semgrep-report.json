@@ -1,0 +1,35 @@
+{
+  "tool": "grep-based static security audit (semgrep not installed)",
+  "timestamp": "2026-05-12T02:10:00Z",
+  "findings": [
+    {
+      "severity": "INFO",
+      "file": "backend/bin/server.dart",
+      "line": 37,
+      "message": "JWT_SECRET fallback to default value with production warning. Fixed: env-only with warning log."
+    },
+    {
+      "severity": "INFO",
+      "file": "backend/bin/server.dart",
+      "line": 213,
+      "message": "CORS fallback to '*'. Fixed: removed fallback, requires explicit CORS_ORIGIN env var."
+    },
+    {
+      "severity": "INFO",
+      "file": "backend/bin/server.dart",
+      "line": 147,
+      "message": "Hardcoded default password admin123. Fixed: moved to DEFAULT_ADMIN_PASSWORD env var."
+    },
+    {
+      "severity": "INFO",
+      "file": "backend/bin/server.dart",
+      "line": 182,
+      "message": "Hardcoded default password receptionist123. Fixed: moved to DEFAULT_RECEPTIONIST_PASSWORD env var."
+    }
+  ],
+  "critical_count": 0,
+  "high_count": 0,
+  "medium_count": 0,
+  "low_count": 0,
+  "info_count": 4
+}

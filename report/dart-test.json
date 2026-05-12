@@ -1,0 +1,13 @@
+{
+  "note": "No unit test or integration test suite exists in the project.",
+  "recommendation": "Create test/ directory with the following tests before production:",
+  "required_tests": [
+    "JWT sign/verify: valid token, expired token, tampered signature",
+    "Auth routes: rate limiting after 5 attempts, registration requires OWNER",
+    "Customer CRUD: create with empty strings rejected, findById with null id rejected",
+    "SQL parameterization: verify all queries use Sql.named",
+    "Error middleware: ValidationException → 400, AuthenticationException → 401",
+    "CORS: preflight OPTIONS, blocked origin, allowed origin"
+  ],
+  "status": "NO_TEST_SUITE"
+}

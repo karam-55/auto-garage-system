@@ -1,0 +1,59 @@
+{
+  "note": "Runtime smoke tests require a running PostgreSQL instance and started server. These are code-level verifications.",
+  "endpoints_verified": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "expected_status": 200,
+      "expected_body_contains": "status",
+      "code_verified": true,
+      "file": "backend/bin/server.dart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "rate_limited": true,
+      "input_validated": true,
+      "code_verified": true,
+      "file": "backend/lib/presentation/routes/auth_routes.dart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "role_protected": "OWNER",
+      "code_verified": true,
+      "file": "backend/lib/presentation/routes/auth_routes.dart"
+    },
+    {
+      "method": "GET",
+      "path": "/api/customers",
+      "auth_required": true,
+      "code_verified": true,
+      "file": "backend/lib/presentation/routes/customer_routes.dart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/customers",
+      "auth_required": true,
+      "input_trimmed": true,
+      "code_verified": true,
+      "file": "backend/lib/presentation/routes/customer_routes.dart"
+    },
+    {
+      "method": "GET",
+      "path": "/api/bookings",
+      "auth_required": true,
+      "code_verified": true,
+      "file": "backend/lib/presentation/routes/booking_routes.dart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/bookings",
+      "auth_required": true,
+      "input_trimmed": true,
+      "code_verified": true,
+      "file": "backend/lib/presentation/routes/booking_routes.dart"
+    }
+  ],
+  "runtime_test_status": "REQUIRES_DATABASE"
+}

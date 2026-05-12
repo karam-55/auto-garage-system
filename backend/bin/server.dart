@@ -23,9 +23,11 @@ import '../lib/presentation/routes/service_routes.dart';
 import '../lib/presentation/routes/booking_routes.dart';
 import '../lib/presentation/routes/mechanic_routes.dart';
 import '../lib/presentation/routes/dashboard_routes.dart';
+import '../lib/presentation/middlewares/auth_middleware.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
-import '../lib/presentation/middlewares/logging_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
+import '../lib/presentation/middlewares/logging_middleware.dart';
+import '../lib/application/services/auth_service.dart';
 import '../lib/domain/entities/user.dart';
 import '../lib/domain/entities/role.dart';
 

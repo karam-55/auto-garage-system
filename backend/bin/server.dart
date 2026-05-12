@@ -45,6 +45,9 @@ void main(List<String> args) async {
     
     // Create default admin user if not exists
     await _createDefaultAdminUser(db);
+    
+    // Create default receptionist user if not exists
+    await _createDefaultReceptionistUser(db);
   } catch (e) {
     print('Failed to initialize database: $e');
     rethrow;
@@ -154,6 +157,38 @@ Future<void> _createDefaultAdminUser(DatabaseConnection db) async {
     }
   } catch (e) {
     print('Failed to create default admin user: $e');
+    // Don't rethrow - this is not critical for the server to start
+  }
+}
+
+Future<void> _createDefaultReceptionistUser(DatabaseConnection db) async {
+  try {
+    final userRepository = UserRepositoryImpl(db);
+    
+    // Try to create default receptionist user
+    // If it already exists, it will fail silently
+    final passwordHash = BCrypt.hashpw('receptionist123', BCrypt.gensalt());
+    final receptionistUser = User(
+      id: const Uuid().v4(),
+      fullName: 'Default Receptionist',
+      username: 'receptionist',
+      passwordHash: passwordHash,
+      role: Role.RECEPTIONIST,
+      createdAt: DateTime.now().toUtc(),
+    );
+    
+    try {
+      await userRepository.create(receptionistUser);
+      print('Default receptionist user created successfully');
+      print('Username: receptionist');
+      print('Password: receptionist123');
+      print('⚠️  Please change the password after first login!');
+    } catch (e) {
+      // User might already exist, that's okay
+      print('Receptionist user already exists or creation failed: $e');
+    }
+  } catch (e) {
+    print('Failed to create default receptionist user: $e');
     // Don't rethrow - this is not critical for the server to start
   }
 }

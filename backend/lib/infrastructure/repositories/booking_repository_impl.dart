@@ -15,20 +15,23 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<Booking> create(Booking booking) async {
     try {
-      final result = await _db.connection.execute('''
-        INSERT INTO bookings (id, customer_id, vehicle_id, status, public_token, notes, estimated_completion_date, created_at)
-        VALUES (@id, @customerId, @vehicleId, @status, @publicToken, @notes, @estimatedCompletionDate, @createdAt)
-        RETURNING *
-      ''', parameters: {
-        'id': booking.id.isEmpty ? _uuid.v4() : booking.id,
-        'customerId': booking.customerId,
-        'vehicleId': booking.vehicleId,
-        'status': booking.status.value,
-        'publicToken': booking.publicToken.isEmpty ? _generatePublicToken() : booking.publicToken,
-        'notes': booking.notes,
-        'estimatedCompletionDate': booking.estimatedCompletionDate,
-        'createdAt': booking.createdAt,
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          INSERT INTO bookings (id, customer_id, vehicle_id, status, public_token, notes, estimated_completion_date, created_at)
+          VALUES (@id, @customerId, @vehicleId, @status, @publicToken, @notes, @estimatedCompletionDate, @createdAt)
+          RETURNING *
+        '''),
+        parameters: {
+          'id': booking.id.isEmpty ? _uuid.v4() : booking.id,
+          'customerId': booking.customerId,
+          'vehicleId': booking.vehicleId,
+          'status': booking.status.value,
+          'publicToken': booking.publicToken.isEmpty ? _generatePublicToken() : booking.publicToken,
+          'notes': booking.notes,
+          'estimatedCompletionDate': booking.estimatedCompletionDate,
+          'createdAt': booking.createdAt,
+        },
+      );
 
       return _mapRowToBooking(result.first);
     } catch (e) {
@@ -40,7 +43,7 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<Booking?> findById(String id) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM bookings WHERE id = @id',
+        Sql.named('SELECT * FROM bookings WHERE id = @id'),
         parameters: {'id': id},
       );
 
@@ -55,8 +58,8 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<Booking?> findByPublicToken(String publicToken) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM bookings WHERE public_token = @publicToken',
-        parameters: {'publicToken': publicToken} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM bookings WHERE public_token = @publicToken'),
+        parameters: {'publicToken': publicToken},
       );
 
       if (result.isEmpty) return null;
@@ -70,8 +73,8 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<List<Booking>> findByCustomerId(String customerId) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM bookings WHERE customer_id = @customerId ORDER BY created_at DESC',
-        parameters: {'customerId': customerId} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM bookings WHERE customer_id = @customerId ORDER BY created_at DESC'),
+        parameters: {'customerId': customerId},
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -83,8 +86,8 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<List<Booking>> findByVehicleId(String vehicleId) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM bookings WHERE vehicle_id = @vehicleId ORDER BY created_at DESC',
-        parameters: {'vehicleId': vehicleId} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM bookings WHERE vehicle_id = @vehicleId ORDER BY created_at DESC'),
+        parameters: {'vehicleId': vehicleId},
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -106,8 +109,8 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<List<Booking>> findByStatus(String status) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM bookings WHERE status = @status ORDER BY created_at DESC',
-        parameters: {'status': status} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM bookings WHERE status = @status ORDER BY created_at DESC'),
+        parameters: {'status': status},
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -116,23 +119,42 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<Booking> update(Booking booking) async {
+  Future<List<Booking>> findAvailableForMechanic() async {
     try {
       final result = await _db.connection.execute('''
-        UPDATE bookings 
-        SET customer_id = @customerId, vehicle_id = @vehicleId, status = @status, 
-            notes = @notes, estimated_completion_date = @estimatedCompletionDate, updated_at = @updatedAt
-        WHERE id = @id
-        RETURNING *
-      ''', parameters: {
-        'id': booking.id,
-        'customerId': booking.customerId,
-        'vehicleId': booking.vehicleId,
-        'status': booking.status.value,
-        'notes': booking.notes,
-        'estimatedCompletionDate': booking.estimatedCompletionDate,
-        'updatedAt': DateTime.now().toUtc(),
-      } as Map<String, dynamic>);
+        SELECT b.id, b.customer_id, b.vehicle_id, b.status, b.public_token, b.notes, b.estimated_completion_date, b.created_at, b.updated_at
+        FROM bookings b
+        LEFT JOIN mechanic_assignments ma ON b.id = ma.booking_id
+        WHERE ma.id IS NULL AND b.status != 'DELIVERED' AND b.status != 'CANCELLED'
+        ORDER BY b.created_at DESC
+      ''');
+      return result.map(_mapRowToBooking).toList();
+    } catch (e) {
+      throw DatabaseException('Failed to find available bookings for mechanic: $e');
+    }
+  }
+
+  @override
+  Future<Booking> update(Booking booking) async {
+    try {
+      final result = await _db.connection.execute(
+        Sql.named('''
+          UPDATE bookings 
+          SET customer_id = @customerId, vehicle_id = @vehicleId, status = @status, 
+              notes = @notes, estimated_completion_date = @estimatedCompletionDate, updated_at = @updatedAt
+          WHERE id = @id
+          RETURNING *
+        '''),
+        parameters: {
+          'id': booking.id,
+          'customerId': booking.customerId,
+          'vehicleId': booking.vehicleId,
+          'status': booking.status.value,
+          'notes': booking.notes,
+          'estimatedCompletionDate': booking.estimatedCompletionDate,
+          'updatedAt': DateTime.now().toUtc(),
+        },
+      );
 
       return _mapRowToBooking(result.first);
     } catch (e) {
@@ -144,7 +166,7 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<void> delete(String id) async {
     try {
       await _db.connection.execute(
-        'DELETE FROM bookings WHERE id = @id',
+        Sql.named('DELETE FROM bookings WHERE id = @id'),
         parameters: {'id': id},
       );
     } catch (e) {

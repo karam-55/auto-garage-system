@@ -1,19 +1,20 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bcrypt/bcrypt.dart';
+import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import '../../domain/entities/user.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../core/errors/exceptions.dart';
-import '../../core/errors/failures.dart';
 import '../database/database_connection.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final DatabaseConnection _db;
   final Uuid _uuid = const Uuid();
+  final String _jwtSecret;
 
-  UserRepositoryImpl(this._db);
+  UserRepositoryImpl(this._db, {required String jwtSecret}) : _jwtSecret = jwtSecret;
 
   @override
   Future<User> create(User user) async {
@@ -46,9 +47,9 @@ class UserRepositoryImpl implements UserRepository {
   Future<User?> findById(String id) async {
     try {
       print('Finding user by id: $id');
-      // Use simple query without Sql.named for better compatibility
       final result = await _db.connection.execute(
-        "SELECT * FROM users WHERE id = '$id'",
+        Sql.named('SELECT * FROM users WHERE id = @id'),
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) {
@@ -69,9 +70,9 @@ class UserRepositoryImpl implements UserRepository {
   Future<User?> findByUsername(String username) async {
     try {
       print('Finding user by username: $username');
-      // Use simple query without Sql.named for better compatibility
       final result = await _db.connection.execute(
-        "SELECT * FROM users WHERE username = '$username' AND is_active = true",
+        Sql.named('SELECT * FROM users WHERE username = @username AND is_active = true'),
+        parameters: {'username': username},
       );
 
       if (result.isEmpty) {
@@ -153,37 +154,26 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User> authenticate(String username, String password) async {
     try {
-      print('Authenticating user: $username');
       final user = await findByUsername(username);
       if (user == null) {
-        print('User not found during authentication: $username');
         throw AuthenticationException('Invalid username or password', statusCode: 401);
       }
 
-      print('User found: ${user.username}, isActive: ${user.isActive}');
-      
       if (!user.isActive) {
-        print('User account is inactive: ${user.username}');
         throw AuthenticationException('User account is inactive', statusCode: 401);
       }
 
       if (user.passwordHash == null || user.passwordHash!.isEmpty) {
-        print('User has no password set: ${user.username}');
         throw AuthenticationException('User has no password set', statusCode: 401);
       }
 
-      print('Verifying password...');
       final isValid = BCrypt.checkpw(password, user.passwordHash!);
-      print('Password verification result: $isValid');
-      
       if (!isValid) {
         throw AuthenticationException('Invalid username or password', statusCode: 401);
       }
 
-      print('Authentication successful for: ${user.username}');
       return user;
     } catch (e) {
-      print('Authentication error: $e');
       if (e is AuthenticationException) {
         rethrow;
       }
@@ -193,86 +183,73 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<String> generateToken(User user) async {
-    // Simple JWT generation (in production, use a proper JWT library)
-    // For now, we'll use a simple token with user info
-    final payload = {
+    final header = _base64UrlEncode({'alg': 'HS256', 'typ': 'JWT'});
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final payload = _base64UrlEncode({
       'sub': user.id,
       'username': user.username,
       'role': user.role.value,
-      'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      'exp': DateTime.now().add(const Duration(hours: 24)).millisecondsSinceEpoch ~/ 1000,
-    };
-
-    // This is a simplified token generation - in production use dart_jsonwebtoken or similar
-    return _generateSimpleJWT(payload);
+      'iat': now,
+      'exp': now + 86400, // 24 hours
+    });
+    final signature = _sign('${header}.${payload}');
+    return '${header}.${payload}.${signature}';
   }
 
-  String _generateSimpleJWT(Map<String, dynamic> payload) {
-    // Simplified JWT generation - replace with proper library in production
-    final header = {'alg': 'HS256', 'typ': 'JWT'};
-    final encodedHeader = _base64UrlEncode(header);
-    final encodedPayload = _base64UrlEncode(payload);
-    final signature = _base64UrlEncode('${encodedHeader}.$encodedPayload');
-    return '$encodedHeader.$encodedPayload.$signature';
+  String _sign(String input) {
+    final hmac = Hmac(sha256, utf8.encode(_jwtSecret));
+    final digest = hmac.convert(utf8.encode(input));
+    return base64UrlEncode(digest.bytes);
   }
 
-  String _base64UrlEncode(dynamic data) {
-    String jsonString;
-    if (data is Map || data is List) {
-      jsonString = jsonEncode(data);
-    } else {
-      jsonString = data.toString();
-    }
-    final bytes = utf8.encode(jsonString);
+  String _base64UrlEncode(Map<String, dynamic> data) {
+    final bytes = utf8.encode(jsonEncode(data));
     return base64Url.encode(bytes);
   }
 
   @override
   Future<User?> verifyToken(String token) async {
     try {
-      print('Verifying token...');
-      // Simplified token verification - replace with proper JWT library in production
       final parts = token.split('.');
       if (parts.length != 3) {
-        print('Invalid token format: expected 3 parts, got ${parts.length}');
         return null;
       }
 
-      final payloadStr = parts[1];
-      print('Decoding payload...');
-      final decoded = _base64UrlDecode(payloadStr);
-      print('Decoded payload length: ${decoded.length}');
-      
+      // Verify signature (constant-time comparison to prevent timing attacks)
+      final expectedSignature = _sign('${parts[0]}.${parts[1]}');
+      if (!_constantTimeEquals(parts[2], expectedSignature)) {
+        return null;
+      }
+
+      final decoded = _base64UrlDecode(parts[1]);
       final payload = jsonDecode(decoded) as Map<String, dynamic>;
-      print('Payload decoded: $payload');
-
-      if (payload == null) {
-        print('Payload is null after decoding');
-        return null;
-      }
 
       final userId = payload['sub'] as String?;
-      print('User ID from token: $userId');
-      
       if (userId == null) {
-        print('User ID is null in payload');
         return null;
       }
 
-      print('Finding user by ID from token: $userId');
-      final user = await findById(userId);
-      
-      if (user == null) {
-        print('User not found by ID from token: $userId');
-      } else {
-        print('User found from token: ${user.username}');
+      // Check token expiration
+      final exp = payload['exp'] as int?;
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      if (exp != null && now > exp) {
+        return null;
       }
-      
+
+      final user = await findById(userId);
       return user;
     } catch (e) {
-      print('Token verification failed: $e');
       return null;
     }
+  }
+
+  bool _constantTimeEquals(String a, String b) {
+    if (a.length != b.length) return false;
+    var result = 0;
+    for (var i = 0; i < a.length; i++) {
+      result |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+    return result == 0;
   }
 
   String _base64UrlDecode(String str) {

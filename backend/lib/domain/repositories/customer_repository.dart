@@ -1,5 +1,4 @@
 import '../entities/customer.dart';
-import '../../core/errors/failures.dart';
 
 abstract class CustomerRepository {
   Future<Customer> create(Customer customer);

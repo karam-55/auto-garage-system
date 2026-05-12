@@ -102,8 +102,9 @@ class DashboardRoutes {
       double totalRevenue = 0;
       final serviceUsage = <String, int>{};
 
-      for (final booking in filteredBookings) {
-        final services = await _bookingServiceRepository.findByBookingId(booking.id);
+      if (filteredBookings.isNotEmpty) {
+        final bookingIds = filteredBookings.map((b) => b.id).toList();
+        final services = await _bookingServiceRepository.findByBookingIds(bookingIds);
         for (final service in services) {
           totalRevenue += service.priceSYP;
           serviceUsage[service.serviceId] = (serviceUsage[service.serviceId] ?? 0) + 1;

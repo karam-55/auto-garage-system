@@ -5,12 +5,7 @@ import '../../core/errors/failures.dart';
 class AuthService {
   final UserRepository _userRepository;
 
-  AuthService(this._userRepository) {
-    // Ensure UserRepository implements AuthRepository
-    if (_userRepository is! UserRepository) {
-      throw ArgumentError('AuthRepository must be a UserRepository');
-    }
-  }
+  AuthService(this._userRepository);
 
   Future<User> login(String username, String password) async {
     try {

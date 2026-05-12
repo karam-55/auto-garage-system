@@ -15,15 +15,20 @@ class CustomerRepositoryImpl implements CustomerRepository {
   Future<Customer> create(Customer customer) async {
     try {
       print('Creating customer: ${customer.fullName}');
-      final id = customer.id.isEmpty ? _uuid.v4() : customer.id;
-      print('Customer ID: $id');
-      
-      // Use simple query without Sql.named for better compatibility
-      final result = await _db.connection.execute('''
-        INSERT INTO customers (id, full_name, phone, address, created_at)
-        VALUES ('$id', '${customer.fullName}', '${customer.phone}', '${customer.address ?? ''}', '${customer.createdAt.toIso8601String()}')
-        RETURNING *
-      ''');
+      final result = await _db.connection.execute(
+        Sql.named('''
+          INSERT INTO customers (id, full_name, phone, address, created_at)
+          VALUES (@id, @fullName, @phone, @address, @createdAt)
+          RETURNING *
+        '''),
+        parameters: {
+          'id': customer.id.isEmpty ? _uuid.v4() : customer.id,
+          'fullName': customer.fullName,
+          'phone': customer.phone,
+          'address': customer.address,
+          'createdAt': customer.createdAt,
+        },
+      );
 
       print('Customer created successfully');
       return _mapRowToCustomer(result.first);
@@ -37,7 +42,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   Future<Customer?> findById(String id) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM customers WHERE id = @id',
+        Sql.named('SELECT * FROM customers WHERE id = @id'),
         parameters: {'id': id},
       );
 
@@ -52,8 +57,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
   Future<Customer?> findByPhone(String phone) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM customers WHERE phone = @phone',
-        parameters: {'phone': phone} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM customers WHERE phone = @phone'),
+        parameters: {'phone': phone},
       );
 
       if (result.isEmpty) return null;
@@ -80,15 +85,21 @@ class CustomerRepositoryImpl implements CustomerRepository {
   Future<Customer> update(Customer customer) async {
     try {
       print('Updating customer: ${customer.id}');
-      final updatedAt = DateTime.now().toUtc().toIso8601String();
-      
-      // Use simple query without Sql.named for better compatibility
-      final result = await _db.connection.execute('''
-        UPDATE customers 
-        SET full_name = '${customer.fullName}', phone = '${customer.phone}', address = '${customer.address ?? ''}', updated_at = '$updatedAt'
-        WHERE id = '${customer.id}'
-        RETURNING *
-      ''');
+      final result = await _db.connection.execute(
+        Sql.named('''
+          UPDATE customers 
+          SET full_name = @fullName, phone = @phone, address = @address, updated_at = @updatedAt
+          WHERE id = @id
+          RETURNING *
+        '''),
+        parameters: {
+          'id': customer.id,
+          'fullName': customer.fullName,
+          'phone': customer.phone,
+          'address': customer.address,
+          'updatedAt': DateTime.now().toUtc(),
+        },
+      );
 
       print('Customer updated successfully');
       return _mapRowToCustomer(result.first);
@@ -102,7 +113,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   Future<void> delete(String id) async {
     try {
       await _db.connection.execute(
-        'DELETE FROM customers WHERE id = @id',
+        Sql.named('DELETE FROM customers WHERE id = @id'),
         parameters: {'id': id},
       );
     } catch (e) {

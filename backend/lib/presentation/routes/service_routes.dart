@@ -51,8 +51,11 @@ class ServiceRoutes {
 
   Future<Response> _getServiceById(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      final service = await _serviceRepository.findById(id!);
+      final service = await _serviceRepository.findById(id);
       if (service == null) {
         return Response.notFound(jsonEncode({'error': 'Service not found'}));
       }
@@ -70,13 +73,13 @@ class ServiceRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final name = body['name'] as String?;
-    final description = body['description'] as String?;
+    final name = (body['name'] as String?)?.trim();
+    final description = (body['description'] as String?)?.trim();
     final priceSYP = body['priceSYP'] as double?;
     final estimatedDurationMinutes = body['estimatedDurationMinutes'] as int?;
 
-    if (name == null || priceSYP == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'name and priceSYP are required'}));
+    if (name == null || name.isEmpty || priceSYP == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'name and priceSYP are required and cannot be empty'}));
     }
 
     try {
@@ -100,20 +103,23 @@ class ServiceRoutes {
 
   Future<Response> _updateService(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
     try {
-      final existingService = await _serviceRepository.findById(id!);
+      final existingService = await _serviceRepository.findById(id);
       if (existingService == null) {
         return Response.notFound(jsonEncode({'error': 'Service not found'}));
       }
 
       final updatedService = existingService.copyWith(
-        name: body['name'] as String? ?? existingService.name,
-        description: body['description'] as String?,
+        name: (body['name'] as String?)?.trim() ?? existingService.name,
+        description: (body['description'] as String?)?.trim(),
         priceSYP: body['priceSYP'] as double? ?? existingService.priceSYP,
         estimatedDurationMinutes: body['estimatedDurationMinutes'] as int?,
         isActive: body['isActive'] as bool?,
@@ -131,8 +137,11 @@ class ServiceRoutes {
 
   Future<Response> _deleteService(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      await _serviceRepository.delete(id!);
+      await _serviceRepository.delete(id);
       return Response.ok(jsonEncode({'message': 'Service deleted successfully'}));
     } catch (e) {
       return Response.internalServerError(

@@ -14,17 +14,20 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<BookingService> create(BookingService bookingService) async {
     try {
-      final result = await _db.connection.execute('''
-        INSERT INTO booking_services (id, booking_id, service_id, price_syp, notes)
-        VALUES (@id, @bookingId, @serviceId, @priceSyp, @notes)
-        RETURNING *
-      ''', parameters: {
-        'id': bookingService.id.isEmpty ? _uuid.v4() : bookingService.id,
-        'bookingId': bookingService.bookingId,
-        'serviceId': bookingService.serviceId,
-        'priceSyp': bookingService.priceSYP,
-        'notes': bookingService.notes,
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          INSERT INTO booking_services (id, booking_id, service_id, price_syp, notes)
+          VALUES (@id, @bookingId, @serviceId, @priceSyp, @notes)
+          RETURNING *
+        '''),
+        parameters: {
+          'id': bookingService.id.isEmpty ? _uuid.v4() : bookingService.id,
+          'bookingId': bookingService.bookingId,
+          'serviceId': bookingService.serviceId,
+          'priceSyp': bookingService.priceSYP,
+          'notes': bookingService.notes,
+        },
+      );
 
       return _mapRowToBookingService(result.first);
     } catch (e) {
@@ -36,7 +39,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   Future<BookingService?> findById(String id) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM booking_services WHERE id = @id',
+        Sql.named('SELECT * FROM booking_services WHERE id = @id'),
         parameters: {'id': id},
       );
 
@@ -51,7 +54,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   Future<List<BookingService>> findByBookingId(String bookingId) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM booking_services WHERE booking_id = @bookingId',
+        Sql.named('SELECT * FROM booking_services WHERE booking_id = @bookingId'),
         parameters: {'bookingId': bookingId},
       );
       return result.map(_mapRowToBookingService).toList();
@@ -61,10 +64,23 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   }
 
   @override
+  Future<List<BookingService>> findByBookingIds(List<String> bookingIds) async {
+    try {
+      final result = await _db.connection.execute(
+        Sql.named('SELECT * FROM booking_services WHERE booking_id = ANY(@bookingIds)'),
+        parameters: {'bookingIds': bookingIds},
+      );
+      return result.map(_mapRowToBookingService).toList();
+    } catch (e) {
+      throw DatabaseException('Failed to find booking services by booking ids: $e');
+    }
+  }
+
+  @override
   Future<void> delete(String id) async {
     try {
       await _db.connection.execute(
-        'DELETE FROM booking_services WHERE id = @id',
+        Sql.named('DELETE FROM booking_services WHERE id = @id'),
         parameters: {'id': id},
       );
     } catch (e) {
@@ -76,7 +92,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   Future<void> deleteByBookingId(String bookingId) async {
     try {
       await _db.connection.execute(
-        'DELETE FROM booking_services WHERE booking_id = @bookingId',
+        Sql.named('DELETE FROM booking_services WHERE booking_id = @bookingId'),
         parameters: {'bookingId': bookingId},
       );
     } catch (e) {

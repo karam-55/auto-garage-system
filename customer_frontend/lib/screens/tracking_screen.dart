@@ -34,11 +34,20 @@ class _TrackingScreenState extends State<TrackingScreen> {
       final response = await _apiService.get('${ApiConstants.publicBooking}${widget.publicToken}');
       
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final decoded = json.decode(response.body);
+        if (decoded is! Map<String, dynamic>) {
+          throw Exception('Invalid response format: expected JSON object');
+        }
+        final data = decoded;
+        final bookingData = data['booking'];
+        final servicesData = data['services'];
+        if (bookingData == null) {
+          throw Exception('Missing booking data in response');
+        }
         setState(() {
-          _booking = Booking.fromJson(data['booking']);
-          _services = (data['services'] as List)
-              .map((json) => BookingService.fromJson(json))
+          _booking = Booking.fromJson(bookingData as Map<String, dynamic>);
+          _services = (servicesData is List ? servicesData : [])
+              .map((json) => BookingService.fromJson(json as Map<String, dynamic>))
               .toList();
           _isLoading = false;
         });

@@ -1,5 +1,4 @@
 import '../entities/service.dart';
-import '../../core/errors/failures.dart';
 
 abstract class ServiceRepository {
   Future<Service> create(Service service);

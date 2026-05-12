@@ -11,52 +11,31 @@ class ApiService {
   // Set token for authentication
   void setToken(String? token) {
     _token = token;
-    print('Token set: ${token != null ? "Token is set" : "Token is null"}');
-    if (token != null && token.length > 50) {
-      print('Token preview: ${token.substring(0, 50)}...');
-    }
   }
 
   // Generic GET request
   Future<dynamic> get(String endpoint) async {
     try {
-      print('ApiService.get() called for endpoint: $endpoint');
       final response = await _client.get(
         Uri.parse('${ApiConstants.baseUrl}$endpoint'),
         headers: _getHeaders(),
       );
-      
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      
-      final result = _handleResponse(response);
-      print('Parsed result type: ${result.runtimeType}');
-      print('Parsed result: $result');
-      
-      return result;
+      return _handleResponse(response);
     } catch (e) {
-      print('ApiService.get() error: $e');
       throw Exception('فشل الاتصال بالخادم: $e');
     }
   }
-  
+
   // Generic POST request
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
     try {
-      print('ApiService.post() called for endpoint: $endpoint');
-      print('Data to send: $data');
       final response = await _client.post(
         Uri.parse('${ApiConstants.baseUrl}$endpoint'),
         headers: _getHeaders(),
         body: jsonEncode(data),
       );
-      
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      
       return _handleResponse(response);
     } catch (e) {
-      print('ApiService.post() error: $e');
       throw Exception('فشل الاتصال بالخادم: $e');
     }
   }
@@ -97,45 +76,31 @@ class ApiService {
       'Accept': 'application/json',
     };
     
-    print('ApiService._getHeaders() called');
-    print('Token is ${_token != null ? "SET" : "NULL"}');
-    print('Token length: ${_token?.length ?? 0}');
-    
     if (_token != null) {
       headers['Authorization'] = 'Bearer $_token';
-      print('Authorization header added: Bearer ${_token!.substring(0, 50)}...');
-    } else {
-      print('Warning: No token available, Authorization header not added');
     }
     
     return headers;
   }
   
   // Handle response
-  Map<String, dynamic> _handleResponse(http.Response response) {
-    print('_handleResponse called with status code: ${response.statusCode}');
-    print('Response body type: ${response.body.runtimeType}');
-    print('Response body length: ${response.body.length}');
-    
+  dynamic _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       try {
-        final decoded = jsonDecode(response.body);
-        print('Decoded JSON type: ${decoded.runtimeType}');
-        print('Decoded JSON: $decoded');
-        return decoded;
+        return jsonDecode(response.body);
       } catch (e) {
-        print('Error decoding JSON: $e');
-        print('Response body: ${response.body}');
         throw Exception('فشل في تحليل الاستجابة: $e');
       }
     } else if (response.statusCode == 401) {
-      throw Exception('غير مصرح');
+      throw Exception('غير مصرح: يرجى تسجيل الدخول مرة أخرى');
     } else if (response.statusCode == 403) {
-      throw Exception('ممنوع');
+      throw Exception('ممنوع: ليس لديك الصلاحية');
     } else if (response.statusCode == 404) {
       throw Exception('غير موجود');
+    } else if (response.statusCode == 429) {
+      throw Exception('طلبات كثيرة: يرجى الانتظار قليلاً');
     } else if (response.statusCode == 500) {
-      throw Exception('خطأ في الخادم: ${response.body}');
+      throw Exception('خطأ في الخادم: يرجى المحاولة لاحقاً');
     } else {
       throw Exception('خطأ غير معروف: ${response.statusCode}');
     }

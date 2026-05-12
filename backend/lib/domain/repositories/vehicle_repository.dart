@@ -1,5 +1,4 @@
 import '../entities/vehicle.dart';
-import '../../core/errors/failures.dart';
 
 abstract class VehicleRepository {
   Future<Vehicle> create(Vehicle vehicle);

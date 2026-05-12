@@ -295,7 +295,7 @@ class BookingsScreen extends StatefulWidget {
 }
 
 class _BookingsScreenState extends State<BookingsScreen> {
-  List<dynamic> _bookings = [];
+  List<Map<String, dynamic>> _bookings = [];
   bool _isLoading = false;
 
   @override
@@ -309,8 +309,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
     try {
       final response = await widget.apiService.get(ApiConstants.bookings);
       setState(() {
-        // Backend returns array directly, not wrapped in {data: [...]}
-        _bookings = response is List ? response : (response['data'] ?? []);
+        // Backend returns array directly, not wrapped in {data: [...]} 
+        final raw = response is List ? response : (response['data'] ?? []);
+        _bookings = List<Map<String, dynamic>>.from(raw);
         _isLoading = false;
       });
     } catch (e) {
@@ -472,12 +473,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
     setState(() => _isLoading = true);
     try {
       final response = await widget.apiService.get(ApiConstants.customers);
-      print('LoadCustomers response type: ${response.runtimeType}');
-      print('LoadCustomers response: $response');
       setState(() {
         // Backend returns array directly, not wrapped in {data: [...]}
-        _customers = response is List ? response : (response['data'] ?? []);
-        print('Loaded customers: $_customers');
+        final raw = response is List ? response : (response['data'] ?? []);
+        _customers = List<Map<String, dynamic>>.from(raw);
         _isLoading = false;
       });
     } catch (e) {
@@ -644,7 +643,7 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  List<dynamic> _services = [];
+  List<Map<String, dynamic>> _services = [];
   bool _isLoading = false;
 
   @override
@@ -659,7 +658,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
       final response = await widget.apiService.get(ApiConstants.services);
       setState(() {
         // Backend returns array directly, not wrapped in {data: [...]}
-        _services = response is List ? response : (response['data'] ?? []);
+        final raw = response is List ? response : (response['data'] ?? []);
+        _services = List<Map<String, dynamic>>.from(raw);
         _isLoading = false;
       });
     } catch (e) {
@@ -836,7 +836,7 @@ class EmployeesScreen extends StatefulWidget {
 }
 
 class _EmployeesScreenState extends State<EmployeesScreen> {
-  List<dynamic> _employees = [];
+  List<Map<String, dynamic>> _employees = [];
   bool _isLoading = false;
 
   @override
@@ -851,7 +851,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       final response = await widget.apiService.get(ApiConstants.employees);
       setState(() {
         // Backend returns array directly, not wrapped in {data: [...]}
-        _employees = response is List ? response : (response['data'] ?? []);
+        final raw = response is List ? response : (response['data'] ?? []);
+        _employees = List<Map<String, dynamic>>.from(raw);
         _isLoading = false;
       });
     } catch (e) {

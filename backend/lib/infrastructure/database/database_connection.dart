@@ -25,13 +25,14 @@ class DatabaseConnection {
       throw Exception('DATABASE_URL environment variable is not set');
     }
 
-    // Parse DATABASE_URL
+    // Parse DATABASE_URL safely
     final uri = Uri.parse(databaseUrl);
     final host = uri.host;
     final port = uri.port != 0 ? uri.port : 5432;
-    final databaseName = uri.path.substring(1); // Remove leading /
-    final username = uri.userInfo.split(':')[0];
-    final password = uri.userInfo.split(':')[1];
+    final databaseName = uri.path.isNotEmpty ? uri.path.substring(1) : '';
+    final userInfoParts = uri.userInfo.split(':');
+    final username = userInfoParts.isNotEmpty ? userInfoParts[0] : '';
+    final password = userInfoParts.length > 1 ? userInfoParts[1] : '';
 
     _connection = await Connection.open(
       Endpoint(
@@ -162,12 +163,16 @@ CREATE TABLE IF NOT EXISTS part_suggestions (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 CREATE INDEX IF NOT EXISTS idx_vehicles_customer_id ON vehicles(customer_id);
+CREATE INDEX IF NOT EXISTS idx_vehicles_license_plate ON vehicles(license_plate);
 CREATE INDEX IF NOT EXISTS idx_bookings_customer_id ON bookings(customer_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_vehicle_id ON bookings(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_public_token ON bookings(public_token);
+CREATE INDEX IF NOT EXISTS idx_services_is_active ON services(is_active);
 CREATE INDEX IF NOT EXISTS idx_booking_services_booking_id ON booking_services(booking_id);
 CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_booking_id ON mechanic_assignments(booking_id);
 CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_mechanic_user_id ON mechanic_assignments(mechanic_user_id);

@@ -231,22 +231,26 @@ All tables use UUID primary keys and include appropriate indexes for performance
 ## ⚠️ Known Issues & Current Status
 
 ### Fixed Issues
-1. **Sql.named Parameters Issue** - Fixed by replacing Sql.named with simple queries in repositories
-2. **JWT Token Format** - Fixed base64 URL encoding in user_repository_impl.dart
-3. **Response Parsing** - Fixed frontend to handle direct array responses instead of expecting `response['data']`
+1. **Sql.named Parameters** - Fixed by using `Sql.named` with proper `Map<String, dynamic>` parameters across all repositories
+2. **JWT Security** - Implemented proper HMAC-SHA256 signature verification with `JWT_SECRET`, added `exp` enforcement, and constant-time signature comparison
+3. **Response Parsing** - Fixed frontend to handle direct array responses with strong typing (`List<Map<String, dynamic>>`)
+4. **NoSuchMethodError in Frontend** - Fixed by converting API responses to `List<Map<String, dynamic>>` in Customers, Bookings, Services, and Employees screens
+5. **N+1 Queries** - Fixed in `mechanic_routes` (`findAvailableForMechanic`) and `dashboard_routes` (`findByBookingIds` batch query)
+6. **Open Registration** - Protected `POST /api/auth/register` with authentication + OWNER role requirement
+7. **Open CORS** - Made CORS origin configurable via `CORS_ORIGIN` environment variable
+8. **Rate Limiting** - Added login rate limiting (5 attempts per 15 minutes per IP)
+9. **Input Validation** - Added trimming and empty-string rejection across all create/update endpoints
+10. **Schema Default Admin** - Removed unsafe placeholder hash insert from schema.sql
+11. **Missing Indexes** - Added indexes on `users.username`, `users.role`, `services.is_active`, `vehicles.license_plate`
 
 ### Current Issues
-1. **NoSuchMethodError in Frontend** - When displaying customers, bookings, services, or employees
-   - Backend returns data correctly (verified via logs)
-   - Frontend fetches data but fails to display
-   - Added detailed logging to debug the issue
-   - **Status:** Under investigation
+- **None critical.** All previously identified issues have been resolved.
 
 ### Important Implementation Details
 - **Database Field Naming:** PostgreSQL uses snake_case (full_name, created_at), but backend entities use camelCase (fullName, createdAt). Repository mapping handles the conversion.
 - **API Response Format:** Backend returns JSON arrays directly, not wrapped in `{data: [...]}`. Frontend must handle this.
 - **Role Hierarchy:** OWNER (4) > MANAGER (3) > RECEPTIONIST (2) > MECHANIC (1). Higher roles can access lower role endpoints.
-- **Simple Queries:** Due to postgres package limitations, use simple query strings instead of Sql.named for INSERT/UPDATE operations.
+- **JWT Security:** Tokens are signed with HS256 using `JWT_SECRET`. Default tokens expire after 24 hours.
 
 ## 📝 Future Enhancements
 

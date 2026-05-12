@@ -52,4 +52,28 @@ class Vehicle {
   }
   
   String get fullName => '$make $model $year';
+
+  Vehicle copyWith({
+    String? id,
+    String? customerId,
+    String? make,
+    String? model,
+    int? year,
+    String? licensePlate,
+    String? vin,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Vehicle(
+      id: id ?? this.id,
+      customerId: customerId ?? this.customerId,
+      make: make ?? this.make,
+      model: model ?? this.model,
+      year: year ?? this.year,
+      licensePlate: licensePlate ?? this.licensePlate,
+      vin: vin ?? this.vin,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

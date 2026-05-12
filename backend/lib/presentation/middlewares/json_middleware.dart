@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
+import '../../core/errors/exceptions.dart';
 
 class JsonMiddleware {
   static Middleware jsonContent() {
@@ -23,9 +24,14 @@ class JsonMiddleware {
     if (body.isEmpty) return null;
     
     try {
-      return jsonDecode(body) as Map<String, dynamic>;
+      final decoded = jsonDecode(body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      throw ValidationException('Request body must be a JSON object');
     } catch (e) {
-      return null;
+      if (e is ValidationException) rethrow;
+      throw ValidationException('Invalid JSON body: $e');
     }
   }
 }

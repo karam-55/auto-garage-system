@@ -53,8 +53,11 @@ class VehicleRoutes {
 
   Future<Response> _getVehicleById(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      final vehicle = await _vehicleRepository.findById(id!);
+      final vehicle = await _vehicleRepository.findById(id);
       if (vehicle == null) {
         return Response.notFound(jsonEncode({'error': 'Vehicle not found'}));
       }
@@ -68,8 +71,11 @@ class VehicleRoutes {
 
   Future<Response> _getVehiclesByCustomerId(Request request) async {
     final customerId = request.params['customerId'];
+    if (customerId == null || customerId.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'customerId is required'}));
+    }
     try {
-      final vehicles = await _vehicleRepository.findByCustomerId(customerId!);
+      final vehicles = await _vehicleRepository.findByCustomerId(customerId);
       return Response.ok(
         jsonEncode(vehicles.map((v) => v.toJson()).toList()),
       );
@@ -86,15 +92,18 @@ class VehicleRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final customerId = body['customerId'] as String?;
-    final make = body['make'] as String?;
-    final model = body['model'] as String?;
+    final customerId = (body['customerId'] as String?)?.trim();
+    final make = (body['make'] as String?)?.trim();
+    final model = (body['model'] as String?)?.trim();
     final year = body['year'] as int?;
-    final licensePlate = body['licensePlate'] as String?;
-    final vin = body['vin'] as String?;
+    final licensePlate = (body['licensePlate'] as String?)?.trim();
+    final vin = (body['vin'] as String?)?.trim();
 
-    if (customerId == null || make == null || model == null || year == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'customerId, make, model, and year are required'}));
+    if (customerId == null || customerId.isEmpty ||
+        make == null || make.isEmpty ||
+        model == null || model.isEmpty ||
+        year == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'customerId, make, model, and year are required and cannot be empty'}));
     }
 
     try {
@@ -120,24 +129,27 @@ class VehicleRoutes {
 
   Future<Response> _updateVehicle(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
     try {
-      final existingVehicle = await _vehicleRepository.findById(id!);
+      final existingVehicle = await _vehicleRepository.findById(id);
       if (existingVehicle == null) {
         return Response.notFound(jsonEncode({'error': 'Vehicle not found'}));
       }
 
       final updatedVehicle = existingVehicle.copyWith(
-        customerId: body['customerId'] as String? ?? existingVehicle.customerId,
-        make: body['make'] as String? ?? existingVehicle.make,
-        model: body['model'] as String? ?? existingVehicle.model,
+        customerId: (body['customerId'] as String?)?.trim() ?? existingVehicle.customerId,
+        make: (body['make'] as String?)?.trim() ?? existingVehicle.make,
+        model: (body['model'] as String?)?.trim() ?? existingVehicle.model,
         year: body['year'] as int? ?? existingVehicle.year,
-        licensePlate: body['licensePlate'] as String?,
-        vin: body['vin'] as String?,
+        licensePlate: (body['licensePlate'] as String?)?.trim(),
+        vin: (body['vin'] as String?)?.trim(),
         updatedAt: DateTime.now().toUtc(),
       );
 
@@ -152,8 +164,11 @@ class VehicleRoutes {
 
   Future<Response> _deleteVehicle(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      await _vehicleRepository.delete(id!);
+      await _vehicleRepository.delete(id);
       return Response.ok(jsonEncode({'message': 'Vehicle deleted successfully'}));
     } catch (e) {
       return Response.internalServerError(

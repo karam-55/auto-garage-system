@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:shelf/shelf.dart';
@@ -27,11 +28,16 @@ import '../lib/presentation/middlewares/logging_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
 import '../lib/domain/entities/user.dart';
 import '../lib/domain/entities/role.dart';
-import 'dart:io';
 
 void main(List<String> args) async {
   // Load environment variables
   final env = DotEnv()..load();
+
+  // JWT Secret from environment
+  final jwtSecret = Platform.environment['JWT_SECRET'] ?? env['JWT_SECRET'] ?? 'default-secret-change-in-production';
+  if (jwtSecret == 'default-secret-change-in-production') {
+    print('⚠️  WARNING: Using default JWT_SECRET. Set JWT_SECRET environment variable for production!');
+  }
 
   // Initialize database
   final db = DatabaseConnection.instance;
@@ -44,17 +50,17 @@ void main(List<String> args) async {
     print('Database schema executed successfully');
     
     // Create default admin user if not exists
-    await _createDefaultAdminUser(db);
+    await _createDefaultAdminUser(db, jwtSecret);
     
     // Create default receptionist user if not exists
-    await _createDefaultReceptionistUser(db);
+    await _createDefaultReceptionistUser(db, jwtSecret);
   } catch (e) {
     print('Failed to initialize database: $e');
     rethrow;
   }
 
   // Initialize repositories
-  final userRepository = UserRepositoryImpl(db);
+  final userRepository = UserRepositoryImpl(db, jwtSecret: jwtSecret);
   final customerRepository = CustomerRepositoryImpl(db);
   final vehicleRepository = VehicleRepositoryImpl(db);
   final serviceRepository = ServiceRepositoryImpl(db);
@@ -96,6 +102,15 @@ void main(List<String> args) async {
       .add(bookingRoutes.router)
       .add(mechanicRoutes.router)
       .add(dashboardRoutes.router)
+      .add((Request request) {
+        if (request.url.path == 'health') {
+          return Response.ok(
+            jsonEncode({'status': 'ok', 'timestamp': DateTime.now().toIso8601String()}),
+            headers: {'Content-Type': 'application/json'},
+          );
+        }
+        return Response.notFound('Not Found');
+      })
       .handler;
 
   // Configure middleware pipeline
@@ -129,9 +144,9 @@ void main(List<String> args) async {
   print('  GET    /public/bookings/<publicToken>');
 }
 
-Future<void> _createDefaultAdminUser(DatabaseConnection db) async {
+Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) async {
   try {
-    final userRepository = UserRepositoryImpl(db);
+    final userRepository = UserRepositoryImpl(db, jwtSecret: jwtSecret);
     
     // Try to create default admin user
     // If it already exists, it will fail silently
@@ -161,9 +176,9 @@ Future<void> _createDefaultAdminUser(DatabaseConnection db) async {
   }
 }
 
-Future<void> _createDefaultReceptionistUser(DatabaseConnection db) async {
+Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSecret) async {
   try {
-    final userRepository = UserRepositoryImpl(db);
+    final userRepository = UserRepositoryImpl(db, jwtSecret: jwtSecret);
     
     // Try to create default receptionist user
     // If it already exists, it will fail silently
@@ -194,14 +209,19 @@ Future<void> _createDefaultReceptionistUser(DatabaseConnection db) async {
 }
 
 Middleware _corsMiddleware() {
+  final env = DotEnv()..load();
+  final allowedOrigin = Platform.environment['CORS_ORIGIN'] ?? env['CORS_ORIGIN'] ?? '*';
+  
   return (Handler innerHandler) {
     return (Request request) async {
+      final origin = allowedOrigin == '*' ? '*' : (request.headers['Origin'] ?? allowedOrigin);
+      
       // Handle preflight OPTIONS request
       if (request.method == 'OPTIONS') {
         return Response.ok(
           null,
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': origin,
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
             'Access-Control-Max-Age': '86400',
@@ -212,7 +232,7 @@ Middleware _corsMiddleware() {
       final response = await innerHandler(request);
       return response.change(
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': origin,
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           ...response.headers,

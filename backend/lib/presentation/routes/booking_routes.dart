@@ -72,8 +72,11 @@ class BookingRoutes {
 
   Future<Response> _getBookingById(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      final booking = await _bookingRepository.findById(id!);
+      final booking = await _bookingRepository.findById(id);
       if (booking == null) {
         return Response.notFound(jsonEncode({'error': 'Booking not found'}));
       }
@@ -87,8 +90,11 @@ class BookingRoutes {
 
   Future<Response> _getBookingByPublicToken(Request request) async {
     final publicToken = request.params['publicToken'];
+    if (publicToken == null || publicToken.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'publicToken is required'}));
+    }
     try {
-      final booking = await _bookingRepository.findByPublicToken(publicToken!);
+      final booking = await _bookingRepository.findByPublicToken(publicToken);
       if (booking == null) {
         return Response.notFound(jsonEncode({'error': 'Booking not found'}));
       }
@@ -109,8 +115,11 @@ class BookingRoutes {
 
   Future<Response> _getBookingsByCustomerId(Request request) async {
     final customerId = request.params['customerId'];
+    if (customerId == null || customerId.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'customerId is required'}));
+    }
     try {
-      final bookings = await _bookingRepository.findByCustomerId(customerId!);
+      final bookings = await _bookingRepository.findByCustomerId(customerId);
       return Response.ok(
         jsonEncode(bookings.map((b) => b.toJson()).toList()),
       );
@@ -123,8 +132,11 @@ class BookingRoutes {
 
   Future<Response> _getBookingsByStatus(Request request) async {
     final status = request.params['status'];
+    if (status == null || status.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'status is required'}));
+    }
     try {
-      final bookings = await _bookingRepository.findByStatus(status!);
+      final bookings = await _bookingRepository.findByStatus(status);
       return Response.ok(
         jsonEncode(bookings.map((b) => b.toJson()).toList()),
       );
@@ -141,14 +153,16 @@ class BookingRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final customerId = body['customerId'] as String?;
-    final vehicleId = body['vehicleId'] as String?;
-    final notes = body['notes'] as String?;
+    final customerId = (body['customerId'] as String?)?.trim();
+    final vehicleId = (body['vehicleId'] as String?)?.trim();
+    final notes = (body['notes'] as String?)?.trim();
     final servicesData = body['services'] as List<dynamic>?;
-    final estimatedCompletionDate = body['estimatedCompletionDate'] as String?;
+    final estimatedCompletionDate = (body['estimatedCompletionDate'] as String?)?.trim();
 
-    if (customerId == null || vehicleId == null || servicesData == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'customerId, vehicleId, and services are required'}));
+    if (customerId == null || customerId.isEmpty ||
+        vehicleId == null || vehicleId.isEmpty ||
+        servicesData == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'customerId, vehicleId, and services are required and cannot be empty'}));
     }
 
     try {
@@ -188,26 +202,29 @@ class BookingRoutes {
 
   Future<Response> _updateBooking(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
     try {
-      final existingBooking = await _bookingRepository.findById(id!);
+      final existingBooking = await _bookingRepository.findById(id);
       if (existingBooking == null) {
         return Response.notFound(jsonEncode({'error': 'Booking not found'}));
       }
 
       final updatedBooking = existingBooking.copyWith(
-        customerId: body['customerId'] as String? ?? existingBooking.customerId,
-        vehicleId: body['vehicleId'] as String? ?? existingBooking.vehicleId,
+        customerId: (body['customerId'] as String?)?.trim() ?? existingBooking.customerId,
+        vehicleId: (body['vehicleId'] as String?)?.trim() ?? existingBooking.vehicleId,
         status: body['status'] != null
-            ? BookingStatus.fromString(body['status'] as String)
+            ? BookingStatus.fromString((body['status'] as String).trim())
             : existingBooking.status,
-        notes: body['notes'] as String?,
+        notes: (body['notes'] as String?)?.trim(),
         estimatedCompletionDate: body['estimatedCompletionDate'] != null
-            ? DateTime.parse(body['estimatedCompletionDate'] as String).toUtc()
+            ? DateTime.parse((body['estimatedCompletionDate'] as String).trim()).toUtc()
             : existingBooking.estimatedCompletionDate,
         updatedAt: DateTime.now().toUtc(),
       );
@@ -223,19 +240,22 @@ class BookingRoutes {
 
   Future<Response> _updateBookingStatus(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final statusStr = body['status'] as String?;
-    if (statusStr == null) {
+    final statusStr = (body['status'] as String?)?.trim();
+    if (statusStr == null || statusStr.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'status is required'}));
     }
 
     try {
       final useCase = UpdateBookingStatusUseCase(_bookingRepository);
-      final updatedBooking = await useCase.execute(id!, BookingStatus.fromString(statusStr));
+      final updatedBooking = await useCase.execute(id, BookingStatus.fromString(statusStr));
       return Response.ok(jsonEncode(updatedBooking.toJson()));
     } catch (e) {
       return Response.internalServerError(
@@ -246,8 +266,11 @@ class BookingRoutes {
 
   Future<Response> _deleteBooking(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      await _bookingRepository.delete(id!);
+      await _bookingRepository.delete(id);
       return Response.ok(jsonEncode({'message': 'Booking deleted successfully'}));
     } catch (e) {
       return Response.internalServerError(

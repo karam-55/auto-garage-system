@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../domain/entities/user.dart';
@@ -14,6 +15,7 @@ class AuthRoutes {
   final UserRepository _userRepository;
   final AuthService _authService;
   final AuthMiddleware _authMiddleware;
+  final Map<String, List<DateTime>> _loginAttempts = {};
 
   AuthRoutes(this._userRepository) 
       : _authService = AuthService(_userRepository),
@@ -21,38 +23,62 @@ class AuthRoutes {
 
   AuthMiddleware get authMiddleware => _authMiddleware;
 
+  bool _isRateLimited(String ip) {
+    final now = DateTime.now();
+    final attempts = _loginAttempts[ip] ?? [];
+    attempts.removeWhere((t) => now.difference(t).inMinutes > 15);
+    _loginAttempts[ip] = attempts;
+    return attempts.length >= 5;
+  }
+
+  void _recordAttempt(String ip) {
+    _loginAttempts.putIfAbsent(ip, () => []).add(DateTime.now());
+  }
+
+  String _getClientIp(Request request) {
+    final forwarded = request.headers['X-Forwarded-For'];
+    if (forwarded != null && forwarded.isNotEmpty) {
+      return forwarded.split(',').first.trim();
+    }
+    final connInfo = request.context['shelf.io.connection_info'] as HttpConnectionInfo?;
+    return connInfo?.remoteAddress.address ?? 'unknown';
+  }
+
   Router get router {
     final router = Router();
 
     // POST /api/auth/login
     router.post('/api/auth/login', _login);
 
-    // POST /api/auth/register (only for initial setup)
-    router.post('/api/auth/register', _register);
+    // POST /api/auth/register (protected: only OWNER can create users)
+    router.post('/api/auth/register', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_register)));
 
     return router;
   }
 
   Future<Response> _login(Request request) async {
+    final clientIp = _getClientIp(request);
+    if (_isRateLimited(clientIp)) {
+      return Response(429, body: jsonEncode({'error': 'Too many login attempts. Please try again later.'}));
+    }
+
     try {
       final body = await JsonMiddleware.parseJsonBody(request);
       if (body == null) {
         return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
       }
 
-      final username = body['username'] as String?;
+      final username = (body['username'] as String?)?.trim();
       final password = body['password'] as String?;
 
-      if (username == null || password == null) {
+      if (username == null || username.isEmpty || password == null || password.isEmpty) {
         return Response.badRequest(body: jsonEncode({'error': 'Username and password are required'}));
       }
 
-      print('Login attempt for username: $username');
+      _recordAttempt(clientIp);
 
       final user = await _authService.login(username, password);
       final token = await _authService.generateToken(user);
-
-      print('Login successful for username: $username');
 
       return Response.ok(
         jsonEncode({
@@ -66,10 +92,7 @@ class AuthRoutes {
         }),
       );
     } catch (e) {
-      print('Login failed: $e');
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Login failed: $e'}),
-      );
+      return Response(401, body: jsonEncode({'error': 'Invalid username or password'}));
     }
   }
 
@@ -79,13 +102,20 @@ class AuthRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final fullName = body['fullName'] as String?;
-    final username = body['username'] as String?;
+    final fullName = (body['fullName'] as String?)?.trim();
+    final username = (body['username'] as String?)?.trim();
     final password = body['password'] as String?;
-    final role = body['role'] as String?;
+    final role = (body['role'] as String?)?.trim();
 
-    if (fullName == null || username == null || password == null || role == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'All fields are required'}));
+    if (fullName == null || fullName.isEmpty ||
+        username == null || username.isEmpty ||
+        password == null || password.isEmpty ||
+        role == null || role.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'All fields are required and cannot be empty'}));
+    }
+
+    if (password.length < 6) {
+      return Response.badRequest(body: jsonEncode({'error': 'Password must be at least 6 characters'}));
     }
 
     try {

@@ -46,4 +46,26 @@ class Service {
       'isActive': isActive,
     };
   }
+
+  Service copyWith({
+    String? id,
+    String? name,
+    String? description,
+    double? priceSYP,
+    int? estimatedDurationMinutes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? isActive,
+  }) {
+    return Service(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      priceSYP: priceSYP ?? this.priceSYP,
+      estimatedDurationMinutes: estimatedDurationMinutes ?? this.estimatedDurationMinutes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isActive: isActive ?? this.isActive,
+    );
+  }
 }

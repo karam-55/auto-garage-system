@@ -14,20 +14,23 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle> create(Vehicle vehicle) async {
     try {
-      final result = await _db.connection.execute('''
-        INSERT INTO vehicles (id, customer_id, make, model, year, license_plate, vin, created_at)
-        VALUES (@id, @customerId, @make, @model, @year, @licensePlate, @vin, @createdAt)
-        RETURNING *
-      ''', parameters: {
-        'id': vehicle.id.isEmpty ? _uuid.v4() : vehicle.id,
-        'customerId': vehicle.customerId,
-        'make': vehicle.make,
-        'model': vehicle.model,
-        'year': vehicle.year,
-        'licensePlate': vehicle.licensePlate,
-        'vin': vehicle.vin,
-        'createdAt': vehicle.createdAt,
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          INSERT INTO vehicles (id, customer_id, make, model, year, license_plate, vin, created_at)
+          VALUES (@id, @customerId, @make, @model, @year, @licensePlate, @vin, @createdAt)
+          RETURNING *
+        '''),
+        parameters: {
+          'id': vehicle.id.isEmpty ? _uuid.v4() : vehicle.id,
+          'customerId': vehicle.customerId,
+          'make': vehicle.make,
+          'model': vehicle.model,
+          'year': vehicle.year,
+          'licensePlate': vehicle.licensePlate,
+          'vin': vehicle.vin,
+          'createdAt': vehicle.createdAt,
+        },
+      );
 
       return _mapRowToVehicle(result.first);
     } catch (e) {
@@ -39,7 +42,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   Future<Vehicle?> findById(String id) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM vehicles WHERE id = @id',
+        Sql.named('SELECT * FROM vehicles WHERE id = @id'),
         parameters: {'id': id},
       );
 
@@ -54,8 +57,8 @@ class VehicleRepositoryImpl implements VehicleRepository {
   Future<List<Vehicle>> findByCustomerId(String customerId) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC',
-        parameters: {'customerId': customerId} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC'),
+        parameters: {'customerId': customerId},
       );
       return result.map(_mapRowToVehicle).toList();
     } catch (e) {
@@ -76,22 +79,25 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle> update(Vehicle vehicle) async {
     try {
-      final result = await _db.connection.execute('''
-        UPDATE vehicles 
-        SET customer_id = @customerId, make = @make, model = @model, year = @year, 
-            license_plate = @licensePlate, vin = @vin, updated_at = @updatedAt
-        WHERE id = @id
-        RETURNING *
-      ''', parameters: {
-        'id': vehicle.id,
-        'customerId': vehicle.customerId,
-        'make': vehicle.make,
-        'model': vehicle.model,
-        'year': vehicle.year,
-        'licensePlate': vehicle.licensePlate,
-        'vin': vehicle.vin,
-        'updatedAt': DateTime.now().toUtc(),
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          UPDATE vehicles 
+          SET customer_id = @customerId, make = @make, model = @model, year = @year, 
+              license_plate = @licensePlate, vin = @vin, updated_at = @updatedAt
+          WHERE id = @id
+          RETURNING *
+        '''),
+        parameters: {
+          'id': vehicle.id,
+          'customerId': vehicle.customerId,
+          'make': vehicle.make,
+          'model': vehicle.model,
+          'year': vehicle.year,
+          'licensePlate': vehicle.licensePlate,
+          'vin': vehicle.vin,
+          'updatedAt': DateTime.now().toUtc(),
+        },
+      );
 
       return _mapRowToVehicle(result.first);
     } catch (e) {
@@ -103,7 +109,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   Future<void> delete(String id) async {
     try {
       await _db.connection.execute(
-        'DELETE FROM vehicles WHERE id = @id',
+        Sql.named('DELETE FROM vehicles WHERE id = @id'),
         parameters: {'id': id},
       );
     } catch (e) {

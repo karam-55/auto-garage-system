@@ -50,8 +50,11 @@ class CustomerRoutes {
 
   Future<Response> _getCustomerById(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      final customer = await _customerRepository.findById(id!);
+      final customer = await _customerRepository.findById(id);
       if (customer == null) {
         return Response.notFound(jsonEncode({'error': 'Customer not found'}));
       }
@@ -69,12 +72,12 @@ class CustomerRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final fullName = body['fullName'] as String?;
-    final phone = body['phone'] as String?;
-    final address = body['address'] as String?;
+    final fullName = (body['fullName'] as String?)?.trim();
+    final phone = (body['phone'] as String?)?.trim();
+    final address = (body['address'] as String?)?.trim();
 
-    if (fullName == null || phone == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'fullName and phone are required'}));
+    if (fullName == null || fullName.isEmpty || phone == null || phone.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'fullName and phone are required and cannot be empty'}));
     }
 
     try {
@@ -97,21 +100,24 @@ class CustomerRoutes {
 
   Future<Response> _updateCustomer(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
     try {
-      final existingCustomer = await _customerRepository.findById(id!);
+      final existingCustomer = await _customerRepository.findById(id);
       if (existingCustomer == null) {
         return Response.notFound(jsonEncode({'error': 'Customer not found'}));
       }
 
       final updatedCustomer = existingCustomer.copyWith(
-        fullName: body['fullName'] as String? ?? existingCustomer.fullName,
-        phone: body['phone'] as String? ?? existingCustomer.phone,
-        address: body['address'] as String?,
+        fullName: (body['fullName'] as String?)?.trim() ?? existingCustomer.fullName,
+        phone: (body['phone'] as String?)?.trim() ?? existingCustomer.phone,
+        address: (body['address'] as String?)?.trim(),
         updatedAt: DateTime.now().toUtc(),
       );
 
@@ -126,8 +132,11 @@ class CustomerRoutes {
 
   Future<Response> _deleteCustomer(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      await _customerRepository.delete(id!);
+      await _customerRepository.delete(id);
       return Response.ok(jsonEncode({'message': 'Customer deleted successfully'}));
     } catch (e) {
       return Response.internalServerError(

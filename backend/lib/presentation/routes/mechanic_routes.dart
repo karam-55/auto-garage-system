@@ -61,20 +61,10 @@ class MechanicRoutes {
 
   Future<Response> _getAvailableBookings(Request request) async {
     try {
-      // Get bookings that don't have a mechanic assignment
-      final allBookings = await _bookingRepository.findAll();
-      final availableBookings = <dynamic>[];
-
-      for (final booking in allBookings) {
-        final assignment = await _mechanicAssignmentRepository.findByBookingId(booking.id);
-        if (assignment == null && 
-            booking.status != BookingStatus.DELIVERED && 
-            booking.status != BookingStatus.CANCELLED) {
-          availableBookings.add(booking.toJson());
-        }
-      }
-
-      return Response.ok(jsonEncode(availableBookings));
+      final availableBookings = await _bookingRepository.findAvailableForMechanic();
+      return Response.ok(
+        jsonEncode(availableBookings.map((b) => b.toJson()).toList()),
+      );
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get available bookings: $e'}),
@@ -115,8 +105,8 @@ class MechanicRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final bookingId = body['bookingId'] as String?;
-    if (bookingId == null) {
+    final bookingId = (body['bookingId'] as String?)?.trim();
+    if (bookingId == null || bookingId.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'bookingId is required'}));
     }
 
@@ -138,15 +128,18 @@ class MechanicRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final statusStr = body['status'] as String?;
-    final notes = body['notes'] as String?;
+    final statusStr = (body['status'] as String?)?.trim();
+    final notes = (body['notes'] as String?)?.trim();
 
-    if (statusStr == null) {
+    if (statusStr == null || statusStr.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'status is required'}));
     }
 
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      final existingAssignment = await _mechanicAssignmentRepository.findById(id!);
+      final existingAssignment = await _mechanicAssignmentRepository.findById(id);
       if (existingAssignment == null) {
         return Response.notFound(jsonEncode({'error': 'Assignment not found'}));
       }
@@ -175,16 +168,19 @@ class MechanicRoutes {
     final typedUser = user as User;
 
     final bookingId = request.params['bookingId'];
+    if (bookingId == null || bookingId.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'bookingId is required'}));
+    }
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final partType = body['type'] as String?;
-    final description = body['description'] as String?;
+    final partType = (body['type'] as String?)?.trim();
+    final description = (body['description'] as String?)?.trim();
     final priceSYP = body['priceSYP'] as double?;
 
-    if (partType == null || description == null) {
+    if (partType == null || partType.isEmpty || description == null || description.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'type and description are required'}));
     }
 
@@ -194,7 +190,7 @@ class MechanicRoutes {
         NotificationServiceImpl(),
       );
       final suggestion = await useCase.execute(
-        bookingId!,
+        bookingId,
         typedUser.id,
         partType,
         description,
@@ -210,8 +206,11 @@ class MechanicRoutes {
 
   Future<Response> _getPartSuggestions(Request request) async {
     final bookingId = request.params['bookingId'];
+    if (bookingId == null || bookingId.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'bookingId is required'}));
+    }
     try {
-      final suggestions = await _partSuggestionRepository.findByBookingId(bookingId!);
+      final suggestions = await _partSuggestionRepository.findByBookingId(bookingId);
       return Response.ok(
         jsonEncode(suggestions.map((s) => s.toJson()).toList()),
       );
@@ -229,13 +228,16 @@ class MechanicRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    final statusStr = body['status'] as String?;
-    if (statusStr == null) {
+    final statusStr = (body['status'] as String?)?.trim();
+    if (statusStr == null || statusStr.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'status is required'}));
     }
 
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
     try {
-      final existingSuggestion = await _partSuggestionRepository.findById(id!);
+      final existingSuggestion = await _partSuggestionRepository.findById(id);
       if (existingSuggestion == null) {
         return Response.notFound(jsonEncode({'error': 'Part suggestion not found'}));
       }

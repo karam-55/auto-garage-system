@@ -1,5 +1,4 @@
 import '../entities/user.dart';
-import '../../core/errors/failures.dart';
 
 abstract class UserRepository {
   Future<User> create(User user);

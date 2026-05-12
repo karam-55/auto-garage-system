@@ -15,18 +15,21 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment> create(MechanicAssignment assignment) async {
     try {
-      final result = await _db.connection.execute('''
-        INSERT INTO mechanic_assignments (id, booking_id, mechanic_user_id, status, notes, assigned_at)
-        VALUES (@id, @bookingId, @mechanicUserId, @status, @notes, @assignedAt)
-        RETURNING *
-      ''', parameters: {
-        'id': assignment.id.isEmpty ? _uuid.v4() : assignment.id,
-        'bookingId': assignment.bookingId,
-        'mechanicUserId': assignment.mechanicUserId,
-        'status': assignment.status.value,
-        'notes': assignment.notes,
-        'assignedAt': assignment.assignedAt,
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          INSERT INTO mechanic_assignments (id, booking_id, mechanic_user_id, status, notes, assigned_at)
+          VALUES (@id, @bookingId, @mechanicUserId, @status, @notes, @assignedAt)
+          RETURNING *
+        '''),
+        parameters: {
+          'id': assignment.id.isEmpty ? _uuid.v4() : assignment.id,
+          'bookingId': assignment.bookingId,
+          'mechanicUserId': assignment.mechanicUserId,
+          'status': assignment.status.value,
+          'notes': assignment.notes,
+          'assignedAt': assignment.assignedAt,
+        },
+      );
 
       return _mapRowToMechanicAssignment(result.first);
     } catch (e) {
@@ -38,7 +41,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   Future<MechanicAssignment?> findById(String id) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM mechanic_assignments WHERE id = @id',
+        Sql.named('SELECT * FROM mechanic_assignments WHERE id = @id'),
         parameters: {'id': id},
       );
 
@@ -53,8 +56,8 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   Future<MechanicAssignment?> findByBookingId(String bookingId) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM mechanic_assignments WHERE booking_id = @bookingId',
-        parameters: {'bookingId': bookingId} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM mechanic_assignments WHERE booking_id = @bookingId'),
+        parameters: {'bookingId': bookingId},
       );
 
       if (result.isEmpty) return null;
@@ -68,8 +71,8 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   Future<List<MechanicAssignment>> findByMechanicUserId(String mechanicUserId) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM mechanic_assignments WHERE mechanic_user_id = @mechanicUserId ORDER BY assigned_at DESC',
-        parameters: {'mechanicUserId': mechanicUserId} as Map<String, dynamic>,
+        Sql.named('SELECT * FROM mechanic_assignments WHERE mechanic_user_id = @mechanicUserId ORDER BY assigned_at DESC'),
+        parameters: {'mechanicUserId': mechanicUserId},
       );
       return result.map(_mapRowToMechanicAssignment).toList();
     } catch (e) {
@@ -78,39 +81,22 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   }
 
   @override
-  Future<List<MechanicAssignment>> findAvailableBookings() async {
-    try {
-      // Find bookings that don't have a mechanic assignment
-      final result = await _db.connection.execute('''
-        SELECT b.id, b.customer_id, b.vehicle_id, b.status, b.public_token, b.notes, b.estimated_completion_date, b.created_at, b.updated_at
-        FROM bookings b
-        LEFT JOIN mechanic_assignments ma ON b.id = ma.booking_id
-        WHERE ma.id IS NULL AND b.status != 'DELIVERED' AND b.status != 'CANCELLED'
-        ORDER BY b.created_at DESC
-      ''');
-
-      // Convert to empty mechanic assignments (this is a simplified approach)
-      // In a real implementation, you might want to return a different DTO
-      return [];
-    } catch (e) {
-      throw DatabaseException('Failed to find available bookings: $e');
-    }
-  }
-
-  @override
   Future<MechanicAssignment> update(MechanicAssignment assignment) async {
     try {
-      final result = await _db.connection.execute('''
-        UPDATE mechanic_assignments 
-        SET status = @status, notes = @notes, updated_at = @updatedAt
-        WHERE id = @id
-        RETURNING *
-      ''', parameters: {
-        'id': assignment.id,
-        'status': assignment.status.value,
-        'notes': assignment.notes,
-        'updatedAt': DateTime.now().toUtc(),
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          UPDATE mechanic_assignments 
+          SET status = @status, notes = @notes, updated_at = @updatedAt
+          WHERE id = @id
+          RETURNING *
+        '''),
+        parameters: {
+          'id': assignment.id,
+          'status': assignment.status.value,
+          'notes': assignment.notes,
+          'updatedAt': DateTime.now().toUtc(),
+        },
+      );
 
       return _mapRowToMechanicAssignment(result.first);
     } catch (e) {
@@ -122,7 +108,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   Future<void> delete(String id) async {
     try {
       await _db.connection.execute(
-        'DELETE FROM mechanic_assignments WHERE id = @id',
+        Sql.named('DELETE FROM mechanic_assignments WHERE id = @id'),
         parameters: {'id': id},
       );
     } catch (e) {

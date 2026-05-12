@@ -14,20 +14,23 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<Service> create(Service service) async {
     try {
-      final result = await _db.connection.execute('''
-        INSERT INTO services (id, name, description, price_syp, estimated_duration_minutes, is_active, created_at)
-        VALUES (@id, @name, @description, @priceSyp, @estimatedDurationMinutes, @isActive, @createdAt)
-        RETURNING *
-      ''', parameters: {
-        'id': service.id.isEmpty ? _uuid.v4() : service.id,
-        'name': service.name,
-        'description': service.description,
-        'priceSyp': service.priceSYP,
-        'estimatedDurationMinutes': service.estimatedDurationMinutes,
-        'isActive': service.isActive,
-        'createdAt': service.createdAt,
-        'updatedAt': service.updatedAt,
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          INSERT INTO services (id, name, description, price_syp, estimated_duration_minutes, is_active, created_at)
+          VALUES (@id, @name, @description, @priceSyp, @estimatedDurationMinutes, @isActive, @createdAt)
+          RETURNING *
+        '''),
+        parameters: {
+          'id': service.id.isEmpty ? _uuid.v4() : service.id,
+          'name': service.name,
+          'description': service.description,
+          'priceSyp': service.priceSYP,
+          'estimatedDurationMinutes': service.estimatedDurationMinutes,
+          'isActive': service.isActive,
+          'createdAt': service.createdAt,
+          'updatedAt': service.updatedAt,
+        },
+      );
 
       return _mapRowToService(result.first);
     } catch (e) {
@@ -39,7 +42,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
   Future<Service?> findById(String id) async {
     try {
       final result = await _db.connection.execute(
-        'SELECT * FROM services WHERE id = @id',
+        Sql.named('SELECT * FROM services WHERE id = @id'),
         parameters: {'id': id},
       );
 
@@ -69,21 +72,24 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<Service> update(Service service) async {
     try {
-      final result = await _db.connection.execute('''
-        UPDATE services 
-        SET name = @name, description = @description, price_syp = @priceSyp, 
-            estimated_duration_minutes = @estimatedDurationMinutes, is_active = @isActive, updated_at = @updatedAt
-        WHERE id = @id
-        RETURNING *
-      ''', parameters: {
-        'id': service.id,
-        'name': service.name,
-        'description': service.description,
-        'priceSyp': service.priceSYP,
-        'estimatedDurationMinutes': service.estimatedDurationMinutes,
-        'isActive': service.isActive,
-        'updatedAt': DateTime.now().toUtc(),
-      } as Map<String, dynamic>);
+      final result = await _db.connection.execute(
+        Sql.named('''
+          UPDATE services 
+          SET name = @name, description = @description, price_syp = @priceSyp, 
+              estimated_duration_minutes = @estimatedDurationMinutes, is_active = @isActive, updated_at = @updatedAt
+          WHERE id = @id
+          RETURNING *
+        '''),
+        parameters: {
+          'id': service.id,
+          'name': service.name,
+          'description': service.description,
+          'priceSyp': service.priceSYP,
+          'estimatedDurationMinutes': service.estimatedDurationMinutes,
+          'isActive': service.isActive,
+          'updatedAt': DateTime.now().toUtc(),
+        },
+      );
 
       return _mapRowToService(result.first);
     } catch (e) {
@@ -95,7 +101,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
   Future<void> delete(String id) async {
     try {
       await _db.connection.execute(
-        'DELETE FROM services WHERE id = @id',
+        Sql.named('DELETE FROM services WHERE id = @id'),
         parameters: {'id': id},
       );
     } catch (e) {

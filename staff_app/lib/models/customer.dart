@@ -38,4 +38,22 @@ class Customer {
       'updatedAt': updatedAt?.toIso8601String(),
     };
   }
+
+  Customer copyWith({
+    String? id,
+    String? fullName,
+    String? phone,
+    String? address,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Customer(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

@@ -1,5 +1,4 @@
 import '../entities/part_suggestion.dart';
-import '../../core/errors/failures.dart';
 
 abstract class PartSuggestionRepository {
   Future<PartSuggestion> create(PartSuggestion suggestion);

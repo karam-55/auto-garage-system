@@ -1,126 +1,10 @@
-import 'package:postgres/postgres.dart';
-import 'package:dotenv/dotenv.dart';
-import 'package:logger/logger.dart';
-import 'dart:io';
+-- Supabase Schema for Auto Garage System
+-- Run this in Supabase SQL Editor
 
-class DatabaseConnection {
-  static DatabaseConnection? _instance;
-  late Pool _pool;
-  final Logger _logger = Logger();
-
-  DatabaseConnection._internal();
-
-  static DatabaseConnection get instance {
-    _instance ??= DatabaseConnection._internal();
-    return _instance!;
-  }
-
-  Future<void> initialize() async {
-    // In production, read from environment variables directly
-    // In development, try to load from .env file
-    final env = DotEnv()..load();
-    
-    final databaseUrl = Platform.environment['DATABASE_URL'] ?? env['DATABASE_URL'];
-    if (databaseUrl == null) {
-      throw Exception('DATABASE_URL environment variable is not set');
-    }
-
-    // Parse DATABASE_URL safely
-    final uri = Uri.parse(databaseUrl);
-    final host = uri.host;
-    final port = uri.port != 0 ? uri.port : 5432;
-    final databaseName = uri.path.isNotEmpty ? uri.path.substring(1) : '';
-    final userInfoParts = uri.userInfo.split(':');
-    final username = userInfoParts.isNotEmpty ? userInfoParts[0] : '';
-    final password = userInfoParts.length > 1 ? userInfoParts[1] : '';
-
-    _pool = Pool.withEndpoints(
-      [
-        Endpoint(
-          host: host,
-          port: port,
-          database: databaseName,
-          username: username,
-          password: password,
-        ),
-      ],
-      settings: PoolSettings(maxConnectionCount: 20),
-    );
-
-    _logger.i('Database pool initialized (max 20 connections)');
-  }
-
-  /// Execute a single SQL query using a pooled connection.
-  Future<Result> execute(dynamic sql, {Map<String, dynamic>? parameters}) async {
-    if (sql is Sql) {
-      return await _pool.execute(sql, parameters: parameters);
-    }
-    return await _pool.execute(sql.toString());
-  }
-
-  /// Run a block of code inside a database transaction.
-  /// If any operation fails, the entire transaction is rolled back.
-  Future<T> runInTransaction<T>(Future<T> Function(Session session) operation) async {
-    return await _pool.run(operation);
-  }
-
-  Future<void> close() async {
-    await _pool.close();
-    _logger.i('Database pool closed');
-  }
-
-  Future<void> executeSchema() async {
-    try {
-      // Run migrations first for existing databases
-      await _runMigrations();
-
-      final schema = await _readSchemaFile();
-      final statements = schema.split(';').where((s) => s.trim().isNotEmpty);
-
-      for (final statement in statements) {
-        await _pool.execute(statement.trim());
-      }
-
-      _logger.i('Database schema executed successfully');
-    } catch (e) {
-      _logger.e('Failed to execute schema: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> _runMigrations() async {
-    try {
-      // Add public_car_id column if it doesn't exist
-      await _pool.execute('''
-        ALTER TABLE vehicles 
-        ADD COLUMN IF NOT EXISTS public_car_id VARCHAR(255) UNIQUE NOT NULL DEFAULT ''
-      ''');
-
-      // Generate public_car_id for existing vehicles that don't have one
-      await _pool.execute('''
-        UPDATE vehicles 
-        SET public_car_id = 'CAR-' || md5(random()::text) 
-        WHERE public_car_id = ''
-      ''');
-
-      // Add index if it doesn't exist
-      await _pool.execute('''
-        CREATE INDEX IF NOT EXISTS idx_vehicles_public_car_id ON vehicles(public_car_id)
-      ''');
-
-      _logger.i('Migrations executed successfully');
-    } catch (e) {
-      _logger.e('Failed to execute migrations: $e');
-      // Don't rethrow - migrations are optional
-    }
-  }
-
-  Future<String> _readSchemaFile() async {
-    // Inline schema for production compatibility
-    // Note: Supabase uses pgcrypto with gen_random_uuid() instead of uuid-ossp
-    return '''
+-- Enable UUID extension (Supabase uses pgcrypto)
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- Users table
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     full_name VARCHAR(255) NOT NULL,
@@ -132,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Customers table
 CREATE TABLE IF NOT EXISTS customers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     full_name VARCHAR(255) NOT NULL,
@@ -141,6 +26,7 @@ CREATE TABLE IF NOT EXISTS customers (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Vehicles table
 CREATE TABLE IF NOT EXISTS vehicles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
@@ -154,6 +40,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Services table
 CREATE TABLE IF NOT EXISTS services (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
@@ -165,6 +52,7 @@ CREATE TABLE IF NOT EXISTS services (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Bookings table
 CREATE TABLE IF NOT EXISTS bookings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
@@ -177,6 +65,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Booking services junction table
 CREATE TABLE IF NOT EXISTS booking_services (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
@@ -186,6 +75,7 @@ CREATE TABLE IF NOT EXISTS booking_services (
     UNIQUE(booking_id, service_id)
 );
 
+-- Mechanic assignments table
 CREATE TABLE IF NOT EXISTS mechanic_assignments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
@@ -197,6 +87,7 @@ CREATE TABLE IF NOT EXISTS mechanic_assignments (
     UNIQUE(booking_id)
 );
 
+-- Part suggestions table
 CREATE TABLE IF NOT EXISTS part_suggestions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
@@ -209,6 +100,7 @@ CREATE TABLE IF NOT EXISTS part_suggestions (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Indexes
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
@@ -219,17 +111,11 @@ CREATE INDEX IF NOT EXISTS idx_bookings_customer_id ON bookings(customer_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_vehicle_id ON bookings(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_created_at ON bookings(created_at);
-
 CREATE INDEX IF NOT EXISTS idx_booking_services_booking_id ON booking_services(booking_id);
 CREATE INDEX IF NOT EXISTS idx_booking_services_service_id ON booking_services(service_id);
-
 CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_booking_id ON mechanic_assignments(booking_id);
 CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_mechanic_user_id ON mechanic_assignments(mechanic_user_id);
 CREATE INDEX IF NOT EXISTS idx_mechanic_assignments_status ON mechanic_assignments(status);
-
 CREATE INDEX IF NOT EXISTS idx_part_suggestions_booking_id ON part_suggestions(booking_id);
 CREATE INDEX IF NOT EXISTS idx_part_suggestions_mechanic_user_id ON part_suggestions(mechanic_user_id);
 CREATE INDEX IF NOT EXISTS idx_part_suggestions_status ON part_suggestions(status);
-''';
-}
-}

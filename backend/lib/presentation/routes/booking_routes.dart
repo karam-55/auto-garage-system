@@ -175,9 +175,17 @@ class BookingRoutes {
     final servicesData = body['services'] as List<dynamic>?;
     final estimatedCompletionDate = (body['estimatedCompletionDate'] as String?)?.trim();
 
+    // Log for debugging
+    print('DEBUG: Creating booking with data:');
+    print('  customerId: $customerId');
+    print('  vehicleId: $vehicleId');
+    print('  servicesData: $servicesData');
+    print('  estimatedCompletionDate: $estimatedCompletionDate');
+
     if (customerId == null || customerId.isEmpty ||
         vehicleId == null || vehicleId.isEmpty ||
         servicesData == null || servicesData.isEmpty) {
+      print('ERROR: Missing required fields');
       return Response.badRequest(body: jsonEncode({'error': 'customerId, vehicleId, and services are required and cannot be empty'}));
     }
 
@@ -185,7 +193,9 @@ class BookingRoutes {
     for (final serviceData in servicesData) {
       final serviceId = serviceData['serviceId'] as String?;
       final priceSYP = serviceData['priceSYP'] as num?;
+      print('DEBUG: Service data: serviceId=$serviceId, priceSYP=$priceSYP');
       if (serviceId == null || serviceId.isEmpty || priceSYP == null || priceSYP <= 0) {
+        print('ERROR: Invalid service data');
         return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid serviceId and priceSYP > 0'}));
       }
     }
@@ -230,6 +240,7 @@ class BookingRoutes {
 
       return Response.ok(jsonEncode(createdBooking.toJson()));
     } catch (e) {
+      print('ERROR: Failed to create booking: $e');
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to create booking: $e'}),
       );

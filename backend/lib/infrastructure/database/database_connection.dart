@@ -49,6 +49,12 @@ class DatabaseConnection {
 
   Connection get connection => _connection;
 
+  /// Run a block of code inside a database transaction.
+  /// If any operation fails, the entire transaction is rolled back.
+  Future<T> runInTransaction<T>(Future<T> Function(Session session) operation) async {
+    return await _connection.run(operation);
+  }
+
   Future<void> close() async {
     await _connection.close();
     _logger.i('Database connection closed');

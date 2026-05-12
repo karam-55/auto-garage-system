@@ -32,6 +32,7 @@ class ApiConstants {
   
   // Dashboard endpoints
   static const String dashboardStats = '$apiVersion/dashboard/stats';
+  static const String dashboardRevenue = '$apiVersion/dashboard/revenue';
   
   // Mechanic endpoints
   static const String mechanicBookings = '$apiVersion/mechanics/available-bookings';

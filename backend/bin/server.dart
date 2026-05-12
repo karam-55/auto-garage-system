@@ -33,10 +33,11 @@ void main(List<String> args) async {
   // Load environment variables
   final env = DotEnv()..load();
 
-  // JWT Secret from environment
-  final jwtSecret = Platform.environment['JWT_SECRET'] ?? env['JWT_SECRET'] ?? 'default-secret-change-in-production';
-  if (jwtSecret == 'default-secret-change-in-production') {
-    print('⚠️  WARNING: Using default JWT_SECRET. Set JWT_SECRET environment variable for production!');
+  // JWT Secret from environment (mandatory)
+  final jwtSecret = Platform.environment['JWT_SECRET'] ?? env['JWT_SECRET'];
+  if (jwtSecret == null || jwtSecret.isEmpty) {
+    print('❌ FATAL: JWT_SECRET environment variable is not set. Server cannot start securely.');
+    exit(1);
   }
 
   // Initialize database
@@ -78,6 +79,7 @@ void main(List<String> args) async {
     bookingRepository,
     bookingServiceRepository,
     authRoutes.authMiddleware,
+    db,
   );
   final mechanicRoutes = MechanicRoutes(
     mechanicAssignmentRepository,
@@ -130,6 +132,8 @@ void main(List<String> args) async {
   print('API Documentation:');
   print('  POST   /api/auth/login');
   print('  POST   /api/auth/register');
+  print('  GET    /api/users');
+  print('  DELETE /api/users/:id');
   print('  GET    /api/customers');
   print('  POST   /api/customers');
   print('  GET    /api/vehicles');
@@ -224,7 +228,7 @@ Middleware _corsMiddleware() {
 
   return (Handler innerHandler) {
     return (Request request) async {
-      final effectiveOrigin = allowedOrigin ?? request.headers['Origin'] ?? '';
+      final effectiveOrigin = allowedOrigin ?? '';
 
       // Handle preflight OPTIONS request
       if (request.method == 'OPTIONS') {

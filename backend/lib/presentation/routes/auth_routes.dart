@@ -53,6 +53,12 @@ class AuthRoutes {
     // POST /api/auth/register (protected: only OWNER can create users)
     router.post('/api/auth/register', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_register)));
 
+    // GET /api/users (protected: MANAGER or higher)
+    router.get('/api/users', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_getAllUsers)));
+
+    // DELETE /api/users/:id (protected: only OWNER)
+    router.delete('/api/users/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_deleteUser)));
+
     return router;
   }
 
@@ -93,6 +99,34 @@ class AuthRoutes {
       );
     } catch (e) {
       return Response(401, body: jsonEncode({'error': 'Invalid username or password'}));
+    }
+  }
+
+  Future<Response> _getAllUsers(Request request) async {
+    try {
+      final users = await _userRepository.findAll();
+      return Response.ok(
+        jsonEncode(users.map((u) => u.toJson()).toList()),
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get users: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _deleteUser(Request request) async {
+    final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
+    try {
+      await _userRepository.delete(id);
+      return Response.ok(jsonEncode({'message': 'User deleted successfully'}));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to delete user: $e'}),
+      );
     }
   }
 

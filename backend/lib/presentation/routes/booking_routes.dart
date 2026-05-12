@@ -9,6 +9,7 @@ import '../../domain/repositories/booking_repository.dart';
 import '../../domain/repositories/booking_service_repository.dart';
 import '../../application/usecases/create_booking_usecase.dart';
 import '../../application/usecases/update_booking_status_usecase.dart';
+import '../../infrastructure/database/database_connection.dart';
 import '../middlewares/json_middleware.dart';
 import '../middlewares/auth_middleware.dart';
 import 'package:uuid/uuid.dart';
@@ -17,11 +18,13 @@ class BookingRoutes {
   final BookingRepository _bookingRepository;
   final BookingServiceRepository _bookingServiceRepository;
   final AuthMiddleware _authMiddleware;
+  final DatabaseConnection _db;
 
   BookingRoutes(
     this._bookingRepository,
     this._bookingServiceRepository,
     this._authMiddleware,
+    this._db,
   );
 
   Router get router {
@@ -189,7 +192,7 @@ class BookingRoutes {
         );
       }).toList();
 
-      final useCase = CreateBookingUseCase(_bookingRepository, _bookingServiceRepository);
+      final useCase = CreateBookingUseCase(_db);
       final createdBooking = await useCase.execute(booking, services);
 
       return Response.ok(jsonEncode(createdBooking.toJson()));

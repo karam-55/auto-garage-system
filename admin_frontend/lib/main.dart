@@ -181,12 +181,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      const OverviewScreen(),
+      OverviewScreen(apiService: _apiService),
       BookingsScreen(apiService: _apiService),
       CustomersScreen(apiService: _apiService),
       ServicesScreen(apiService: _apiService),
       EmployeesScreen(apiService: _apiService),
-      const ReportsScreen(),
+      ReportsScreen(apiService: _apiService),
     ];
 
     return Scaffold(
@@ -261,26 +261,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// Placeholder Screens
-class OverviewScreen extends StatelessWidget {
-  const OverviewScreen({super.key});
+class OverviewScreen extends StatefulWidget {
+  final ApiService apiService;
+
+  const OverviewScreen({super.key, required this.apiService});
+
+  @override
+  State<OverviewScreen> createState() => _OverviewScreenState();
+}
+
+class _OverviewScreenState extends State<OverviewScreen> {
+  Map<String, dynamic>? _stats;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await widget.apiService.get(ApiConstants.dashboardStats);
+      setState(() {
+        _stats = response is Map<String, dynamic> ? response : null;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطأ في تحميل الإحصائيات: $e')),
+      );
+    }
+  }
+
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 32, color: color),
+            const SizedBox(height: 8),
+            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.dashboard, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          const Text(
-            'نظرة عامة على النظام',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text('الإحصائيات والمؤشرات الرئيسية ستظهر هنا'),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _stats == null
+              ? const Center(child: Text('فشل تحميل الإحصائيات'))
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'نظرة عامة على النظام',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 24),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: [
+                        _buildStatCard('إجمالي الحجوزات', '${_stats!['totalBookings'] ?? 0}', Icons.calendar_today, Colors.blue),
+                        _buildStatCard('إجمالي العملاء', '${_stats!['totalCustomers'] ?? 0}', Icons.people, Colors.green),
+                        _buildStatCard('إجمالي المركبات', '${_stats!['totalVehicles'] ?? 0}', Icons.directions_car, Colors.orange),
+                        _buildStatCard('المركبات في الورشة', '${_stats!['vehiclesInWorkshop'] ?? 0}', Icons.build, Colors.red),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'الحجوزات حسب الحالة',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    if (_stats!['bookingsByStatus'] != null)
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          _buildStatusChip('معلق', '${_stats!['bookingsByStatus']['pending'] ?? 0}', Colors.grey),
+                          _buildStatusChip('قيد التنفيذ', '${_stats!['bookingsByStatus']['inProgress'] ?? 0}', Colors.blue),
+                          _buildStatusChip('في انتظار قطع الغيار', '${_stats!['bookingsByStatus']['waitingParts'] ?? 0}', Colors.orange),
+                          _buildStatusChip('جاهز', '${_stats!['bookingsByStatus']['ready'] ?? 0}', Colors.green),
+                          _buildStatusChip('تم التسليم', '${_stats!['bookingsByStatus']['delivered'] ?? 0}', Colors.teal),
+                        ],
+                      ),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildStatusChip(String label, String value, Color color) {
+    return Chip(
+      avatar: CircleAvatar(backgroundColor: color, child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 12))),
+      label: Text(label),
+      backgroundColor: color.withOpacity(0.1),
     );
   }
 }
@@ -1025,24 +1113,114 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   }
 }
 
-class ReportsScreen extends StatelessWidget {
-  const ReportsScreen({super.key});
+class ReportsScreen extends StatefulWidget {
+  final ApiService apiService;
+
+  const ReportsScreen({super.key, required this.apiService});
+
+  @override
+  State<ReportsScreen> createState() => _ReportsScreenState();
+}
+
+class _ReportsScreenState extends State<ReportsScreen> {
+  Map<String, dynamic>? _revenue;
+  bool _isLoading = false;
+  String _period = 'month';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRevenue();
+  }
+
+  Future<void> _loadRevenue() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await widget.apiService.get('${ApiConstants.dashboardRevenue}?period=$_period');
+      setState(() {
+        _revenue = response is Map<String, dynamic> ? response : null;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطأ في تحميل التقارير: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.bar_chart, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          const Text(
-            'التقارير والإحصائيات',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text('عرض التقارير والتحليلات'),
-        ],
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _revenue == null
+              ? const Center(child: Text('فشل تحميل التقارير'))
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'التقارير والإيرادات',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Text('الفترة: '),
+                        DropdownButton<String>(
+                          value: _period,
+                          items: const [
+                            DropdownMenuItem(value: 'day', child: Text('يوم')),
+                            DropdownMenuItem(value: 'week', child: Text('أسبوع')),
+                            DropdownMenuItem(value: 'month', child: Text('شهر')),
+                            DropdownMenuItem(value: 'year', child: Text('سنة')),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => _period = value);
+                              _loadRevenue();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: [
+                        _buildRevenueCard('إجمالي الإيرادات', '${_revenue!['totalRevenue']?.toStringAsFixed(2) ?? '0.00'} ل.س', Icons.attach_money, Colors.green),
+                        _buildRevenueCard('عدد التسليمات', '${_revenue!['totalDeliveries'] ?? 0}', Icons.check_circle, Colors.blue),
+                        _buildRevenueCard('متوسط الإيراد', '${_revenue!['averageRevenuePerBooking']?.toStringAsFixed(2) ?? '0.00'} ل.س', Icons.trending_up, Colors.orange),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'الفترة: ${_revenue!['startDate'] ?? ''} - ${_revenue!['endDate'] ?? ''}',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildRevenueCard(String title, String value, IconData icon, Color color) {
+    return Card(
+      elevation: 2,
+      child: Container(
+        width: 240,
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 32, color: color),
+            const SizedBox(height: 8),
+            Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          ],
+        ),
       ),
     );
   }

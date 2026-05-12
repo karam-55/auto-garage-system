@@ -39,14 +39,8 @@ class AuthMiddleware {
           return Response.unauthorized(jsonEncode({'error': 'Invalid authorization header format. Expected: Bearer <token>'}));
         }
 
-        // Extract token (split after 'Bearer ')
-        final parts = authHeader.split(' ');
-        if (parts.length < 2) {
-          print('AuthMiddleware: Malformed Authorization header: $authHeader');
-          return Response.unauthorized(jsonEncode({'error': 'Malformed authorization header'}));
-        }
-
-        final token = parts[1];
+        // Extract token (substring after 'Bearer ')
+        final token = authHeader.substring(7);
         print('AuthMiddleware: Token extracted (length: ${token.length})');
         
         try {

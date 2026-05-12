@@ -105,7 +105,7 @@
         if (!publicCarId) {
             showError('معرف السيارة مفقود. يرجى مسح QR code صحيح.');
         } else {
-            fetchCarDetails(publicCarId);
+            loadCarData();
         }
 
         async function loadCarData() {

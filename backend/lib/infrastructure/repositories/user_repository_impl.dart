@@ -217,11 +217,14 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   String _base64UrlEncode(dynamic data) {
-    final bytes = data.toString().codeUnits;
-    return String.fromCharCodes(bytes)
-        .replaceAll('+', '-')
-        .replaceAll('/', '_')
-        .replaceAll('=', '');
+    String jsonString;
+    if (data is Map || data is List) {
+      jsonString = jsonEncode(data);
+    } else {
+      jsonString = data.toString();
+    }
+    final bytes = utf8.encode(jsonString);
+    return base64Url.encode(bytes);
   }
 
   @override

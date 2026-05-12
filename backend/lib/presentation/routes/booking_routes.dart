@@ -7,6 +7,7 @@ import '../../domain/entities/booking_status.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../../domain/repositories/booking_service_repository.dart';
+import '../../domain/repositories/vehicle_repository.dart';
 import '../../application/usecases/create_booking_usecase.dart';
 import '../../application/usecases/update_booking_status_usecase.dart';
 import '../../infrastructure/database/database_connection.dart';

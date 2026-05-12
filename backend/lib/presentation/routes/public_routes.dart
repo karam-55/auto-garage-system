@@ -38,6 +38,7 @@ class PublicRoutes {
       }
 
       final vehicleData = vehicleResult.first.toColumnMap();
+      print('DEBUG: Vehicle data: $vehicleData');
 
       // Get customer data
       final customerResult = await _db.execute(

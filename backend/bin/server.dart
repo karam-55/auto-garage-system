@@ -85,6 +85,7 @@ void main(List<String> args) async {
     bookingServiceRepository,
     authMiddleware,
     db,
+    vehicleRepository,
   );
   final mechanicRoutes = MechanicRoutes(
     mechanicAssignmentRepository,
@@ -249,7 +250,7 @@ Middleware _corsMiddleware() {
       final requestOrigin = request.headers['Origin'];
       final effectiveOrigin = allowedOrigins.contains(requestOrigin) 
           ? requestOrigin 
-          : allowedOrigin;
+          : allowedOrigin ?? '';
 
       // Handle preflight OPTIONS request
       if (request.method == 'OPTIONS') {

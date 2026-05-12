@@ -19,12 +19,14 @@ class BookingRoutes {
   final BookingServiceRepository _bookingServiceRepository;
   final AuthMiddleware _authMiddleware;
   final DatabaseConnection _db;
+  final VehicleRepository _vehicleRepository;
 
   BookingRoutes(
     this._bookingRepository,
     this._bookingServiceRepository,
     this._authMiddleware,
     this._db,
+    this._vehicleRepository,
   );
 
   Router get router {

@@ -6,7 +6,7 @@ class Vehicle {
   final int year;
   final String? licensePlate;
   final String? vin;
-  final String publicCarId;
+  final String? publicCarId;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -18,7 +18,7 @@ class Vehicle {
     required this.year,
     this.licensePlate,
     this.vin,
-    required this.publicCarId,
+    this.publicCarId,
     required this.createdAt,
     this.updatedAt,
   });
@@ -32,7 +32,7 @@ class Vehicle {
       year: json['year'] as int,
       licensePlate: json['licensePlate'] as String?,
       vin: json['vin'] as String?,
-      publicCarId: json['publicCarId'] as String,
+      publicCarId: json['publicCarId'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null 
           ? DateTime.parse(json['updatedAt'] as String) 

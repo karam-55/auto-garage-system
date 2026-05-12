@@ -137,7 +137,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
         'year': _vehicleYearController.text.trim().isEmpty 
             ? null 
             : int.tryParse(_vehicleYearController.text.trim()),
-        'plateNumber': _vehiclePlateController.text.trim(),
+        'licensePlate': _vehiclePlateController.text.trim(),
         'color': _vehicleColorController.text.trim().isEmpty 
             ? null 
             : _vehicleColorController.text.trim(),

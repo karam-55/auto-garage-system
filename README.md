@@ -1,6 +1,6 @@
 # Auto Garage Management System
 
-An enterprise-level car garage management system built with Dart and Flutter, featuring a clean architecture backend, staff management app, mechanic app, and customer tracking frontend.
+An enterprise-level car garage management system built with Dart and Flutter, featuring a clean architecture backend and admin web frontend.
 
 ## 🏗️ Architecture
 
@@ -11,9 +11,7 @@ An enterprise-level car garage management system built with Dart and Flutter, fe
 - **API**: RESTful endpoints with middleware for auth, logging, error handling, and CORS
 
 ### Frontend Applications
-- **Staff App**: Flutter app for garage staff (Windows, Android, Web) with dashboard and full CRUD operations
-- **Mechanic App**: Flutter app for mechanics to view available bookings, assign tasks, update status, and suggest parts
-- **Customer Frontend**: Web-only Flutter app for customers to track their booking status using public tokens
+- **Admin Frontend**: Flutter Web app for garage staff (admin, manager, receptionist) with dashboard and full CRUD operations
 
 ## 📁 Project Structure
 
@@ -30,26 +28,11 @@ auto-garage-system/
 │   ├── pubspec.yaml
 │   ├── render.yaml         # Render deployment config
 │   └── Dockerfile         # Docker configuration
-├── staff_app/             # Flutter app for staff
-│   ├── lib/
-│   │   ├── core/          # Services, constants
-│   │   ├── models/        # Data models
-│   │   ├── providers/     # State management
-│   │   └── screens/       # UI screens
-│   └── pubspec.yaml
-├── mechanic_app/          # Flutter app for mechanics
-│   ├── lib/
-│   │   ├── core/          # Services, constants
-│   │   ├── models/        # Data models
-│   │   ├── providers/     # State management
-│   │   └── screens/       # UI screens
-│   └── pubspec.yaml
-└── customer_frontend/     # Flutter web app for customers
+└── admin_frontend/         # Flutter Web admin app
     ├── lib/
     │   ├── core/          # Services, constants
-    │   ├── models/        # Data models
-    │   └── screens/       # UI screens
-    ├── wrangler.toml      # Cloudflare Pages config
+    │   ├── main.dart      # Main app file
+    │   └── models/        # Data models (if any)
     └── pubspec.yaml
 ```
 
@@ -93,45 +76,11 @@ dart run bin/server.dart
 
 The API will be available at `http://localhost:8080`
 
-### Staff App Setup
+### Admin Frontend Setup
 
-1. Navigate to the staff_app directory:
+1. Navigate to the admin_frontend directory:
 ```bash
-cd staff_app
-```
-
-2. Install dependencies:
-```bash
-flutter pub get
-```
-
-3. Run the app:
-```bash
-flutter run
-```
-
-### Mechanic App Setup
-
-1. Navigate to the mechanic_app directory:
-```bash
-cd mechanic_app
-```
-
-2. Install dependencies:
-```bash
-flutter pub get
-```
-
-3. Run the app:
-```bash
-flutter run
-```
-
-### Customer Frontend Setup
-
-1. Navigate to the customer_frontend directory:
-```bash
-cd customer_frontend
+cd admin_frontend
 ```
 
 2. Install dependencies:
@@ -149,45 +98,38 @@ flutter build web
 flutter run -d chrome
 ```
 
-## � Deployment
+## 🚀 Deployment
 
 ### Backend (Render)
 
-The backend is configured for deployment on Render using `render.yaml`.
-
-**Steps:**
-1. Push the backend code to a Git repository
-2. Connect the repository to Render
-3. Render will automatically detect the `render.yaml` and deploy
+The backend is deployed on Render using `render.yaml`.
 
 **Environment Variables Required:**
 - `DATABASE_URL`: PostgreSQL connection string
 - `JWT_SECRET`: Secret key for JWT token generation
+- `JWT_REFRESH_SECRET`: Secret key for JWT refresh token generation
 - `PORT`: Server port (default: 8080)
 
-### Customer Frontend (Cloudflare Pages)
+**Default Users:**
+- **Admin:** username: `admin`, password: `admin123`
+- **Receptionist:** username: `receptionist`, password: `receptionist123`
 
-The customer frontend can be deployed to Cloudflare Pages as a static site.
+### Admin Frontend (Cloudflare Pages)
+
+The admin frontend is deployed on Cloudflare Pages as a static site.
 
 **Steps:**
 1. Build the web version locally:
 ```bash
-cd customer_frontend
+cd admin_frontend
 flutter build web
 ```
 
 2. Deploy the `build/web` directory to Cloudflare Pages:
    - Connect your GitHub repository
-   - Set build command: `cd customer_frontend && flutter build web`
-   - Set output directory: `customer_frontend/build/web`
-   - Or use the `wrangler.toml` file for automated deployment
-
-### Staff App & Mechanic App
-
-These are Flutter applications designed for Windows, Android, and Web platforms:
-- Build for Windows: `flutter build windows`
-- Build for Android: `flutter build apk`
-- Build for Web: `flutter build web`
+   - Set build command: `cd admin_frontend && flutter build web`
+   - Set output directory: `admin_frontend/build/web`
+   - Or use Direct Upload: Upload the `build/web` folder directly
 
 ## �📡 API Endpoints
 
@@ -285,6 +227,26 @@ All tables use UUID primary keys and include appropriate indexes for performance
 - Staff/Mechanics login via username + password only
 - Customers access their page via unique publicToken only
 - Customer page is public (no login required)
+
+## ⚠️ Known Issues & Current Status
+
+### Fixed Issues
+1. **Sql.named Parameters Issue** - Fixed by replacing Sql.named with simple queries in repositories
+2. **JWT Token Format** - Fixed base64 URL encoding in user_repository_impl.dart
+3. **Response Parsing** - Fixed frontend to handle direct array responses instead of expecting `response['data']`
+
+### Current Issues
+1. **NoSuchMethodError in Frontend** - When displaying customers, bookings, services, or employees
+   - Backend returns data correctly (verified via logs)
+   - Frontend fetches data but fails to display
+   - Added detailed logging to debug the issue
+   - **Status:** Under investigation
+
+### Important Implementation Details
+- **Database Field Naming:** PostgreSQL uses snake_case (full_name, created_at), but backend entities use camelCase (fullName, createdAt). Repository mapping handles the conversion.
+- **API Response Format:** Backend returns JSON arrays directly, not wrapped in `{data: [...]}`. Frontend must handle this.
+- **Role Hierarchy:** OWNER (4) > MANAGER (3) > RECEPTIONIST (2) > MECHANIC (1). Higher roles can access lower role endpoints.
+- **Simple Queries:** Due to postgres package limitations, use simple query strings instead of Sql.named for INSERT/UPDATE operations.
 
 ## 📝 Future Enhancements
 

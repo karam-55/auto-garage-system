@@ -28,7 +28,6 @@ class ServiceRepositoryImpl implements ServiceRepository {
           'estimatedDurationMinutes': service.estimatedDurationMinutes,
           'isActive': service.isActive,
           'createdAt': service.createdAt,
-          'updatedAt': service.updatedAt,
         },
       );
 

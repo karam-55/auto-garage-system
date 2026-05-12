@@ -222,7 +222,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
     // Customer frontend URL
     const customerFrontendUrl = String.fromEnvironment(
       'CUSTOMER_FRONTEND_URL',
-      defaultValue: 'https://auto-garage-customer.pages.dev',
+      defaultValue: 'https://auto-garage-customer-frontend.pages.dev',
     );
     final trackingUrl = '$customerFrontendUrl?car=$publicCarId';
 

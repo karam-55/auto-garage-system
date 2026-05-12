@@ -148,7 +148,6 @@ CREATE TABLE IF NOT EXISTS vehicles (
     year INTEGER NOT NULL,
     license_plate VARCHAR(20),
     vin VARCHAR(50),
-    public_car_id VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE
 );

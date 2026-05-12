@@ -345,9 +345,17 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: passwordController,
-                  decoration: const InputDecoration(labelText: 'كلمة المرور'),
+                  decoration: const InputDecoration(labelText: 'كلمة المرور (12 حرف على الأقل، حرف كبير، حرف صغير، رقم، رمز خاص)'),
                   obscureText: true,
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'مطلوب';
+                    if (value!.length < 12) return 'يجب أن تكون كلمة المرور 12 حرف على الأقل';
+                    if (!value.contains(RegExp(r'[A-Z]'))) return 'يجب أن تحتوي على حرف كبير';
+                    if (!value.contains(RegExp(r'[a-z]'))) return 'يجب أن تحتوي على حرف صغير';
+                    if (!value.contains(RegExp(r'[0-9]'))) return 'يجب أن تحتوي على رقم';
+                    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) return 'يجب أن تحتوي على رمز خاص';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(

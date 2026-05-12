@@ -45,14 +45,22 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> findById(String id) async {
     try {
+      print('Finding user by id: $id');
+      // Use simple query without Sql.named for better compatibility
       final result = await _db.connection.execute(
-        Sql.named('SELECT * FROM users WHERE id = @id'),
-        parameters: {'id': id},
+        "SELECT * FROM users WHERE id = '$id'",
       );
 
-      if (result.isEmpty) return null;
-      return _mapRowToUser(result.first);
+      if (result.isEmpty) {
+        print('User not found by id: $id');
+        return null;
+      }
+      
+      final user = _mapRowToUser(result.first);
+      print('User found by id: ${user.username}');
+      return user;
     } catch (e) {
+      print('Error finding user by id: $e');
       throw DatabaseException('Failed to find user by id: $e');
     }
   }
@@ -219,20 +227,45 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> verifyToken(String token) async {
     try {
+      print('Verifying token...');
       // Simplified token verification - replace with proper JWT library in production
       final parts = token.split('.');
-      if (parts.length != 3) return null;
+      if (parts.length != 3) {
+        print('Invalid token format: expected 3 parts, got ${parts.length}');
+        return null;
+      }
 
       final payloadStr = parts[1];
+      print('Decoding payload...');
       final decoded = _base64UrlDecode(payloadStr);
+      print('Decoded payload length: ${decoded.length}');
+      
       final payload = jsonDecode(decoded) as Map<String, dynamic>;
+      print('Payload decoded: $payload');
 
-      if (payload == null) return null;
+      if (payload == null) {
+        print('Payload is null after decoding');
+        return null;
+      }
 
       final userId = payload['sub'] as String?;
-      if (userId == null) return null;
+      print('User ID from token: $userId');
+      
+      if (userId == null) {
+        print('User ID is null in payload');
+        return null;
+      }
 
-      return await findById(userId);
+      print('Finding user by ID from token: $userId');
+      final user = await findById(userId);
+      
+      if (user == null) {
+        print('User not found by ID from token: $userId');
+      } else {
+        print('User found from token: ${user.username}');
+      }
+      
+      return user;
     } catch (e) {
       print('Token verification failed: $e');
       return null;

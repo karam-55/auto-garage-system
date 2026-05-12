@@ -114,7 +114,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
       id: data['id'].toString(),
       name: data['name'] as String,
       description: data['description'] as String?,
-      priceSYP: (data['price_syp'] as num).toDouble(),
+      priceSYP: data['price_syp'] is num 
+          ? (data['price_syp'] as num).toDouble()
+          : double.parse(data['price_syp'].toString()),
       estimatedDurationMinutes: data['estimated_duration_minutes'] as int?,
       createdAt: data['created_at'] as DateTime,
       updatedAt: data['updated_at'] as DateTime?,

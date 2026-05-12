@@ -230,6 +230,7 @@ Middleware _corsMiddleware() {
   final env = DotEnv()..load();
   final allowedOrigin = Platform.environment['CORS_ORIGIN'] ?? env['CORS_ORIGIN'];
   final customerOrigin = Platform.environment['CUSTOMER_CORS_ORIGIN'] ?? env['CUSTOMER_CORS_ORIGIN'];
+  final mechanicOrigin = Platform.environment['MECHANIC_CORS_ORIGIN'] ?? env['MECHANIC_CORS_ORIGIN'];
 
   if (allowedOrigin == null || allowedOrigin.isEmpty) {
     print('❌ FATAL: CORS_ORIGIN environment variable is not set. Server cannot start securely.');
@@ -237,10 +238,14 @@ Middleware _corsMiddleware() {
     exit(1);
   }
 
-  // Allow multiple origins if customer origin is provided
-  final allowedOrigins = customerOrigin != null && customerOrigin.isNotEmpty
-      ? [allowedOrigin, customerOrigin]
-      : [allowedOrigin];
+  // Allow multiple origins
+  final allowedOrigins = <String>[allowedOrigin];
+  if (customerOrigin != null && customerOrigin.isNotEmpty) {
+    allowedOrigins.add(customerOrigin);
+  }
+  if (mechanicOrigin != null && mechanicOrigin.isNotEmpty) {
+    allowedOrigins.add(mechanicOrigin);
+  }
 
   print('✅ CORS configured for: ${allowedOrigins.join(", ")}');
 

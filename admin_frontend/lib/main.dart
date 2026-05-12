@@ -472,9 +472,12 @@ class _CustomersScreenState extends State<CustomersScreen> {
     setState(() => _isLoading = true);
     try {
       final response = await widget.apiService.get(ApiConstants.customers);
+      print('LoadCustomers response type: ${response.runtimeType}');
+      print('LoadCustomers response: $response');
       setState(() {
         // Backend returns array directly, not wrapped in {data: [...]}
         _customers = response is List ? response : (response['data'] ?? []);
+        print('Loaded customers: $_customers');
         _isLoading = false;
       });
     } catch (e) {

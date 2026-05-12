@@ -18,15 +18,24 @@ class ApiService {
   }
 
   // Generic GET request
-  Future<Map<String, dynamic>> get(String endpoint) async {
+  Future<dynamic> get(String endpoint) async {
     try {
+      print('ApiService.get() called for endpoint: $endpoint');
       final response = await _client.get(
         Uri.parse('${ApiConstants.baseUrl}$endpoint'),
         headers: _getHeaders(),
       );
       
-      return _handleResponse(response);
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      
+      final result = _handleResponse(response);
+      print('Parsed result type: ${result.runtimeType}');
+      print('Parsed result: $result');
+      
+      return result;
     } catch (e) {
+      print('ApiService.get() error: $e');
       throw Exception('فشل الاتصال بالخادم: $e');
     }
   }
@@ -104,25 +113,31 @@ class ApiService {
   
   // Handle response
   Map<String, dynamic> _handleResponse(http.Response response) {
-    switch (response.statusCode) {
-      case 200:
-      case 201:
-        if (response.body.isNotEmpty) {
-          return jsonDecode(response.body);
-        }
-        return {};
-      case 400:
-        throw Exception('طلب غير صالح');
-      case 401:
-        throw Exception('غير مصرح');
-      case 403:
-        throw Exception('ممنوع الوصول');
-      case 404:
-        throw Exception('غير موجود');
-      case 500:
-        throw Exception('خطأ في الخادم');
-      default:
-        throw Exception('خطأ غير متوقع: ${response.statusCode}');
+    print('_handleResponse called with status code: ${response.statusCode}');
+    print('Response body type: ${response.body.runtimeType}');
+    print('Response body length: ${response.body.length}');
+    
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      try {
+        final decoded = jsonDecode(response.body);
+        print('Decoded JSON type: ${decoded.runtimeType}');
+        print('Decoded JSON: $decoded');
+        return decoded;
+      } catch (e) {
+        print('Error decoding JSON: $e');
+        print('Response body: ${response.body}');
+        throw Exception('فشل في تحليل الاستجابة: $e');
+      }
+    } else if (response.statusCode == 401) {
+      throw Exception('غير مصرح');
+    } else if (response.statusCode == 403) {
+      throw Exception('ممنوع');
+    } else if (response.statusCode == 404) {
+      throw Exception('غير موجود');
+    } else if (response.statusCode == 500) {
+      throw Exception('خطأ في الخادم: ${response.body}');
+    } else {
+      throw Exception('خطأ غير معروف: ${response.statusCode}');
     }
   }
   

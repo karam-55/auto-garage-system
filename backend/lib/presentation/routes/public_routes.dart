@@ -106,8 +106,8 @@ class PublicRoutes {
           'id': bookingData['id'],
           'status': bookingData['status'],
           'notes': bookingData['notes'],
-          'estimatedCompletionDate': bookingData['estimated_completion_date'],
-          'createdAt': bookingData['created_at'],
+          'estimatedCompletionDate': bookingData['estimated_completion_date']?.toString(),
+          'createdAt': bookingData['created_at']?.toString(),
         },
         if (servicesData.isNotEmpty) 'services': servicesData,
       };

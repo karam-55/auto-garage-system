@@ -271,7 +271,15 @@ class BookingRoutes {
       final useCase = CreateBookingUseCase(_db);
       final createdBooking = await useCase.execute(booking, services);
 
-      return Response.ok(jsonEncode(createdBooking.toJson()));
+      // Get vehicle to include publicCarId in response
+      final vehicle = await _vehicleRepository.findById(vehicleId);
+
+      final response = {
+        ...createdBooking.toJson(),
+        if (vehicle != null) 'publicCarId': vehicle.publicCarId,
+      };
+
+      return Response.ok(jsonEncode(response));
     } catch (e) {
       print('ERROR: Failed to create booking: $e');
       return Response.internalServerError(

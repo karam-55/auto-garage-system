@@ -14,10 +14,15 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle> create(Vehicle vehicle) async {
     try {
+      // Generate publicCarId if not provided
+      final publicCarId = vehicle.publicCarId.isEmpty 
+          ? _generatePublicCarId() 
+          : vehicle.publicCarId;
+
       final result = await _db.execute(
         Sql.named('''
-          INSERT INTO vehicles (id, customer_id, make, model, year, license_plate, vin, created_at)
-          VALUES (@id, @customerId, @make, @model, @year, @licensePlate, @vin, @createdAt)
+          INSERT INTO vehicles (id, customer_id, make, model, year, license_plate, vin, public_car_id, created_at)
+          VALUES (@id, @customerId, @make, @model, @year, @licensePlate, @vin, @publicCarId, @createdAt)
           RETURNING *
         '''),
         parameters: {
@@ -28,6 +33,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
           'year': vehicle.year,
           'licensePlate': vehicle.licensePlate,
           'vin': vehicle.vin,
+          'publicCarId': publicCarId,
           'createdAt': vehicle.createdAt,
         },
       );
@@ -36,6 +42,12 @@ class VehicleRepositoryImpl implements VehicleRepository {
     } catch (e) {
       throw DatabaseException('Failed to create vehicle: $e');
     }
+  }
+
+  String _generatePublicCarId() {
+    // Generate a secure random token for public access
+    final random = _uuid.v4();
+    return 'CAR-$random';
   }
 
   @override
@@ -127,6 +139,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
       year: data['year'] as int,
       licensePlate: data['license_plate'] as String?,
       vin: data['vin'] as String?,
+      publicCarId: data['public_car_id'] as String,
       createdAt: data['created_at'] as DateTime,
       updatedAt: data['updated_at'] as DateTime?,
     );

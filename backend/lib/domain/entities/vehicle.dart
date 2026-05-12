@@ -6,6 +6,7 @@ class Vehicle {
   final int year;
   final String? licensePlate;
   final String? vin;
+  final String publicCarId;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -17,6 +18,7 @@ class Vehicle {
     required this.year,
     this.licensePlate,
     this.vin,
+    required this.publicCarId,
     required this.createdAt,
     this.updatedAt,
   });
@@ -30,6 +32,7 @@ class Vehicle {
       year: json['year'] as int,
       licensePlate: json['licensePlate'] as String?,
       vin: json['vin'] as String?,
+      publicCarId: json['publicCarId'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null 
           ? DateTime.parse(json['updatedAt'] as String) 
@@ -46,6 +49,7 @@ class Vehicle {
       'year': year,
       'licensePlate': licensePlate,
       'vin': vin,
+      'publicCarId': publicCarId,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };
@@ -61,6 +65,7 @@ class Vehicle {
     int? year,
     String? licensePlate,
     String? vin,
+    String? publicCarId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -72,6 +77,7 @@ class Vehicle {
       year: year ?? this.year,
       licensePlate: licensePlate ?? this.licensePlate,
       vin: vin ?? this.vin,
+      publicCarId: publicCarId ?? this.publicCarId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -16,13 +16,14 @@ import '../lib/infrastructure/repositories/booking_repository_impl.dart';
 import '../lib/infrastructure/repositories/booking_service_repository_impl.dart';
 import '../lib/infrastructure/repositories/mechanic_assignment_repository_impl.dart';
 import '../lib/infrastructure/repositories/part_suggestion_repository_impl.dart';
-import '../lib/presentation/routes/auth_routes.dart';
-import '../lib/presentation/routes/customer_routes.dart';
-import '../lib/presentation/routes/vehicle_routes.dart';
-import '../lib/presentation/routes/service_routes.dart';
-import '../lib/presentation/routes/booking_routes.dart';
-import '../lib/presentation/routes/mechanic_routes.dart';
-import '../lib/presentation/routes/dashboard_routes.dart';
+import 'lib/presentation/routes/auth_routes.dart';
+import 'lib/presentation/routes/customer_routes.dart';
+import 'lib/presentation/routes/vehicle_routes.dart';
+import 'lib/presentation/routes/service_routes.dart';
+import 'lib/presentation/routes/booking_routes.dart';
+import 'lib/presentation/routes/mechanic_routes.dart';
+import 'lib/presentation/routes/dashboard_routes.dart';
+import 'lib/presentation/routes/public_routes.dart';
 import '../lib/presentation/middlewares/auth_middleware.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
@@ -98,6 +99,7 @@ void main(List<String> args) async {
     bookingServiceRepository,
     authRoutes.authMiddleware,
   );
+  final publicRoutes = PublicRoutes(db);
 
   // Combine all routes
   final handler = Cascade()
@@ -108,6 +110,7 @@ void main(List<String> args) async {
       .add(bookingRoutes.router)
       .add(mechanicRoutes.router)
       .add(dashboardRoutes.router)
+      .add(publicRoutes.router)
       .add((Request request) {
         if (request.url.path == 'health') {
           return Response.ok(
@@ -225,6 +228,7 @@ Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSec
 Middleware _corsMiddleware() {
   final env = DotEnv()..load();
   final allowedOrigin = Platform.environment['CORS_ORIGIN'] ?? env['CORS_ORIGIN'];
+  final customerOrigin = Platform.environment['CUSTOMER_CORS_ORIGIN'] ?? env['CUSTOMER_CORS_ORIGIN'];
 
   if (allowedOrigin == null || allowedOrigin.isEmpty) {
     print('❌ FATAL: CORS_ORIGIN environment variable is not set. Server cannot start securely.');
@@ -232,9 +236,20 @@ Middleware _corsMiddleware() {
     exit(1);
   }
 
+  // Allow multiple origins if customer origin is provided
+  final allowedOrigins = customerOrigin != null && customerOrigin.isNotEmpty
+      ? [allowedOrigin, customerOrigin]
+      : [allowedOrigin];
+
+  print('✅ CORS configured for: ${allowedOrigins.join(", ")}');
+
   return (Handler innerHandler) {
     return (Request request) async {
-      final effectiveOrigin = allowedOrigin ?? '';
+      // Determine the allowed origin based on request origin
+      final requestOrigin = request.headers['Origin'];
+      final effectiveOrigin = allowedOrigins.contains(requestOrigin) 
+          ? requestOrigin 
+          : allowedOrigin;
 
       // Handle preflight OPTIONS request
       if (request.method == 'OPTIONS') {

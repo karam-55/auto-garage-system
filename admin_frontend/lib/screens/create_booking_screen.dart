@@ -148,16 +148,20 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
 
       final vehicleId = vehicleResponse['id'].toString();
 
-      // Step 3: Create Booking
-      final bookingData = <String, dynamic>{
+      // Step 3: Create Booking with Services
+      final bookingData = {
         'customerId': customerId,
         'vehicleId': vehicleId,
+        'services': _selectedServices.map((s) => {
+          'serviceId': s['id'],
+          'priceSYP': s['priceSYP'],
+        }).toList(),
         'notes': _bookingNotesController.text.trim(),
       };
 
       // Only add preferredDate if it's not null
       if (_preferredDate != null) {
-        bookingData['preferredDate'] = _preferredDate!.toIso8601String();
+        bookingData['estimatedCompletionDate'] = _preferredDate!.toIso8601String();
       }
 
       final bookingResponse = await widget.apiService.post(ApiConstants.bookings, bookingData);
@@ -167,15 +171,6 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
       }
 
       final bookingId = bookingResponse['id'].toString();
-
-      // Step 4: Add Services to Booking (if any selected)
-      if (_selectedServices.isNotEmpty) {
-        final serviceIds = _selectedServices.map((s) => s['id']).toList();
-        await widget.apiService.patch(
-          '${ApiConstants.bookings}/$bookingId/services',
-          body: {'services': serviceIds},
-        );
-      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

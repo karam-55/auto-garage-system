@@ -192,9 +192,29 @@ class BookingRoutes {
     // Validate services data
     for (final serviceData in servicesData) {
       final serviceId = serviceData['serviceId'] as String?;
-      final priceSYP = serviceData['priceSYP'] as num?;
-      print('DEBUG: Service data: serviceId=$serviceId, priceSYP=$priceSYP');
-      if (serviceId == null || serviceId.isEmpty || priceSYP == null || priceSYP <= 0) {
+      final priceSYP = serviceData['priceSYP'];
+      print('DEBUG: Service data: serviceId=$serviceId, priceSYP=$priceSYP, type=${priceSYP.runtimeType}');
+      
+      // Handle priceSYP type safely
+      double? priceSYPDouble;
+      if (priceSYP == null) {
+        print('ERROR: priceSYP is null');
+        return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid priceSYP'}));
+      } else if (priceSYP is num) {
+        priceSYPDouble = (priceSYP as num).toDouble();
+      } else if (priceSYP is String) {
+        try {
+          priceSYPDouble = double.parse(priceSYP as String);
+        } catch (e) {
+          print('ERROR: priceSYP is invalid string');
+          return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
+        }
+      } else {
+        print('ERROR: priceSYP has invalid type ${priceSYP.runtimeType}');
+        return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a number'}));
+      }
+      
+      if (serviceId == null || serviceId.isEmpty || priceSYPDouble <= 0) {
         print('ERROR: Invalid service data');
         return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid serviceId and priceSYP > 0'}));
       }
@@ -226,11 +246,24 @@ class BookingRoutes {
       );
 
       final services = servicesData.map((data) {
+        final serviceId = data['serviceId'] as String;
+        final priceSYP = data['priceSYP'];
+        
+        // Handle priceSYP type safely
+        double priceSYPDouble;
+        if (priceSYP is num) {
+          priceSYPDouble = (priceSYP as num).toDouble();
+        } else if (priceSYP is String) {
+          priceSYPDouble = double.parse(priceSYP as String);
+        } else {
+          throw Exception('Invalid priceSYP type: ${priceSYP.runtimeType}');
+        }
+        
         return BookingService(
           id: '',
           bookingId: booking.id,
-          serviceId: data['serviceId'] as String,
-          priceSYP: (data['priceSYP'] as num).toDouble(),
+          serviceId: serviceId,
+          priceSYP: priceSYPDouble,
           notes: data['notes'] as String?,
         );
       }).toList();
@@ -332,11 +365,24 @@ class BookingRoutes {
 
       // Add new services
       for (final data in servicesData) {
+        final serviceId = data['serviceId'] as String;
+        final priceSYP = data['priceSYP'];
+        
+        // Handle priceSYP type safely
+        double priceSYPDouble;
+        if (priceSYP is num) {
+          priceSYPDouble = (priceSYP as num).toDouble();
+        } else if (priceSYP is String) {
+          priceSYPDouble = double.parse(priceSYP as String);
+        } else {
+          throw Exception('Invalid priceSYP type: ${priceSYP.runtimeType}');
+        }
+        
         final service = BookingService(
           id: const Uuid().v4(),
           bookingId: id,
-          serviceId: data['serviceId'] as String,
-          priceSYP: (data['priceSYP'] as num).toDouble(),
+          serviceId: serviceId,
+          priceSYP: priceSYPDouble,
           notes: data['notes'] as String?,
         );
         await _bookingServiceRepository.create(service);

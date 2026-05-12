@@ -14,20 +14,21 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer> create(Customer customer) async {
     try {
+      print('Creating customer: ${customer.fullName}');
+      final id = customer.id.isEmpty ? _uuid.v4() : customer.id;
+      print('Customer ID: $id');
+      
+      // Use simple query without Sql.named for better compatibility
       final result = await _db.connection.execute('''
         INSERT INTO customers (id, full_name, phone, address, created_at)
-        VALUES (@id, @fullName, @phone, @address, @createdAt)
+        VALUES ('$id', '${customer.fullName}', '${customer.phone}', '${customer.address ?? ''}', '${customer.createdAt.toIso8601String()}')
         RETURNING *
-      ''', parameters: {
-        'id': customer.id.isEmpty ? _uuid.v4() : customer.id,
-        'fullName': customer.fullName,
-        'phone': customer.phone,
-        'address': customer.address,
-        'createdAt': customer.createdAt,
-      } as Map<String, dynamic>);
+      ''');
 
+      print('Customer created successfully');
       return _mapRowToCustomer(result.first);
     } catch (e) {
+      print('Error creating customer: $e');
       throw DatabaseException('Failed to create customer: $e');
     }
   }
@@ -78,21 +79,21 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer> update(Customer customer) async {
     try {
+      print('Updating customer: ${customer.id}');
+      final updatedAt = DateTime.now().toUtc().toIso8601String();
+      
+      // Use simple query without Sql.named for better compatibility
       final result = await _db.connection.execute('''
         UPDATE customers 
-        SET full_name = @fullName, phone = @phone, address = @address, updated_at = @updatedAt
-        WHERE id = @id
+        SET full_name = '${customer.fullName}', phone = '${customer.phone}', address = '${customer.address ?? ''}', updated_at = '$updatedAt'
+        WHERE id = '${customer.id}'
         RETURNING *
-      ''', parameters: {
-        'id': customer.id,
-        'fullName': customer.fullName,
-        'phone': customer.phone,
-        'address': customer.address,
-        'updatedAt': DateTime.now().toUtc(),
-      } as Map<String, dynamic>);
+      ''');
 
+      print('Customer updated successfully');
       return _mapRowToCustomer(result.first);
     } catch (e) {
+      print('Error updating customer: $e');
       throw DatabaseException('Failed to update customer: $e');
     }
   }

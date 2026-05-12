@@ -82,6 +82,7 @@ class AuthMiddleware {
         print('AuthMiddleware: Checking role requirement: ${requiredRole.value}');
         
         final user = request.context['user'];
+        print('AuthMiddleware: User in context: ${user != null ? "Present" : "Missing"}');
         
         if (user == null) {
           print('AuthMiddleware: No user in context');

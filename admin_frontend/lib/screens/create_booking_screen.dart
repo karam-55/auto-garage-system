@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../core/widgets/professional_dialog.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
@@ -171,6 +172,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
       }
 
       final bookingId = bookingResponse['id'].toString();
+      final publicCarId = bookingResponse['publicCarId']?.toString();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -179,8 +181,14 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
             behavior: SnackBarBehavior.floating,
           ),
         );
-        Navigator.pop(context);
-        widget.onBookingCreated?.call();
+
+        // Show QR Code dialog if publicCarId is available
+        if (publicCarId != null && publicCarId.isNotEmpty) {
+          _showQRCodeDialog(publicCarId, bookingId);
+        } else {
+          Navigator.pop(context);
+          widget.onBookingCreated?.call();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -208,6 +216,54 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
         _totalPrice += (service['priceSYP'] as num).toDouble();
       }
     });
+  }
+
+  void _showQRCodeDialog(String publicCarId, String bookingId) {
+    // Customer frontend URL - should be configured in environment
+    final customerFrontendUrl = String.fromEnvironment(
+      'CUSTOMER_FRONTEND_URL',
+      defaultValue: 'https://auto-garage-customer.pages.dev',
+    );
+    final trackingUrl = '$customerFrontendUrl/car/$publicCarId';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تم إنشاء الحجز بنجاح'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('امسح الكود لتتبع حالة الحجز'),
+            const SizedBox(height: 20),
+            QrImageView(
+              data: trackingUrl,
+              version: QrVersions.auto,
+              size: 200.0,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'رقم الحجز: $bookingId',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'كود التتبع: $publicCarId',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              widget.onBookingCreated?.call();
+            },
+            child: const Text('إغلاق'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

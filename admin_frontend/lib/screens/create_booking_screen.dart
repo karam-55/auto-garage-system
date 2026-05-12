@@ -219,8 +219,8 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
   }
 
   void _showQRCodeDialog(String publicCarId, String bookingId) {
-    // Customer frontend URL - should be configured in environment
-    final customerFrontendUrl = String.fromEnvironment(
+    // Customer frontend URL
+    const customerFrontendUrl = String.fromEnvironment(
       'CUSTOMER_FRONTEND_URL',
       defaultValue: 'https://auto-garage-customer.pages.dev',
     );

@@ -54,6 +54,21 @@ class ApiService {
       throw Exception('فشل الاتصال بالخادم: $e');
     }
   }
+
+  // Generic PATCH request
+  Future<Map<String, dynamic>> patch(String endpoint, {Map<String, dynamic>? body}) async {
+    try {
+      final response = await _client.patch(
+        Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+        headers: _getHeaders(),
+        body: body != null ? jsonEncode(body) : null,
+      );
+      
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('فشل الاتصال بالخادم: $e');
+    }
+  }
   
   // Generic DELETE request
   Future<Map<String, dynamic>> delete(String endpoint) async {

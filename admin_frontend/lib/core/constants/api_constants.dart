@@ -28,6 +28,7 @@ class ApiConstants {
   
   // Employee endpoints
   static const String employees = '$apiVersion/users';
+  static const String users = '$apiVersion/users';
   static String employee(String id) => '$apiVersion/users/$id';
   
   // Dashboard endpoints

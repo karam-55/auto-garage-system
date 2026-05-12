@@ -102,8 +102,8 @@ class VehicleRoutes {
     if (customerId == null || customerId.isEmpty ||
         make == null || make.isEmpty ||
         model == null || model.isEmpty ||
-        year == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'customerId, make, model, and year are required and cannot be empty'}));
+        year == null || year < 1900 || year > DateTime.now().year + 1) {
+      return Response.badRequest(body: jsonEncode({'error': 'customerId, make, model, and a valid year (1900-${DateTime.now().year + 1}) are required'}));
     }
 
     try {

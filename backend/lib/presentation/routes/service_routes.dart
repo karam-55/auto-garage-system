@@ -82,6 +82,16 @@ class ServiceRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'name and priceSYP are required and cannot be empty'}));
     }
 
+    // Validate price
+    if (priceSYP <= 0) {
+      return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be greater than 0'}));
+    }
+
+    // Validate estimated duration if provided
+    if (estimatedDurationMinutes != null && estimatedDurationMinutes! < 0) {
+      return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be greater than or equal to 0'}));
+    }
+
     try {
       final service = Service(
         id: const Uuid().v4(),

@@ -51,6 +51,9 @@ class BookingRoutes {
     // PATCH /api/bookings/:id/status
     router.patch('/api/bookings/<id>/status', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateBookingStatus)));
 
+    // PATCH /api/bookings/:id/services
+    router.patch('/api/bookings/<id>/services', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateBookingServices)));
+
     // DELETE /api/bookings/:id
     router.delete('/api/bookings/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_deleteBooking)));
 
@@ -174,8 +177,30 @@ class BookingRoutes {
 
     if (customerId == null || customerId.isEmpty ||
         vehicleId == null || vehicleId.isEmpty ||
-        servicesData == null) {
+        servicesData == null || servicesData.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'customerId, vehicleId, and services are required and cannot be empty'}));
+    }
+
+    // Validate services data
+    for (final serviceData in servicesData) {
+      final serviceId = serviceData['serviceId'] as String?;
+      final priceSYP = serviceData['priceSYP'] as num?;
+      if (serviceId == null || serviceId.isEmpty || priceSYP == null || priceSYP <= 0) {
+        return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid serviceId and priceSYP > 0'}));
+      }
+    }
+
+    // Validate estimated completion date if provided
+    DateTime? parsedDate;
+    if (estimatedCompletionDate != null && estimatedCompletionDate.isNotEmpty) {
+      try {
+        parsedDate = DateTime.parse(estimatedCompletionDate).toUtc();
+        if (parsedDate.isBefore(DateTime.now().toUtc())) {
+          return Response.badRequest(body: jsonEncode({'error': 'Estimated completion date must be in the future'}));
+        }
+      } catch (e) {
+        return Response.badRequest(body: jsonEncode({'error': 'Invalid estimated completion date format'}));
+      }
     }
 
     try {
@@ -187,9 +212,7 @@ class BookingRoutes {
         publicToken: const Uuid().v4().replaceAll('-', ''),
         notes: notes,
         createdAt: DateTime.now().toUtc(),
-        estimatedCompletionDate: estimatedCompletionDate != null
-            ? DateTime.parse(estimatedCompletionDate).toUtc()
-            : null,
+        estimatedCompletionDate: parsedDate,
       );
 
       final services = servicesData.map((data) {
@@ -273,6 +296,55 @@ class BookingRoutes {
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to update booking status: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _updateBookingServices(Request request) async {
+    final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    final servicesData = body['services'] as List<dynamic>?;
+    if (servicesData == null || servicesData.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'services array is required'}));
+    }
+
+    try {
+      // Delete existing services for this booking
+      await _bookingServiceRepository.deleteByBookingId(id);
+
+      // Add new services
+      for (final data in servicesData) {
+        final service = BookingService(
+          id: const Uuid().v4(),
+          bookingId: id,
+          serviceId: data['serviceId'] as String,
+          priceSYP: (data['priceSYP'] as num).toDouble(),
+          notes: data['notes'] as String?,
+        );
+        await _bookingServiceRepository.create(service);
+      }
+
+      // Return updated booking with services
+      final booking = await _bookingRepository.findById(id);
+      if (booking == null) {
+        return Response.notFound(jsonEncode({'error': 'Booking not found'}));
+      }
+
+      final services = await _bookingServiceRepository.findByBookingId(id);
+      return Response.ok(jsonEncode({
+        'booking': booking.toJson(),
+        'services': services.map((s) => s.toJson()).toList(),
+      }));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to update booking services: $e'}),
       );
     }
   }

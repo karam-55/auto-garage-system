@@ -3,6 +3,15 @@ import 'package:flutter/services.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/constants/api_constants.dart';
+import 'core/theme/app_theme.dart';
+import 'core/widgets/loading_screen.dart';
+import 'core/widgets/animated_sidebar.dart';
+import 'screens/overview_screen.dart';
+import 'screens/bookings_screen.dart';
+import 'screens/customers_screen.dart';
+import 'screens/services_screen.dart';
+import 'screens/employees_screen.dart';
+import 'screens/reports_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,11 +33,8 @@ class AdminDashboardApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'نظام ورشة السيارات - لوحة التحكم',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-        fontFamily: 'Cairo',
-      ),
+      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
       home: const LoginScreen(),
     );
   }
@@ -41,17 +47,34 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
   bool _isLoading = false;
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+    _controller.forward();
+  }
 
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -67,17 +90,27 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => DashboardScreen(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => DashboardScreen(
                 token: _authService.token,
               ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 500),
             ),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('خطأ: $e')),
+            SnackBar(
+              content: Text('خطأ: $e'),
+              behavior: SnackBarBehavior.floating,
+            ),
           );
         }
       } finally {
@@ -91,60 +124,114 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.admin_panel_settings, size: 64, color: Colors.blue),
-                const SizedBox(height: 24),
-                const Text(
-                  'نظام ورشة السيارات',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'لوحة التحكم',
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
-                ),
-                const SizedBox(height: 48),
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'اسم المستخدم',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'كلمة المرور',
-                    prefixIcon: Icon(Icons.lock),
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-                ),
-                const SizedBox(height: 24),
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue.shade900,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 50),
-                        ),
-                        child: const Text('تسجيل الدخول'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              Theme.of(context).colorScheme.surface,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _fadeAnimation,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context).colorScheme.primary,
+                                  Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.directions_car,
+                              color: Colors.white,
+                              size: 64,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Text(
+                            'Garage Go',
+                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'لوحة التحكم',
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                          ),
+                          const SizedBox(height: 48),
+                          TextFormField(
+                            controller: _usernameController,
+                            decoration: const InputDecoration(
+                              labelText: 'اسم المستخدم',
+                              prefixIcon: Icon(Icons.person_rounded),
+                            ),
+                            validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _passwordController,
+                            decoration: const InputDecoration(
+                              labelText: 'كلمة المرور',
+                              prefixIcon: Icon(Icons.lock_rounded),
+                            ),
+                            obscureText: true,
+                            validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+                          ),
+                          const SizedBox(height: 24),
+                          _isLoading
+                              ? const SizedBox(
+                                  height: 50,
+                                  child: Center(child: CircularProgressIndicator()),
+                                )
+                              : SizedBox(
+                                  width: double.infinity,
+                                  height: 50,
+                                  child: ElevatedButton(
+                                    onPressed: _handleLogin,
+                                    child: const Text('تسجيل الدخول'),
+                                  ),
+                                ),
+                        ],
                       ),
-              ],
-            ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -190,1037 +277,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('نظام ورشة السيارات - لوحة التحكم'),
-        backgroundColor: Colors.blue.shade900,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Row(
         children: [
-          // Navigation Sidebar
-          NavigationRail(
+          // Animated Sidebar
+          AnimatedSidebar(
             selectedIndex: _selectedIndex,
             onDestinationSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
+              if (index == -1) {
+                // Logout
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              } else {
+                setState(() => _selectedIndex = index);
+              }
             },
-            labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.dashboard),
-                selectedIcon: Icon(Icons.dashboard),
-                label: Text('نظرة عامة'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.calendar_today),
-                selectedIcon: Icon(Icons.calendar_today),
-                label: Text('الحجوزات'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.people),
-                selectedIcon: Icon(Icons.people),
-                label: Text('العملاء'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.build),
-                selectedIcon: Icon(Icons.build),
-                label: Text('الخدمات'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.work),
-                selectedIcon: Icon(Icons.work),
-                label: Text('الموظفين'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.bar_chart),
-                selectedIcon: Icon(Icons.bar_chart),
-                label: Text('التقارير'),
-              ),
-            ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
           // Main Content
           Expanded(
-            child: screens[_selectedIndex],
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.05),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+              child: KeyedSubtree(
+                key: ValueKey<int>(_selectedIndex),
+                child: screens[_selectedIndex],
+              ),
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class OverviewScreen extends StatefulWidget {
-  final ApiService apiService;
-
-  const OverviewScreen({super.key, required this.apiService});
-
-  @override
-  State<OverviewScreen> createState() => _OverviewScreenState();
-}
-
-class _OverviewScreenState extends State<OverviewScreen> {
-  Map<String, dynamic>? _stats;
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadStats();
-  }
-
-  Future<void> _loadStats() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await widget.apiService.get(ApiConstants.dashboardStats);
-      setState(() {
-        _stats = response is Map<String, dynamic> ? response : null;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ في تحميل الإحصائيات: $e')),
-      );
-    }
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
-            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _stats == null
-              ? const Center(child: Text('فشل تحميل الإحصائيات'))
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'نظرة عامة على النظام',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 24),
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        _buildStatCard('إجمالي الحجوزات', '${_stats!['totalBookings'] ?? 0}', Icons.calendar_today, Colors.blue),
-                        _buildStatCard('إجمالي العملاء', '${_stats!['totalCustomers'] ?? 0}', Icons.people, Colors.green),
-                        _buildStatCard('إجمالي المركبات', '${_stats!['totalVehicles'] ?? 0}', Icons.directions_car, Colors.orange),
-                        _buildStatCard('المركبات في الورشة', '${_stats!['vehiclesInWorkshop'] ?? 0}', Icons.build, Colors.red),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'الحجوزات حسب الحالة',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    if (_stats!['bookingsByStatus'] != null)
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          _buildStatusChip('معلق', '${_stats!['bookingsByStatus']['pending'] ?? 0}', Colors.grey),
-                          _buildStatusChip('قيد التنفيذ', '${_stats!['bookingsByStatus']['inProgress'] ?? 0}', Colors.blue),
-                          _buildStatusChip('في انتظار قطع الغيار', '${_stats!['bookingsByStatus']['waitingParts'] ?? 0}', Colors.orange),
-                          _buildStatusChip('جاهز', '${_stats!['bookingsByStatus']['ready'] ?? 0}', Colors.green),
-                          _buildStatusChip('تم التسليم', '${_stats!['bookingsByStatus']['delivered'] ?? 0}', Colors.teal),
-                        ],
-                      ),
-                  ],
-                ),
-    );
-  }
-
-  Widget _buildStatusChip(String label, String value, Color color) {
-    return Chip(
-      avatar: CircleAvatar(backgroundColor: color, child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 12))),
-      label: Text(label),
-      backgroundColor: color.withOpacity(0.1),
-    );
-  }
-}
-
-class BookingsScreen extends StatefulWidget {
-  final ApiService apiService;
-
-  const BookingsScreen({super.key, required this.apiService});
-
-  @override
-  State<BookingsScreen> createState() => _BookingsScreenState();
-}
-
-class _BookingsScreenState extends State<BookingsScreen> {
-  List<Map<String, dynamic>> _bookings = [];
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadBookings();
-  }
-
-  Future<void> _loadBookings() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await widget.apiService.get(ApiConstants.bookings);
-      setState(() {
-        // Backend returns array directly, not wrapped in {data: [...]} 
-        final raw = response is List ? response : (response['data'] ?? []);
-        _bookings = List<Map<String, dynamic>>.from(raw);
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ في تحميل الحجوزات: $e')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'إدارة الحجوزات',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _showAddBookingDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('إضافة حجز'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade900,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _bookings.isEmpty
-                  ? const Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.calendar_today, size: 64, color: Colors.grey),
-                            SizedBox(height: 16),
-                            Text('لا توجد حجوزات حالياً'),
-                            SizedBox(height: 8),
-                            Text('اضغط على "إضافة حجز" لإنشاء حجز جديد'),
-                          ],
-                        ),
-                      ),
-                    )
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: _bookings.length,
-                        itemBuilder: (context, index) {
-                          final booking = _bookings[index];
-                          return ListTile(
-                            title: Text('حجز #${booking['id'] ?? ''}'),
-                            subtitle: Text('الحالة: ${booking['status'] ?? ''}'),
-                            trailing: Text('${booking['createdAt'] ?? ''}'),
-                          );
-                        },
-                      ),
-                    ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddBookingDialog(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    final customerIdController = TextEditingController();
-    final vehicleIdController = TextEditingController();
-    final notesController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إضافة حجز جديد'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: customerIdController,
-                decoration: const InputDecoration(labelText: 'معرف العميل'),
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              TextFormField(
-                controller: vehicleIdController,
-                decoration: const InputDecoration(labelText: 'معرف المركبة'),
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              TextFormField(
-                controller: notesController,
-                decoration: const InputDecoration(labelText: 'ملاحظات'),
-                maxLines: 3,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                try {
-                  await widget.apiService.post(ApiConstants.bookings, {
-                    'customerId': customerIdController.text,
-                    'vehicleId': vehicleIdController.text,
-                    'notes': notesController.text,
-                  });
-                  Navigator.pop(context);
-                  _loadBookings();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم إضافة الحجز بنجاح')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('خطأ: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('إضافة'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomersScreen extends StatefulWidget {
-  final ApiService apiService;
-
-  const CustomersScreen({super.key, required this.apiService});
-
-  @override
-  State<CustomersScreen> createState() => _CustomersScreenState();
-}
-
-class _CustomersScreenState extends State<CustomersScreen> {
-  List<dynamic> _customers = [];
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCustomers();
-  }
-
-  Future<void> _loadCustomers() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await widget.apiService.get(ApiConstants.customers);
-      setState(() {
-        // Backend returns array directly, not wrapped in {data: [...]}
-        final raw = response is List ? response : (response['data'] ?? []);
-        _customers = List<Map<String, dynamic>>.from(raw);
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ في تحميل العملاء: $e')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'إدارة العملاء',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _showAddCustomerDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('إضافة عميل'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade900,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _customers.isEmpty
-                  ? const Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.people, size: 64, color: Colors.grey),
-                            SizedBox(height: 16),
-                            Text('لا يوجد عملاء حالياً'),
-                            SizedBox(height: 8),
-                            Text('اضغط على "إضافة عميل" لإنشاء عميل جديد'),
-                          ],
-                        ),
-                      ),
-                    )
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: _customers.length,
-                        itemBuilder: (context, index) {
-                          final customer = _customers[index];
-                          return ListTile(
-                            title: Text(customer['fullName'] ?? ''),
-                            subtitle: Text(customer['phone'] ?? ''),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _deleteCustomer(customer['id']),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddCustomerDialog(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    final fullNameController = TextEditingController();
-    final phoneController = TextEditingController();
-    final addressController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إضافة عميل جديد'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: fullNameController,
-                decoration: const InputDecoration(labelText: 'الاسم الكامل'),
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              TextFormField(
-                controller: phoneController,
-                decoration: const InputDecoration(labelText: 'رقم الهاتف'),
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              TextFormField(
-                controller: addressController,
-                decoration: const InputDecoration(labelText: 'العنوان'),
-                maxLines: 2,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                try {
-                  await widget.apiService.post(ApiConstants.customers, {
-                    'fullName': fullNameController.text,
-                    'phone': phoneController.text,
-                    'address': addressController.text,
-                  });
-                  Navigator.pop(context);
-                  _loadCustomers();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم إضافة العميل بنجاح')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('خطأ: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('إضافة'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _deleteCustomer(String? id) async {
-    if (id == null) return;
-    try {
-      await widget.apiService.delete(ApiConstants.customer(id));
-      _loadCustomers();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حذف العميل بنجاح')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ: $e')),
-      );
-    }
-  }
-}
-
-class ServicesScreen extends StatefulWidget {
-  final ApiService apiService;
-
-  const ServicesScreen({super.key, required this.apiService});
-
-  @override
-  State<ServicesScreen> createState() => _ServicesScreenState();
-}
-
-class _ServicesScreenState extends State<ServicesScreen> {
-  List<Map<String, dynamic>> _services = [];
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadServices();
-  }
-
-  Future<void> _loadServices() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await widget.apiService.get(ApiConstants.services);
-      setState(() {
-        // Backend returns array directly, not wrapped in {data: [...]}
-        final raw = response is List ? response : (response['data'] ?? []);
-        _services = List<Map<String, dynamic>>.from(raw);
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ في تحميل الخدمات: $e')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'إدارة الخدمات',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _showAddServiceDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('إضافة خدمة'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade900,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _services.isEmpty
-                  ? const Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.build, size: 64, color: Colors.grey),
-                            SizedBox(height: 16),
-                            Text('لا توجد خدمات حالياً'),
-                            SizedBox(height: 8),
-                            Text('اضغط على "إضافة خدمة" لإنشاء خدمة جديدة'),
-                          ],
-                        ),
-                      ),
-                    )
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: _services.length,
-                        itemBuilder: (context, index) {
-                          final service = _services[index];
-                          return ListTile(
-                            title: Text(service['name'] ?? ''),
-                            subtitle: Text('${service['priceSYP'] ?? ''} ل.س'),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _deleteService(service['id']),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddServiceDialog(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController();
-    final descriptionController = TextEditingController();
-    final priceController = TextEditingController();
-    final durationController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إضافة خدمة جديدة'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'اسم الخدمة'),
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              TextFormField(
-                controller: descriptionController,
-                decoration: const InputDecoration(labelText: 'الوصف'),
-                maxLines: 2,
-              ),
-              TextFormField(
-                controller: priceController,
-                decoration: const InputDecoration(labelText: 'السعر (ل.س)'),
-                keyboardType: TextInputType.number,
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              TextFormField(
-                controller: durationController,
-                decoration: const InputDecoration(labelText: 'المدة المقدرة (دقائق)'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                try {
-                  await widget.apiService.post(ApiConstants.services, {
-                    'name': nameController.text,
-                    'description': descriptionController.text,
-                    'priceSYP': double.parse(priceController.text),
-                    'estimatedDurationMinutes': durationController.text.isEmpty 
-                        ? null 
-                        : int.parse(durationController.text),
-                  });
-                  Navigator.pop(context);
-                  _loadServices();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم إضافة الخدمة بنجاح')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('خطأ: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('إضافة'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _deleteService(String? id) async {
-    if (id == null) return;
-    try {
-      await widget.apiService.delete(ApiConstants.service(id));
-      _loadServices();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حذف الخدمة بنجاح')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ: $e')),
-      );
-    }
-  }
-}
-
-class EmployeesScreen extends StatefulWidget {
-  final ApiService apiService;
-
-  const EmployeesScreen({super.key, required this.apiService});
-
-  @override
-  State<EmployeesScreen> createState() => _EmployeesScreenState();
-}
-
-class _EmployeesScreenState extends State<EmployeesScreen> {
-  List<Map<String, dynamic>> _employees = [];
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadEmployees();
-  }
-
-  Future<void> _loadEmployees() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await widget.apiService.get(ApiConstants.employees);
-      setState(() {
-        // Backend returns array directly, not wrapped in {data: [...]}
-        final raw = response is List ? response : (response['data'] ?? []);
-        _employees = List<Map<String, dynamic>>.from(raw);
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ في تحميل الموظفين: $e')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'إدارة الموظفين',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _showAddEmployeeDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('إضافة موظف'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade900,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _employees.isEmpty
-                  ? const Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.work, size: 64, color: Colors.grey),
-                            SizedBox(height: 16),
-                            Text('لا يوجد موظفين حالياً'),
-                            SizedBox(height: 8),
-                            Text('اضغط على "إضافة موظف" لإنشاء موظف جديد'),
-                          ],
-                        ),
-                      ),
-                    )
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: _employees.length,
-                        itemBuilder: (context, index) {
-                          final employee = _employees[index];
-                          return ListTile(
-                            title: Text(employee['fullName'] ?? ''),
-                            subtitle: Text('${employee['role'] ?? ''}'),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _deleteEmployee(employee['id']),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddEmployeeDialog(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    final fullNameController = TextEditingController();
-    final usernameController = TextEditingController();
-    final passwordController = TextEditingController();
-    String selectedRole = 'MECHANIC';
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إضافة موظف جديد'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: fullNameController,
-                decoration: const InputDecoration(labelText: 'الاسم الكامل'),
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              TextFormField(
-                controller: usernameController,
-                decoration: const InputDecoration(labelText: 'اسم المستخدم'),
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              TextFormField(
-                controller: passwordController,
-                decoration: const InputDecoration(labelText: 'كلمة المرور'),
-                obscureText: true,
-                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-              ),
-              DropdownButtonFormField<String>(
-                value: selectedRole,
-                decoration: const InputDecoration(labelText: 'الدور'),
-                items: const [
-                  DropdownMenuItem(value: 'OWNER', child: Text('المالك')),
-                  DropdownMenuItem(value: 'MANAGER', child: Text('المدير')),
-                  DropdownMenuItem(value: 'RECEPTIONIST', child: Text('المستقبل')),
-                  DropdownMenuItem(value: 'MECHANIC', child: Text('الميكانيكي')),
-                ],
-                onChanged: (value) {
-                  selectedRole = value ?? 'MECHANIC';
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                try {
-                  await widget.apiService.post(ApiConstants.register, {
-                    'fullName': fullNameController.text,
-                    'username': usernameController.text,
-                    'password': passwordController.text,
-                    'role': selectedRole,
-                  });
-                  Navigator.pop(context);
-                  _loadEmployees();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم إضافة الموظف بنجاح')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('خطأ: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('إضافة'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _deleteEmployee(String? id) async {
-    if (id == null) return;
-    try {
-      await widget.apiService.delete(ApiConstants.employee(id));
-      _loadEmployees();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حذف الموظف بنجاح')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ: $e')),
-      );
-    }
-  }
-}
-
-class ReportsScreen extends StatefulWidget {
-  final ApiService apiService;
-
-  const ReportsScreen({super.key, required this.apiService});
-
-  @override
-  State<ReportsScreen> createState() => _ReportsScreenState();
-}
-
-class _ReportsScreenState extends State<ReportsScreen> {
-  Map<String, dynamic>? _revenue;
-  bool _isLoading = false;
-  String _period = 'month';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadRevenue();
-  }
-
-  Future<void> _loadRevenue() async {
-    setState(() => _isLoading = true);
-    try {
-      final response = await widget.apiService.get('${ApiConstants.dashboardRevenue}?period=$_period');
-      setState(() {
-        _revenue = response is Map<String, dynamic> ? response : null;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('خطأ في تحميل التقارير: $e')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _revenue == null
-              ? const Center(child: Text('فشل تحميل التقارير'))
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'التقارير والإيرادات',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Text('الفترة: '),
-                        DropdownButton<String>(
-                          value: _period,
-                          items: const [
-                            DropdownMenuItem(value: 'day', child: Text('يوم')),
-                            DropdownMenuItem(value: 'week', child: Text('أسبوع')),
-                            DropdownMenuItem(value: 'month', child: Text('شهر')),
-                            DropdownMenuItem(value: 'year', child: Text('سنة')),
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() => _period = value);
-                              _loadRevenue();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        _buildRevenueCard('إجمالي الإيرادات', '${_revenue!['totalRevenue']?.toStringAsFixed(2) ?? '0.00'} ل.س', Icons.attach_money, Colors.green),
-                        _buildRevenueCard('عدد التسليمات', '${_revenue!['totalDeliveries'] ?? 0}', Icons.check_circle, Colors.blue),
-                        _buildRevenueCard('متوسط الإيراد', '${_revenue!['averageRevenuePerBooking']?.toStringAsFixed(2) ?? '0.00'} ل.س', Icons.trending_up, Colors.orange),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'الفترة: ${_revenue!['startDate'] ?? ''} - ${_revenue!['endDate'] ?? ''}',
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-    );
-  }
-
-  Widget _buildRevenueCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 2,
-      child: Container(
-        width: 240,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
-            Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-          ],
-        ),
       ),
     );
   }

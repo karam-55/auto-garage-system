@@ -80,6 +80,11 @@ class CustomerRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'fullName and phone are required and cannot be empty'}));
     }
 
+    // Validate phone format (basic validation for Syrian phone numbers)
+    if (!RegExp(r'^[0-9]{9,15}$').hasMatch(phone)) {
+      return Response.badRequest(body: jsonEncode({'error': 'Phone number must be 9-15 digits'}));
+    }
+
     try {
       final customer = Customer(
         id: const Uuid().v4(),

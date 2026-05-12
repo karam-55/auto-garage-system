@@ -31,14 +31,14 @@ class AuthRoutes {
 
   bool _isRateLimited(String ip) {
     final now = DateTime.now();
-    final attempts = _loginAttempts[ip] ?? [];
+    final attempts = _rateLimitStore[ip] ?? [];
     attempts.removeWhere((t) => now.difference(t).inMinutes > 15);
-    _loginAttempts[ip] = attempts;
+    _rateLimitStore[ip] = attempts;
     return attempts.length >= 5;
   }
 
   void _recordAttempt(String ip) {
-    _loginAttempts.putIfAbsent(ip, () => []).add(DateTime.now());
+    _rateLimitStore.putIfAbsent(ip, () => []).add(DateTime.now());
   }
 
   String _getClientIp(Request request) {
@@ -206,8 +206,18 @@ class AuthRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'All fields are required and cannot be empty'}));
     }
 
-    if (password.length < 6) {
-      return Response.badRequest(body: jsonEncode({'error': 'Password must be at least 6 characters'}));
+    if (password.length < 12) {
+      return Response.badRequest(body: jsonEncode({'error': 'Password must be at least 12 characters'}));
+    }
+
+    // Check password complexity
+    final hasUpperCase = password.contains(RegExp(r'[A-Z]'));
+    final hasLowerCase = password.contains(RegExp(r'[a-z]'));
+    final hasNumber = password.contains(RegExp(r'[0-9]'));
+    final hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+      return Response.badRequest(body: jsonEncode({'error': 'Password must contain uppercase, lowercase, number, and special character'}));
     }
 
     try {

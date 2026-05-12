@@ -32,15 +32,10 @@ class _TrackingScreenState extends State<TrackingScreen> {
   Future<void> _fetchBookingDetails() async {
     try {
       final response = await _apiService.get('${ApiConstants.publicBooking}${widget.publicToken}');
-      
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
-        if (decoded is! Map<String, dynamic>) {
-          throw Exception('Invalid response format: expected JSON object');
-        }
-        final data = decoded;
-        final bookingData = data['booking'];
-        final servicesData = data['services'];
+
+      if (response != null && response is Map<String, dynamic>) {
+        final bookingData = response['booking'];
+        final servicesData = response['services'];
         if (bookingData == null) {
           throw Exception('Missing booking data in response');
         }

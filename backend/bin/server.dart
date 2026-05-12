@@ -249,7 +249,7 @@ Middleware _corsMiddleware() {
       // Determine the allowed origin based on request origin
       final requestOrigin = request.headers['Origin'];
       final effectiveOrigin = allowedOrigins.contains(requestOrigin) 
-          ? requestOrigin 
+          ? requestOrigin ?? allowedOrigin ?? ''
           : allowedOrigin ?? '';
 
       // Handle preflight OPTIONS request

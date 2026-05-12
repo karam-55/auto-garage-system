@@ -78,10 +78,40 @@ class DatabaseConnection {
         await _pool.execute(statement.trim());
       }
 
+      // Add migration for existing databases
+      await _runMigrations();
+
       _logger.i('Database schema executed successfully');
     } catch (e) {
       _logger.e('Failed to execute schema: $e');
       rethrow;
+    }
+  }
+
+  Future<void> _runMigrations() async {
+    try {
+      // Add public_car_id column if it doesn't exist
+      await _pool.execute('''
+        ALTER TABLE vehicles 
+        ADD COLUMN IF NOT EXISTS public_car_id VARCHAR(255) UNIQUE NOT NULL DEFAULT ''
+      ''');
+
+      // Generate public_car_id for existing vehicles that don't have one
+      await _pool.execute('''
+        UPDATE vehicles 
+        SET public_car_id = 'CAR-' || md5(random()::text) 
+        WHERE public_car_id = ''
+      ''');
+
+      // Add index if it doesn't exist
+      await _pool.execute('''
+        CREATE INDEX IF NOT EXISTS idx_vehicles_public_car_id ON vehicles(public_car_id)
+      ''');
+
+      _logger.i('Migrations executed successfully');
+    } catch (e) {
+      _logger.e('Failed to execute migrations: $e');
+      // Don't rethrow - migrations are optional
     }
   }
 

@@ -14,7 +14,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<BookingService> create(BookingService bookingService) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           INSERT INTO booking_services (id, booking_id, service_id, price_syp, notes)
           VALUES (@id, @bookingId, @serviceId, @priceSyp, @notes)
@@ -38,7 +38,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<BookingService?> findById(String id) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM booking_services WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -53,7 +53,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<List<BookingService>> findByBookingId(String bookingId) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM booking_services WHERE booking_id = @bookingId'),
         parameters: {'bookingId': bookingId},
       );
@@ -66,7 +66,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<List<BookingService>> findByBookingIds(List<String> bookingIds) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM booking_services WHERE booking_id = ANY(@bookingIds)'),
         parameters: {'bookingIds': bookingIds},
       );
@@ -79,7 +79,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM booking_services WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -91,7 +91,7 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
   @override
   Future<void> deleteByBookingId(String bookingId) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM booking_services WHERE booking_id = @bookingId'),
         parameters: {'bookingId': bookingId},
       );

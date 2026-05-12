@@ -14,7 +14,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer> create(Customer customer) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           INSERT INTO customers (id, full_name, phone, address, created_at)
           VALUES (@id, @fullName, @phone, @address, @createdAt)
@@ -38,7 +38,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer?> findById(String id) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM customers WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -53,7 +53,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer?> findByPhone(String phone) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM customers WHERE phone = @phone'),
         parameters: {'phone': phone},
       );
@@ -68,7 +68,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<List<Customer>> findAll() async {
     try {
-      final result = await _db.connection.execute('SELECT * FROM customers ORDER BY created_at DESC');
+      final result = await _db.execute('SELECT * FROM customers ORDER BY created_at DESC');
       return result.map(_mapRowToCustomer).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all customers: $e');
@@ -78,7 +78,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<Customer> update(Customer customer) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           UPDATE customers 
           SET full_name = @fullName, phone = @phone, address = @address, updated_at = @updatedAt
@@ -103,7 +103,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM customers WHERE id = @id'),
         parameters: {'id': id},
       );

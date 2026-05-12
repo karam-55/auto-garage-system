@@ -14,7 +14,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<Service> create(Service service) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           INSERT INTO services (id, name, description, price_syp, estimated_duration_minutes, is_active, created_at)
           VALUES (@id, @name, @description, @priceSyp, @estimatedDurationMinutes, @isActive, @createdAt)
@@ -41,7 +41,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<Service?> findById(String id) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM services WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -62,7 +62,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
       }
       query += ' ORDER BY created_at DESC';
 
-      final result = await _db.connection.execute(query);
+      final result = await _db.execute(query);
       return result.map(_mapRowToService).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all services: $e');
@@ -72,7 +72,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<Service> update(Service service) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           UPDATE services 
           SET name = @name, description = @description, price_syp = @priceSyp, 
@@ -100,7 +100,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM services WHERE id = @id'),
         parameters: {'id': id},
       );

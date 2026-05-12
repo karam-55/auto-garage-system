@@ -15,7 +15,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment> create(MechanicAssignment assignment) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           INSERT INTO mechanic_assignments (id, booking_id, mechanic_user_id, status, notes, assigned_at)
           VALUES (@id, @bookingId, @mechanicUserId, @status, @notes, @assignedAt)
@@ -40,7 +40,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment?> findById(String id) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM mechanic_assignments WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -55,7 +55,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment?> findByBookingId(String bookingId) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM mechanic_assignments WHERE booking_id = @bookingId'),
         parameters: {'bookingId': bookingId},
       );
@@ -70,7 +70,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<List<MechanicAssignment>> findByMechanicUserId(String mechanicUserId) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM mechanic_assignments WHERE mechanic_user_id = @mechanicUserId ORDER BY assigned_at DESC'),
         parameters: {'mechanicUserId': mechanicUserId},
       );
@@ -83,7 +83,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<MechanicAssignment> update(MechanicAssignment assignment) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           UPDATE mechanic_assignments 
           SET status = @status, notes = @notes, updated_at = @updatedAt
@@ -107,7 +107,7 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM mechanic_assignments WHERE id = @id'),
         parameters: {'id': id},
       );

@@ -15,7 +15,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<Booking> create(Booking booking) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           INSERT INTO bookings (id, customer_id, vehicle_id, status, public_token, notes, estimated_completion_date, created_at)
           VALUES (@id, @customerId, @vehicleId, @status, @publicToken, @notes, @estimatedCompletionDate, @createdAt)
@@ -42,7 +42,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<Booking?> findById(String id) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM bookings WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -57,7 +57,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<Booking?> findByPublicToken(String publicToken) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM bookings WHERE public_token = @publicToken'),
         parameters: {'publicToken': publicToken},
       );
@@ -72,7 +72,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<List<Booking>> findByCustomerId(String customerId) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM bookings WHERE customer_id = @customerId ORDER BY created_at DESC'),
         parameters: {'customerId': customerId},
       );
@@ -85,7 +85,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<List<Booking>> findByVehicleId(String vehicleId) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM bookings WHERE vehicle_id = @vehicleId ORDER BY created_at DESC'),
         parameters: {'vehicleId': vehicleId},
       );
@@ -98,7 +98,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<List<Booking>> findAll() async {
     try {
-      final result = await _db.connection.execute('SELECT * FROM bookings ORDER BY created_at DESC');
+      final result = await _db.execute('SELECT * FROM bookings ORDER BY created_at DESC');
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all bookings: $e');
@@ -108,7 +108,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<List<Booking>> findByStatus(String status) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM bookings WHERE status = @status ORDER BY created_at DESC'),
         parameters: {'status': status},
       );
@@ -121,7 +121,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<List<Booking>> findAvailableForMechanic() async {
     try {
-      final result = await _db.connection.execute('''
+      final result = await _db.execute('''
         SELECT b.id, b.customer_id, b.vehicle_id, b.status, b.public_token, b.notes, b.estimated_completion_date, b.created_at, b.updated_at
         FROM bookings b
         LEFT JOIN mechanic_assignments ma ON b.id = ma.booking_id
@@ -137,7 +137,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<Booking> update(Booking booking) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           UPDATE bookings 
           SET customer_id = @customerId, vehicle_id = @vehicleId, status = @status, 
@@ -165,7 +165,7 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM bookings WHERE id = @id'),
         parameters: {'id': id},
       );

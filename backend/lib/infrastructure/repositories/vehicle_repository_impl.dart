@@ -14,7 +14,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle> create(Vehicle vehicle) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           INSERT INTO vehicles (id, customer_id, make, model, year, license_plate, vin, created_at)
           VALUES (@id, @customerId, @make, @model, @year, @licensePlate, @vin, @createdAt)
@@ -41,7 +41,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle?> findById(String id) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM vehicles WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -56,7 +56,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<List<Vehicle>> findByCustomerId(String customerId) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC'),
         parameters: {'customerId': customerId},
       );
@@ -69,7 +69,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<List<Vehicle>> findAll() async {
     try {
-      final result = await _db.connection.execute('SELECT * FROM vehicles ORDER BY created_at DESC');
+      final result = await _db.execute('SELECT * FROM vehicles ORDER BY created_at DESC');
       return result.map(_mapRowToVehicle).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all vehicles: $e');
@@ -79,7 +79,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<Vehicle> update(Vehicle vehicle) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           UPDATE vehicles 
           SET customer_id = @customerId, make = @make, model = @model, year = @year, 
@@ -108,7 +108,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM vehicles WHERE id = @id'),
         parameters: {'id': id},
       );

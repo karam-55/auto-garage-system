@@ -223,7 +223,9 @@ Middleware _corsMiddleware() {
   final allowedOrigin = Platform.environment['CORS_ORIGIN'] ?? env['CORS_ORIGIN'];
 
   if (allowedOrigin == null || allowedOrigin.isEmpty) {
-    print('⚠️  WARNING: CORS_ORIGIN not set. CORS will be restricted to same-origin only.');
+    print('❌ FATAL: CORS_ORIGIN environment variable is not set. Server cannot start securely.');
+    print('Set CORS_ORIGIN to your frontend domain (e.g., https://your-frontend.com)');
+    exit(1);
   }
 
   return (Handler innerHandler) {

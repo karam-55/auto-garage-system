@@ -1,12 +1,11 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bcrypt/bcrypt.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
 import '../../domain/entities/user.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../core/errors/exceptions.dart';
+import '../../core/utils/jwt_service.dart';
 import '../database/database_connection.dart';
 
 class UserRepositoryImpl implements UserRepository {
@@ -19,7 +18,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User> create(User user) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           INSERT INTO users (id, full_name, username, password_hash, role, is_active, created_at, updated_at)
           VALUES (@id, @fullName, @username, @passwordHash, @role, @isActive, @createdAt, @updatedAt)
@@ -46,7 +45,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> findById(String id) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM users WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -65,7 +64,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> findByUsername(String username) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM users WHERE username = @username AND is_active = true'),
         parameters: {'username': username},
       );
@@ -84,7 +83,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<List<User>> findAll() async {
     try {
-      final result = await _db.connection.execute('SELECT * FROM users ORDER BY created_at DESC');
+      final result = await _db.execute('SELECT * FROM users ORDER BY created_at DESC');
       return result.map(_mapRowToUser).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all users: $e');
@@ -94,7 +93,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User> update(User user) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           UPDATE users 
           SET full_name = @fullName, username = @username, role = @role, is_active = @isActive, updated_at = @updatedAt
@@ -120,7 +119,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM users WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -132,7 +131,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<List<User>> findByRole(String role) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM users WHERE role = @role ORDER BY created_at DESC'),
         parameters: {'role': role},
       );
@@ -174,58 +173,23 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<String> generateToken(User user) async {
-    final header = _base64UrlEncode({'alg': 'HS256', 'typ': 'JWT'});
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    final payload = _base64UrlEncode({
-      'sub': user.id,
-      'username': user.username,
-      'role': user.role.value,
-      'iat': now,
-      'exp': now + 86400, // 24 hours
-    });
-    final signature = _sign('${header}.${payload}');
-    return '${header}.${payload}.${signature}';
-  }
-
-  String _sign(String input) {
-    final hmac = Hmac(sha256, utf8.encode(_jwtSecret));
-    final digest = hmac.convert(utf8.encode(input));
-    return base64UrlEncode(digest.bytes);
-  }
-
-  String _base64UrlEncode(Map<String, dynamic> data) {
-    final bytes = utf8.encode(jsonEncode(data));
-    return base64Url.encode(bytes);
+    final jwt = JwtService(_jwtSecret);
+    return jwt.generateToken(
+      userId: user.id,
+      username: user.username,
+      role: user.role.value,
+    );
   }
 
   @override
   Future<User?> verifyToken(String token) async {
     try {
-      final parts = token.split('.');
-      if (parts.length != 3) {
-        return null;
-      }
-
-      // Verify signature (constant-time comparison to prevent timing attacks)
-      final expectedSignature = _sign('${parts[0]}.${parts[1]}');
-      if (!_constantTimeEquals(parts[2], expectedSignature)) {
-        return null;
-      }
-
-      final decoded = _base64UrlDecode(parts[1]);
-      final payload = jsonDecode(decoded) as Map<String, dynamic>;
+      final jwt = JwtService(_jwtSecret);
+      final payload = jwt.verifyToken(token);
+      if (payload == null) return null;
 
       final userId = payload['sub'] as String?;
-      if (userId == null) {
-        return null;
-      }
-
-      // Check token expiration
-      final exp = payload['exp'] as int?;
-      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      if (exp != null && now > exp) {
-        return null;
-      }
+      if (userId == null) return null;
 
       final user = await findById(userId);
       return user;
@@ -234,22 +198,14 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  bool _constantTimeEquals(String a, String b) {
-    if (a.length != b.length) return false;
-    var result = 0;
-    for (var i = 0; i < a.length; i++) {
-      result |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
-    }
-    return result == 0;
+  String generateRefreshToken({required String userId}) {
+    final jwt = JwtService(_jwtSecret);
+    return jwt.generateRefreshToken(userId: userId);
   }
 
-  String _base64UrlDecode(String str) {
-    String normalized = str.replaceAll('-', '+').replaceAll('_', '/');
-    while (normalized.length % 4 != 0) {
-      normalized += '=';
-    }
-    final bytes = base64.decode(normalized);
-    return utf8.decode(bytes);
+  Map<String, dynamic>? verifyRefreshToken(String token) {
+    final jwt = JwtService(_jwtSecret);
+    return jwt.verifyToken(token);
   }
 
 

@@ -5,7 +5,7 @@ import 'dart:io';
 
 class DatabaseConnection {
   static DatabaseConnection? _instance;
-  late Connection _connection;
+  late Pool _pool;
   final Logger _logger = Logger();
 
   DatabaseConnection._internal();
@@ -34,30 +34,39 @@ class DatabaseConnection {
     final username = userInfoParts.isNotEmpty ? userInfoParts[0] : '';
     final password = userInfoParts.length > 1 ? userInfoParts[1] : '';
 
-    _connection = await Connection.open(
-      Endpoint(
-        host: host,
-        port: port,
-        database: databaseName,
-        username: username,
-        password: password,
-      ),
+    _pool = Pool.withEndpoints(
+      [
+        Endpoint(
+          host: host,
+          port: port,
+          database: databaseName,
+          username: username,
+          password: password,
+        ),
+      ],
+      settings: PoolSettings(maxConnectionCount: 20),
     );
 
-    _logger.i('Database connected successfully');
+    _logger.i('Database pool initialized (max 20 connections)');
   }
 
-  Connection get connection => _connection;
+  /// Execute a single SQL query using a pooled connection.
+  Future<Result> execute(dynamic sql, {Map<String, dynamic>? parameters}) async {
+    if (sql is Sql) {
+      return await _pool.execute(sql, parameters: parameters);
+    }
+    return await _pool.execute(sql.toString());
+  }
 
   /// Run a block of code inside a database transaction.
   /// If any operation fails, the entire transaction is rolled back.
   Future<T> runInTransaction<T>(Future<T> Function(Session session) operation) async {
-    return await _connection.run(operation);
+    return await _pool.run(operation);
   }
 
   Future<void> close() async {
-    await _connection.close();
-    _logger.i('Database connection closed');
+    await _pool.close();
+    _logger.i('Database pool closed');
   }
 
   Future<void> executeSchema() async {
@@ -66,7 +75,7 @@ class DatabaseConnection {
       final statements = schema.split(';').where((s) => s.trim().isNotEmpty);
       
       for (final statement in statements) {
-        await _connection.execute(statement.trim());
+        await _pool.execute(statement.trim());
       }
       
       _logger.i('Database schema executed successfully');

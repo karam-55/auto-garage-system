@@ -5,6 +5,7 @@ import 'package:shelf_router/shelf_router.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/user_repository.dart';
+import '../../infrastructure/repositories/user_repository_impl.dart';
 import '../middlewares/json_middleware.dart';
 import '../middlewares/auth_middleware.dart';
 import '../../application/services/auth_service.dart';
@@ -13,13 +14,18 @@ import 'package:uuid/uuid.dart';
 
 class AuthRoutes {
   final UserRepository _userRepository;
-  final AuthService _authService;
   final AuthMiddleware _authMiddleware;
-  final Map<String, List<DateTime>> _loginAttempts = {};
+  final AuthService _authService;
+  final Map<String, List<int>> _rateLimitStore = {};
+  final Map<String, int> _attemptCount = {};
 
-  AuthRoutes(this._userRepository) 
-      : _authService = AuthService(_userRepository),
-        _authMiddleware = AuthMiddleware(_userRepository);
+  AuthRoutes(
+    this._userRepository,
+    this._authMiddleware,
+    this._authService,
+  );
+
+  UserRepositoryImpl get _userRepositoryImpl => _userRepository as UserRepositoryImpl;
 
   AuthMiddleware get authMiddleware => _authMiddleware;
 
@@ -49,6 +55,9 @@ class AuthRoutes {
 
     // POST /api/auth/login
     router.post('/api/auth/login', _login);
+
+    // POST /api/auth/refresh
+    router.post('/api/auth/refresh', _refreshToken);
 
     // POST /api/auth/register (protected: only OWNER can create users)
     router.post('/api/auth/register', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_register)));
@@ -85,10 +94,14 @@ class AuthRoutes {
 
       final user = await _authService.login(username, password);
       final token = await _authService.generateToken(user);
+      
+      // Generate refresh token
+      final refreshToken = _userRepositoryImpl.generateRefreshToken(userId: user.id);
 
       return Response.ok(
         jsonEncode({
           'token': token,
+          'refreshToken': refreshToken,
           'user': {
             'id': user.id,
             'fullName': user.fullName,
@@ -99,6 +112,51 @@ class AuthRoutes {
       );
     } catch (e) {
       return Response(401, body: jsonEncode({'error': 'Invalid username or password'}));
+    }
+  }
+
+  Future<Response> _refreshToken(Request request) async {
+    try {
+      final body = await JsonMiddleware.parseJsonBody(request);
+      if (body == null) {
+        return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+      }
+
+      final refreshToken = body['refreshToken'] as String?;
+      if (refreshToken == null || refreshToken.isEmpty) {
+        return Response.badRequest(body: jsonEncode({'error': 'Refresh token is required'}));
+      }
+
+      // Verify refresh token
+      final payload = _userRepositoryImpl.verifyRefreshToken(refreshToken);
+      
+      if (payload == null) {
+        return Response(401, body: jsonEncode({'error': 'Invalid or expired refresh token'}));
+      }
+
+      final userId = payload['sub'] as String?;
+      if (userId == null) {
+        return Response(401, body: jsonEncode({'error': 'Invalid refresh token'}));
+      }
+
+      // Get user
+      final user = await _userRepository.findById(userId);
+      if (user == null || !user.isActive) {
+        return Response(401, body: jsonEncode({'error': 'User not found or inactive'}));
+      }
+
+      // Generate new access token
+      final newToken = await _authService.generateToken(user);
+      final newRefreshToken = _userRepositoryImpl.generateRefreshToken(userId: user.id);
+
+      return Response.ok(
+        jsonEncode({
+          'token': newToken,
+          'refreshToken': newRefreshToken,
+        }),
+      );
+    } catch (e) {
+      return Response(401, body: jsonEncode({'error': 'Failed to refresh token: $e'}));
     }
   }
 

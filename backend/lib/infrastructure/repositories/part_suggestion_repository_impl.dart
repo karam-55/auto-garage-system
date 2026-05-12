@@ -16,7 +16,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<PartSuggestion> create(PartSuggestion suggestion) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           INSERT INTO part_suggestions (id, booking_id, mechanic_user_id, type, description, price_syp, status, created_at)
           VALUES (@id, @bookingId, @mechanicUserId, @type, @description, @priceSyp, @status, @createdAt)
@@ -44,7 +44,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<PartSuggestion?> findById(String id) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM part_suggestions WHERE id = @id'),
         parameters: {'id': id},
       );
@@ -59,7 +59,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<List<PartSuggestion>> findByBookingId(String bookingId) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM part_suggestions WHERE booking_id = @bookingId ORDER BY created_at DESC'),
         parameters: {'bookingId': bookingId},
       );
@@ -72,7 +72,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<List<PartSuggestion>> findByMechanicUserId(String mechanicUserId) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM part_suggestions WHERE mechanic_user_id = @mechanicUserId ORDER BY created_at DESC'),
         parameters: {'mechanicUserId': mechanicUserId},
       );
@@ -85,7 +85,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<List<PartSuggestion>> findByStatus(String status) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('SELECT * FROM part_suggestions WHERE status = @status ORDER BY created_at DESC'),
         parameters: {'status': status},
       );
@@ -98,7 +98,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<PartSuggestion> update(PartSuggestion suggestion) async {
     try {
-      final result = await _db.connection.execute(
+      final result = await _db.execute(
         Sql.named('''
           UPDATE part_suggestions 
           SET type = @type, description = @description, price_syp = @priceSyp, status = @status, updated_at = @updatedAt
@@ -124,7 +124,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _db.connection.execute(
+      await _db.execute(
         Sql.named('DELETE FROM part_suggestions WHERE id = @id'),
         parameters: {'id': id},
       );

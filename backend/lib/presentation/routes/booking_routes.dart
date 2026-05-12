@@ -105,9 +105,19 @@ class BookingRoutes {
       // Get booking services
       final services = await _bookingServiceRepository.findByBookingId(booking.id);
 
+      // Return only non-sensitive data for public endpoint
       return Response.ok(jsonEncode({
-        'booking': booking.toJson(),
-        'services': services.map((s) => s.toJson()).toList(),
+        'booking': {
+          'status': booking.status.value,
+          'publicToken': booking.publicToken,
+          'notes': booking.notes,
+          'createdAt': booking.createdAt.toIso8601String(),
+          'estimatedCompletionDate': booking.estimatedCompletionDate?.toIso8601String(),
+        },
+        'services': services.map((s) => {
+          'priceSYP': s.priceSYP,
+          'notes': s.notes,
+        }).toList(),
       }));
     } catch (e) {
       return Response.internalServerError(

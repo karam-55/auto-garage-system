@@ -29,7 +29,7 @@ class PublicRoutes {
     try {
       // Get vehicle by publicCarId
       final vehicleResult = await _db.execute(
-        'SELECT * FROM vehicles WHERE public_car_id = @publicCarId',
+        Sql.named('SELECT * FROM vehicles WHERE public_car_id = @publicCarId'),
         parameters: {'publicCarId': publicCarId},
       );
 
@@ -41,7 +41,7 @@ class PublicRoutes {
 
       // Get customer data
       final customerResult = await _db.execute(
-        'SELECT full_name, phone FROM customers WHERE id = @customerId',
+        Sql.named('SELECT full_name, phone FROM customers WHERE id = @customerId'),
         parameters: {'customerId': vehicleData['customer_id']},
       );
 
@@ -53,13 +53,13 @@ class PublicRoutes {
 
       // Get current booking for this vehicle
       final bookingResult = await _db.execute(
-        '''
+        Sql.named('''
         SELECT * FROM bookings 
         WHERE vehicle_id = @vehicleId 
         AND status NOT IN ('DELIVERED', 'CANCELLED')
         ORDER BY created_at DESC 
         LIMIT 1
-        ''',
+        '''),
         parameters: {'vehicleId': vehicleData['id']},
       );
 
@@ -71,12 +71,12 @@ class PublicRoutes {
 
         // Get booking services
         final servicesResult = await _db.execute(
-          '''
+          Sql.named('''
           SELECT bs.*, s.name as service_name, s.description as service_description
           FROM booking_services bs
           JOIN services s ON bs.service_id = s.id
           WHERE bs.booking_id = @bookingId
-          ''',
+          '''),
           parameters: {'bookingId': bookingData['id']},
         );
 

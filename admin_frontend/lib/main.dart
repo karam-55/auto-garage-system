@@ -309,7 +309,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
     try {
       final response = await widget.apiService.get(ApiConstants.bookings);
       setState(() {
-        _bookings = response['data'] ?? [];
+        // Backend returns array directly, not wrapped in {data: [...]}
+        _bookings = response is List ? response : (response['data'] ?? []);
         _isLoading = false;
       });
     } catch (e) {
@@ -472,7 +473,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
     try {
       final response = await widget.apiService.get(ApiConstants.customers);
       setState(() {
-        _customers = response['data'] ?? [];
+        // Backend returns array directly, not wrapped in {data: [...]}
+        _customers = response is List ? response : (response['data'] ?? []);
         _isLoading = false;
       });
     } catch (e) {
@@ -653,7 +655,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
     try {
       final response = await widget.apiService.get(ApiConstants.services);
       setState(() {
-        _services = response['data'] ?? [];
+        // Backend returns array directly, not wrapped in {data: [...]}
+        _services = response is List ? response : (response['data'] ?? []);
         _isLoading = false;
       });
     } catch (e) {
@@ -844,7 +847,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     try {
       final response = await widget.apiService.get(ApiConstants.employees);
       setState(() {
-        _employees = response['data'] ?? [];
+        // Backend returns array directly, not wrapped in {data: [...]}
+        _employees = response is List ? response : (response['data'] ?? []);
         _isLoading = false;
       });
     } catch (e) {

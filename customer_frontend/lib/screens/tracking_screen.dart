@@ -1,11 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:convert';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
 import '../models/booking.dart';
 import '../models/booking_service.dart';
-import '../models/part_suggestion.dart';
 
 class TrackingScreen extends StatefulWidget {
   final String publicToken;
@@ -33,9 +32,13 @@ class _TrackingScreenState extends State<TrackingScreen> {
     try {
       final response = await _apiService.get('${ApiConstants.publicBooking}${widget.publicToken}');
 
-      if (response != null && response is Map<String, dynamic>) {
-        final bookingData = response['booking'];
-        final servicesData = response['services'];
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        if (decoded is! Map<String, dynamic>) {
+          throw Exception('Invalid response format: expected JSON object');
+        }
+        final bookingData = decoded['booking'];
+        final servicesData = decoded['services'];
         if (bookingData == null) {
           throw Exception('Missing booking data in response');
         }

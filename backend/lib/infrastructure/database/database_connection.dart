@@ -148,6 +148,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
     year INTEGER NOT NULL,
     license_plate VARCHAR(20),
     vin VARCHAR(50),
+    public_car_id VARCHAR(255) UNIQUE NOT NULL DEFAULT '',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE
 );
@@ -212,6 +213,7 @@ CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 CREATE INDEX IF NOT EXISTS idx_vehicles_customer_id ON vehicles(customer_id);
 CREATE INDEX IF NOT EXISTS idx_vehicles_license_plate ON vehicles(license_plate);
+CREATE INDEX IF NOT EXISTS idx_vehicles_public_car_id ON vehicles(public_car_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_customer_id ON bookings(customer_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_vehicle_id ON bookings(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);

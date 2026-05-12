@@ -102,6 +102,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const publicCarId = urlParams.get('car');
 
+        console.log('DEBUG: publicCarId:', publicCarId);
+        console.log('DEBUG: API_BASE_URL:', API_BASE_URL);
+
         if (!publicCarId) {
             showError('معرف السيارة مفقود. يرجى مسح QR code صحيح.');
         } else {
@@ -109,8 +112,10 @@
         }
 
         async function loadCarData() {
+            console.log('DEBUG: loadCarData called');
             try {
                 const response = await fetch(`${API_BASE_URL}/public/car/${publicCarId}`);
+                console.log('DEBUG: Response status:', response.status);
                 
                 if (!response.ok) {
                     if (response.status === 404) {

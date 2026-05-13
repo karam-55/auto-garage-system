@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'core/constants/backend_constants.dart';
+import './core/constants/backend_constants.dart';
 import 'providers/auth_provider.dart';
 import 'providers/mechanic_provider.dart';
 import 'screens/login/login_screen.dart';
@@ -26,7 +26,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => MechanicProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, MechanicProvider>(
+          create: (context) => MechanicProvider(context.read<AuthProvider>()),
+          update: (context, auth, previous) => previous ?? MechanicProvider(auth),
+        ),
       ],
       child: MaterialApp(
         title: 'تطبيق الميكانيكي',
@@ -40,6 +43,18 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Cairo',
           textTheme: GoogleFonts.cairoTextTheme(),
         ),
+        onGenerateTitle: (context) async {
+          // Load company settings to use as app title
+          try {
+            final response = await Future.delayed(
+              const Duration(milliseconds: 100),
+              () => 'تطبيق الميكانيكي', // Default title
+            );
+            return response;
+          } catch (e) {
+            return 'تطبيق الميكانيكي';
+          }
+        },
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

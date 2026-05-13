@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../core/widgets/animated_card.dart';
 import '../core/widgets/loading_screen.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
+import '../core/widgets/professional_dialog.dart';
 
 class ServicesScreen extends StatefulWidget {
   final ApiService apiService;
@@ -44,10 +44,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطأ في تحميل الخدمات: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
+          SnackBar(content: Text('خطأ في تحميل الخدمات: $e')),
         );
       }
     }
@@ -66,63 +63,100 @@ class _ServicesScreenState extends State<ServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return PageTransitionLoading(
-      child: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _services.isEmpty
-                    ? _buildEmptyState()
-                    : _buildServicesGrid(),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _services.isEmpty
+                      ? _buildEmptyState()
+                      : _buildServicesGrid(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'إدارة الخدمات',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          SizedBox(
-            width: 300,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'بحث خدمة...',
-                prefixIcon: const Icon(Icons.search_rounded),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear_rounded),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                      )
-                    : null,
+    final width = MediaQuery.sizeOf(context).width;
+    final isCompact = width < 600;
+
+    return isCompact
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'إدارة الخدمات',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
-              onChanged: (value) => setState(() => _searchQuery = value),
-            ),
-          ),
-          const SizedBox(width: 16),
-          ElevatedButton.icon(
-            onPressed: () => _showAddServiceDialog(context),
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('إضافة خدمة'),
-          ),
-        ],
+              const SizedBox(height: 12),
+              _buildSearchField(),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () => _showAddServiceDialog(context),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('إضافة خدمة'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          )
+        : Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'إدارة الخدمات',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(width: 280, child: _buildSearchField()),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: () => _showAddServiceDialog(context),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('إضافة خدمة'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        hintText: 'بحث خدمة...',
+        prefixIcon: const Icon(Icons.search_rounded, size: 20),
+        suffixIcon: _searchQuery.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear_rounded, size: 18),
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() => _searchQuery = '');
+                },
+              )
+            : null,
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
+      onChanged: (value) => setState(() => _searchQuery = value),
     );
   }
 
@@ -131,27 +165,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.build_rounded,
-            size: 64,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-          ),
+          Icon(Icons.build_rounded, size: 64, color: Colors.grey.shade300),
           const SizedBox(height: 16),
-          Text(
-            'لا توجد خدمات حالياً',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text('لا توجد خدمات حالياً', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.grey)),
           const SizedBox(height: 8),
-          Text(
-            'اضغط على "إضافة خدمة" لإنشاء خدمة جديدة',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-          ),
-          const SizedBox(height: 24),
+          Text('اضغط على "إضافة خدمة" لإنشاء خدمة جديدة', style: TextStyle(color: Colors.grey.shade500)),
+          const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () => _showAddServiceDialog(context),
-            icon: const Icon(Icons.add_rounded),
+            icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('إضافة خدمة'),
           ),
         ],
@@ -162,40 +184,26 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Widget _buildServicesGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth > 1200
+        final crossAxisCount = constraints.maxWidth > 900
             ? 3
-            : constraints.maxWidth > 800
+            : constraints.maxWidth > 600
                 ? 2
                 : 1;
 
         return GridView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.zero,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            childAspectRatio: 1.2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
+            childAspectRatio: 1.3,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
           ),
           itemCount: _filteredServices.length,
           itemBuilder: (context, index) {
-            return TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: Duration(milliseconds: 300 + (index * 50)),
-              builder: (context, value, child) {
-                return Transform.scale(
-                  scale: value,
-                  child: Opacity(
-                    opacity: value,
-                    child: AnimatedServiceCard(
-                      name: _filteredServices[index]['name'] ?? '',
-                      description: _filteredServices[index]['description'] ?? '',
-                      price: (_filteredServices[index]['priceSYP'] as num?)?.toDouble() ?? 0.0,
-                      onEdit: () => _showEditServiceDialog(context, _filteredServices[index]),
-                      onDelete: () => _deleteService(_filteredServices[index]['id']),
-                    ),
-                  ),
-                );
-              },
+            return _ServiceCard(
+              service: _filteredServices[index],
+              onEdit: () => _showEditServiceDialog(context, _filteredServices[index]),
+              onDelete: () => _deleteService(_filteredServices[index]['id']),
             );
           },
         );
@@ -210,87 +218,100 @@ class _ServicesScreenState extends State<ServicesScreen> {
     final priceController = TextEditingController();
     final durationController = TextEditingController();
 
-    showDialog(
+    showProfessionalDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إضافة خدمة جديدة'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'اسم الخدمة'),
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+      title: 'إضافة خدمة جديدة',
+      content: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: 'اسم الخدمة',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(labelText: 'الوصف'),
-                  maxLines: 2,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  labelText: 'الوصف',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: priceController,
-                  decoration: const InputDecoration(labelText: 'السعر (ل.س)'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+                maxLines: 2,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: priceController,
+                decoration: InputDecoration(
+                  labelText: 'السعر (ل.س)',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: durationController,
-                  decoration: const InputDecoration(labelText: 'المدة المقدرة (دقائق)'),
-                  keyboardType: TextInputType.number,
+                keyboardType: TextInputType.number,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: durationController,
+                decoration: InputDecoration(
+                  labelText: 'المدة المقدرة (دقائق)',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-              ],
-            ),
+                keyboardType: TextInputType.number,
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                try {
-                  await widget.apiService.post(ApiConstants.services, {
-                    'name': nameController.text,
-                    'description': descriptionController.text,
-                    'priceSYP': double.parse(priceController.text),
-                    'estimatedDurationMinutes': durationController.text.isEmpty 
-                        ? null 
-                        : int.parse(durationController.text),
-                  });
-                  if (mounted) {
-                    Navigator.pop(context);
-                    _loadServices();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('تم إضافة الخدمة بنجاح'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('خطأ: $e'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                }
-              }
-            },
-            child: const Text('إضافة'),
-          ),
-        ],
       ),
+      onConfirm: () async {
+        if (formKey.currentState?.validate() ?? false) {
+          try {
+            await widget.apiService.post(ApiConstants.services, {
+              'name': nameController.text,
+              'description': descriptionController.text,
+              'priceSYP': double.parse(priceController.text),
+              'estimatedDurationMinutes': durationController.text.isEmpty ? null : int.parse(durationController.text),
+            });
+            if (mounted) {
+              Navigator.pop(context);
+              _loadServices();
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة الخدمة بنجاح')));
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
+            }
+          }
+        }
+      },
     );
   }
 
@@ -301,116 +322,116 @@ class _ServicesScreenState extends State<ServicesScreen> {
     final priceController = TextEditingController(text: service['priceSYP']?.toString() ?? '');
     final durationController = TextEditingController(text: service['estimatedDurationMinutes']?.toString() ?? '');
 
-    showDialog(
+    showProfessionalDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تعديل الخدمة'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'اسم الخدمة'),
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+      title: 'تعديل الخدمة',
+      content: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: 'اسم الخدمة',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(labelText: 'الوصف'),
-                  maxLines: 2,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  labelText: 'الوصف',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: priceController,
-                  decoration: const InputDecoration(labelText: 'السعر (ل.س)'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+                maxLines: 2,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: priceController,
+                decoration: InputDecoration(
+                  labelText: 'السعر (ل.س)',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: durationController,
-                  decoration: const InputDecoration(labelText: 'المدة المقدرة (دقائق)'),
-                  keyboardType: TextInputType.number,
+                keyboardType: TextInputType.number,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: durationController,
+                decoration: InputDecoration(
+                  labelText: 'المدة المقدرة (دقائق)',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-              ],
-            ),
+                keyboardType: TextInputType.number,
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                try {
-                  await widget.apiService.patch(
-                    '${ApiConstants.services}/${service['id']}',
-                    body: {
-                      'name': nameController.text,
-                      'description': descriptionController.text,
-                      'priceSYP': double.parse(priceController.text),
-                      'estimatedDurationMinutes': durationController.text.isEmpty 
-                          ? null 
-                          : int.parse(durationController.text),
-                    },
-                  );
-                  if (mounted) {
-                    Navigator.pop(context);
-                    _loadServices();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('تم تحديث الخدمة بنجاح'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('خطأ: $e'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                }
-              }
-            },
-            child: const Text('حفظ'),
-          ),
-        ],
       ),
+      onConfirm: () async {
+        if (formKey.currentState?.validate() ?? false) {
+          try {
+            await widget.apiService.patch(
+              '${ApiConstants.services}/${service['id']}',
+              body: {
+                'name': nameController.text,
+                'description': descriptionController.text,
+                'priceSYP': double.parse(priceController.text),
+                'estimatedDurationMinutes': durationController.text.isEmpty ? null : int.parse(durationController.text),
+              },
+            );
+            if (mounted) {
+              Navigator.pop(context);
+              _loadServices();
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الخدمة بنجاح')));
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
+            }
+          }
+        }
+      },
     );
   }
 
   Future<void> _deleteService(String? id) async {
     if (id == null) return;
-    
-    final confirmed = await showDialog<bool>(
+
+    final confirmed = await showProfessionalDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تأكيد الحذف'),
-        content: const Text('هل أنت متأكد من حذف هذه الخدمة؟'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('حذف'),
-          ),
-        ],
-      ),
+      title: 'تأكيد الحذف',
+      content: const Text('هل أنت متأكد من حذف هذه الخدمة؟'),
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+      onConfirm: () => Navigator.pop(context, true),
     );
 
     if (confirmed == true) {
@@ -418,23 +439,109 @@ class _ServicesScreenState extends State<ServicesScreen> {
         await widget.apiService.delete('${ApiConstants.services}/$id');
         _loadServices();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تم حذف الخدمة بنجاح'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف الخدمة بنجاح')));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('خطأ: $e'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
         }
       }
     }
+  }
+}
+
+class _ServiceCard extends StatelessWidget {
+  final Map<String, dynamic> service;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _ServiceCard({required this.service, required this.onEdit, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    final price = (service['priceSYP'] as num?)?.toDouble() ?? 0.0;
+    final duration = service['estimatedDurationMinutes'];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.build_rounded, color: Color(0xFF10B981), size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  service['name'] ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (service['description'] != null && service['description'].toString().isNotEmpty)
+            Text(
+              service['description'] ?? '',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          const Spacer(),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '$price ل.س',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)),
+                ),
+              ),
+              if (duration != null) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '$duration دقيقة',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFF59E0B)),
+                  ),
+                ),
+              ],
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.edit_rounded, size: 18),
+                onPressed: onEdit,
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_rounded, size: 18, color: Colors.red),
+                onPressed: onDelete,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

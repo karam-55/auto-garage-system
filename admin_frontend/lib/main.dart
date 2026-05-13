@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
@@ -17,31 +15,52 @@ import 'screens/employees_screen.dart';
 import 'screens/reports_screen.dart';
 import 'screens/vehicles_screen.dart';
 import 'screens/change_password_screen.dart';
+import 'screens/company_settings_screen.dart';
+import 'screens/quick_booking_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Set preferred orientations
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-    DeviceOrientation.portraitUp,
-  ]);
-
-  runApp(const AdminDashboardApp());
+  final prefs = await SharedPreferences.getInstance();
+  final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+  
+  runApp(AdminDashboardApp(initialThemeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light));
 }
 
-class AdminDashboardApp extends StatelessWidget {
-  const AdminDashboardApp({super.key});
+class AdminDashboardApp extends StatefulWidget {
+  final ThemeMode initialThemeMode;
+  
+  const AdminDashboardApp({super.key, required this.initialThemeMode});
+
+  @override
+  State<AdminDashboardApp> createState() => _AdminDashboardAppState();
+}
+
+class _AdminDashboardAppState extends State<AdminDashboardApp> {
+  late ThemeMode _themeMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _themeMode = widget.initialThemeMode;
+  }
+
+  void _toggleTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final newThemeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    setState(() {
+      _themeMode = newThemeMode;
+    });
+    await prefs.setBool('isDarkMode', newThemeMode == ThemeMode.dark);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'نظام ورشة السيارات - لوحة التحكم',
-      theme: AppTheme.lightTheme.copyWith(
-        fontFamily: 'Cairo',
-        textTheme: GoogleFonts.cairoTextTheme(AppTheme.lightTheme.textTheme),
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: _themeMode,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -52,13 +71,21 @@ class AdminDashboardApp extends StatelessWidget {
         Locale('ar', ''),
       ],
       locale: const Locale('ar', ''),
-      home: const LoginScreen(),
-    );
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: child!,
+        );
+      },
+      home: LoginScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),
   }
 }
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback? onThemeToggle;
+  final ThemeMode themeMode;
+  
+  const LoginScreen({super.key, this.onThemeToggle, required this.themeMode});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -142,6 +169,8 @@ class _LoginScreenState extends State<LoginScreen>
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) => DashboardScreen(
                 token: _authService.token,
+                onThemeToggle: widget.onThemeToggle,
+                themeMode: widget.themeMode,
               ),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 return FadeTransition(
@@ -304,8 +333,10 @@ class _LoginScreenState extends State<LoginScreen>
 
 class DashboardScreen extends StatefulWidget {
   final String? token;
-
-  const DashboardScreen({super.key, this.token});
+  final VoidCallback? onThemeToggle;
+  final ThemeMode themeMode;
+  
+  const DashboardScreen({super.key, this.token, this.onThemeToggle, required this.themeMode});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -314,6 +345,20 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
   late ApiService _apiService;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _destinations = const [
+    _NavItem(icon: Icons.dashboard_rounded, label: 'نظرة عامة'),
+    _NavItem(icon: Icons.calendar_today_rounded, label: 'الحجوزات'),
+    _NavItem(icon: Icons.flash_on_rounded, label: 'حجز سريع'),
+    _NavItem(icon: Icons.people_rounded, label: 'العملاء'),
+    _NavItem(icon: Icons.directions_car_rounded, label: 'السيارات'),
+    _NavItem(icon: Icons.build_rounded, label: 'الخدمات'),
+    _NavItem(icon: Icons.work_rounded, label: 'الموظفين'),
+    _NavItem(icon: Icons.bar_chart_rounded, label: 'التقارير'),
+    _NavItem(icon: Icons.settings_rounded, label: 'إعدادات النظام'),
+    _NavItem(icon: Icons.lock_rounded, label: 'كلمة المرور'),
+  ];
 
   @override
   void initState() {
@@ -328,70 +373,231 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.dispose();
   }
 
+  void _onDestinationSelected(int index) {
+    if (index == -1) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      );
+      return;
+    }
+    setState(() => _selectedIndex = index);
+    if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final isDesktop = size.width >= 1100;
+    final isTablet = size.width >= 600 && size.width < 1100;
+
     final screens = [
       OverviewScreen(apiService: _apiService),
       BookingsScreen(apiService: _apiService),
+      QuickBookingScreen(apiService: _apiService),
       CustomersScreen(apiService: _apiService),
       VehiclesScreen(apiService: _apiService),
       ServicesScreen(apiService: _apiService),
       EmployeesScreen(apiService: _apiService),
       ReportsScreen(apiService: _apiService),
+      CompanySettingsScreen(apiService: _apiService),
       ChangePasswordScreen(apiService: _apiService),
     ];
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      key: _scaffoldKey,
+      backgroundColor: const Color(0xFFF8FAFC),
+      drawer: !isDesktop ? _buildDrawer() : null,
+      appBar: !isDesktop
+          ? AppBar(
+              elevation: 0,
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF1E293B),
+              title: Text(_destinations[_selectedIndex].label),
+              centerTitle: true,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout_rounded, color: Colors.red),
+                  onPressed: () => _onDestinationSelected(-1),
+                  tooltip: 'تسجيل الخروج',
+                ),
+                const SizedBox(width: 8),
+              ],
+            )
+          : null,
       body: Row(
         children: [
-          // Animated Sidebar
-          AnimatedSidebar(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (index) {
-              if (index == -1) {
-                // Logout
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
-              } else {
-                setState(() => _selectedIndex = index);
-              }
-            },
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
-          // Main Content
+          if (isDesktop)
+            AnimatedSidebar(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onDestinationSelected,
+              isExpanded: true,
+              onThemeToggle: widget.onThemeToggle,
+              themeMode: widget.themeMode,
+            ),
+          if (isTablet)
+            AnimatedSidebar(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onDestinationSelected,
+              isExpanded: false,
+              onThemeToggle: widget.onThemeToggle,
+              themeMode: widget.themeMode,
+            ),
+          if (isDesktop || isTablet) const VerticalDivider(thickness: 1, width: 1),
           Expanded(
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 350),
               transitionBuilder: (child, animation) {
                 return FadeTransition(
                   opacity: animation,
                   child: SlideTransition(
                     position: Tween<Offset>(
-                      begin: const Offset(0, 0.05),
+                      begin: const Offset(0.05, 0),
                       end: Offset.zero,
-                    ).animate(animation),
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    )),
                     child: child,
                   ),
                 );
               },
-              child: _selectedIndex < screens.length
-                  ? screens[_selectedIndex]
-                  : const Center(child: Text('صفحة غير موجودة')),
+              layoutBuilder: (currentChild, previousChildren) {
+                return Stack(
+                  alignment: Alignment.topLeft,
+                  children: <Widget>[
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                );
+              },
+              child: Container(
+                key: ValueKey<int>(_selectedIndex),
+                child: _selectedIndex < screens.length
+                    ? screens[_selectedIndex]
+                    : const Center(child: Text('صفحة غير موجودة')),
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      elevation: 0,
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.directions_car, color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Garage Go',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                      Text(
+                        'لوحة التحكم',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade600,
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFE2E8F0)),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                itemCount: _destinations.length,
+                itemBuilder: (context, index) {
+                  final item = _destinations[index];
+                  final isSelected = _selectedIndex == index;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: ListTile(
+                      leading: Icon(
+                        item.icon,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey.shade600,
+                      ),
+                      title: Text(
+                        item.label,
+                        style: TextStyle(
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : const Color(0xFF1E293B),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      tileColor: isSelected
+                          ? Theme.of(context).colorScheme.primary.withOpacity(0.08)
+                          : null,
+                      onTap: () => _onDestinationSelected(index),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFE2E8F0)),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: ListTile(
+                leading: const Icon(Icons.logout_rounded, color: Colors.red),
+                title: const Text(
+                  'تسجيل الخروج',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                onTap: () => _onDestinationSelected(-1),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem {
+  final IconData icon;
+  final String label;
+  const _NavItem({required this.icon, required this.label});
 }

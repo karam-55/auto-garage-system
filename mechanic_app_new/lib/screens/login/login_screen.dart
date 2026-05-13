@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../providers/auth_provider.dart';
 import '../register_screen.dart';
+import '../../core/constants/backend_constants.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,11 +20,33 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _rememberMe = false;
+  String _companyName = 'تطبيق الميكانيكي';
+  String? _companyLogoUrl;
 
   @override
   void initState() {
     super.initState();
     _loadSavedCredentials();
+    _loadCompanySettings();
+  }
+
+  Future<void> _loadCompanySettings() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${BackendConstants.backendUrl}/api/company/settings'),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (mounted) {
+          setState(() {
+            _companyName = data['companyName'] ?? 'تطبيق الميكانيكي';
+            _companyLogoUrl = data['companyLogoUrl'];
+          });
+        }
+      }
+    } catch (e) {
+      // Use default values on error
+    }
   }
 
   Future<void> _loadSavedCredentials() async {
@@ -129,19 +154,34 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.directions_car,
-                            color: Colors.white,
-                            size: 48,
-                          ),
+                          child: _companyLogoUrl != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Image.network(
+                                    _companyLogoUrl!,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(
+                                        Icons.directions_car,
+                                        color: Colors.white,
+                                        size: 48,
+                                      );
+                                    },
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.directions_car,
+                                  color: Colors.white,
+                                  size: 48,
+                                ),
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'تطبيق الميكانيكي',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                          _companyName,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),

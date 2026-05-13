@@ -1,8 +1,7 @@
+import '../env.dart';
+
 class ApiConstants {
-  static const String baseUrl = String.fromEnvironment(
-    'API_URL',
-    defaultValue: 'https://auto-garage-system-backend.onrender.com',
-  );
+  static String get baseUrl => Env.baseUrl;
   
   static const String apiVersion = '/api';
   

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AnimatedSidebar extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onDestinationSelected;
   final bool isExpanded;
   final VoidCallback? onToggle;
+  final VoidCallback? onThemeToggle;
+  final ThemeMode themeMode;
 
   const AnimatedSidebar({
     super.key,
@@ -13,6 +17,8 @@ class AnimatedSidebar extends StatefulWidget {
     required this.onDestinationSelected,
     this.isExpanded = true,
     this.onToggle,
+    this.onThemeToggle,
+    required this.themeMode,
   });
 
   @override
@@ -23,6 +29,8 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _expandAnimation;
+  String _companyName = 'Garage Go';
+  String? _companyLogoUrl;
 
   @override
   void initState() {
@@ -38,6 +46,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
     if (widget.isExpanded) {
       _controller.value = 1.0;
     }
+    _loadCompanySettings();
   }
 
   @override
@@ -58,6 +67,27 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
     super.dispose();
   }
 
+  Future<void> _loadCompanySettings() async {
+    try {
+      // Get API base URL from environment or use default
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:8080');
+      final response = await http.get(Uri.parse('$baseUrl/api/company/settings'));
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (mounted) {
+          setState(() {
+            _companyName = data['companyName'] ?? 'Garage Go';
+            _companyLogoUrl = data['companyLogoUrl'];
+          });
+        }
+      }
+    } catch (e) {
+      // Use default values on error
+      print('Failed to load company settings: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -65,33 +95,20 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
       builder: (context, child) {
         return Container(
           width: widget.isExpanded ? 260 : 80,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.surface,
-                Theme.of(context).colorScheme.surface.withOpacity(0.95),
-              ],
-            ),
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            color: Colors.white,
             border: Border(
               right: BorderSide(
-                color: Theme.of(context).dividerColor,
+                color: Color(0xFFE2E8F0),
                 width: 1,
               ),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 0),
-              ),
-            ],
           ),
           child: Column(
             children: [
               _buildHeader(),
-              const Divider(height: 1),
+              const Divider(height: 1, color: Color(0xFFE2E8F0)),
               Expanded(
                 child: _buildDestinations(),
               ),
@@ -125,7 +142,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Garage Go',
+                        _companyName,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: Theme.of(context).colorScheme.primary,
@@ -174,11 +191,26 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.directions_car,
-              color: Colors.white,
-              size: 24,
-            ),
+            child: _companyLogoUrl != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(11),
+                    child: Image.network(
+                      _companyLogoUrl!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.directions_car_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        );
+                      },
+                    ),
+                  )
+                : const Icon(
+                    Icons.directions_car_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
           ),
         );
       },
@@ -198,34 +230,44 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
         index: 1,
       ),
       _SidebarDestination(
+        icon: Icons.flash_on_rounded,
+        label: 'حجز سريع',
+        index: 2,
+      ),
+      _SidebarDestination(
         icon: Icons.people_rounded,
         label: 'العملاء',
-        index: 2,
+        index: 3,
       ),
       _SidebarDestination(
         icon: Icons.directions_car_rounded,
         label: 'السيارات',
-        index: 3,
+        index: 4,
       ),
       _SidebarDestination(
         icon: Icons.build_rounded,
         label: 'الخدمات',
-        index: 4,
+        index: 5,
       ),
       _SidebarDestination(
         icon: Icons.work_rounded,
         label: 'الموظفين',
-        index: 5,
+        index: 6,
       ),
       _SidebarDestination(
         icon: Icons.bar_chart_rounded,
         label: 'التقارير',
-        index: 6,
+        index: 7,
+      ),
+      _SidebarDestination(
+        icon: Icons.settings_rounded,
+        label: 'إعدادات النظام',
+        index: 8,
       ),
       _SidebarDestination(
         icon: Icons.lock_rounded,
         label: 'تغيير كلمة المرور',
-        index: 7,
+        index: 9,
       ),
     ];
 
@@ -247,19 +289,37 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
   Widget _buildFooter() {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: _AnimatedDestinationItem(
-        destination: _SidebarDestination(
-          icon: Icons.logout_rounded,
-          label: 'تسجيل الخروج',
-          index: -1,
-        ),
-        isSelected: false,
-        isExpanded: widget.isExpanded,
-        expandAnimation: _expandAnimation,
-        onTap: () {
-          Navigator.of(context).pushReplacementNamed('/');
-        },
-        isDanger: true,
+      child: Column(
+        children: [
+          if (widget.onThemeToggle != null) ...[
+            _AnimatedDestinationItem(
+              destination: _SidebarDestination(
+                icon: widget.themeMode == ThemeMode.dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                label: widget.themeMode == ThemeMode.dark ? 'الوضع الفاتح' : 'الوضع الداكن',
+                index: -2,
+              ),
+              isSelected: false,
+              isExpanded: widget.isExpanded,
+              expandAnimation: _expandAnimation,
+              onTap: widget.onThemeToggle,
+            ),
+            const SizedBox(height: 8),
+          ],
+          _AnimatedDestinationItem(
+            destination: _SidebarDestination(
+              icon: Icons.logout_rounded,
+              label: 'تسجيل الخروج',
+              index: -1,
+            ),
+            isSelected: false,
+            isExpanded: widget.isExpanded,
+            expandAnimation: _expandAnimation,
+            onTap: () {
+              Navigator.of(context).pushReplacementNamed('/');
+            },
+            isDanger: true,
+          ),
+        ],
       ),
     );
   }
@@ -302,17 +362,21 @@ class _AnimatedDestinationItemState extends State<_AnimatedDestinationItem>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
   bool _isHovered = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 250),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.8).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
   }
 
@@ -334,34 +398,49 @@ class _AnimatedDestinationItemState extends State<_AnimatedDestinationItem>
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: _handleTap,
         child: AnimatedBuilder(
-          animation: _scaleAnimation,
+          animation: _controller,
           builder: (context, child) {
             return Transform.scale(
-              scale: _scaleAnimation.value,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                decoration: BoxDecoration(
-                  color: widget.isSelected
-                      ? (widget.isDanger
-                          ? Colors.red.withOpacity(0.1)
-                          : Theme.of(context).colorScheme.primary.withOpacity(0.1))
-                      : (_isHovered
-                          ? Theme.of(context).colorScheme.surface.withOpacity(0.8)
-                          : Colors.transparent),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
+              scale: _controller.isAnimating ? _scaleAnimation.value : 1.0,
+              child: Opacity(
+                opacity: _controller.isAnimating ? _opacityAnimation.value : 1.0,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  decoration: BoxDecoration(
                     color: widget.isSelected
                         ? (widget.isDanger
-                            ? Colors.red.withOpacity(0.3)
-                            : Theme.of(context).colorScheme.primary.withOpacity(0.3))
-                        : Colors.transparent,
-                    width: 1,
+                            ? Colors.red.withOpacity(0.15)
+                            : Theme.of(context).colorScheme.primary.withOpacity(0.15))
+                        : (_isHovered
+                            ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
+                            : Colors.transparent),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: widget.isSelected
+                          ? (widget.isDanger
+                              ? Colors.red.withOpacity(0.4)
+                              : Theme.of(context).colorScheme.primary.withOpacity(0.4))
+                          : (_isHovered
+                              ? Theme.of(context).dividerColor.withOpacity(0.5)
+                              : Colors.transparent),
+                      width: widget.isSelected || _isHovered ? 1.5 : 1,
+                    ),
+                    boxShadow: _isHovered && !widget.isSelected
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
-                ),
                 child: Row(
                   children: [
                     Icon(

@@ -34,10 +34,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطأ في تحميل التقارير: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
+          SnackBar(content: Text('خطأ في تحميل التقارير: $e')),
         );
       }
     }
@@ -47,160 +44,166 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget build(BuildContext context) {
     return PageTransitionLoading(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
-            const SizedBox(height: 32),
-            _buildRevenueSummary(),
-            const SizedBox(height: 32),
-            _buildMonthlyRevenueChart(),
+            Text(
+              'التقارير والإحصائيات',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 20),
+            _buildRevenueCards(),
+            const SizedBox(height: 20),
+            _buildChartPlaceholder(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Text(
-      'التقارير والإحصائيات',
-      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-    );
-  }
-
-  Widget _buildRevenueSummary() {
+  Widget _buildRevenueCards() {
     if (_revenueData == null) return const SizedBox();
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            Theme.of(context).colorScheme.primary.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.account_balance_wallet_rounded,
-                size: 32,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 16),
-              Text(
-                'ملخص الإيرادات',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth > 700 ? 3 : 1;
+        final items = [
+          _RevenueItem(
+            label: 'إجمالي الإيرادات',
+            value: '${(_revenueData!['totalRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
+            icon: Icons.account_balance_wallet_rounded,
+            color: const Color(0xFF6366F1),
           ),
-          const SizedBox(height: 24),
-          _buildRevenueRow('إجمالي الإيرادات', '${(_revenueData!['totalRevenue'] ?? 0).toStringAsFixed(0)} ل.س'),
-          const SizedBox(height: 12),
-          _buildRevenueRow('إيرادات هذا الشهر', '${(_revenueData!['monthlyRevenue'] ?? 0).toStringAsFixed(0)} ل.س'),
-          const SizedBox(height: 12),
-          _buildRevenueRow('متوسط الإيرادات اليومية', '${(_revenueData!['averageDailyRevenue'] ?? 0).toStringAsFixed(0)} ل.س'),
-        ],
-      ),
+          _RevenueItem(
+            label: 'إيرادات هذا الشهر',
+            value: '${(_revenueData!['monthlyRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
+            icon: Icons.calendar_today_rounded,
+            color: const Color(0xFF10B981),
+          ),
+          _RevenueItem(
+            label: 'متوسط يومي',
+            value: '${(_revenueData!['averageDailyRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
+            icon: Icons.trending_up_rounded,
+            color: const Color(0xFFF59E0B),
+          ),
+        ];
+
+        if (crossAxisCount == 1) {
+          return Column(
+            children: items.map((item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _RevenueCard(item: item),
+            )).toList(),
+          );
+        }
+
+        return Row(
+          children: items.map((item) => Expanded(child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: _RevenueCard(item: item),
+          ))).toList(),
+        );
+      },
     );
   }
 
-  Widget _buildRevenueRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-              ),
-        ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMonthlyRevenueChart() {
+  Widget _buildChartPlaceholder() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-          width: 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'الإيرادات الشهرية',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 24),
-          _buildChartPlaceholder(),
+          const SizedBox(height: 20),
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.bar_chart_rounded, size: 56, color: Colors.grey.shade300),
+                  const SizedBox(height: 12),
+                  Text(
+                    'مخطط الإيرادات',
+                    style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'سيتم إضافة المخطط في التحديث القادم',
+                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildChartPlaceholder() {
+class _RevenueItem {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+  _RevenueItem({required this.label, required this.value, required this.icon, required this.color});
+}
+
+class _RevenueCard extends StatelessWidget {
+  final _RevenueItem item;
+  const _RevenueCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      height: 300,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.bar_chart_rounded,
-              size: 64,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'مخطط الإيرادات',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'سيتم إضافة المخطط في التحديث القادم',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                  ),
-            ),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: item.color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(item.icon, color: item.color, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  item.label,
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            item.value,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: item.color),
+          ),
+        ],
       ),
     );
   }

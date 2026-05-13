@@ -35,6 +35,7 @@ class _ProfessionalDialogState extends State<ProfessionalDialog>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _slideAnimation;
 
   @override
   void initState() {
@@ -43,15 +44,15 @@ class _ProfessionalDialogState extends State<ProfessionalDialog>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
-
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-
+    _slideAnimation = Tween<double>(begin: -0.1, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
     _controller.forward();
   }
 
@@ -63,97 +64,127 @@ class _ProfessionalDialogState extends State<ProfessionalDialog>
 
   @override
   Widget build(BuildContext context) {
-    final dialogWidth = widget.width ?? (MediaQuery.of(context).size.width * 0.5);
-    final maxWidth = dialogWidth > 800 ? 800.0 : dialogWidth;
-    final minWidth = dialogWidth < 400 ? 400.0 : dialogWidth;
+    final screenSize = MediaQuery.sizeOf(context);
+    final screenPadding = MediaQuery.paddingOf(context);
+    final maxDialogWidth = widget.width ?? 560;
+    final usableHeight = screenSize.height - screenPadding.top - screenPadding.bottom - 48;
 
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       backgroundColor: Colors.transparent,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Container(
-                constraints: BoxConstraints(
-                  minWidth: minWidth,
-                  maxWidth: maxWidth,
-                  maxHeight: widget.maxHeight ?? MediaQuery.of(context).size.height * 0.85,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 30,
-                      offset: const Offset(0, 15),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildHeader(context),
-                    Divider(height: 1, color: Theme.of(context).dividerColor),
-                    Flexible(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(24),
-                        child: widget.content,
+      elevation: 0,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: maxDialogWidth,
+            maxHeight: widget.maxHeight ?? (usableHeight * 0.9),
+            minWidth: 280,
+          ),
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: Offset(0, _slideAnimation.value),
+                    end: Offset.zero,
+                  ).animate(_controller),
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 40,
+                            offset: const Offset(0, 20),
+                            spreadRadius: -8,
+                          ),
+                        ],
+                      ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildHeader(context),
+                          const Divider(height: 1),
+                          Flexible(
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.all(24),
+                              child: widget.content,
+                            ),
+                          ),
+                          if (widget.actions != null ||
+                              widget.onConfirm != null ||
+                              widget.onCancel != null)
+                            _buildFooter(context),
+                        ],
                       ),
                     ),
-                    if (widget.actions != null || widget.onConfirm != null || widget.onCancel != null)
-                      _buildFooter(context),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               Icons.info_rounded,
               color: Theme.of(context).colorScheme.primary,
-              size: 24,
+              size: 20,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               widget.title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: const Color(0xFF1E293B),
                   ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.close_rounded),
-            onPressed: widget.onCancel ?? () => Navigator.pop(context),
-            tooltip: 'إغلاق',
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: widget.onCancel ?? () => Navigator.pop(context),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 20,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -162,41 +193,50 @@ class _ProfessionalDialogState extends State<ProfessionalDialog>
 
   Widget _buildFooter(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (widget.actions != null) ...widget.actions!,
-          if (widget.actions == null) ...[
-            if (widget.onCancel != null)
-              Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: OutlinedButton(
+      child: SafeArea(
+        top: false,
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            if (widget.actions != null) ...widget.actions!,
+            if (widget.actions == null) ...[
+              if (widget.onCancel != null)
+                OutlinedButton(
                   onPressed: widget.isLoading ? null : widget.onCancel,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   child: Text(widget.cancelText ?? 'إلغاء'),
                 ),
-              ),
-            if (widget.onConfirm != null)
-              Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: ElevatedButton(
+              if (widget.onConfirm != null)
+                ElevatedButton(
                   onPressed: widget.isLoading ? null : widget.onConfirm,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   child: widget.isLoading
                       ? const SizedBox(
-                          width: 20,
-                          height: 20,
+                          width: 18,
+                          height: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -204,15 +244,14 @@ class _ProfessionalDialogState extends State<ProfessionalDialog>
                         )
                       : Text(widget.confirmText ?? 'تأكيد'),
                 ),
-              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
-// Helper function to show professional dialog
 Future<T?> showProfessionalDialog<T>({
   required BuildContext context,
   required String title,
@@ -228,7 +267,8 @@ Future<T?> showProfessionalDialog<T>({
 }) {
   return showDialog<T>(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.5),
+    barrierDismissible: false,
+    barrierColor: Colors.black.withOpacity(0.45),
     builder: (context) => ProfessionalDialog(
       title: title,
       content: content,

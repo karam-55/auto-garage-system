@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
+import 'package:shelf_static/shelf_static.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
@@ -16,6 +17,7 @@ import '../lib/infrastructure/repositories/booking_repository_impl.dart';
 import '../lib/infrastructure/repositories/booking_service_repository_impl.dart';
 import '../lib/infrastructure/repositories/mechanic_assignment_repository_impl.dart';
 import '../lib/infrastructure/repositories/part_suggestion_repository_impl.dart';
+import '../lib/infrastructure/repositories/company_settings_repository_impl.dart';
 import '../lib/presentation/routes/auth_routes.dart';
 import '../lib/presentation/routes/customer_routes.dart';
 import '../lib/presentation/routes/vehicle_routes.dart';
@@ -24,6 +26,7 @@ import '../lib/presentation/routes/booking_routes.dart';
 import '../lib/presentation/routes/mechanic_routes.dart';
 import '../lib/presentation/routes/dashboard_routes.dart';
 import '../lib/presentation/routes/public_routes.dart';
+import '../lib/presentation/routes/company_settings_routes.dart';
 import '../lib/presentation/middlewares/auth_middleware.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
@@ -72,6 +75,7 @@ void main(List<String> args) async {
   final bookingServiceRepository = BookingServiceRepositoryImpl(db);
   final mechanicAssignmentRepository = MechanicAssignmentRepositoryImpl(db);
   final partSuggestionRepository = PartSuggestionRepositoryImpl(db);
+  final companySettingsRepository = CompanySettingsRepositoryImpl(db);
 
   // Initialize routes
   final authMiddleware = AuthMiddleware(userRepository);
@@ -101,9 +105,18 @@ void main(List<String> args) async {
     authRoutes.authMiddleware,
   );
   final publicRoutes = PublicRoutes(db);
+  final companySettingsRoutes = CompanySettingsRoutes(companySettingsRepository);
+
+  // Create static file handler for uploads directory
+  final uploadsDir = Directory('uploads');
+  if (!await uploadsDir.exists()) {
+    await uploadsDir.create(recursive: true);
+  }
+  final staticHandler = createStaticHandler(uploadsDir.path, defaultDocument: null);
 
   // Combine all routes
   final handler = Cascade()
+      .add(staticHandler)
       .add(authRoutes.router)
       .add(customerRoutes.router)
       .add(vehicleRoutes.router)
@@ -112,6 +125,7 @@ void main(List<String> args) async {
       .add(mechanicRoutes.router)
       .add(dashboardRoutes.router)
       .add(publicRoutes.router)
+      .add(companySettingsRoutes.router)
       .add((Request request) {
         if (request.url.path == 'health') {
           return Response.ok(
@@ -153,7 +167,11 @@ void main(List<String> args) async {
   print('  GET    /api/mechanics/available-bookings');
   print('  POST   /api/mechanics/assign');
   print('  GET    /api/dashboard/stats');
+  print('  GET    /api/dashboard/revenue');
   print('  GET    /public/bookings/<publicToken>');
+  print('  GET    /api/company/settings');
+  print('  PATCH  /api/company/settings');
+  print('  POST   /api/company/upload-logo');
 }
 
 Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) async {

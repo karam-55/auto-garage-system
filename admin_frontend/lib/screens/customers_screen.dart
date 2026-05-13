@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../core/widgets/animated_card.dart';
 import '../core/widgets/loading_screen.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
+import '../core/widgets/professional_dialog.dart';
 
 class CustomersScreen extends StatefulWidget {
   final ApiService apiService;
@@ -43,12 +43,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطأ في تحميل العملاء: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل العملاء: $e')));
       }
     }
   }
@@ -58,71 +53,107 @@ class _CustomersScreenState extends State<CustomersScreen> {
     return _customers.where((customer) {
       final name = customer['fullName']?.toString().toLowerCase() ?? '';
       final phone = customer['phone']?.toString().toLowerCase() ?? '';
-      return name.contains(_searchQuery.toLowerCase()) ||
-          phone.contains(_searchQuery.toLowerCase());
+      return name.contains(_searchQuery.toLowerCase()) || phone.contains(_searchQuery.toLowerCase());
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return PageTransitionLoading(
-      child: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _customers.isEmpty
-                    ? _buildEmptyState()
-                    : _buildCustomersList(),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _customers.isEmpty
+                      ? _buildEmptyState()
+                      : _buildCustomersList(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'إدارة العملاء',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          SizedBox(
-            width: 300,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'بحث عميل...',
-                prefixIcon: const Icon(Icons.search_rounded),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear_rounded),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                      )
-                    : null,
+    final width = MediaQuery.sizeOf(context).width;
+    final isCompact = width < 600;
+
+    return isCompact
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'إدارة العملاء',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
-              onChanged: (value) => setState(() => _searchQuery = value),
-            ),
-          ),
-          const SizedBox(width: 16),
-          ElevatedButton.icon(
-            onPressed: () => _showAddCustomerDialog(context),
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('إضافة عميل'),
-          ),
-        ],
+              const SizedBox(height: 12),
+              _buildSearchField(),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () => _showAddCustomerDialog(context),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('إضافة عميل'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          )
+        : Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'إدارة العملاء',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(width: 280, child: _buildSearchField()),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: () => _showAddCustomerDialog(context),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('إضافة عميل'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        hintText: 'بحث عميل...',
+        prefixIcon: const Icon(Icons.search_rounded, size: 20),
+        suffixIcon: _searchQuery.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear_rounded, size: 18),
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() => _searchQuery = '');
+                },
+              )
+            : null,
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
+      onChanged: (value) => setState(() => _searchQuery = value),
     );
   }
 
@@ -131,27 +162,15 @@ class _CustomersScreenState extends State<CustomersScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.people_rounded,
-            size: 64,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-          ),
+          Icon(Icons.people_rounded, size: 64, color: Colors.grey.shade300),
           const SizedBox(height: 16),
-          Text(
-            'لا يوجد عملاء حالياً',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text('لا يوجد عملاء حالياً', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.grey)),
           const SizedBox(height: 8),
-          Text(
-            'اضغط على "إضافة عميل" لإنشاء عميل جديد',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-          ),
-          const SizedBox(height: 24),
+          Text('اضغط على "إضافة عميل" لإنشاء عميل جديد', style: TextStyle(color: Colors.grey.shade500)),
+          const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () => _showAddCustomerDialog(context),
-            icon: const Icon(Icons.add_rounded),
+            icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('إضافة عميل'),
           ),
         ],
@@ -160,26 +179,28 @@ class _CustomersScreenState extends State<CustomersScreen> {
   }
 
   Widget _buildCustomersList() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      itemCount: _filteredCustomers.length,
-      itemBuilder: (context, index) {
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 300 + (index * 50)),
-          builder: (context, value, child) {
-            return Transform.translate(
-              offset: Offset(0, 20 * (1 - value)),
-              child: Opacity(
-                opacity: value,
-                child: AnimatedCustomerTile(
-                  name: _filteredCustomers[index]['fullName'] ?? '',
-                  phone: _filteredCustomers[index]['phone'] ?? '',
-                  address: _filteredCustomers[index]['address'],
-                  onTap: () => _showCustomerDetailsDialog(context, _filteredCustomers[index]),
-                  onDelete: () => _deleteCustomer(_filteredCustomers[index]['id']),
-                ),
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth > 900
+            ? 3
+            : constraints.maxWidth > 600
+                ? 2
+                : 1;
+
+        return GridView.builder(
+          padding: EdgeInsets.zero,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: 1.3,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+          ),
+          itemCount: _filteredCustomers.length,
+          itemBuilder: (context, index) {
+            return _CustomerCard(
+              customer: _filteredCustomers[index],
+              onTap: () => _showCustomerDetailsDialog(context, _filteredCustomers[index]),
+              onDelete: () => _deleteCustomer(_filteredCustomers[index]['id']),
             );
           },
         );
@@ -193,114 +214,114 @@ class _CustomersScreenState extends State<CustomersScreen> {
     final phoneController = TextEditingController();
     final addressController = TextEditingController();
 
-    showDialog(
+    showProfessionalDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إضافة عميل جديد'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: fullNameController,
-                  decoration: const InputDecoration(labelText: 'الاسم الكامل'),
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+      title: 'إضافة عميل جديد',
+      content: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: fullNameController,
+                decoration: InputDecoration(
+                  labelText: 'الاسم الكامل',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: phoneController,
-                  decoration: const InputDecoration(labelText: 'رقم الهاتف'),
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-                  keyboardType: TextInputType.phone,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: phoneController,
+                decoration: InputDecoration(
+                  labelText: 'رقم الهاتف',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: addressController,
-                  decoration: const InputDecoration(labelText: 'العنوان'),
-                  maxLines: 2,
+                keyboardType: TextInputType.phone,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: addressController,
+                decoration: InputDecoration(
+                  labelText: 'العنوان',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-              ],
-            ),
+                maxLines: 2,
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                try {
-                  await widget.apiService.post(ApiConstants.customers, {
-                    'fullName': fullNameController.text,
-                    'phone': phoneController.text,
-                    'address': addressController.text,
-                  });
-                  if (mounted) {
-                    Navigator.pop(context);
-                    _loadCustomers();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('تم إضافة العميل بنجاح'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('خطأ: $e'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                }
-              }
-            },
-            child: const Text('إضافة'),
-          ),
-        ],
       ),
+      onConfirm: () async {
+        if (formKey.currentState?.validate() ?? false) {
+          try {
+            await widget.apiService.post(ApiConstants.customers, {
+              'fullName': fullNameController.text,
+              'phone': phoneController.text,
+              'address': addressController.text,
+            });
+            if (mounted) {
+              Navigator.pop(context);
+              _loadCustomers();
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة العميل بنجاح')));
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
+            }
+          }
+        }
+      },
     );
   }
 
   void _showCustomerDetailsDialog(BuildContext context, dynamic customer) {
-    showDialog(
+    showProfessionalDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تفاصيل العميل'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDetailRow('الاسم الكامل', customer['fullName'] ?? ''),
-            const SizedBox(height: 8),
-            _buildDetailRow('رقم الهاتف', customer['phone'] ?? ''),
-            const SizedBox(height: 8),
-            _buildDetailRow('العنوان', customer['address'] ?? 'غير محدد'),
-            const SizedBox(height: 8),
-            _buildDetailRow('تاريخ الإنشاء', _formatDate(customer['createdAt'])),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إغلاق'),
-          ),
-          OutlinedButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-              _showEditCustomerDialog(context, customer);
-            },
-            icon: const Icon(Icons.edit_rounded, size: 18),
-            label: const Text('تعديل'),
-          ),
+      title: 'تفاصيل العميل',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildDetailRow('الاسم الكامل', customer['fullName'] ?? ''),
+          const SizedBox(height: 8),
+          _buildDetailRow('رقم الهاتف', customer['phone'] ?? ''),
+          const SizedBox(height: 8),
+          _buildDetailRow('العنوان', customer['address'] ?? 'غير محدد'),
+          const SizedBox(height: 8),
+          _buildDetailRow('تاريخ الإنشاء', _formatDate(customer['createdAt'])),
         ],
       ),
+      actions: [
+        OutlinedButton.icon(
+          onPressed: () {
+            Navigator.pop(context);
+            _showEditCustomerDialog(context, customer);
+          },
+          icon: const Icon(Icons.edit_rounded, size: 18),
+          label: const Text('تعديل'),
+        ),
+      ],
     );
   }
 
@@ -310,107 +331,100 @@ class _CustomersScreenState extends State<CustomersScreen> {
     final phoneController = TextEditingController(text: customer['phone'] ?? '');
     final addressController = TextEditingController(text: customer['address'] ?? '');
 
-    showDialog(
+    showProfessionalDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تعديل العميل'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: fullNameController,
-                  decoration: const InputDecoration(labelText: 'الاسم الكامل'),
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+      title: 'تعديل العميل',
+      content: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: fullNameController,
+                decoration: InputDecoration(
+                  labelText: 'الاسم الكامل',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: phoneController,
-                  decoration: const InputDecoration(labelText: 'رقم الهاتف'),
-                  validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
-                  keyboardType: TextInputType.phone,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: phoneController,
+                decoration: InputDecoration(
+                  labelText: 'رقم الهاتف',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: addressController,
-                  decoration: const InputDecoration(labelText: 'العنوان'),
-                  maxLines: 2,
+                keyboardType: TextInputType.phone,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: addressController,
+                decoration: InputDecoration(
+                  labelText: 'العنوان',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
                 ),
-              ],
-            ),
+                maxLines: 2,
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                try {
-                  await widget.apiService.patch(
-                    '${ApiConstants.customers}/${customer['id']}',
-                    body: {
-                      'fullName': fullNameController.text,
-                      'phone': phoneController.text,
-                      'address': addressController.text,
-                    },
-                  );
-                  if (mounted) {
-                    Navigator.pop(context);
-                    _loadCustomers();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('تم تحديث العميل بنجاح'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('خطأ: $e'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                }
-              }
-            },
-            child: const Text('حفظ'),
-          ),
-        ],
       ),
+      onConfirm: () async {
+        if (formKey.currentState?.validate() ?? false) {
+          try {
+            await widget.apiService.patch(
+              '${ApiConstants.customers}/${customer['id']}',
+              body: {
+                'fullName': fullNameController.text,
+                'phone': phoneController.text,
+                'address': addressController.text,
+              },
+            );
+            if (mounted) {
+              Navigator.pop(context);
+              _loadCustomers();
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث العميل بنجاح')));
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
+            }
+          }
+        }
+      },
     );
   }
 
   Future<void> _deleteCustomer(String? id) async {
     if (id == null) return;
-    
-    final confirmed = await showDialog<bool>(
+
+    final confirmed = await showProfessionalDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تأكيد الحذف'),
-        content: const Text('هل أنت متأكد من حذف هذا العميل؟'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('حذف'),
-          ),
-        ],
-      ),
+      title: 'تأكيد الحذف',
+      content: const Text('هل أنت متأكد من حذف هذا العميل؟'),
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+      onConfirm: () => Navigator.pop(context, true),
     );
 
     if (confirmed == true) {
@@ -418,21 +432,11 @@ class _CustomersScreenState extends State<CustomersScreen> {
         await widget.apiService.delete('${ApiConstants.customers}/$id');
         _loadCustomers();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تم حذف العميل بنجاح'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف العميل بنجاح')));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('خطأ: $e'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
         }
       }
     }
@@ -443,21 +447,16 @@ class _CustomersScreenState extends State<CustomersScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 120,
+          width: 100,
           child: Text(
             '$label:',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                  fontWeight: FontWeight.w500,
-                ),
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
           ),
         ),
         Expanded(
           child: Text(
             value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -478,5 +477,88 @@ class _CustomersScreenState extends State<CustomersScreen> {
       }
     }
     return date.toString();
+  }
+}
+
+class _CustomerCard extends StatelessWidget {
+  final dynamic customer;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  const _CustomerCard({required this.customer, required this.onTap, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.person_rounded, color: Color(0xFF6366F1), size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  customer['fullName'] ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_rounded, size: 18, color: Colors.red),
+                onPressed: onDelete,
+              ),
+            ],
+          ),
+          const Divider(height: 24, color: Color(0xFFE2E8F0)),
+          _buildInfoRow('رقم الهاتف', customer['phone'] ?? 'غير متوفر'),
+          const SizedBox(height: 8),
+          _buildInfoRow('العنوان', customer['address'] ?? 'غير محدد'),
+          const Spacer(),
+          OutlinedButton.icon(
+            onPressed: onTap,
+            icon: const Icon(Icons.info_outline_rounded, size: 16),
+            label: const Text('التفاصيل'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      children: [
+        Text(
+          '$label: ',
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
 }

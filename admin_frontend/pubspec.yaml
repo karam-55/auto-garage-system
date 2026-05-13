@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # UI Components
   cupertino_icons: ^1.0.8
@@ -22,16 +24,18 @@ dependencies:
   
   # Local Storage
   shared_preferences: ^2.2.3
-  flutter_secure_storage: ^9.2.2
   
   # Internationalization
-  intl: ^0.19.0
-  
+  intl: ^0.20.2
+
   # QR Code
   qr_flutter: ^4.1.0
-  
-  # Fonts
-  google_fonts: ^6.1.0
+
+  # Printing / PDF
+  printing: ^5.12.0
+
+  # File Picker
+  file_picker: ^8.0.0
 
 dev_dependencies:
   flutter_test:

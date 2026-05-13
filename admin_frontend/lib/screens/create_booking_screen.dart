@@ -3,6 +3,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../core/widgets/professional_dialog.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
+import 'invoice_screen.dart';
 
 class CreateBookingScreen extends StatefulWidget {
   final ApiService apiService;
@@ -182,10 +183,44 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
           ),
         );
 
-        // Show QR Code dialog if publicCarId is available
-        if (publicCarId != null && publicCarId.isNotEmpty) {
-          _showQRCodeDialog(publicCarId, bookingId);
-        } else {
+        // Build full invoice data from collected inputs + API response
+        final invoiceData = <String, dynamic>{
+          'id': bookingId,
+          'customer': {
+            'fullName': _customerNameController.text.trim(),
+            'phone': _customerPhoneController.text.trim(),
+            'address': _customerAddressController.text.trim(),
+          },
+          'vehicle': {
+            'make': _vehicleMakeController.text.trim(),
+            'model': _vehicleModelController.text.trim(),
+            'year': int.tryParse(_vehicleYearController.text.trim()),
+            'licensePlate': _vehiclePlateController.text.trim(),
+            'color': _vehicleColorController.text.trim(),
+            'publicCarId': publicCarId ?? '',
+          },
+          'booking': {
+            'id': bookingId,
+            'status': 'PENDING',
+            'notes': _bookingNotesController.text.trim(),
+            'createdAt': DateTime.now().toIso8601String(),
+            'estimatedCompletionDate': _preferredDate?.toIso8601String(),
+          },
+          'services': _selectedServices.map((s) => {
+            'serviceName': s['name'] ?? s['serviceName'] ?? 'خدمة',
+            'serviceDescription': s['description'] ?? s['serviceDescription'] ?? '',
+            'priceSYP': s['priceSYP'] ?? 0,
+          }).toList(),
+        };
+
+        // Show Invoice instead of simple QR dialog
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => InvoiceScreen(invoiceData: invoiceData),
+          ),
+        );
+
+        if (mounted) {
           Navigator.pop(context);
           widget.onBookingCreated?.call();
         }
@@ -226,43 +261,51 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
     );
     final trackingUrl = '$customerFrontendUrl?car=$publicCarId';
 
-    showDialog(
+    showProfessionalDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تم إنشاء الحجز بنجاح'),
-        content: Column(
+      title: 'تم إنشاء الحجز بنجاح',
+      content: SingleChildScrollView(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('امسح الكود لتتبع حالة الحجز'),
-            const SizedBox(height: 20),
-            QrImageView(
-              data: trackingUrl,
-              version: QrVersions.auto,
-              size: 200.0,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: QrImageView(
+                data: trackingUrl,
+                version: QrVersions.auto,
+                size: 220,
+                backgroundColor: Colors.white,
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            SelectableText(
+              trackingUrl,
+              style: const TextStyle(fontSize: 11, color: Colors.blue),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
             Text(
               'رقم الحجز: $bookingId',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             Text(
               'كود التتبع: $publicCarId',
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              widget.onBookingCreated?.call();
-            },
-            child: const Text('إغلاق'),
-          ),
-        ],
       ),
+      onConfirm: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        widget.onBookingCreated?.call();
+      },
     );
   }
 

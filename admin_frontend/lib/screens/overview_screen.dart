@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../core/widgets/animated_card.dart';
 import '../core/widgets/loading_screen.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
@@ -14,8 +12,7 @@ class OverviewScreen extends StatefulWidget {
   State<OverviewScreen> createState() => _OverviewScreenState();
 }
 
-class _OverviewScreenState extends State<OverviewScreen>
-    with TickerProviderStateMixin {
+class _OverviewScreenState extends State<OverviewScreen> with TickerProviderStateMixin {
   Map<String, dynamic>? _stats;
   bool _isLoading = false;
   late AnimationController _staggerController;
@@ -23,10 +20,7 @@ class _OverviewScreenState extends State<OverviewScreen>
   @override
   void initState() {
     super.initState();
-    _staggerController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
+    _staggerController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
     _loadStats();
   }
 
@@ -50,12 +44,7 @@ class _OverviewScreenState extends State<OverviewScreen>
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطأ في تحميل الإحصائيات: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل الإحصائيات: $e')));
       }
     }
   }
@@ -76,27 +65,15 @@ class _OverviewScreenState extends State<OverviewScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline_rounded,
-            size: 64,
-            color: Theme.of(context).colorScheme.error,
-          ),
+          Icon(Icons.error_outline_rounded, size: 64, color: Colors.grey.shade300),
           const SizedBox(height: 16),
-          Text(
-            'فشل تحميل الإحصائيات',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text('فشل تحميل الإحصائيات', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.grey)),
           const SizedBox(height: 8),
-          Text(
-            'يرجى المحاولة مرة أخرى',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-          ),
-          const SizedBox(height: 24),
+          Text('يرجى المحاولة مرة أخرى', style: TextStyle(color: Colors.grey.shade500)),
+          const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _loadStats,
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(Icons.refresh_rounded, size: 18),
             label: const Text('إعادة المحاولة'),
           ),
         ],
@@ -106,16 +83,16 @@ class _OverviewScreenState extends State<OverviewScreen>
 
   Widget _buildContent() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
           _buildStatsCards(),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
           _buildBookingsByStatus(),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
           _buildRevenueCard(),
         ],
       ),
@@ -126,19 +103,9 @@ class _OverviewScreenState extends State<OverviewScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'نظرة عامة على النظام',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'مرحباً بك في لوحة التحكم',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-              ),
-        ),
+        Text('نظرة عامة على النظام', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 4),
+        Text('مرحباً بك في لوحة التحكم', style: TextStyle(color: Colors.grey.shade600)),
       ],
     );
   }
@@ -158,72 +125,35 @@ class _OverviewScreenState extends State<OverviewScreen>
           crossAxisCount: crossAxisCount,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 1.5,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.4,
           children: [
-            _buildStatCard(
+            _StatCard(
               title: 'إجمالي الحجوزات',
               value: '${_stats!['totalBookings'] ?? 0}',
               icon: Icons.calendar_today_rounded,
-              color: Theme.of(context).colorScheme.primary,
-              percentageChange: 12.5,
-              delay: 0,
+              color: const Color(0xFF6366F1),
             ),
-            _buildStatCard(
+            _StatCard(
               title: 'إجمالي العملاء',
               value: '${_stats!['totalCustomers'] ?? 0}',
               icon: Icons.people_rounded,
               color: const Color(0xFF10B981),
-              percentageChange: 8.3,
-              delay: 150,
             ),
-            _buildStatCard(
+            _StatCard(
               title: 'إجمالي المركبات',
               value: '${_stats!['totalVehicles'] ?? 0}',
               icon: Icons.directions_car_rounded,
               color: const Color(0xFFF59E0B),
-              percentageChange: -2.1,
-              delay: 300,
             ),
-            _buildStatCard(
+            _StatCard(
               title: 'المركبات في الورشة',
               value: '${_stats!['vehiclesInWorkshop'] ?? 0}',
               icon: Icons.build_rounded,
               color: const Color(0xFFEF4444),
-              percentageChange: 5.7,
-              delay: 450,
             ),
           ],
-        );
-      },
-    );
-  }
-
-  Widget _buildStatCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-    double? percentageChange,
-    required int delay,
-  }) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 600 + delay),
-      builder: (context, animationValue, child) {
-        return Transform.scale(
-          scale: animationValue,
-          child: Opacity(
-            opacity: animationValue,
-            child: AnimatedDashboardCard(
-              title: title,
-              value: value,
-              icon: icon,
-              color: color,
-              percentageChange: percentageChange,
-            ),
-          ),
         );
       },
     );
@@ -234,25 +164,17 @@ class _OverviewScreenState extends State<OverviewScreen>
     if (bookingsByStatus == null) return const SizedBox();
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-          width: 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'الحجوزات حسب الحالة',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          const SizedBox(height: 20),
+          Text('الحجوزات حسب الحالة', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 16),
           _buildStatusChips(bookingsByStatus),
         ],
       ),
@@ -269,145 +191,159 @@ class _OverviewScreenState extends State<OverviewScreen>
     ];
 
     return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: statusData.asMap().entries.map((entry) {
-        final index = entry.key;
-        final data = entry.value;
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 400 + (index * 100)),
-          builder: (context, animationValue, child) {
-            return Transform.scale(
-              scale: animationValue,
-              child: Opacity(
-                opacity: animationValue,
-                child: _buildStatusChip(
-                  data['label'],
-                  data['value'],
-                  data['color'],
-                ),
-              ),
-            );
-          },
+      spacing: 8,
+      runSpacing: 8,
+      children: statusData.map((data) {
+        return _StatusChip(
+          label: data['label'],
+          value: data['value'],
+          color: data['color'],
         );
       }).toList(),
     );
   }
 
-  Widget _buildStatusChip(String label, int value, Color color) {
+  Widget _buildRevenueCard() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF6366F1).withOpacity(0.08),
+            const Color(0xFF6366F1).withOpacity(0.03),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.2)),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          CircleAvatar(
-            backgroundColor: color,
-            radius: 16,
-            child: Text(
-              '$value',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6366F1).withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.trending_up_rounded, size: 28, color: Color(0xFF6366F1)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('الإيرادات الشهرية', style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                Text(
+                  '${(_stats!['monthlyRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_upward, size: 14, color: Colors.green),
+                SizedBox(width: 4),
+                Text('+15.3%', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.w600)),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildRevenueCard() {
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            Theme.of(context).colorScheme.primary.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-          width: 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+
+  const _StatusChip({required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.trending_up_rounded,
-            size: 48,
-            color: Theme.of(context).colorScheme.primary,
+          CircleAvatar(
+            backgroundColor: color,
+            radius: 12,
+            child: Text('$value', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
           ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'الإيرادات الشهرية',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${(_stats!['monthlyRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.arrow_upward,
-                  size: 16,
-                  color: Colors.green,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '+15.3%',
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const SizedBox(width: 8),
+          Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 13)),
         ],
       ),
     );

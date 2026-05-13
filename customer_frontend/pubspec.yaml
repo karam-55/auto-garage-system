@@ -43,6 +43,10 @@ dependencies:
   
   # Internationalization
   intl: ^0.19.0
+  
+  # Local Storage
+  shared_preferences: ^2.2.3
+  flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:

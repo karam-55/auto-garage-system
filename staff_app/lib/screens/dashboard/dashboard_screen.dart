@@ -52,98 +52,116 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Stats Cards
-                Row(
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 1.5,
                   children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        'إجمالي الحجوزات',
-                        stats['totalBookings']?.toString() ?? '0',
-                        Icons.book,
-                        Colors.blue,
-                      ),
+                    _buildStatCard(
+                      context,
+                      'إجمالي الحجوزات',
+                      stats['totalBookings']?.toString() ?? '0',
+                      Icons.book,
+                      Colors.blue,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        'إجمالي العملاء',
-                        stats['totalCustomers']?.toString() ?? '0',
-                        Icons.people,
-                        Colors.green,
-                      ),
+                    _buildStatCard(
+                      context,
+                      'العملاء',
+                      stats['totalCustomers']?.toString() ?? '0',
+                      Icons.people,
+                      Colors.green,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        'إجمالي السيارات',
-                        stats['totalVehicles']?.toString() ?? '0',
-                        Icons.directions_car,
-                        Colors.orange,
-                      ),
+                    _buildStatCard(
+                      context,
+                      'السيارات',
+                      stats['totalVehicles']?.toString() ?? '0',
+                      Icons.directions_car,
+                      Colors.orange,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        'في الورشة',
-                        stats['vehiclesInWorkshop']?.toString() ?? '0',
-                        Icons.build,
-                        Colors.purple,
-                      ),
+                    _buildStatCard(
+                      context,
+                      'الخدمات',
+                      stats['totalServices']?.toString() ?? '0',
+                      Icons.build,
+                      Colors.purple,
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
-
                 // Revenue Card
                 Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'الإيرادات (الشهر الحالي)',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Text(
+                          'الإيرادات',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 16),
                         Text(
                           '${revenueStats['totalRevenue']?.toString() ?? '0'} ل.س',
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (revenueStats['revenueChange'] != null)
+                          Row(
+                            children: [
+                              Icon(
+                                revenueStats['revenueChange'] >= 0
+                                    ? Icons.trending_up
+                                    : Icons.trending_down,
+                                color: revenueStats['revenueChange'] >= 0
+                                    ? Colors.green
+                                    : Colors.red,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${revenueStats['revenueChange'] >= 0 ? '+' : ''}${revenueStats['revenueChange']}%',
+                                style: TextStyle(
+                                  color: revenueStats['revenueChange'] >= 0
+                                      ? Colors.green
+                                      : Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'عدد التسليمات: ${revenueStats['totalDeliveries'] ?? '0'}',
-                          style: const TextStyle(color: Colors.grey),
-                        ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
-
                 // Booking Status Chart
                 Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'حالة الحجوزات',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         const SizedBox(height: 16),
                         SizedBox(
@@ -162,25 +180,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
     return Card(
+      elevation: 4,
+      shadowColor: color.withOpacity(0.2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, size: 28, color: color),
+            ),
+            const SizedBox(height: 12),
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
-              style: const TextStyle(fontSize: 12),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  ),
               textAlign: TextAlign.center,
             ),
           ],

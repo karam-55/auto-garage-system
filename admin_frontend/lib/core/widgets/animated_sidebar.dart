@@ -222,6 +222,11 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
         label: 'التقارير',
         index: 6,
       ),
+      _SidebarDestination(
+        icon: Icons.lock_rounded,
+        label: 'تغيير كلمة المرور',
+        index: 7,
+      ),
     ];
 
     return ListView.builder(

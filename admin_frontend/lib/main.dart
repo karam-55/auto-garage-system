@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/constants/api_constants.dart';
@@ -13,6 +16,7 @@ import 'screens/services_screen.dart';
 import 'screens/employees_screen.dart';
 import 'screens/reports_screen.dart';
 import 'screens/vehicles_screen.dart';
+import 'screens/change_password_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,8 +38,20 @@ class AdminDashboardApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'نظام ورشة السيارات - لوحة التحكم',
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.lightTheme.copyWith(
+        fontFamily: 'Cairo',
+        textTheme: GoogleFonts.cairoTextTheme(AppTheme.lightTheme.textTheme),
+      ),
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ar', ''),
+      ],
+      locale: const Locale('ar', ''),
       home: const LoginScreen(),
     );
   }
@@ -55,12 +71,14 @@ class _LoginScreenState extends State<LoginScreen>
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
   bool _isLoading = false;
+  bool _rememberMe = false;
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _loadSavedCredentials();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -69,6 +87,35 @@ class _LoginScreenState extends State<LoginScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
     _controller.forward();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rememberMe = prefs.getBool('remember_me') ?? false;
+    if (rememberMe) {
+      final username = prefs.getString('saved_username');
+      final password = prefs.getString('saved_password');
+      if (username != null && password != null) {
+        setState(() {
+          _usernameController.text = username;
+          _passwordController.text = password;
+          _rememberMe = true;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveCredentials(String username, String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      await prefs.setBool('remember_me', true);
+      await prefs.setString('saved_username', username);
+      await prefs.setString('saved_password', password);
+    } else {
+      await prefs.setBool('remember_me', false);
+      await prefs.remove('saved_username');
+      await prefs.remove('saved_password');
+    }
   }
 
   @override
@@ -89,6 +136,7 @@ class _LoginScreenState extends State<LoginScreen>
         );
         
         if (mounted) {
+          await _saveCredentials(_usernameController.text, _passwordController.text);
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
@@ -212,6 +260,20 @@ class _LoginScreenState extends State<LoginScreen>
                             obscureText: true,
                             validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
                           ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _rememberMe,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _rememberMe = value ?? false;
+                                  });
+                                },
+                              ),
+                              const Text('تذكرني'),
+                            ],
+                          ),
                           const SizedBox(height: 24),
                           _isLoading
                               ? const SizedBox(
@@ -276,6 +338,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ServicesScreen(apiService: _apiService),
       EmployeesScreen(apiService: _apiService),
       ReportsScreen(apiService: _apiService),
+      ChangePasswordScreen(apiService: _apiService),
     ];
 
     return Scaffold(
@@ -322,10 +385,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 );
               },
-              child: KeyedSubtree(
-                key: ValueKey<int>(_selectedIndex),
-                child: screens[_selectedIndex],
-              ),
+              child: _selectedIndex < screens.length
+                  ? screens[_selectedIndex]
+                  : const Center(child: Text('صفحة غير موجودة')),
             ),
           ),
         ],

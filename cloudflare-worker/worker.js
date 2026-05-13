@@ -10,78 +10,50 @@ export default {
       return await handleLogin(request);
     }
     
-    // For other endpoints, proxy to Supabase REST API
-    const supabasePath = url.pathname.replace('/api', '/rest/v1');
-    const targetUrl = new URL(supabasePath, SUPABASE_URL);
-    
-    // Copy query parameters
-    for (const [key, value] of url.searchParams) {
-      targetUrl.searchParams.set(key, value);
+    // Handle mechanic endpoints
+    if (url.pathname === '/api/mechanics/available-bookings' && request.method === 'GET') {
+      return await handleAvailableBookings(request);
     }
     
-    // Copy headers
-    const headers = new Headers(request.headers);
-    headers.set('apikey', SUPABASE_ANON_KEY);
-    headers.set('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
-    headers.set('Host', targetUrl.host);
-    
-    // Handle preflight requests
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          'Access-Control-Max-Age': '86400',
-        },
-      });
+    if (url.pathname === '/api/mechanics/assign' && request.method === 'POST') {
+      return await handleAssignBooking(request);
     }
-
-    try {
-      const response = await fetch(targetUrl, {
-        method: request.method,
-        headers: headers,
-        body: request.method !== 'GET' && request.method !== 'HEAD' ? request.body : null,
-      });
-
-      const corsHeaders = {
+    
+    if (url.pathname === '/api/mechanics/my-assignments' && request.method === 'GET') {
+      return await handleMyAssignments(request);
+    }
+    
+    if (url.pathname.startsWith('/api/mechanics/assignments/') && url.pathname.endsWith('/status') && request.method === 'PATCH') {
+      const assignmentId = url.pathname.split('/')[4];
+      return await handleUpdateAssignmentStatus(request, assignmentId);
+    }
+    
+    if (url.pathname.match(/\/api\/mechanics\/bookings\/[^/]+\/part-suggestions/) && request.method === 'POST') {
+      const bookingId = url.pathname.split('/')[4];
+      return await handleCreatePartSuggestion(request, bookingId);
+    }
+    
+    if (url.pathname.match(/\/api\/mechanics\/bookings\/[^/]+\/part-suggestions/) && request.method === 'GET') {
+      const bookingId = url.pathname.split('/')[4];
+      return await handleGetPartSuggestions(request, bookingId);
+    }
+    
+    // Default response for unknown endpoints
+    return new Response(JSON.stringify({ error: 'Endpoint not found' }), {
+      status: 404,
+      headers: {
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      };
-
-      // Copy response headers
-      const responseHeaders = new Headers(response.headers);
-      for (const [key, value] of Object.entries(corsHeaders)) {
-        responseHeaders.set(key, value);
-      }
-
-      return new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: responseHeaders,
-      });
-    } catch (error) {
-      return new Response(JSON.stringify({ error: 'Proxy error: ' + error.message }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
-    }
+      },
+    });
   },
 };
 
-async function handleLogin(request) {
+async function handleAvailableBookings(request) {
   try {
-    const body = await request.json();
-    const { username, password } = body;
+    const targetUrl = new URL('/rest/v1/bookings?status=eq.PENDING&select=*,vehicles:vehicle_id(*),customers:customer_id(*)', SUPABASE_URL);
     
-    // Query Supabase for user by username
-    const supabaseUrl = new URL('/rest/v1/users?username=eq.' + encodeURIComponent(username) + '&select=*', SUPABASE_URL);
-    
-    const response = await fetch(supabaseUrl, {
+    const response = await fetch(targetUrl, {
       method: 'GET',
       headers: {
         'apikey': SUPABASE_ANON_KEY,
@@ -89,43 +61,9 @@ async function handleLogin(request) {
       },
     });
     
-    const users = await response.json();
+    const data = await response.json();
     
-    if (!users || users.length === 0) {
-      return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
-    }
-    
-    const user = users[0];
-    
-    // Simple password verification (in production, use bcrypt on backend)
-    const crypto = require('crypto');
-    const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
-    
-    if (passwordHash !== user.password_hash) {
-      return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
-    }
-    
-    // Return user data (in production, return a JWT token)
-    return new Response(JSON.stringify({
-      user: {
-        id: user.id,
-        fullName: user.full_name,
-        role: user.role,
-      },
-      token: SUPABASE_ANON_KEY, // Using anon key as temporary token
-    }), {
+    return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -133,7 +71,204 @@ async function handleLogin(request) {
       },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Login error: ' + error.message }), {
+    return new Response(JSON.stringify({ error: 'Error: ' + error.message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+}
+
+async function handleAssignBooking(request) {
+  try {
+    const body = await request.json();
+    const { bookingId } = body;
+    
+    // For now, we'll need the mechanic user ID from the token
+    // This is a simplified version - in production, validate the token
+    const targetUrl = new URL('/rest/v1/mechanic_assignments', SUPABASE_URL);
+    
+    const response = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        booking_id: bookingId,
+        mechanic_user_id: body.mechanicUserId,
+        status: 'ASSIGNED',
+      }),
+    });
+    
+    return new Response(response.body, {
+      status: response.status,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Error: ' + error.message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+}
+
+async function handleMyAssignments(request) {
+  try {
+    const mechanicUserId = request.headers.get('X-Mechanic-User-Id');
+    if (!mechanicUserId) {
+      return new Response(JSON.stringify({ error: 'Missing mechanic user ID' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    }
+    
+    const targetUrl = new URL(`/rest/v1/mechanic_assignments?mechanic_user_id=eq.${mechanicUserId}&select=*,bookings(*)`, SUPABASE_URL);
+    
+    const response = await fetch(targetUrl, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    
+    const data = await response.json();
+    
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Error: ' + error.message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+}
+
+async function handleUpdateAssignmentStatus(request, assignmentId) {
+  try {
+    const body = await request.json();
+    const { status, notes } = body;
+    
+    const targetUrl = new URL(`/rest/v1/mechanic_assignments?id=eq.${assignmentId}`, SUPABASE_URL);
+    
+    const response = await fetch(targetUrl, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status,
+        notes,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+    
+    return new Response(response.body, {
+      status: response.status,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Error: ' + error.message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+}
+
+async function handleCreatePartSuggestion(request, bookingId) {
+  try {
+    const body = await request.json();
+    const { type, description, priceSYP } = body;
+    
+    const targetUrl = new URL('/rest/v1/part_suggestions', SUPABASE_URL);
+    
+    const response = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        booking_id: bookingId,
+        mechanic_user_id: body.mechanicUserId,
+        type,
+        description,
+        price_syp: priceSYP,
+        status: 'PENDING_CUSTOMER_APPROVAL',
+      }),
+    });
+    
+    return new Response(response.body, {
+      status: response.status,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Error: ' + error.message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+}
+
+async function handleGetPartSuggestions(request, bookingId) {
+  try {
+    const targetUrl = new URL(`/rest/v1/part_suggestions?booking_id=eq.${bookingId}`, SUPABASE_URL);
+    
+    const response = await fetch(targetUrl, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    
+    const data = await response.json();
+    
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Error: ' + error.message }), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',

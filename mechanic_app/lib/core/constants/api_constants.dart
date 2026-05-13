@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'https://auto-garage-system-backend.onrender.com';
+  static const String baseUrl = 'http://216.24.57.251';
   static const String login = '/api/auth/login';
   static const String availableBookings = '/api/mechanics/available-bookings';
   static const String assignBooking = '/api/mechanics/assign';

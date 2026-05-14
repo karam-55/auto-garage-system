@@ -119,6 +119,26 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
+  Future<List<Booking>> findByDateRange(DateTime from, DateTime to) async {
+    try {
+      final result = await _db.execute(
+        Sql.named('''
+          SELECT * FROM bookings 
+          WHERE created_at >= @from AND created_at <= @to
+          ORDER BY created_at DESC
+        '''),
+        parameters: {
+          'from': from.toUtc(),
+          'to': to.toUtc(),
+        },
+      );
+      return result.map(_mapRowToBooking).toList();
+    } catch (e) {
+      throw DatabaseException('Failed to find bookings by date range: $e');
+    }
+  }
+
+  @override
   Future<List<Booking>> findAvailableForMechanic() async {
     try {
       final result = await _db.execute('''

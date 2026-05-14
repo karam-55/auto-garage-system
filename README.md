@@ -1,17 +1,21 @@
 # Auto Garage Management System
 
-An enterprise-level car garage management system built with Dart and Flutter, featuring a clean architecture backend and admin web frontend.
+An enterprise-level car garage management system built with Dart and Flutter, featuring a clean architecture backend, admin web frontend, mechanic mobile app, and customer tracking interface.
 
 ## 🏗️ Architecture
 
 ### Backend (Dart + Shelf)
 - **Clean Architecture**: Domain, Application, Infrastructure, and Presentation layers
 - **Database**: PostgreSQL with UUID primary keys and proper constraints
-- **Authentication**: JWT-based with role-based authorization (OWNER, MANAGER, RECEPTIONIST, MECHANIC)
+- **Authentication**: JWT-based with role-based authorization (ADMIN, MANAGER, RECEPTIONIST, MECHANIC)
 - **API**: RESTful endpoints with middleware for auth, logging, error handling, and CORS
+- **Validation**: Comprehensive validation layer with reusable validators
+- **Error Handling**: Unified error response middleware
 
 ### Frontend Applications
 - **Admin Frontend**: Flutter Web app for garage staff (admin, manager, receptionist) with dashboard and full CRUD operations
+- **Mechanic App**: Flutter mobile app for mechanics to view available bookings and manage assignments
+- **Customer Frontend**: Static HTML/JS page for customers to track their booking status via public token
 
 ## 📁 Project Structure
 
@@ -28,12 +32,21 @@ auto-garage-system/
 │   ├── pubspec.yaml
 │   ├── render.yaml         # Render deployment config
 │   └── Dockerfile         # Docker configuration
-└── admin_frontend/         # Flutter Web admin app
-    ├── lib/
-    │   ├── core/          # Services, constants
-    │   ├── main.dart      # Main app file
-    │   └── models/        # Data models (if any)
-    └── pubspec.yaml
+├── admin_frontend/         # Flutter Web admin app
+│   ├── lib/
+│   │   ├── core/          # Services, constants
+│   │   ├── screens/       # UI screens
+│   │   └── main.dart      # Main app file
+│   └── pubspec.yaml
+├── mechanic_app_new/       # Flutter mobile mechanic app
+│   ├── lib/
+│   │   ├── core/          # Services, constants
+│   │   ├── screens/       # UI screens
+│   │   └── main.dart      # Main app file
+│   └── pubspec.yaml
+├── customer-frontend/      # Static HTML/JS customer tracking
+│   └── index.html
+└── docker-compose.yml      # Docker orchestration
 ```
 
 ## 🚀 Getting Started
@@ -42,6 +55,7 @@ auto-garage-system/
 - Dart SDK 3.11.5 or higher
 - Flutter SDK
 - PostgreSQL database
+- Docker (optional, for containerized deployment)
 - (Optional) Render account for backend deployment
 - (Optional) Cloudflare Pages account for frontend deployment
 
@@ -98,6 +112,59 @@ flutter build web
 flutter run -d chrome
 ```
 
+### Mechanic App Setup
+
+1. Navigate to the mechanic_app_new directory:
+```bash
+cd mechanic_app_new
+```
+
+2. Install dependencies:
+```bash
+flutter pub get
+```
+
+3. Run on device or emulator:
+```bash
+flutter run
+```
+
+### Customer Frontend
+
+The customer frontend is a static HTML file located in `customer-frontend/index.html`. It can be served by any web server or deployed as a static site.
+
+## 🐳 Docker Deployment
+
+### Using Docker Compose
+
+1. Copy the example environment file:
+```bash
+cp .env.example .env
+```
+
+2. Edit `.env` with your configuration:
+```
+DATABASE_URL=postgresql://garage:garage123@postgres:5432/garage_db
+JWT_SECRET=your-secret-key-change-in-production
+PORT=8080
+```
+
+3. Start all services:
+```bash
+docker-compose up -d
+```
+
+This will start:
+- PostgreSQL database
+- Backend API server
+- Nginx serving admin frontend and customer frontend
+
+### Access the Applications
+
+- **Backend API**: http://localhost:8080
+- **Admin Frontend**: http://localhost
+- **Customer Frontend**: http://localhost/customer
+
 ## 🚀 Deployment
 
 ### Backend (Render)
@@ -113,6 +180,7 @@ The backend is deployed on Render using `render.yaml`.
 **Default Users:**
 - **Admin:** username: `admin`, password: `admin123`
 - **Receptionist:** username: `receptionist`, password: `receptionist123`
+- **Mechanic:** username: `mechanic`, password: `mechanic123`
 
 ### Admin Frontend (Cloudflare Pages)
 

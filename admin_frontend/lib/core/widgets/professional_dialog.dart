@@ -105,25 +105,26 @@ class _ProfessionalDialogState extends State<ProfessionalDialog>
                           ),
                         ],
                       ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildHeader(context),
-                          const Divider(height: 1),
-                          Flexible(
-                            child: SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.all(24),
-                              child: widget.content,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildHeader(context),
+                            const Divider(height: 1),
+                            Flexible(
+                              child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                padding: const EdgeInsets.all(24),
+                                child: widget.content,
+                              ),
                             ),
-                          ),
-                          if (widget.actions != null ||
-                              widget.onConfirm != null ||
-                              widget.onCancel != null)
-                            _buildFooter(context),
-                        ],
+                            if (widget.actions != null ||
+                                widget.onConfirm != null ||
+                                widget.onCancel != null)
+                              _buildFooter(context),
+                          ],
+                        ),
                       ),
                     ),
                   ),

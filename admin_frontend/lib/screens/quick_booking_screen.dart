@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/widgets/professional_dialog.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
+import '../core/utils/error_handler.dart';
 
 class QuickBookingScreen extends StatefulWidget {
   final ApiService apiService;
@@ -82,9 +83,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ في تحميل العملاء: $e')),
-        );
+        ErrorHandler.showError(context, ErrorHandler.parseError(e));
       }
     } finally {
       if (mounted) {
@@ -437,7 +436,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
                                     title: Text(customer['fullName'] ?? 'غير معروف'),
                                     subtitle: Text(customer['phone'] ?? ''),
                                     trailing: Radio<String>(
-                                      value: customer['id']?.toString(),
+                                      value: customer['id']?.toString() ?? '',
                                       groupValue: _selectedCustomerId,
                                       onChanged: (value) {
                                         setState(() {
@@ -488,7 +487,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
                                 title: Text('${vehicle['make']} ${vehicle['model']}'),
                                 subtitle: Text(vehicle['licensePlate'] ?? ''),
                                 trailing: Radio<String>(
-                                  value: vehicle['id']?.toString(),
+                                  value: vehicle['id']?.toString() ?? '',
                                   groupValue: _selectedVehicleId,
                                   onChanged: (value) {
                                     setState(() {

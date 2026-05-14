@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../core/widgets/loading_screen.dart';
 import '../core/widgets/professional_dialog.dart';
 import '../core/services/api_service.dart';
@@ -20,23 +21,62 @@ class _BookingsScreenState extends State<BookingsScreen> {
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String? _selectedStatus;
+  DateTimeRange? _selectedDateRange;
+  Timer? _debounce;
+
+  final List<String> _statusOptions = [
+    'ALL',
+    'PENDING',
+    'IN_PROGRESS',
+    'WAITING_PARTS',
+    'READY',
+    'DELIVERED',
+    'CANCELLED',
+  ];
 
   @override
   void initState() {
     super.initState();
     _loadBookings();
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _loadBookings();
+    });
   }
 
   Future<void> _loadBookings() async {
     setState(() => _isLoading = true);
     try {
-      final response = await widget.apiService.get(ApiConstants.bookings);
+      String url = ApiConstants.bookings;
+      final params = <String, String>{};
+      
+      if (_selectedStatus != null && _selectedStatus != 'ALL') {
+        params['status'] = _selectedStatus!;
+      }
+      
+      if (_selectedDateRange != null) {
+        params['from'] = _selectedDateRange!.start.toIso8601String();
+        params['to'] = _selectedDateRange!.end.toIso8601String();
+      }
+      
+      if (params.isNotEmpty) {
+        url += '?' + params.entries.map((e) => '${e.key}=${e.value}').join('&');
+      }
+      
+      final response = await widget.apiService.get(url);
       setState(() {
         final raw = response is List ? response : (response['data'] ?? []);
         _bookings = List<Map<String, dynamic>>.from(raw);
@@ -51,12 +91,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
   }
 
   List<Map<String, dynamic>> get _filteredBookings {
-    if (_searchQuery.isEmpty) return _bookings;
-    return _bookings.where((booking) {
-      final id = booking['id']?.toString().toLowerCase() ?? '';
-      final status = booking['status']?.toString().toLowerCase() ?? '';
-      return id.contains(_searchQuery.toLowerCase()) || status.contains(_searchQuery.toLowerCase());
-    }).toList();
+    return _bookings;
   }
 
   @override
@@ -95,6 +130,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
               ),
               const SizedBox(height: 12),
               _buildSearchField(),
+              const SizedBox(height: 8),
+              _buildStatusFilter(),
+              const SizedBox(height: 8),
+              _buildDateFilter(),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -136,7 +175,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              SizedBox(width: 280, child: _buildSearchField()),
+              SizedBox(width: 200, child: _buildSearchField()),
+              const SizedBox(width: 8),
+              SizedBox(width: 150, child: _buildStatusFilter()),
+              const SizedBox(width: 8),
+              _buildDateFilterButton(),
               const SizedBox(width: 12),
               ElevatedButton.icon(
                 onPressed: () => _navigateToCreateBooking(),
@@ -161,6 +204,105 @@ class _BookingsScreenState extends State<BookingsScreen> {
               ),
             ],
           );
+  }
+
+  Widget _buildStatusFilter() {
+    return DropdownButtonFormField<String>(
+      value: _selectedStatus,
+      decoration: InputDecoration(
+        hintText: 'الحالة',
+        prefixIcon: const Icon(Icons.filter_list, size: 20),
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      items: _statusOptions.map((status) {
+        return DropdownMenuItem(
+          value: status,
+          child: Text(_getStatusText(status)),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedStatus = value;
+        });
+        _loadBookings();
+      },
+    );
+  }
+
+  Widget _buildDateFilterButton() {
+    return OutlinedButton.icon(
+      onPressed: _selectDateRange,
+      icon: const Icon(Icons.calendar_today, size: 18),
+      label: Text(
+        _selectedDateRange != null
+            ? '${_selectedDateRange!.start.day}/${_selectedDateRange!.start.month}/${_selectedDateRange!.start.year} - ${_selectedDateRange!.end.day}/${_selectedDateRange!.end.month}/${_selectedDateRange!.end.year}'
+            : 'تاريخ',
+        style: const TextStyle(fontSize: 13),
+      ),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      ),
+    );
+  }
+
+  Widget _buildDateFilter() {
+    return OutlinedButton.icon(
+      onPressed: _selectDateRange,
+      icon: const Icon(Icons.calendar_today, size: 18),
+      label: Text(
+        _selectedDateRange != null
+            ? '${_selectedDateRange!.start.day}/${_selectedDateRange!.start.month}/${_selectedDateRange!.start.year} - ${_selectedDateRange!.end.day}/${_selectedDateRange!.end.month}/${_selectedDateRange!.end.year}'
+            : 'تاريخ',
+      ),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(double.infinity, 44),
+      ),
+    );
+  }
+
+  Future<void> _selectDateRange() async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDateRange: _selectedDateRange,
+      locale: const Locale('ar', 'SA'),
+    );
+
+    if (picked != null && mounted) {
+      setState(() {
+        _selectedDateRange = picked;
+      });
+      _loadBookings();
+    }
+  }
+
+  String _getStatusText(String status) {
+    switch (status) {
+      case 'ALL':
+        return 'الكل';
+      case 'PENDING':
+        return 'قيد الانتظار';
+      case 'IN_PROGRESS':
+        return 'جاري العمل';
+      case 'WAITING_PARTS':
+        return 'بانتظار القطع';
+      case 'READY':
+        return 'جاهز';
+      case 'DELIVERED':
+        return 'تم التسليم';
+      case 'CANCELLED':
+        return 'ملغي';
+      default:
+        return status;
+    }
   }
 
   Widget _buildSearchField() {
@@ -277,25 +419,6 @@ class _BookingsScreenState extends State<BookingsScreen> {
         return Icons.cancel_rounded;
       default:
         return Icons.help_rounded;
-    }
-  }
-
-  String _getStatusText(String status) {
-    switch (status.toUpperCase()) {
-      case 'PENDING':
-        return 'معلق';
-      case 'IN_PROGRESS':
-        return 'قيد التنفيذ';
-      case 'WAITING_PARTS':
-        return 'بانتظار القطع';
-      case 'READY':
-        return 'جاهز';
-      case 'DELIVERED':
-        return 'تم التسليم';
-      case 'CANCELLED':
-        return 'ملغي';
-      default:
-        return status;
     }
   }
 

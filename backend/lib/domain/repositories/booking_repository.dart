@@ -8,6 +8,7 @@ abstract class BookingRepository {
   Future<List<Booking>> findByVehicleId(String vehicleId);
   Future<List<Booking>> findAll();
   Future<List<Booking>> findByStatus(String status);
+  Future<List<Booking>> findByDateRange(DateTime from, DateTime to);
   Future<List<Booking>> findAvailableForMechanic();
   Future<Booking> update(Booking booking);
   Future<void> delete(String id);

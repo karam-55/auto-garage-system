@@ -68,7 +68,23 @@ class BookingRoutes {
 
   Future<Response> _getAllBookings(Request request) async {
     try {
-      final bookings = await _bookingRepository.findAll();
+      final queryParams = request.url.queryParameters;
+      final status = queryParams['status'];
+      final from = queryParams['from'];
+      final to = queryParams['to'];
+      
+      List<Booking> bookings;
+      
+      if (status != null && status.isNotEmpty) {
+        bookings = await _bookingRepository.findByStatus(status);
+      } else if (from != null && to != null) {
+        final fromDate = DateTime.parse(from);
+        final toDate = DateTime.parse(to);
+        bookings = await _bookingRepository.findByDateRange(fromDate, toDate);
+      } else {
+        bookings = await _bookingRepository.findAll();
+      }
+      
       return Response.ok(
         jsonEncode(bookings.map((b) => b.toJson()).toList()),
       );

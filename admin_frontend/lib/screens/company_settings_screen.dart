@@ -66,7 +66,7 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen> {
     try {
       final response = await widget.apiService.patch(
         '/company/settings',
-        data: {
+        body: {
           'companyName': _companyNameController.text,
           'companyLogoUrl': _companyLogoUrl,
         },
@@ -122,12 +122,6 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen> {
         'POST',
         Uri.parse('${ApiConstants.baseUrl}/api/company/upload-logo'),
       );
-      
-      // Add authorization header if available
-      final token = await widget.apiService.getToken();
-      if (token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
 
       final fileStream = http.ByteStream(File(file.path!).openRead());
       final length = await File(file.path!).length();

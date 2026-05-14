@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/mechanic_provider.dart';
@@ -14,11 +15,28 @@ class MyAssignmentsScreen extends StatefulWidget {
 }
 
 class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
+  Timer? _refreshTimer;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       context.read<MechanicProvider>().fetchMyAssignments();
+    });
+    _startAutoRefresh();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (mounted) {
+        context.read<MechanicProvider>().fetchMyAssignments();
+      }
     });
   }
 

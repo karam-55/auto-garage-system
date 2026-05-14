@@ -18,25 +18,31 @@ import 'screens/change_password_screen.dart';
 import 'screens/company_settings_screen.dart';
 import 'screens/quick_booking_screen.dart';
 
+class _NavItem {
+  final IconData icon;
+  final String label;
+  const _NavItem({required this.icon, required this.label});
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   final prefs = await SharedPreferences.getInstance();
   final isDarkMode = prefs.getBool('isDarkMode') ?? false;
   
-  runApp(AdminDashboardApp(initialThemeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light));
+  runApp(MyApp(initialThemeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light));
 }
 
-class AdminDashboardApp extends StatefulWidget {
+class MyApp extends StatefulWidget {
   final ThemeMode initialThemeMode;
   
-  const AdminDashboardApp({super.key, required this.initialThemeMode});
+  const MyApp({super.key, required this.initialThemeMode});
 
   @override
-  State<AdminDashboardApp> createState() => _AdminDashboardAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
-class _AdminDashboardAppState extends State<AdminDashboardApp> {
+class _MyAppState extends State<MyApp> {
   late ThemeMode _themeMode;
 
   @override
@@ -78,9 +84,9 @@ class _AdminDashboardAppState extends State<AdminDashboardApp> {
         );
       },
       home: LoginScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),
+    );
   }
 }
-
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onThemeToggle;
   final ThemeMode themeMode;
@@ -164,11 +170,13 @@ class _LoginScreenState extends State<LoginScreen>
         
         if (mounted) {
           await _saveCredentials(_usernameController.text, _passwordController.text);
+          final apiService = ApiService();
+          apiService.setToken(_authService.token);
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) => DashboardScreen(
-                token: _authService.token,
+                apiService: apiService,
                 onThemeToggle: widget.onThemeToggle,
                 themeMode: widget.themeMode,
               ),
@@ -332,11 +340,11 @@ class _LoginScreenState extends State<LoginScreen>
 }
 
 class DashboardScreen extends StatefulWidget {
-  final String? token;
+  final ApiService apiService;
   final VoidCallback? onThemeToggle;
   final ThemeMode themeMode;
   
-  const DashboardScreen({super.key, this.token, this.onThemeToggle, required this.themeMode});
+  DashboardScreen({super.key, required this.apiService, this.onThemeToggle, required this.themeMode});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -347,7 +355,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late ApiService _apiService;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final _destinations = const [
+  final _destinations = [
     _NavItem(icon: Icons.dashboard_rounded, label: 'نظرة عامة'),
     _NavItem(icon: Icons.calendar_today_rounded, label: 'الحجوزات'),
     _NavItem(icon: Icons.flash_on_rounded, label: 'حجز سريع'),
@@ -363,8 +371,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _apiService = ApiService();
-    _apiService.setToken(widget.token);
+    _apiService = widget.apiService;
   }
 
   @override
@@ -378,7 +385,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(onThemeToggle: widget.onThemeToggle, themeMode: widget.themeMode),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -394,9 +401,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final isDesktop = size.width >= 1100;
-    final isTablet = size.width >= 600 && size.width < 1100;
+    final isDesktop = MediaQuery.sizeOf(context).width >= 1200;
+    final isTablet = MediaQuery.sizeOf(context).width >= 800 && MediaQuery.sizeOf(context).width < 1200;
 
     final screens = [
       OverviewScreen(apiService: _apiService),
@@ -594,10 +600,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-}
-
-class _NavItem {
-  final IconData icon;
-  final String label;
-  const _NavItem({required this.icon, required this.label});
 }

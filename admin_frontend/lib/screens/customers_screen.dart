@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../core/widgets/loading_screen.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
@@ -18,23 +19,41 @@ class _CustomersScreenState extends State<CustomersScreen> {
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     _loadCustomers();
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = _searchController.text.trim();
+      });
+      _loadCustomers();
+    });
   }
 
   Future<void> _loadCustomers() async {
     setState(() => _isLoading = true);
     try {
-      final response = await widget.apiService.get(ApiConstants.customers);
+      String url = ApiConstants.customers;
+      if (_searchQuery.isNotEmpty) {
+        url += '?search=$_searchQuery';
+      }
+      final response = await widget.apiService.get(url);
       setState(() {
         final raw = response is List ? response : (response['data'] ?? []);
         _customers = List<Map<String, dynamic>>.from(raw);
@@ -49,12 +68,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   }
 
   List<dynamic> get _filteredCustomers {
-    if (_searchQuery.isEmpty) return _customers;
-    return _customers.where((customer) {
-      final name = customer['fullName']?.toString().toLowerCase() ?? '';
-      final phone = customer['phone']?.toString().toLowerCase() ?? '';
-      return name.contains(_searchQuery.toLowerCase()) || phone.contains(_searchQuery.toLowerCase());
-    }).toList();
+    return _customers;
   }
 
   @override

@@ -301,7 +301,6 @@ class AppTheme {
       // Floating Action Button
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         elevation: 6,
-        shadowColor: primaryColor.withOpacity(0.4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -597,7 +596,6 @@ class AppTheme {
       // Floating Action Button
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         elevation: 6,
-        shadowColor: primaryColor.withOpacity(0.5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),

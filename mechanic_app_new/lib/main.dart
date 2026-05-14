@@ -8,6 +8,7 @@ import 'providers/mechanic_provider.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/available_bookings/available_bookings_screen.dart';
 import 'screens/my_assignments/my_assignments_screen.dart';
+import 'services/company_settings_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,35 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final CompanySettingsService _companySettingsService = CompanySettingsService();
+  String _appTitle = 'تطبيق الميكانيكي';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompanySettings();
+  }
+
+  Future<void> _loadCompanySettings() async {
+    try {
+      final settings = await _companySettingsService.getCompanySettings();
+      if (mounted) {
+        setState(() {
+          _appTitle = settings.companyName;
+        });
+      }
+    } catch (e) {
+      // Keep default title on error
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +60,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'تطبيق الميكانيكي',
+        title: _appTitle,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
@@ -43,18 +71,6 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Cairo',
           textTheme: GoogleFonts.cairoTextTheme(),
         ),
-        onGenerateTitle: (context) async {
-          // Load company settings to use as app title
-          try {
-            final response = await Future.delayed(
-              const Duration(milliseconds: 100),
-              () => 'تطبيق الميكانيكي', // Default title
-            );
-            return response;
-          } catch (e) {
-            return 'تطبيق الميكانيكي';
-          }
-        },
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

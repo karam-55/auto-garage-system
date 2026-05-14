@@ -76,6 +76,24 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
+  Future<List<Customer>> search(String query) async {
+    try {
+      final searchPattern = '%$query%';
+      final result = await _db.execute(
+        Sql.named('''
+          SELECT * FROM customers 
+          WHERE full_name ILIKE @search OR phone ILIKE @search
+          ORDER BY created_at DESC
+        '''),
+        parameters: {'search': searchPattern},
+      );
+      return result.map(_mapRowToCustomer).toList();
+    } catch (e) {
+      throw DatabaseException('Failed to search customers: $e');
+    }
+  }
+
+  @override
   Future<Customer> update(Customer customer) async {
     try {
       final result = await _db.execute(

@@ -301,7 +301,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
               isSelected: false,
               isExpanded: widget.isExpanded,
               expandAnimation: _expandAnimation,
-              onTap: widget.onThemeToggle,
+              onTap: widget.onThemeToggle ?? () {},
             ),
             const SizedBox(height: 8),
           ],
@@ -441,32 +441,32 @@ class _AnimatedDestinationItemState extends State<_AnimatedDestinationItem>
                           ]
                         : null,
                   ),
-                child: Row(
-                  children: [
-                    Icon(
-                      widget.destination.icon,
-                      size: 24,
-                      color: widget.isSelected
-                          ? (widget.isDanger
-                              ? Colors.red
-                              : Theme.of(context).colorScheme.primary)
-                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                    ),
-                    if (widget.isExpanded) ...[
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FadeTransition(
-                          opacity: widget.expandAnimation,
-                          child: SlideTransition(
-                            position: Tween<Offset>(
-                              begin: const Offset(-0.2, 0),
-                              end: Offset.zero,
-                            ).animate(widget.expandAnimation),
-                            child: Text(
-                              widget.destination.label,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
-                                    color: widget.isSelected
+                  child: Row(
+                    children: [
+                      Icon(
+                        widget.destination.icon,
+                        size: 24,
+                        color: widget.isSelected
+                            ? (widget.isDanger
+                                ? Colors.red
+                                : Theme.of(context).colorScheme.primary)
+                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      if (widget.isExpanded) ...[
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FadeTransition(
+                            opacity: widget.expandAnimation,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(-0.2, 0),
+                                end: Offset.zero,
+                              ).animate(widget.expandAnimation),
+                              child: Text(
+                                widget.destination.label,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
+                                      color: widget.isSelected
                                         ? (widget.isDanger
                                             ? Colors.red
                                             : Theme.of(context).colorScheme.primary)
@@ -477,7 +477,8 @@ class _AnimatedDestinationItemState extends State<_AnimatedDestinationItem>
                         ),
                       ),
                     ],
-                  ],
+                 ],
+                  ),
                 ),
               ),
             );

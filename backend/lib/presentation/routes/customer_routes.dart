@@ -37,7 +37,16 @@ class CustomerRoutes {
 
   Future<Response> _getAllCustomers(Request request) async {
     try {
-      final customers = await _customerRepository.findAll();
+      final queryParams = request.url.queryParameters;
+      final search = queryParams['search'];
+      
+      List<Customer> customers;
+      if (search != null && search.isNotEmpty) {
+        customers = await _customerRepository.search(search);
+      } else {
+        customers = await _customerRepository.findAll();
+      }
+      
       return Response.ok(
         jsonEncode(customers.map((c) => c.toJson()).toList()),
       );

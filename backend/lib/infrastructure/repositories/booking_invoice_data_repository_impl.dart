@@ -37,6 +37,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
 
   @override
   Future<BookingInvoiceData> create(BookingInvoiceData invoiceData) async {
+    print('DEBUG create invoiceData: ${invoiceData.toJson()}');
     final result = await _db.execute(
       Sql.named('''
         INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at, public_token, qr_code_url)
@@ -60,6 +61,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     );
 
     final data = result.first.toColumnMap();
+    print('DEBUG create result data: $data');
     return BookingInvoiceData(
       id: data['id'] as String,
       bookingId: data['booking_id'] as String,
@@ -71,8 +73,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
           : null,
       totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
-      publicToken: data['public_token'] as String?,
-      qrCodeUrl: data['qr_code_url'] as String?,
+      publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
+      qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
     );
   }
 

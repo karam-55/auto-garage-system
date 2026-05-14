@@ -129,8 +129,8 @@ void main(List<String> args) async {
       .add(bookingRoutes.router)
       .add(mechanicRoutes.router)
       .add(dashboardRoutes.router)
-      .add(publicRoutes.router)
       .add(companySettingsRoutes.router)
+      .add(publicRoutes.router)
       .add(reportRoutes.router)
       .add((Request request) {
         if (request.url.path == 'api-docs') {

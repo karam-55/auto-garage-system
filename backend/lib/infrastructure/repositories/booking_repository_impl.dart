@@ -289,7 +289,7 @@ class BookingRepositoryImpl implements BookingRepository {
       vehicleId: data['vehicle_id'].toString(),
       status: BookingStatus.fromString(data['status'] as String),
       publicToken: data['public_token'] as String,
-      notes: data['notes'] as String?,
+      notes: data['notes'] is String ? data['notes'] as String? : null,
       createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
       updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
       estimatedCompletionDate: data['estimated_completion_date'] != null ? (data['estimated_completion_date'] is DateTime ? data['estimated_completion_date'] as DateTime : DateTime.parse(data['estimated_completion_date'] as String)) : null,

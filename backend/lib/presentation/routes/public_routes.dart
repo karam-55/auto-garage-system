@@ -83,10 +83,13 @@ class PublicRoutes {
 
         servicesData = servicesResult.map((row) {
           final data = row.toColumnMap();
+          print('DEBUG public route service data: $data');
+          final priceSYP = data['price_syp'];
+          print('DEBUG public route priceSYP: $priceSYP (${priceSYP.runtimeType})');
           return {
             'serviceName': data['service_name'],
             'serviceDescription': data['service_description'],
-            'priceSYP': data['price_syp'],
+            'priceSYP': priceSYP is num ? (priceSYP as num).toDouble() : double.tryParse(priceSYP?.toString() ?? '0') ?? 0,
             'notes': data['notes'],
           };
         }).toList();

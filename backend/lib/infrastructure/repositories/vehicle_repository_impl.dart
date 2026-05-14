@@ -240,7 +240,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
       customerId: data['customer_id'].toString(),
       make: data['make'] as String,
       model: data['model'] as String,
-      year: data['year'] is int ? data['year'] as int : int.tryParse(data['year'].toString()),
+      year: data['year'] is int ? data['year'] as int : int.tryParse(data['year'].toString()) ?? 0,
       licensePlate: data['license_plate'] as String?,
       vin: data['vin'] as String?,
       publicCarId: data['public_car_id'] as String?,

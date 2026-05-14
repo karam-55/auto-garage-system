@@ -151,7 +151,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
       final response = await widget.apiService.post(
         '/api/inventory/items',
         {
-          'id': DateTime.now().millisecondsSinceEpoch.toString(),
           'name': _nameController.text,
           'category': _categoryController.text.isEmpty ? null : _categoryController.text,
           'unit': _unitController.text.isEmpty ? null : _unitController.text,
@@ -169,7 +168,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add item: $e')),
+          SnackBar(content: Text('فشل إضافة الصنف: $e')),
         );
       }
     }

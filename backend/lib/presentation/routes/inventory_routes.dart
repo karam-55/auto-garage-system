@@ -105,8 +105,11 @@ class InventoryRoutes {
       final payload = await request.readAsString();
       final data = jsonDecode(payload) as Map<String, dynamic>;
 
+      // Generate ID if not provided
+      final id = data['id'] ?? DateTime.now().millisecondsSinceEpoch.toString();
+
       final item = InventoryItem(
-        id: data['id'],
+        id: id,
         name: data['name'] as String,
         category: data['category'] as String?,
         unit: data['unit'] as String?,

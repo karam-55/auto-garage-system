@@ -38,7 +38,7 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen> {
   Future<void> _loadSettings() async {
     setState(() => _isLoading = true);
     try {
-      final response = await widget.apiService.get('/company/settings');
+      final response = await widget.apiService.get('/api/company/settings');
       
       if (response['companyName'] != null) {
         _companyNameController.text = response['companyName'];
@@ -65,7 +65,7 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen> {
     setState(() => _isSaving = true);
     try {
       final response = await widget.apiService.patch(
-        '/company/settings',
+        '/api/company/settings',
         body: {
           'companyName': _companyNameController.text,
           'companyLogoUrl': _companyLogoUrl,

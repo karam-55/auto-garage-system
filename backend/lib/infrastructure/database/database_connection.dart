@@ -108,6 +108,24 @@ class DatabaseConnection {
         CREATE INDEX IF NOT EXISTS idx_vehicles_public_car_id ON vehicles(public_car_id)
       ''');
 
+      // Create company_settings table if it doesn't exist
+      await _pool.execute('''
+        CREATE TABLE IF NOT EXISTS company_settings (
+          id SERIAL PRIMARY KEY,
+          company_name VARCHAR(255) NOT NULL DEFAULT 'Garage Go',
+          company_logo_url TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP WITH TIME ZONE
+        )
+      ''');
+
+      // Insert default company settings if not exists
+      await _pool.execute('''
+        INSERT INTO company_settings (company_name, created_at, updated_at)
+        SELECT 'Garage Go', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+        WHERE NOT EXISTS (SELECT 1 FROM company_settings)
+      ''');
+
       _logger.i('Migrations executed successfully');
     } catch (e) {
       _logger.e('Failed to execute migrations: $e');

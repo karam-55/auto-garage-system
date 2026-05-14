@@ -208,8 +208,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
         fullName: data['full_name'] as String,
         phone: data['phone'] as String,
         address: data['address'] as String?,
-        createdAt: data['created_at'] as DateTime,
-        updatedAt: data['updated_at'] as DateTime?,
+        createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+        updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
       );
     } catch (e) {
       rethrow;

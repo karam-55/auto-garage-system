@@ -124,8 +124,8 @@ class MechanicAssignmentRepositoryImpl implements MechanicAssignmentRepository {
       mechanicUserId: data['mechanic_user_id'].toString(),
       status: MechanicAssignmentStatus.fromString(data['status'] as String),
       notes: data['notes'] as String?,
-      assignedAt: data['assigned_at'] as DateTime,
-      updatedAt: data['updated_at'] as DateTime?,
+      assignedAt: data['assigned_at'] is DateTime ? data['assigned_at'] as DateTime : DateTime.parse(data['assigned_at'] as String),
+      updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
     );
   }
 }

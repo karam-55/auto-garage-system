@@ -77,8 +77,8 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
       id: row['id'] as int,
       companyName: row['company_name'] as String,
       companyLogoUrl: row['company_logo_url'] as String?,
-      createdAt: row['created_at'] as DateTime,
-      updatedAt: row['updated_at'] as DateTime?,
+      createdAt: row['created_at'] is DateTime ? row['created_at'] as DateTime : DateTime.parse(row['created_at'] as String),
+      updatedAt: row['updated_at'] != null ? (row['updated_at'] is DateTime ? row['updated_at'] as DateTime : DateTime.parse(row['updated_at'] as String)) : null,
     );
   }
 }

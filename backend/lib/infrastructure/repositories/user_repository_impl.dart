@@ -217,9 +217,9 @@ class UserRepositoryImpl implements UserRepository {
       username: data['username'] as String,
       passwordHash: data['password_hash'] as String?,
       role: Role.fromString(data['role'] as String),
-      createdAt: data['created_at'] as DateTime,
-      updatedAt: data['updated_at'] as DateTime?,
-      isActive: data['is_active'] as bool,
+      createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+      updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
+      isActive: data['is_active'] is bool ? data['is_active'] : data['is_active'] == true,
     );
   }
 }

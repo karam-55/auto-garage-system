@@ -240,12 +240,12 @@ class VehicleRepositoryImpl implements VehicleRepository {
       customerId: data['customer_id'].toString(),
       make: data['make'] as String,
       model: data['model'] as String,
-      year: data['year'] as int,
+      year: data['year'] is int ? data['year'] as int : int.tryParse(data['year'].toString()),
       licensePlate: data['license_plate'] as String?,
       vin: data['vin'] as String?,
       publicCarId: data['public_car_id'] as String?,
-      createdAt: data['created_at'] as DateTime,
-      updatedAt: data['updated_at'] as DateTime?,
+      createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+      updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
     );
   }
 }

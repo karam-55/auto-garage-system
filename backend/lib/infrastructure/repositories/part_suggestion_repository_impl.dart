@@ -141,10 +141,10 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
       mechanicUserId: data['mechanic_user_id'].toString(),
       type: PartType.fromString(data['type'] as String),
       description: data['description'] as String,
-      priceSYP: data['price_syp'] != null ? (data['price_syp'] as num).toDouble() : null,
+      priceSYP: data['price_syp'] != null ? (data['price_syp'] is num ? (data['price_syp'] as num).toDouble() : double.tryParse(data['price_syp'].toString()) ?? 0) : null,
       status: PartSuggestionStatus.fromString(data['status'] as String),
-      createdAt: data['created_at'] as DateTime,
-      updatedAt: data['updated_at'] as DateTime?,
+      createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+      updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
     );
   }
 

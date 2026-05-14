@@ -48,7 +48,7 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
     }
   }
 
-  CompanySettings _mapRowToCompanySettings(Map<String, dynamic> row) {
+  CompanySettings _mapRowToCompanySettings(ResultRow row) {
     return CompanySettings(
       id: row['id'] as String,
       companyName: row['company_name'] as String,

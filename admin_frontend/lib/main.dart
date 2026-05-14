@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
@@ -29,14 +30,19 @@ void main() async {
   
   final prefs = await SharedPreferences.getInstance();
   final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+  final localeCode = prefs.getString('locale') ?? 'ar';
   
-  runApp(MyApp(initialThemeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light));
+  runApp(MyApp(
+    initialThemeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+    initialLocale: Locale(localeCode),
+  ));
 }
 
 class MyApp extends StatefulWidget {
   final ThemeMode initialThemeMode;
+  final Locale initialLocale;
   
-  const MyApp({super.key, required this.initialThemeMode});
+  const MyApp({super.key, required this.initialThemeMode, required this.initialLocale});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -44,11 +50,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late ThemeMode _themeMode;
+  late Locale _locale;
 
   @override
   void initState() {
     super.initState();
     _themeMode = widget.initialThemeMode;
+    _locale = widget.initialLocale;
   }
 
   void _toggleTheme() async {
@@ -60,38 +68,51 @@ class _MyAppState extends State<MyApp> {
     await prefs.setBool('isDarkMode', newThemeMode == ThemeMode.dark);
   }
 
+  void _toggleLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final newLocale = _locale.languageCode == 'ar' ? const Locale('en') : const Locale('ar');
+    setState(() {
+      _locale = newLocale;
+    });
+    await prefs.setString('locale', newLocale.languageCode);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'نظام ورشة السيارات - لوحة التحكم',
+      title: 'Auto Garage System',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _themeMode,
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
+      localizationsDelegates: [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('ar', ''),
+        Locale('ar'),
+        Locale('en'),
       ],
-      locale: const Locale('ar', ''),
+      locale: _locale,
       builder: (context, child) {
+        final isRTL = _locale.languageCode == 'ar';
         return Directionality(
-          textDirection: TextDirection.rtl,
+          textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
           child: child!,
         );
       },
-      home: LoginScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),
+      home: LoginScreen(onThemeToggle: _toggleTheme, onLocaleToggle: _toggleLocale, themeMode: _themeMode),
     );
   }
 }
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onThemeToggle;
+  final VoidCallback? onLocaleToggle;
   final ThemeMode themeMode;
   
-  const LoginScreen({super.key, this.onThemeToggle, required this.themeMode});
+  const LoginScreen({super.key, this.onThemeToggle, this.onLocaleToggle, required this.themeMode});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -447,6 +468,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onDestinationSelected: _onDestinationSelected,
               isExpanded: true,
               onThemeToggle: widget.onThemeToggle,
+              onLocaleToggle: widget.onLocaleToggle,
               themeMode: widget.themeMode,
             ),
           if (isTablet)
@@ -455,6 +477,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onDestinationSelected: _onDestinationSelected,
               isExpanded: false,
               onThemeToggle: widget.onThemeToggle,
+              onLocaleToggle: widget.onLocaleToggle,
               themeMode: widget.themeMode,
             ),
           if (isDesktop || isTablet) const VerticalDivider(thickness: 1, width: 1),

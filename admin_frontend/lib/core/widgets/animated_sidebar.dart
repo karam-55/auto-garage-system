@@ -9,6 +9,7 @@ class AnimatedSidebar extends StatefulWidget {
   final bool isExpanded;
   final VoidCallback? onToggle;
   final VoidCallback? onThemeToggle;
+  final VoidCallback? onLocaleToggle;
   final ThemeMode themeMode;
 
   const AnimatedSidebar({
@@ -18,6 +19,7 @@ class AnimatedSidebar extends StatefulWidget {
     this.isExpanded = true,
     this.onToggle,
     this.onThemeToggle,
+    this.onLocaleToggle,
     required this.themeMode,
   });
 
@@ -302,6 +304,20 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
               isExpanded: widget.isExpanded,
               expandAnimation: _expandAnimation,
               onTap: widget.onThemeToggle ?? () {},
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (widget.onLocaleToggle != null) ...[
+            _AnimatedDestinationItem(
+              destination: _SidebarDestination(
+                icon: Icons.language_rounded,
+                label: 'اللغة',
+                index: -3,
+              ),
+              isSelected: false,
+              isExpanded: widget.isExpanded,
+              expandAnimation: _expandAnimation,
+              onTap: widget.onLocaleToggle ?? () {},
             ),
             const SizedBox(height: 8),
           ],

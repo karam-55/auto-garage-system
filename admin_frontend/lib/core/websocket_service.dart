@@ -8,8 +8,15 @@ class WebSocketService {
 
   void connect() {
     try {
-      final wsUrl = Uri.parse(ApiConstants.wsUrl);
-      _channel = WebSocketChannel.connect(wsUrl);
+      String wsUrl = ApiConstants.wsUrl;
+      // Ensure correct protocol
+      if (wsUrl.startsWith('https://')) {
+        wsUrl = wsUrl.replaceFirst('https://', 'wss://');
+      } else if (wsUrl.startsWith('http://')) {
+        wsUrl = wsUrl.replaceFirst('http://', 'ws://');
+      }
+      final uri = Uri.parse(wsUrl);
+      _channel = WebSocketChannel.connect(uri);
       
       _channel!.stream.listen(
         (message) {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:uuid/uuid.dart';
 import '../../domain/entities/inventory_item.dart';
 import '../../domain/entities/inventory_variant.dart';
 import '../../domain/entities/inventory_transaction.dart';
@@ -106,7 +107,7 @@ class InventoryRoutes {
       final data = jsonDecode(payload) as Map<String, dynamic>;
 
       // Generate ID if not provided
-      final id = data['id'] ?? DateTime.now().millisecondsSinceEpoch.toString();
+      final id = data['id'] ?? const Uuid().v4();
 
       final item = InventoryItem(
         id: id,

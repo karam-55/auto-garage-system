@@ -191,4 +191,43 @@ class MechanicProvider with ChangeNotifier {
       return false;
     }
   }
+  
+  Future<List<dynamic>> fetchInventory() async {
+    try {
+      final data = await _apiService.fetchInventory();
+      return data;
+    } catch (e) {
+      _errorMessage = 'Error loading inventory: $e';
+      return [];
+    }
+  }
+  
+  Future<bool> consumePart(String variantId, int quantity, String bookingId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    
+    try {
+      final success = await _apiService.consumePart(variantId, quantity, bookingId);
+      
+      _isLoading = false;
+      notifyListeners();
+      return success;
+    } catch (e) {
+      _errorMessage = 'Error consuming part: $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+  
+  Future<Map<String, dynamic>?> fetchInvoice(String bookingId) async {
+    try {
+      final data = await _apiService.fetchInvoice(bookingId);
+      return data;
+    } catch (e) {
+      _errorMessage = 'Error loading invoice: $e';
+      return null;
+    }
+  }
 }

@@ -294,4 +294,61 @@ class ApiService {
       return false;
     }
   }
+  
+  // Inventory operations
+  Future<List<dynamic>> fetchInventory() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/inventory/variants'),
+        headers: _headers,
+      );
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return List<dynamic>.from(data);
+      }
+      
+      return [];
+    } catch (e) {
+      print('Error fetching inventory: $e');
+      return [];
+    }
+  }
+  
+  Future<bool> consumePart(String variantId, int quantity, String bookingId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/api/inventory/consume'),
+        headers: _headers,
+        body: jsonEncode({
+          'variantId': variantId,
+          'quantity': quantity,
+          'bookingId': bookingId,
+        }),
+      );
+      
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error consuming part: $e');
+      return false;
+    }
+  }
+  
+  Future<Map<String, dynamic>?> fetchInvoice(String bookingId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/bookings/$bookingId/invoice'),
+        headers: _headers,
+      );
+      
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      
+      return null;
+    } catch (e) {
+      print('Error fetching invoice: $e');
+      return null;
+    }
+  }
 }

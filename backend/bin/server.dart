@@ -22,6 +22,7 @@ import '../lib/infrastructure/repositories/inventory_item_repository_impl.dart';
 import '../lib/infrastructure/repositories/inventory_variant_repository_impl.dart';
 import '../lib/infrastructure/repositories/inventory_transaction_repository_impl.dart';
 import '../lib/infrastructure/repositories/booking_invoice_data_repository_impl.dart';
+import '../lib/infrastructure/repositories/alert_repository_impl.dart';
 import '../lib/presentation/routes/auth_routes.dart';
 import '../lib/presentation/routes/customer_routes.dart';
 import '../lib/presentation/routes/vehicle_routes.dart';
@@ -86,6 +87,7 @@ void main(List<String> args) async {
   final inventoryVariantRepository = InventoryVariantRepositoryImpl(db);
   final inventoryTransactionRepository = InventoryTransactionRepositoryImpl(db);
   final bookingInvoiceDataRepository = BookingInvoiceDataRepositoryImpl(db);
+  final alertRepository = AlertRepositoryImpl(db);
 
   // Initialize routes
   final authMiddleware = AuthMiddleware(userRepository);
@@ -100,6 +102,7 @@ void main(List<String> args) async {
     authMiddleware,
     db,
     vehicleRepository,
+    bookingInvoiceDataRepository,
   );
   final mechanicRoutes = MechanicRoutes(
     mechanicAssignmentRepository,
@@ -120,6 +123,8 @@ void main(List<String> args) async {
     inventoryItemRepository,
     inventoryVariantRepository,
     inventoryTransactionRepository,
+    bookingInvoiceDataRepository,
+    alertRepository,
     authMiddleware,
   );
   final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);

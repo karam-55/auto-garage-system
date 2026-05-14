@@ -8,6 +8,7 @@ import '../../domain/entities/role.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../../domain/repositories/booking_service_repository.dart';
 import '../../domain/repositories/vehicle_repository.dart';
+import '../../domain/repositories/booking_invoice_data_repository.dart';
 import '../../application/usecases/create_booking_usecase.dart';
 import '../../application/usecases/update_booking_status_usecase.dart';
 import '../../infrastructure/database/database_connection.dart';
@@ -22,6 +23,7 @@ class BookingRoutes {
   final AuthMiddleware _authMiddleware;
   final DatabaseConnection _db;
   final VehicleRepository _vehicleRepository;
+  final BookingInvoiceDataRepository _invoiceDataRepository;
 
   BookingRoutes(
     this._bookingRepository,
@@ -29,6 +31,7 @@ class BookingRoutes {
     this._authMiddleware,
     this._db,
     this._vehicleRepository,
+    this._invoiceDataRepository,
   );
 
   Router get router {
@@ -311,6 +314,9 @@ class BookingRoutes {
 
       final useCase = CreateBookingUseCase(_db);
       final createdBooking = await useCase.execute(booking, services);
+
+      // Generate invoice for the new booking
+      await _invoiceDataRepository.generateOrGetInvoice(createdBooking.id);
 
       // Get vehicle to include publicCarId in response
       final vehicle = await _vehicleRepository.findById(vehicleId);

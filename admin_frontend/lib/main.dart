@@ -18,6 +18,7 @@ import 'screens/vehicles_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/company_settings_screen.dart';
 import 'screens/quick_booking_screen.dart';
+import 'screens/inventory_screen.dart';
 
 class _NavItem {
   final IconData icon;
@@ -385,6 +386,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _NavItem(icon: Icons.build_rounded, label: 'الخدمات'),
     _NavItem(icon: Icons.work_rounded, label: 'الموظفين'),
     _NavItem(icon: Icons.bar_chart_rounded, label: 'التقارير'),
+    _NavItem(icon: Icons.inventory_2_rounded, label: 'المخزون'),
     _NavItem(icon: Icons.settings_rounded, label: 'إعدادات النظام'),
     _NavItem(icon: Icons.lock_rounded, label: 'كلمة المرور'),
   ];
@@ -434,6 +436,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ServicesScreen(apiService: _apiService),
       EmployeesScreen(apiService: _apiService),
       ReportsScreen(apiService: _apiService),
+      InventoryScreen(apiService: _apiService),
       CompanySettingsScreen(apiService: _apiService),
       ChangePasswordScreen(apiService: _apiService),
     ];

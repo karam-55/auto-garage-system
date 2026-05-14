@@ -106,6 +106,22 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               },
               child: const Text('إضافة اقتراح قطعة'),
             ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                _showConsumePartsDialog(context);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: const Text('استهلاك قطع من المخزون'),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                _showInvoiceDialog(context);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              child: const Text('عرض الفاتورة'),
+            ),
           ],
         ),
       ),
@@ -247,6 +263,164 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               }
             },
             child: const Text('إضافة'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showConsumePartsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('استهلاك قطع من المخزون'),
+        content: FutureBuilder(
+          future: context.read<MechanicProvider>().fetchInventory(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            
+            final inventory = snapshot.data as List<dynamic>?;
+            if (inventory == null || inventory.isEmpty) {
+              return const Text('المخزون فارغ أو لا توجد قطع متاحة');
+            }
+
+            return SizedBox(
+              width: double.maxFinite,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: inventory.length,
+                itemBuilder: (context, index) {
+                  final item = inventory[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text(item['name'] ?? 'غير معروف'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('الكمية: ${item['quantity'] ?? 0}'),
+                          Text('سعر البيع: ${item['sellingPrice'] ?? 0} ل.س'),
+                        ],
+                      ),
+                      trailing: ElevatedButton(
+                        onPressed: () {
+                          _showConsumeQuantityDialog(context, item);
+                        },
+                        child: const Text('استهلاك'),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إغلاق'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showConsumeQuantityDialog(BuildContext context, Map<String, dynamic> item) {
+    final quantityController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('استهلاك ${item['name']}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('الكمية المتاحة: ${item['quantity'] ?? 0}'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: quantityController,
+              decoration: const InputDecoration(labelText: 'الكمية'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final quantity = int.tryParse(quantityController.text);
+              if (quantity != null && quantity > 0) {
+                final mechanicProvider = context.read<MechanicProvider>();
+                final success = await mechanicProvider.consumePart(
+                  item['id'],
+                  quantity,
+                  widget.booking.id,
+                );
+                if (success && mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم استهلاك القطع بنجاح')),
+                  );
+                }
+              }
+            },
+            child: const Text('تأكيد'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showInvoiceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('فاتورة الحجز'),
+        content: FutureBuilder(
+          future: context.read<MechanicProvider>().fetchInvoice(widget.booking.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            
+            if (snapshot.hasError) {
+              return Text('خطأ في تحميل الفاتورة: ${snapshot.error}');
+            }
+            
+            final invoice = snapshot.data as Map<String, dynamic>?;
+            if (invoice == null) {
+              return const Text('لا توجد فاتورة لهذا الحجز');
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('رقم الحجز: ${widget.booking.id}'),
+                  const SizedBox(height: 8),
+                  Text('الإجمالي: ${invoice['totalPrice'] ?? 0} ل.س'),
+                  const SizedBox(height: 8),
+                  Text('تاريخ الإنشاء: ${invoice['invoiceCreatedAt'] ?? ''}'),
+                  const SizedBox(height: 16),
+                  if (invoice['servicesSnapshot'] != null)
+                    const Text('الخدمات:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  if (invoice['partsSnapshot'] != null)
+                    const Text('القطع:', style: TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إغلاق'),
           ),
         ],
       ),

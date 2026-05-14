@@ -8,18 +8,24 @@ import '../../domain/entities/role.dart';
 import '../../domain/repositories/inventory_item_repository.dart';
 import '../../domain/repositories/inventory_variant_repository.dart';
 import '../../domain/repositories/inventory_transaction_repository.dart';
+import '../../domain/repositories/booking_invoice_data_repository.dart';
+import '../../domain/repositories/alert_repository.dart';
 import '../middlewares/auth_middleware.dart';
 
 class InventoryRoutes {
   final InventoryItemRepository _itemRepository;
   final InventoryVariantRepository _variantRepository;
   final InventoryTransactionRepository _transactionRepository;
+  final BookingInvoiceDataRepository _invoiceDataRepository;
+  final AlertRepository _alertRepository;
   final AuthMiddleware _authMiddleware;
 
   InventoryRoutes(
     this._itemRepository,
     this._variantRepository,
     this._transactionRepository,
+    this._invoiceDataRepository,
+    this._alertRepository,
     this._authMiddleware,
   );
 
@@ -368,9 +374,33 @@ class InventoryRoutes {
 
       await _transactionRepository.create(transaction);
 
+      // Regenerate invoice if bookingId is provided
+      if (bookingId != null) {
+        try {
+          await _invoiceDataRepository.generateOrGetInvoice(bookingId);
+        } catch (e) {
+          // Don't fail the request if invoice generation fails
+          print('Warning: Failed to regenerate invoice: $e');
+        }
+      }
+
       // Check for low stock alert
       if (updatedVariant.quantity <= item.lowStockThreshold) {
-        // TODO: Send WebSocket alert
+        try {
+          await _alertRepository.create(
+            Alert(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              type: AlertType.lowStock,
+              relatedId: variant.id,
+              message: 'تنبيه: ${item.name} (${variant.variantType}) وصل للحد الأدنى (${updatedVariant.quantity})',
+              isRead: false,
+              createdAt: DateTime.now().toUtc(),
+            ),
+          );
+        } catch (e) {
+          // Don't fail the request if alert creation fails
+          print('Warning: Failed to create low stock alert: $e');
+        }
       }
 
       return Response.ok(

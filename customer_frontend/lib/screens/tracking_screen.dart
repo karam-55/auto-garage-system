@@ -84,6 +84,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
                           const SizedBox(height: 24),
                           _buildServicesCard(),
                           const SizedBox(height: 24),
+                          _buildInvoiceCard(),
+                          const SizedBox(height: 24),
                           _buildTimeline(),
                           const SizedBox(height: 24),
                           _buildQRCode(),
@@ -168,6 +170,32 @@ class _TrackingScreenState extends State<TrackingScreen> {
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInvoiceCard() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'تفاصيل الفاتورة',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'سيتم عرض تفاصيل الفاتورة النهائية بعد اكتمال العمل على السيارة.',
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            Text('رقم الحجز: ${_booking!.id.substring(0, 8)}'),
+            if (_booking!.estimatedCompletionDate != null)
+              Text('تاريخ الانتهاء المتوقع: ${_formatDate(_booking!.estimatedCompletionDate!)}'),
           ],
         ),
       ),

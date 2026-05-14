@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/mechanic_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/mechanic_assignment.dart';
+import '../../services/company_settings_service.dart';
 import '../vehicle_detail/vehicle_detail_screen.dart';
 import '../update_maintenance_status/update_maintenance_status_screen.dart';
 
@@ -16,14 +17,32 @@ class MyAssignmentsScreen extends StatefulWidget {
 
 class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
   Timer? _refreshTimer;
+  final CompanySettingsService _companySettingsService = CompanySettingsService();
+  String _companyName = 'تطبيق الميكانيكي';
+  String? _companyLogoUrl;
 
   @override
   void initState() {
     super.initState();
+    _loadCompanySettings();
     Future.microtask(() {
       context.read<MechanicProvider>().fetchMyAssignments();
     });
     _startAutoRefresh();
+  }
+
+  Future<void> _loadCompanySettings() async {
+    try {
+      final settings = await _companySettingsService.getCompanySettings();
+      if (mounted) {
+        setState(() {
+          _companyName = settings.companyName;
+          _companyLogoUrl = settings.companyLogoUrl;
+        });
+      }
+    } catch (e) {
+      // Keep default values on error
+    }
   }
 
   @override
@@ -44,7 +63,23 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('مهامي'),
+        title: Row(
+          children: [
+            if (_companyLogoUrl != null && _companyLogoUrl!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Image.network(
+                  _companyLogoUrl!,
+                  width: 32,
+                  height: 32,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            Text(_companyName),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.directions_car),

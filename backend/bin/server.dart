@@ -117,6 +117,7 @@ void main(List<String> args) async {
   // Combine all routes
   final handler = Cascade()
       .add(staticHandler)
+      .add(companySettingsRoutes.router)
       .add(authRoutes.router)
       .add(customerRoutes.router)
       .add(vehicleRoutes.router)
@@ -124,7 +125,6 @@ void main(List<String> args) async {
       .add(bookingRoutes.router)
       .add(mechanicRoutes.router)
       .add(dashboardRoutes.router)
-      .add(companySettingsRoutes.router)
       .add(publicRoutes.router)
       .add((Request request) {
         return Response.notFound('Not Found');

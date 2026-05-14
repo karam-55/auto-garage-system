@@ -1,8 +1,8 @@
 import 'package:postgres/postgres.dart';
-import 'package:backend/domain/entities/company_settings.dart';
-import 'package:backend/domain/repositories/company_settings_repository.dart';
-import 'package:backend/core/errors/exceptions.dart';
-import 'package:backend/infrastructure/database/database_connection.dart';
+import '../../domain/entities/company_settings.dart';
+import '../../domain/repositories/company_settings_repository.dart';
+import '../../core/errors/exceptions.dart';
+import '../database/database_connection.dart';
 
 class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
   final DatabaseConnection _db;
@@ -17,7 +17,8 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
       );
 
       if (result.isEmpty) return null;
-      return _mapRowToCompanySettings(result.first);
+      final row = result.first.toColumnMap();
+      return _mapRowToCompanySettings(row);
     } catch (e) {
       throw DatabaseException('Failed to get company settings: $e');
     }
@@ -42,19 +43,20 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
         },
       );
 
-      return _mapRowToCompanySettings(result.first);
+      final row = result.first.toColumnMap();
+      return _mapRowToCompanySettings(row);
     } catch (e) {
       throw DatabaseException('Failed to update company settings: $e');
     }
   }
 
-  CompanySettings _mapRowToCompanySettings(ResultRow row) {
+  CompanySettings _mapRowToCompanySettings(Map<String, dynamic> row) {
     return CompanySettings(
-      id: row['id'].toString(),
-      companyName: row['company_name'].toString(),
-      companyLogoUrl: row['company_logo_url']?.toString(),
-      createdAt: DateTime.parse(row['created_at'].toString()),
-      updatedAt: row['updated_at'] != null ? DateTime.parse(row['updated_at'].toString()) : null,
+      id: row['id'] as int,
+      companyName: row['company_name'] as String,
+      companyLogoUrl: row['company_logo_url'] as String?,
+      createdAt: row['created_at'] as DateTime,
+      updatedAt: row['updated_at'] as DateTime?,
     );
   }
 }

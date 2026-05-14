@@ -1,5 +1,5 @@
 class CompanySettings {
-  final String id;
+  final int id;
   final String companyName;
   final String? companyLogoUrl;
   final DateTime createdAt;
@@ -15,7 +15,7 @@ class CompanySettings {
 
   factory CompanySettings.fromJson(Map<String, dynamic> json) {
     return CompanySettings(
-      id: json['id'].toString(),
+      id: json['id'] as int,
       companyName: json['companyName'] as String,
       companyLogoUrl: json['companyLogoUrl'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -36,7 +36,7 @@ class CompanySettings {
   }
 
   CompanySettings copyWith({
-    String? id,
+    int? id,
     String? companyName,
     String? companyLogoUrl,
     DateTime? createdAt,

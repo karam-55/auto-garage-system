@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS part_suggestions (
 
 -- Company Settings table
 CREATE TABLE IF NOT EXISTS company_settings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     company_name VARCHAR(255) NOT NULL DEFAULT 'Garage Go',
     company_logo_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

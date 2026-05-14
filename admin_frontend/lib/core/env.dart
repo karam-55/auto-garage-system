@@ -2,7 +2,7 @@ class Env {
   // Base URL for API
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'http://localhost:8080',
+    defaultValue: 'https://auto-garage-system-backend.onrender.com',
   );
 
   // API Endpoints

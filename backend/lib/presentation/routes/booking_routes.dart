@@ -129,7 +129,25 @@ class BookingRoutes {
       if (booking == null) {
         return Response.notFound(jsonEncode({'error': 'Booking not found'}));
       }
-      return Response.ok(jsonEncode(booking.toJson()));
+
+      // Get vehicle
+      final vehicle = await _vehicleRepository.findById(booking.vehicleId);
+
+      // Get customer
+      final customer = await _customerRepository.findById(booking.customerId);
+
+      // Get services
+      final services = await _bookingServiceRepository.findByBookingId(id);
+
+      // Build response with all data
+      final response = {
+        'booking': booking.toJson(),
+        'vehicle': vehicle?.toJson(),
+        'customer': customer?.toJson(),
+        'services': services.map((s) => s.toJson()).toList(),
+      };
+
+      return Response.ok(jsonEncode(response));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get booking: $e'}),

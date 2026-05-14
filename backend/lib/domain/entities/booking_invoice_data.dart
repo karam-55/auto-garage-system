@@ -5,6 +5,8 @@ class BookingInvoiceData {
   final Map<String, dynamic>? partsSnapshot;
   final double totalPrice;
   final DateTime invoiceCreatedAt;
+  final String? publicToken;
+  final String? qrCodeUrl;
 
   BookingInvoiceData({
     required this.id,
@@ -13,6 +15,8 @@ class BookingInvoiceData {
     this.partsSnapshot,
     this.totalPrice = 0,
     required this.invoiceCreatedAt,
+    this.publicToken,
+    this.qrCodeUrl,
   });
 
   BookingInvoiceData copyWith({
@@ -22,6 +26,8 @@ class BookingInvoiceData {
     Map<String, dynamic>? partsSnapshot,
     double? totalPrice,
     DateTime? invoiceCreatedAt,
+    String? publicToken,
+    String? qrCodeUrl,
   }) {
     return BookingInvoiceData(
       id: id ?? this.id,
@@ -30,6 +36,8 @@ class BookingInvoiceData {
       partsSnapshot: partsSnapshot ?? this.partsSnapshot,
       totalPrice: totalPrice ?? this.totalPrice,
       invoiceCreatedAt: invoiceCreatedAt ?? this.invoiceCreatedAt,
+      publicToken: publicToken ?? this.publicToken,
+      qrCodeUrl: qrCodeUrl ?? this.qrCodeUrl,
     );
   }
 
@@ -41,6 +49,8 @@ class BookingInvoiceData {
       'partsSnapshot': partsSnapshot,
       'totalPrice': totalPrice,
       'invoiceCreatedAt': invoiceCreatedAt.toIso8601String(),
+      'publicToken': publicToken,
+      'qrCodeUrl': qrCodeUrl,
     };
   }
 
@@ -52,6 +62,8 @@ class BookingInvoiceData {
       partsSnapshot: json['partsSnapshot'] as Map<String, dynamic>?,
       totalPrice: (json['totalPrice'] is num ? json['totalPrice'] as num : double.tryParse(json['totalPrice'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(json['invoiceCreatedAt'] as String),
+      publicToken: json['publicToken'] as String?,
+      qrCodeUrl: json['qrCodeUrl'] as String?,
     );
   }
 }

@@ -157,7 +157,9 @@ CREATE TABLE IF NOT EXISTS booking_invoice_data (
     services_snapshot JSONB,
     parts_snapshot JSONB,
     total_price DECIMAL(12, 2) DEFAULT 0,
-    invoice_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    invoice_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    public_token VARCHAR(255),
+    qr_code_url TEXT
 );
 
 -- Alerts table

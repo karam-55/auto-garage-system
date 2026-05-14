@@ -22,7 +22,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     return BookingInvoiceData(
       id: data['id'] as String,
       bookingId: data['booking_id'] as String,
-      servicesSnapshot: data['services_snapshot'] != null 
+      servicesSnapshot: data['services_snapshot'] != null
           ? jsonDecode(data['services_snapshot'] as String) as Map<String, dynamic>
           : null,
       partsSnapshot: data['parts_snapshot'] != null
@@ -30,6 +30,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
           : null,
       totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
+      publicToken: data['public_token'] as String?,
+      qrCodeUrl: data['qr_code_url'] as String?,
     );
   }
 
@@ -37,14 +39,14 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
   Future<BookingInvoiceData> create(BookingInvoiceData invoiceData) async {
     final result = await _db.execute(
       Sql.named('''
-        INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at)
-        VALUES (@id, @bookingId, @servicesSnapshot, @partsSnapshot, @totalPrice, @invoiceCreatedAt)
+        INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at, public_token, qr_code_url)
+        VALUES (@id, @bookingId, @servicesSnapshot, @partsSnapshot, @totalPrice, @invoiceCreatedAt, @publicToken, @qrCodeUrl)
         RETURNING *
       '''),
       parameters: {
         'id': invoiceData.id,
         'bookingId': invoiceData.bookingId,
-        'servicesSnapshot': invoiceData.servicesSnapshot != null 
+        'servicesSnapshot': invoiceData.servicesSnapshot != null
             ? jsonEncode(invoiceData.servicesSnapshot)
             : null,
         'partsSnapshot': invoiceData.partsSnapshot != null
@@ -52,6 +54,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
             : null,
         'totalPrice': invoiceData.totalPrice,
         'invoiceCreatedAt': invoiceData.invoiceCreatedAt,
+        'publicToken': invoiceData.publicToken,
+        'qrCodeUrl': invoiceData.qrCodeUrl,
       },
     );
 
@@ -59,7 +63,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     return BookingInvoiceData(
       id: data['id'] as String,
       bookingId: data['booking_id'] as String,
-      servicesSnapshot: data['services_snapshot'] != null 
+      servicesSnapshot: data['services_snapshot'] != null
           ? jsonDecode(data['services_snapshot'] as String) as Map<String, dynamic>
           : null,
       partsSnapshot: data['parts_snapshot'] != null
@@ -67,6 +71,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
           : null,
       totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
+      publicToken: data['public_token'] as String?,
+      qrCodeUrl: data['qr_code_url'] as String?,
     );
   }
 
@@ -77,19 +83,23 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         UPDATE booking_invoice_data
         SET services_snapshot = @servicesSnapshot,
             parts_snapshot = @partsSnapshot,
-            total_price = @totalPrice
+            total_price = @totalPrice,
+            public_token = @publicToken,
+            qr_code_url = @qrCodeUrl
         WHERE booking_id = @bookingId
         RETURNING *
       '''),
       parameters: {
         'bookingId': invoiceData.bookingId,
-        'servicesSnapshot': invoiceData.servicesSnapshot != null 
+        'servicesSnapshot': invoiceData.servicesSnapshot != null
             ? jsonEncode(invoiceData.servicesSnapshot)
             : null,
         'partsSnapshot': invoiceData.partsSnapshot != null
             ? jsonEncode(invoiceData.partsSnapshot)
             : null,
         'totalPrice': invoiceData.totalPrice,
+        'publicToken': invoiceData.publicToken,
+        'qrCodeUrl': invoiceData.qrCodeUrl,
       },
     );
 
@@ -97,7 +107,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     return BookingInvoiceData(
       id: data['id'] as String,
       bookingId: data['booking_id'] as String,
-      servicesSnapshot: data['services_snapshot'] != null 
+      servicesSnapshot: data['services_snapshot'] != null
           ? jsonDecode(data['services_snapshot'] as String) as Map<String, dynamic>
           : null,
       partsSnapshot: data['parts_snapshot'] != null
@@ -105,6 +115,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
           : null,
       totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
+      publicToken: data['public_token'] as String?,
+      qrCodeUrl: data['qr_code_url'] as String?,
     );
   }
 
@@ -127,6 +139,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     }
 
     final bookingData = bookingResult.first.toColumnMap();
+    final publicToken = bookingData['public_token'] as String?;
 
     // Get booking services
     final servicesResult = await _db.execute(
@@ -177,13 +190,29 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     // Calculate total price
     double totalPrice = 0;
     for (final service in servicesSnapshot) {
-      totalPrice += (service['priceSYP'] as num).toDouble();
+      final price = service['priceSYP'];
+      if (price is num) {
+        totalPrice += price.toDouble();
+      } else if (price is String) {
+        totalPrice += double.tryParse(price) ?? 0.0;
+      }
     }
     for (final part in partsSnapshot) {
-      totalPrice += (part['sellingPrice'] as num).toDouble() * (part['quantity'] as int);
+      final sellingPrice = part['sellingPrice'];
+      final quantity = part['quantity'];
+      final price = sellingPrice is num
+          ? sellingPrice.toDouble()
+          : double.tryParse(sellingPrice?.toString() ?? '0') ?? 0.0;
+      final qty = quantity is int ? quantity : int.tryParse(quantity?.toString() ?? '0') ?? 0;
+      totalPrice += price * qty;
     }
 
     // Create invoice data
+    // Generate QR code URL using publicToken
+    final qrCodeUrl = publicToken != null
+        ? 'https://auto-garage-system-backend.onrender.com/track?token=$publicToken'
+        : null;
+
     final invoiceData = BookingInvoiceData(
       id: bookingData['id'].toString(),
       bookingId: bookingId,
@@ -191,6 +220,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       partsSnapshot: {'parts': partsSnapshot},
       totalPrice: totalPrice,
       invoiceCreatedAt: DateTime.now().toUtc(),
+      publicToken: publicToken,
+      qrCodeUrl: qrCodeUrl,
     );
 
     // Save to database

@@ -24,11 +24,13 @@ class Service {
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
-      priceSYP: (json['priceSYP'] as num).toDouble(),
+      priceSYP: json['priceSYP'] is num
+          ? (json['priceSYP'] as num).toDouble()
+          : double.tryParse(json['priceSYP']?.toString() ?? '0') ?? 0.0,
       estimatedDurationMinutes: json['estimatedDurationMinutes'] as int?,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt'] as String) 
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
           : null,
       isActive: json['isActive'] as bool? ?? true,
     );

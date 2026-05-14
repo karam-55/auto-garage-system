@@ -44,7 +44,10 @@ class DatabaseConnection {
           password: password,
         ),
       ],
-      settings: PoolSettings(maxConnectionCount: 20),
+      settings: PoolSettings(
+        maxConnectionCount: 20,
+        sslMode: SslMode.disable,
+      ),
     );
 
     _logger.i('Database pool initialized (max 20 connections)');
@@ -130,6 +133,17 @@ class DatabaseConnection {
       await _pool.execute('''
         ALTER TABLE bookings 
         ADD COLUMN IF NOT EXISTS invoice_generated BOOLEAN DEFAULT false
+      ''');
+
+      // Add public_token and qr_code_url columns to booking_invoice_data for existing tables
+      await _pool.execute('''
+        ALTER TABLE booking_invoice_data 
+        ADD COLUMN IF NOT EXISTS public_token VARCHAR(255)
+      ''');
+
+      await _pool.execute('''
+        ALTER TABLE booking_invoice_data 
+        ADD COLUMN IF NOT EXISTS qr_code_url TEXT
       ''');
 
       // Note: Inventory tables (inventory_items, inventory_variants, inventory_transactions,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
@@ -18,7 +18,6 @@ import 'screens/vehicles_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/company_settings_screen.dart';
 import 'screens/quick_booking_screen.dart';
-import 'screens/api_docs_screen.dart';
 
 class _NavItem {
   final IconData icon;
@@ -104,16 +103,15 @@ class _MyAppState extends State<MyApp> {
           child: child!,
         );
       },
-      home: LoginScreen(onThemeToggle: _toggleTheme, onLocaleToggle: _toggleLocale, themeMode: _themeMode),
+      home: LoginScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),
     );
   }
 }
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onThemeToggle;
-  final VoidCallback? onLocaleToggle;
   final ThemeMode themeMode;
   
-  const LoginScreen({super.key, this.onThemeToggle, this.onLocaleToggle, required this.themeMode});
+  const LoginScreen({super.key, this.onThemeToggle, required this.themeMode});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -387,7 +385,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _NavItem(icon: Icons.build_rounded, label: 'الخدمات'),
     _NavItem(icon: Icons.work_rounded, label: 'الموظفين'),
     _NavItem(icon: Icons.bar_chart_rounded, label: 'التقارير'),
-    _NavItem(icon: Icons.description_rounded, label: 'توثيق API'),
     _NavItem(icon: Icons.settings_rounded, label: 'إعدادات النظام'),
     _NavItem(icon: Icons.lock_rounded, label: 'كلمة المرور'),
   ];
@@ -437,7 +434,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ServicesScreen(apiService: _apiService),
       EmployeesScreen(apiService: _apiService),
       ReportsScreen(apiService: _apiService),
-      const ApiDocsScreen(),
       CompanySettingsScreen(apiService: _apiService),
       ChangePasswordScreen(apiService: _apiService),
     ];
@@ -471,7 +467,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onDestinationSelected: _onDestinationSelected,
               isExpanded: true,
               onThemeToggle: widget.onThemeToggle,
-              onLocaleToggle: widget.onLocaleToggle,
               themeMode: widget.themeMode,
             ),
           if (isTablet)
@@ -480,7 +475,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onDestinationSelected: _onDestinationSelected,
               isExpanded: false,
               onThemeToggle: widget.onThemeToggle,
-              onLocaleToggle: widget.onLocaleToggle,
               themeMode: widget.themeMode,
             ),
           if (isDesktop || isTablet) const VerticalDivider(thickness: 1, width: 1),

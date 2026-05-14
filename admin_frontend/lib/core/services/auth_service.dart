@@ -48,8 +48,8 @@ class AuthService {
     _refreshToken = prefs.getString('refresh_token');
   }
 
-  // Refresh token
-  Future<bool> refreshToken() async {
+  // Refresh access token
+  Future<bool> refreshAccessToken() async {
     try {
       if (_refreshToken == null) return false;
       

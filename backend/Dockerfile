@@ -1,5 +1,5 @@
 # Use latest stable Dart SDK
-FROM dart:stable AS build
+FROM dart:3.3.0 AS build
 
 # Cache busting
 ARG CACHEBUST=1
@@ -13,6 +13,9 @@ RUN dart pub get
 
 # Copy source code
 COPY . .
+
+# Force cache invalidation by creating a dummy file with timestamp
+RUN echo "Build timestamp: $(date)" > /tmp/build_timestamp.txt
 
 # Compile the server
 RUN dart compile exe bin/server.dart -o /app/server

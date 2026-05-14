@@ -214,6 +214,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final fullNameController = TextEditingController();
     final phoneController = TextEditingController();
     final roleController = TextEditingController();
+    String? selectedRole;
+
+    final roles = ['مالك', 'مدير', 'موظف استقبال', 'ميكانيكي'];
 
     showProfessionalDialog(
       context: context,
@@ -255,8 +258,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: roleController,
+              DropdownButtonFormField<String>(
+                value: selectedRole,
                 decoration: InputDecoration(
                   labelText: 'المسمى الوظيفي',
                   filled: true,
@@ -267,6 +270,16 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                 ),
+                items: roles.map((role) {
+                  return DropdownMenuItem<String>(
+                    value: role,
+                    child: Text(role),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() => selectedRole = value);
+                },
+                validator: (value) => value == null || value.isEmpty ? 'مطلوب' : null,
               ),
             ],
           ),
@@ -278,7 +291,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
             await widget.apiService.post(ApiConstants.employees, {
               'fullName': fullNameController.text,
               'phone': phoneController.text,
-              'role': roleController.text,
+              'role': selectedRole,
             });
             if (mounted) {
               Navigator.pop(context);
@@ -331,7 +344,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final formKey = GlobalKey<FormState>();
     final fullNameController = TextEditingController(text: employee['fullName'] ?? '');
     final phoneController = TextEditingController(text: employee['phone'] ?? '');
-    final roleController = TextEditingController(text: employee['role'] ?? '');
+    String? selectedRole = employee['role']?.toString();
+
+    final roles = ['مالك', 'مدير', 'موظف استقبال', 'ميكانيكي'];
 
     showProfessionalDialog(
       context: context,
@@ -373,8 +388,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: roleController,
+              DropdownButtonFormField<String>(
+                value: selectedRole,
                 decoration: InputDecoration(
                   labelText: 'المسمى الوظيفي',
                   filled: true,
@@ -385,6 +400,16 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                 ),
+                items: roles.map((role) {
+                  return DropdownMenuItem<String>(
+                    value: role,
+                    child: Text(role),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() => selectedRole = value);
+                },
+                validator: (value) => value == null || value.isEmpty ? 'مطلوب' : null,
               ),
             ],
           ),
@@ -398,7 +423,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               body: {
                 'fullName': fullNameController.text,
                 'phone': phoneController.text,
-                'role': roleController.text,
+                'role': selectedRole,
               },
             );
             if (mounted) {

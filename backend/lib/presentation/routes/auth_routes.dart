@@ -62,6 +62,9 @@ class AuthRoutes {
     // POST /api/auth/register (protected: only OWNER can create users)
     router.post('/api/auth/register', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_register)));
 
+    // POST /api/users (protected: only OWNER can create users - alias for register)
+    router.post('/api/users', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_register)));
+
     // GET /api/users (protected: MANAGER or higher)
     router.get('/api/users', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_getAllUsers)));
 

@@ -18,6 +18,10 @@ import '../lib/infrastructure/repositories/booking_service_repository_impl.dart'
 import '../lib/infrastructure/repositories/mechanic_assignment_repository_impl.dart';
 import '../lib/infrastructure/repositories/part_suggestion_repository_impl.dart';
 import '../lib/infrastructure/repositories/company_settings_repository_impl.dart';
+import '../lib/infrastructure/repositories/inventory_item_repository_impl.dart';
+import '../lib/infrastructure/repositories/inventory_variant_repository_impl.dart';
+import '../lib/infrastructure/repositories/inventory_transaction_repository_impl.dart';
+import '../lib/infrastructure/repositories/booking_invoice_data_repository_impl.dart';
 import '../lib/presentation/routes/auth_routes.dart';
 import '../lib/presentation/routes/customer_routes.dart';
 import '../lib/presentation/routes/vehicle_routes.dart';
@@ -27,6 +31,8 @@ import '../lib/presentation/routes/mechanic_routes.dart';
 import '../lib/presentation/routes/dashboard_routes.dart';
 import '../lib/presentation/routes/public_routes.dart';
 import '../lib/presentation/routes/company_settings_routes.dart';
+import '../lib/presentation/routes/inventory_routes.dart';
+import '../lib/presentation/routes/invoice_routes.dart';
 import '../lib/presentation/middlewares/auth_middleware.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
@@ -76,6 +82,10 @@ void main(List<String> args) async {
   final mechanicAssignmentRepository = MechanicAssignmentRepositoryImpl(db);
   final partSuggestionRepository = PartSuggestionRepositoryImpl(db);
   final companySettingsRepository = CompanySettingsRepositoryImpl(db);
+  final inventoryItemRepository = InventoryItemRepositoryImpl(db);
+  final inventoryVariantRepository = InventoryVariantRepositoryImpl(db);
+  final inventoryTransactionRepository = InventoryTransactionRepositoryImpl(db);
+  final bookingInvoiceDataRepository = BookingInvoiceDataRepositoryImpl(db);
 
   // Initialize routes
   final authMiddleware = AuthMiddleware(userRepository);
@@ -106,6 +116,13 @@ void main(List<String> args) async {
   );
   final publicRoutes = PublicRoutes(db);
   final companySettingsRoutes = CompanySettingsRoutes(companySettingsRepository, authMiddleware);
+  final inventoryRoutes = InventoryRoutes(
+    inventoryItemRepository,
+    inventoryVariantRepository,
+    inventoryTransactionRepository,
+    authMiddleware,
+  );
+  final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
 
   // Create static file handler for uploads directory
   final uploadsDir = Directory('uploads');
@@ -125,6 +142,8 @@ void main(List<String> args) async {
       .add(bookingRoutes.router)
       .add(mechanicRoutes.router)
       .add(dashboardRoutes.router)
+      .add(inventoryRoutes.router)
+      .add(invoiceRoutes.router)
       .add(publicRoutes.router)
       .add((Request request) {
         return Response.notFound('Not Found');

@@ -27,6 +27,15 @@
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div id="app" class="container mx-auto px-4 py-8">
+        <!-- Language Toggle Button -->
+        <div class="fixed top-4 right-4 z-50">
+            <button onclick="toggleLanguage()" class="bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                </svg>
+            </button>
+        </div>
+
         <!-- Header -->
         <div class="text-center mb-8 fade-in">
             <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg mb-4 overflow-hidden">
@@ -224,6 +233,84 @@
         const API_BASE_URL = 'https://auto-garage-system-backend.onrender.com';
         let pollingInterval = null;
         let currentToken = null;
+        let currentLanguage = localStorage.getItem('language') || 'ar';
+
+        // Translations
+        const translations = {
+            ar: {
+                title: 'Garage Go - تتبع السيارة',
+                trackCar: 'تتبع حالة سيارتك',
+                enterToken: 'يرجى إدخال رمز التتبع',
+                enterTokenPlaceholder: 'أدخل رمز التتبع المكون من 6 خانات',
+                search: 'بحث',
+                loading: 'جاري التحميل...',
+                error: 'حدث خطأ',
+                retry: 'إعادة المحاولة',
+                vehicleInfo: 'معلومات السيارة',
+                status: 'الحالة',
+                pending: 'قيد الانتظار',
+                inProgress: 'جاري العمل',
+                waitingParts: 'بانتظار القطع',
+                ready: 'جاهز',
+                delivered: 'تم التسليم',
+                cancelled: 'ملغي',
+                services: 'الخدمات',
+                total: 'الإجمالي',
+                language: 'اللغة'
+            },
+            en: {
+                title: 'Garage Go - Car Tracking',
+                trackCar: 'Track Your Car Status',
+                enterToken: 'Please enter tracking token',
+                enterTokenPlaceholder: 'Enter 6-character tracking token',
+                search: 'Search',
+                loading: 'Loading...',
+                error: 'Error occurred',
+                retry: 'Retry',
+                vehicleInfo: 'Vehicle Information',
+                status: 'Status',
+                pending: 'Pending',
+                inProgress: 'In Progress',
+                waitingParts: 'Waiting Parts',
+                ready: 'Ready',
+                delivered: 'Delivered',
+                cancelled: 'Cancelled',
+                services: 'Services',
+                total: 'Total',
+                language: 'Language'
+            }
+        };
+
+        function t(key) {
+            return translations[currentLanguage][key] || key;
+        }
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('language', currentLanguage);
+            applyTranslations();
+        }
+
+        function applyTranslations() {
+            document.documentElement.lang = currentLanguage;
+            document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('pageTitle').textContent = t('title');
+            document.querySelector('p.text-gray-600').textContent = t('trackCar');
+            
+            // Update more elements as needed
+            const trackingInput = document.getElementById('trackingToken');
+            if (trackingInput) {
+                trackingInput.placeholder = t('enterTokenPlaceholder');
+            }
+            
+            const searchButton = document.querySelector('button');
+            if (searchButton && searchButton.textContent.includes('بحث') || searchButton.textContent.includes('Search')) {
+                searchButton.textContent = t('search');
+            }
+        }
+
+        // Apply translations on load
+        applyTranslations();
 
         // Get publicToken from URL query parameter
         const urlParams = new URLSearchParams(window.location.search);

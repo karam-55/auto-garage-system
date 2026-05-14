@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/api_constants.dart';
 
 class AuthService {
   final http.Client _client;
   String? _token;
+  String? _refreshToken;
 
   AuthService({http.Client? client}) : _client = client ?? http.Client();
 
@@ -23,12 +25,58 @@ class AuthService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _token = data['token'];
+        _refreshToken = data['refreshToken'];
+        
+        // Save tokens to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', data['token']);
+        await prefs.setString('refresh_token', data['refreshToken']);
+        
         return data;
       } else {
         throw Exception('فشل تسجيل الدخول');
       }
     } catch (e) {
       throw Exception('خطأ في الاتصال: $e');
+    }
+  }
+
+  // Load tokens from SharedPreferences
+  Future<void> loadTokens() async {
+    final prefs = await SharedPreferences.getInstance();
+    _token = prefs.getString('access_token');
+    _refreshToken = prefs.getString('refresh_token');
+  }
+
+  // Refresh token
+  Future<bool> refreshToken() async {
+    try {
+      if (_refreshToken == null) return false;
+      
+      final response = await _client.post(
+        Uri.parse('${ApiConstants.baseUrl}/api/auth/refresh'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'refreshToken': _refreshToken,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _token = data['token'];
+        _refreshToken = data['refreshToken'];
+        
+        // Save new tokens to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', data['token']);
+        await prefs.setString('refresh_token', data['refreshToken']);
+        
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 
@@ -66,14 +114,23 @@ class AuthService {
   // Get token
   String? get token => _token;
 
+  // Get refresh token
+  String? get refreshToken => _refreshToken;
+
   // Set token
   void setToken(String? token) {
     _token = token;
   }
 
   // Logout
-  void logout() {
+  Future<void> logout() async {
     _token = null;
+    _refreshToken = null;
+    
+    // Clear tokens from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('access_token');
+    await prefs.remove('refresh_token');
   }
 
   // Check if authenticated

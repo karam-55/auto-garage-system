@@ -172,6 +172,7 @@ class _LoginScreenState extends State<LoginScreen>
           await _saveCredentials(_usernameController.text, _passwordController.text);
           final apiService = ApiService();
           apiService.setToken(_authService.token);
+          apiService.setRefreshToken(_authService.refreshToken);
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(

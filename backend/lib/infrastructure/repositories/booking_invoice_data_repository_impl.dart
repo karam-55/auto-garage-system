@@ -11,14 +11,19 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
 
   @override
   Future<BookingInvoiceData?> findByBookingId(String bookingId) async {
+    print('DEBUG findByBookingId bookingId: $bookingId');
     final result = await _db.execute(
       Sql.named('SELECT * FROM booking_invoice_data WHERE booking_id = @bookingId'),
       parameters: {'bookingId': bookingId},
     );
 
-    if (result.isEmpty) return null;
+    if (result.isEmpty) {
+      print('DEBUG findByBookingId: No invoice found for booking $bookingId');
+      return null;
+    }
 
     final data = result.first.toColumnMap();
+    print('DEBUG findByBookingId result data: $data');
     
     // Handle services_snapshot - it might be Map or String
     Map<String, dynamic>? servicesSnapshot;
@@ -40,7 +45,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       }
     }
     
-    return BookingInvoiceData(
+    final invoice = BookingInvoiceData(
       id: data['id'] as String,
       bookingId: data['booking_id'] as String,
       servicesSnapshot: servicesSnapshot,
@@ -52,6 +57,9 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
       qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
     );
+    
+    print('DEBUG findByBookingId returning invoice: total=${invoice.totalPrice}, publicToken=${invoice.publicToken}, qrCodeUrl=${invoice.qrCodeUrl}');
+    return invoice;
   }
 
   @override

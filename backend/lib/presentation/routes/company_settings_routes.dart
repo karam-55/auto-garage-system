@@ -18,13 +18,13 @@ class CompanySettingsRoutes {
     final router = Router();
 
     // GET /api/company/settings - Get company settings
-    router.get('/api/company/settings', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getSettings)));
+    router.get('/api/company/settings', _getSettings);
 
     // PATCH /api/company/settings - Update company settings
-    router.patch('/api/company/settings', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_updateSettings)));
+    router.patch('/api/company/settings', _updateSettings);
 
     // POST /api/company/upload-logo - Upload company logo
-    router.post('/api/company/upload-logo', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_uploadLogo)));
+    router.post('/api/company/upload-logo', _uploadLogo);
 
     return router;
   }

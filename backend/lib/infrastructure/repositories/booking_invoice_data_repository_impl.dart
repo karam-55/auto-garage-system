@@ -313,8 +313,22 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       }
       print('DEBUG final total price: $totalPrice');
 
-      final qrCodeUrl = publicToken != null
-          ? 'https://auto-garage-system-backend.onrender.com/track?token=$publicToken'
+      // Get publicCarId from vehicle for QR code
+      final vehicleResult = await _db.execute(
+        Sql.named('SELECT public_car_id FROM vehicles WHERE id = @vehicleId'),
+        parameters: {'vehicleId': bookingData['vehicle_id']},
+      );
+      
+      String? publicCarId;
+      if (vehicleResult.isNotEmpty) {
+        final vehicleData = vehicleResult.first.toColumnMap();
+        publicCarId = vehicleData['public_car_id'] as String?;
+      }
+      
+      print('DEBUG publicCarId: $publicCarId');
+
+      final qrCodeUrl = publicCarId != null
+          ? 'https://auto-garage-customer-frontend.pages.dev/?publicCarId=$publicCarId'
           : null;
 
       print('DEBUG creating invoice data');

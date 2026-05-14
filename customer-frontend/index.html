@@ -312,26 +312,20 @@
         // Apply translations on load
         applyTranslations();
 
-        // Get publicToken from URL query parameter
+        // Get publicCarId from URL query parameter
         const urlParams = new URLSearchParams(window.location.search);
-        const publicToken = urlParams.get('token');
+        const publicCarId = urlParams.get('publicCarId');
 
-        console.log('DEBUG: publicToken:', publicToken);
+        console.log('DEBUG: publicCarId:', publicCarId);
         console.log('DEBUG: API_BASE_URL:', API_BASE_URL);
 
-        if (!publicToken) {
+        if (!publicCarId) {
             // Show token input form
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('tokenInput').classList.remove('hidden');
         } else {
-            if (publicToken.length < 6) {
-                showError('الرجاء إدخال رمز التتبع المكون من 6 خانات على الأقل');
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('tokenInput').classList.remove('hidden');
-            } else {
-                currentToken = publicToken;
-                loadBookingData();
-            }
+            currentToken = publicCarId;
+            loadBookingData();
         }
 
         function searchBooking() {
@@ -353,7 +347,7 @@
             document.getElementById('carDetails').classList.add('hidden');
             
             try {
-                const response = await fetch(`${API_BASE_URL}/public/bookings/${currentToken}`);
+                const response = await fetch(`${API_BASE_URL}/public/car/${currentToken}`);
                 console.log('DEBUG: Response status:', response.status);
                 
                 if (!response.ok) {

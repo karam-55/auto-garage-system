@@ -17,7 +17,7 @@ class WebSocketService extends ChangeNotifier {
     try {
       // Use ws:// for local, wss:// for production
       final protocol = ApiConstants.baseUrl.startsWith('https') ? 'wss' : 'ws';
-      final wsUrl = ApiConstants.baseUrl.replaceFirst('http', protocol);
+      final wsUrl = ApiConstants.baseUrl.replaceFirst('http', protocol).replaceFirst('https', 'wss');
       
       _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/ws'));
       

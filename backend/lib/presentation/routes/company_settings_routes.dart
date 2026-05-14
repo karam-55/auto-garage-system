@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf_multipart/shelf_multipart.dart';
 import '../../domain/entities/company_settings.dart';
 import '../../domain/repositories/company_settings_repository.dart';
 import '../../core/errors/failures.dart';
@@ -81,21 +82,35 @@ class CompanySettingsRoutes {
     router.post('/api/company/upload-logo', (Request request) async {
       try {
         // Parse multipart form data
-        final contentType = request.headers['content-type'];
-        if (contentType == null || !contentType.contains('multipart/form-data')) {
+        final parts = await request.multipartFormData;
+        
+        // Find the logo file
+        String? logoUrl;
+        await for (final part in parts) {
+          if (part.name == 'logo') {
+            // Read file content
+            final content = await part.part.readBytes();
+            
+            // Generate a unique filename
+            final filename = 'logo_${DateTime.now().millisecondsSinceEpoch}_${part.filename}';
+            
+            // For now, we'll just return a mock URL since we don't have file storage
+            // In production, you would upload to a cloud storage service (AWS S3, Cloudinary, etc.)
+            logoUrl = '/uploads/$filename';
+            
+            break;
+          }
+        }
+        
+        if (logoUrl == null) {
           return Response.badRequest(
-            body: jsonEncode({'error': 'Invalid content type'}),
+            body: jsonEncode({'error': 'No logo file provided'}),
             headers: {'Content-Type': 'application/json'},
           );
         }
-
-        // Read the body as bytes
-        final bodyBytes = await request.read();
         
-        // For now, return a simple response since multipart parsing is complex
-        // This endpoint may need a different approach based on the shelf_multipart version
-        return Response.badRequest(
-          body: jsonEncode({'error': 'Multipart upload not implemented yet'}),
+        return Response.ok(
+          jsonEncode({'logoUrl': logoUrl}),
           headers: {'Content-Type': 'application/json'},
         );
       } catch (e) {

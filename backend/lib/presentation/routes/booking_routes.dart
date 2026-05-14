@@ -315,7 +315,13 @@ class BookingRoutes {
       final createdBooking = await useCase.execute(booking, services);
 
       // Generate invoice for the new booking
-      await _invoiceDataRepository.generateOrGetInvoice(createdBooking.id);
+      final invoice = await _invoiceDataRepository.generateOrGetInvoice(createdBooking.id);
+      print('DEBUG: Invoice generated for booking ${createdBooking.id}');
+      print('DEBUG: Invoice total price: ${invoice.totalPrice}');
+      print('DEBUG: Invoice services snapshot: ${invoice.servicesSnapshot}');
+      print('DEBUG: Invoice parts snapshot: ${invoice.partsSnapshot}');
+      print('DEBUG: Invoice public token: ${invoice.publicToken}');
+      print('DEBUG: Invoice QR code URL: ${invoice.qrCodeUrl}');
 
       // Get vehicle to include publicCarId in response
       final vehicle = await _vehicleRepository.findById(vehicleId);

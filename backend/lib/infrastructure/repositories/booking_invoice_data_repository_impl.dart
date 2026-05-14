@@ -217,11 +217,19 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       print('DEBUG services count: ${servicesResult.length}');
       final servicesSnapshot = servicesResult.map((row) {
         final data = row.toColumnMap();
+        final priceSYP = data['price_syp'];
+        double priceSYPDouble = 0;
+        if (priceSYP is num) {
+          priceSYPDouble = priceSYP.toDouble();
+        } else if (priceSYP is String) {
+          priceSYPDouble = double.tryParse(priceSYP) ?? 0.0;
+        }
+        print('DEBUG service: ${data['service_name']}, priceSYP: $priceSYP, converted: $priceSYPDouble');
         return {
           'serviceId': data['service_id'],
           'serviceName': data['service_name'],
           'serviceDescription': data['service_description'],
-          'priceSYP': data['price_syp'],
+          'priceSYP': priceSYPDouble,
           'notes': data['notes'],
         };
       }).toList();
@@ -240,34 +248,46 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
 
       final partsSnapshot = partsResult.map((row) {
         final data = row.toColumnMap();
+        final sellingPrice = data['selling_price'];
+        double sellingPriceDouble = 0;
+        if (sellingPrice is num) {
+          sellingPriceDouble = sellingPrice.toDouble();
+        } else if (sellingPrice is String) {
+          sellingPriceDouble = double.tryParse(sellingPrice) ?? 0.0;
+        }
+        final quantity = data['quantity'];
+        int quantityInt = 0;
+        if (quantity is int) {
+          quantityInt = quantity;
+        } else if (quantity is String) {
+          quantityInt = int.tryParse(quantity) ?? 0;
+        } else if (quantity is num) {
+          quantityInt = quantity.toInt();
+        }
+        print('DEBUG part: ${data['item_name']}, sellingPrice: $sellingPrice, converted: $sellingPriceDouble, quantity: $quantity, converted: $quantityInt');
         return {
           'itemId': data['item_id'],
           'itemName': data['item_name'],
           'variantId': data['variant_id'],
           'variantType': data['variant_type'],
-          'quantity': data['quantity'],
-          'sellingPrice': data['selling_price'],
+          'quantity': quantityInt,
+          'sellingPrice': sellingPriceDouble,
         };
       }).toList();
 
       double totalPrice = 0;
       for (final service in servicesSnapshot) {
-        final price = service['priceSYP'];
-        if (price is num) {
-          totalPrice += price.toDouble();
-        } else if (price is String) {
-          totalPrice += double.tryParse(price) ?? 0.0;
-        }
+        final price = service['priceSYP'] as double;
+        totalPrice += price;
+        print('DEBUG adding service price: $price, total so far: $totalPrice');
       }
       for (final part in partsSnapshot) {
-        final sellingPrice = part['sellingPrice'];
-        final quantity = part['quantity'];
-        final price = sellingPrice is num
-            ? sellingPrice.toDouble()
-            : double.tryParse(sellingPrice?.toString() ?? '0') ?? 0.0;
-        final qty = quantity is int ? quantity : int.tryParse(quantity?.toString() ?? '0') ?? 0;
-        totalPrice += price * qty;
+        final sellingPrice = part['sellingPrice'] as double;
+        final quantity = part['quantity'] as int;
+        totalPrice += sellingPrice * quantity;
+        print('DEBUG adding part: price=$sellingPrice, quantity=$quantity, line total=${sellingPrice * quantity}, total so far: $totalPrice');
       }
+      print('DEBUG final total price: $totalPrice');
 
       final qrCodeUrl = publicToken != null
           ? 'https://auto-garage-system-backend.onrender.com/track?token=$publicToken'

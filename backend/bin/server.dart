@@ -105,7 +105,7 @@ void main(List<String> args) async {
     authRoutes.authMiddleware,
   );
   final publicRoutes = PublicRoutes(db);
-  final companySettingsRoutes = CompanySettingsRoutes(companySettingsRepository);
+  final companySettingsRoutes = CompanySettingsRoutes(companySettingsRepository, authMiddleware);
 
   // Create static file handler for uploads directory
   final uploadsDir = Directory('uploads');

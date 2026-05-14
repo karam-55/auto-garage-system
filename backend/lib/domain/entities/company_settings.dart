@@ -1,3 +1,4 @@
+// Force rebuild: 2026-05-14
 class CompanySettings {
   final String id;
   final String companyName;

@@ -90,8 +90,8 @@ class InventoryVariant {
       itemId: json['item_id'] as String? ?? json['itemId'] as String,
       variantType: VariantType.fromString(json['variantType'] as String),
       quantity: json['quantity'] as int? ?? 0,
-      costPrice: (json['costPrice'] as num?)?.toDouble() ?? 0,
-      sellingPrice: (json['sellingPrice'] as num?)?.toDouble() ?? 0,
+      costPrice: (json['costPrice'] is num ? json['costPrice'] as num : double.tryParse(json['costPrice'] as String? ?? '0'))?.toDouble() ?? 0,
+      sellingPrice: (json['sellingPrice'] is num ? json['sellingPrice'] as num : double.tryParse(json['sellingPrice'] as String? ?? '0'))?.toDouble() ?? 0,
       supplier: json['supplier'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );

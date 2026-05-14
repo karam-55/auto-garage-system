@@ -263,8 +263,8 @@ class InventoryRoutes {
         itemId: data['itemId'] as String,
         variantType: VariantType.fromString(data['variantType'] as String),
         quantity: data['quantity'] as int? ?? 0,
-        costPrice: (data['costPrice'] as num?)?.toDouble() ?? 0,
-        sellingPrice: (data['sellingPrice'] as num?)?.toDouble() ?? 0,
+        costPrice: (data['costPrice'] is num ? data['costPrice'] as num : double.tryParse(data['costPrice'] as String? ?? '0'))?.toDouble() ?? 0,
+        sellingPrice: (data['sellingPrice'] is num ? data['sellingPrice'] as num : double.tryParse(data['sellingPrice'] as String? ?? '0'))?.toDouble() ?? 0,
         supplier: data['supplier'] as String?,
         createdAt: DateTime.now().toUtc(),
       );

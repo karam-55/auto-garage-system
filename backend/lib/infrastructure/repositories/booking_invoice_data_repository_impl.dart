@@ -28,7 +28,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       partsSnapshot: data['parts_snapshot'] != null
           ? jsonDecode(data['parts_snapshot'] as String) as Map<String, dynamic>
           : null,
-      totalPrice: (data['total_price'] as num?)?.toDouble() ?? 0,
+      totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
     );
   }
@@ -65,7 +65,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       partsSnapshot: data['parts_snapshot'] != null
           ? jsonDecode(data['parts_snapshot'] as String) as Map<String, dynamic>
           : null,
-      totalPrice: (data['total_price'] as num?)?.toDouble() ?? 0,
+      totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
     );
   }
@@ -103,7 +103,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       partsSnapshot: data['parts_snapshot'] != null
           ? jsonDecode(data['parts_snapshot'] as String) as Map<String, dynamic>
           : null,
-      totalPrice: (data['total_price'] as num?)?.toDouble() ?? 0,
+      totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
     );
   }

@@ -50,7 +50,7 @@ class BookingInvoiceData {
       bookingId: json['booking_id'] as String? ?? json['bookingId'] as String,
       servicesSnapshot: json['servicesSnapshot'] as Map<String, dynamic>?,
       partsSnapshot: json['partsSnapshot'] as Map<String, dynamic>?,
-      totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0,
+      totalPrice: (json['totalPrice'] is num ? json['totalPrice'] as num : double.tryParse(json['totalPrice'] as String? ?? '0'))?.toDouble() ?? 0,
       invoiceCreatedAt: DateTime.parse(json['invoiceCreatedAt'] as String),
     );
   }

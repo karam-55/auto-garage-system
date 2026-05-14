@@ -130,7 +130,7 @@ class InvoiceRoutes {
     return parts.map((part) {
       final p = part as Map<String, dynamic>;
       final quantity = p['quantity'] as int? ?? 1;
-      final price = (p['sellingPrice'] as num?)?.toDouble() ?? 0;
+      final price = (p['sellingPrice'] is num ? p['sellingPrice'] as num : double.tryParse(p['sellingPrice'] as String? ?? '0'))?.toDouble() ?? 0;
       final total = price * quantity;
       
       return Padding(

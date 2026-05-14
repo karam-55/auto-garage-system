@@ -23,8 +23,8 @@ class InventoryItemRepositoryImpl implements InventoryItemRepository {
         category: data['category'] as String?,
         unit: data['unit'] as String?,
         lowStockThreshold: data['low_stock_threshold'] as int? ?? 5,
-        createdAt: DateTime.parse(data['created_at'] as String),
-        updatedAt: data['updated_at'] != null ? DateTime.parse(data['updated_at'] as String) : null,
+        createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+        updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
       );
     }).toList();
   }
@@ -45,8 +45,8 @@ class InventoryItemRepositoryImpl implements InventoryItemRepository {
       category: data['category'] as String?,
       unit: data['unit'] as String?,
       lowStockThreshold: data['low_stock_threshold'] as int? ?? 5,
-      createdAt: DateTime.parse(data['created_at'] as String),
-      updatedAt: data['updated_at'] != null ? DateTime.parse(data['updated_at'] as String) : null,
+      createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+      updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
     );
   }
 
@@ -76,8 +76,8 @@ class InventoryItemRepositoryImpl implements InventoryItemRepository {
       category: data['category'] as String?,
       unit: data['unit'] as String?,
       lowStockThreshold: data['low_stock_threshold'] as int? ?? 5,
-      createdAt: DateTime.parse(data['created_at'] as String),
-      updatedAt: data['updated_at'] != null ? DateTime.parse(data['updated_at'] as String) : null,
+      createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+      updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
     );
   }
 
@@ -111,8 +111,8 @@ class InventoryItemRepositoryImpl implements InventoryItemRepository {
       category: data['category'] as String?,
       unit: data['unit'] as String?,
       lowStockThreshold: data['low_stock_threshold'] as int? ?? 5,
-      createdAt: DateTime.parse(data['created_at'] as String),
-      updatedAt: data['updated_at'] != null ? DateTime.parse(data['updated_at'] as String) : null,
+      createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+      updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
     );
   }
 
@@ -139,8 +139,8 @@ class InventoryItemRepositoryImpl implements InventoryItemRepository {
         category: data['category'] as String?,
         unit: data['unit'] as String?,
         lowStockThreshold: data['low_stock_threshold'] as int? ?? 5,
-        createdAt: DateTime.parse(data['created_at'] as String),
-        updatedAt: data['updated_at'] != null ? DateTime.parse(data['updated_at'] as String) : null,
+        createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+        updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
       );
     }).toList();
   }
@@ -163,8 +163,8 @@ class InventoryItemRepositoryImpl implements InventoryItemRepository {
         category: data['category'] as String?,
         unit: data['unit'] as String?,
         lowStockThreshold: data['low_stock_threshold'] as int? ?? 5,
-        createdAt: DateTime.parse(data['created_at'] as String),
-        updatedAt: data['updated_at'] != null ? DateTime.parse(data['updated_at'] as String) : null,
+        createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+        updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
       );
     }).toList();
   }

@@ -106,8 +106,10 @@ class BookingServiceRepositoryImpl implements BookingServiceRepository {
       id: data['id'].toString(),
       bookingId: data['booking_id'].toString(),
       serviceId: data['service_id'].toString(),
-      priceSYP: (data['price_syp'] as num).toDouble(),
-      notes: data['notes'] as String?,
+      priceSYP: data['price_syp'] is num
+          ? (data['price_syp'] as num).toDouble()
+          : double.tryParse(data['price_syp']?.toString() ?? '0') ?? 0.0,
+      notes: data['notes'] is String ? data['notes'] as String? : null,
     );
   }
 }

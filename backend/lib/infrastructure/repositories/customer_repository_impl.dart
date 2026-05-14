@@ -205,9 +205,9 @@ class CustomerRepositoryImpl implements CustomerRepository {
       final data = row.toColumnMap();
       return Customer(
         id: data['id'].toString(),
-        fullName: data['full_name'] as String,
-        phone: data['phone'] as String,
-        address: data['address'] as String?,
+        fullName: data['full_name'] is String ? data['full_name'] as String : data['full_name']?.toString() ?? '',
+        phone: data['phone'] is String ? data['phone'] as String : data['phone']?.toString() ?? '',
+        address: data['address'] is String ? data['address'] as String? : null,
         createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
         updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
       );

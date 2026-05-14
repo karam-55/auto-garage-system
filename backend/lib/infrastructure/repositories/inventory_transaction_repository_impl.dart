@@ -23,9 +23,9 @@ class InventoryTransactionRepositoryImpl implements InventoryTransactionReposito
         variantId: data['variant_id'] as String,
         bookingId: data['booking_id'] as String?,
         mechanicId: data['mechanic_id'] as String?,
-        type: TransactionType.fromString(data['type'] as String),
+        type: TransactionType.fromString(data['type'] is String ? data['type'] as String : data['type']?.toString() ?? 'CONSUME'),
         quantity: data['quantity'] as int,
-        notes: data['notes'] as String?,
+        notes: data['notes'] is String ? data['notes'] as String? : null,
         createdAt: DateTime.parse(data['created_at'] as String),
       );
     }).toList();
@@ -46,9 +46,9 @@ class InventoryTransactionRepositoryImpl implements InventoryTransactionReposito
         variantId: data['variant_id'] as String,
         bookingId: data['booking_id'] as String?,
         mechanicId: data['mechanic_id'] as String?,
-        type: TransactionType.fromString(data['type'] as String),
+        type: TransactionType.fromString(data['type'] is String ? data['type'] as String : data['type']?.toString() ?? 'CONSUME'),
         quantity: data['quantity'] as int,
-        notes: data['notes'] as String?,
+        notes: data['notes'] is String ? data['notes'] as String? : null,
         createdAt: DateTime.parse(data['created_at'] as String),
       );
     }).toList();
@@ -69,9 +69,9 @@ class InventoryTransactionRepositoryImpl implements InventoryTransactionReposito
         variantId: data['variant_id'] as String,
         bookingId: data['booking_id'] as String?,
         mechanicId: data['mechanic_id'] as String?,
-        type: TransactionType.fromString(data['type'] as String),
+        type: TransactionType.fromString(data['type'] is String ? data['type'] as String : data['type']?.toString() ?? 'CONSUME'),
         quantity: data['quantity'] as int,
-        notes: data['notes'] as String?,
+        notes: data['notes'] is String ? data['notes'] as String? : null,
         createdAt: DateTime.parse(data['created_at'] as String),
       );
     }).toList();
@@ -92,9 +92,9 @@ class InventoryTransactionRepositoryImpl implements InventoryTransactionReposito
         variantId: data['variant_id'] as String,
         bookingId: data['booking_id'] as String?,
         mechanicId: data['mechanic_id'] as String?,
-        type: TransactionType.fromString(data['type'] as String),
+        type: TransactionType.fromString(data['type'] is String ? data['type'] as String : data['type']?.toString() ?? 'CONSUME'),
         quantity: data['quantity'] as int,
-        notes: data['notes'] as String?,
+        notes: data['notes'] is String ? data['notes'] as String? : null,
         createdAt: DateTime.parse(data['created_at'] as String),
       );
     }).toList();
@@ -115,9 +115,9 @@ class InventoryTransactionRepositoryImpl implements InventoryTransactionReposito
         variantId: data['variant_id'] as String,
         bookingId: data['booking_id'] as String?,
         mechanicId: data['mechanic_id'] as String?,
-        type: TransactionType.fromString(data['type'] as String),
+        type: TransactionType.fromString(data['type'] is String ? data['type'] as String : data['type']?.toString() ?? 'CONSUME'),
         quantity: data['quantity'] as int,
-        notes: data['notes'] as String?,
+        notes: data['notes'] is String ? data['notes'] as String? : null,
         createdAt: DateTime.parse(data['created_at'] as String),
       );
     }).toList();

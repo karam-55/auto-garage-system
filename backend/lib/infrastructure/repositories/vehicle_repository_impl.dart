@@ -238,12 +238,12 @@ class VehicleRepositoryImpl implements VehicleRepository {
     return Vehicle(
       id: data['id'].toString(),
       customerId: data['customer_id'].toString(),
-      make: data['make'] as String,
-      model: data['model'] as String,
-      year: data['year'] is int ? data['year'] as int : int.tryParse(data['year'].toString()) ?? 0,
-      licensePlate: data['license_plate'] as String?,
-      vin: data['vin'] as String?,
-      publicCarId: data['public_car_id'] as String?,
+      make: data['make'] is String ? data['make'] as String : data['make']?.toString() ?? '',
+      model: data['model'] is String ? data['model'] as String : data['model']?.toString() ?? '',
+      year: (data['year'] is num ? data['year'] as num : int.tryParse(data['year']?.toString() ?? '0'))?.toInt() ?? 0,
+      licensePlate: data['license_plate'] is String ? data['license_plate'] as String? : null,
+      vin: data['vin'] is String ? data['vin'] as String? : null,
+      publicCarId: data['public_car_id'] is String ? data['public_car_id'] as String? : null,
       createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
       updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
     );

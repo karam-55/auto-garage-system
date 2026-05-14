@@ -70,12 +70,12 @@ class CreateBookingUseCase {
       id: data['id'].toString(),
       customerId: data['customer_id'].toString(),
       vehicleId: data['vehicle_id'].toString(),
-      status: BookingStatus.fromString(data['status'] as String),
-      publicToken: data['public_token'] as String,
-      notes: data['notes'] as String?,
-      createdAt: data['created_at'] as DateTime,
-      updatedAt: data['updated_at'] as DateTime?,
-      estimatedCompletionDate: data['estimated_completion_date'] as DateTime?,
+      status: BookingStatus.fromString(data['status'] is String ? data['status'] as String : data['status']?.toString() ?? 'PENDING'),
+      publicToken: data['public_token'] is String ? data['public_token'] as String : data['public_token']?.toString() ?? '',
+      notes: data['notes'] is String ? data['notes'] as String? : null,
+      createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+      updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
+      estimatedCompletionDate: data['estimated_completion_date'] != null ? (data['estimated_completion_date'] is DateTime ? data['estimated_completion_date'] as DateTime : DateTime.parse(data['estimated_completion_date'] as String)) : null,
     );
   }
 }

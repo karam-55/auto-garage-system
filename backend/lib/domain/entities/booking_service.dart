@@ -21,7 +21,7 @@ class BookingService {
       priceSYP: json['priceSYP'] is num
           ? (json['priceSYP'] as num).toDouble()
           : double.tryParse(json['priceSYP']?.toString() ?? '0') ?? 0.0,
-      notes: json['notes'] as String?,
+      notes: json['notes'] is String ? json['notes'] as String? : null,
     );
   }
 

@@ -30,7 +30,7 @@ class Booking {
       vehicleId: json['vehicleId'] as String,
       status: BookingStatus.fromString(json['status'] as String),
       publicToken: json['publicToken'] as String,
-      notes: json['notes'] as String?,
+      notes: json['notes'] is String ? json['notes'] as String? : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null 
           ? DateTime.parse(json['updatedAt'] as String) 

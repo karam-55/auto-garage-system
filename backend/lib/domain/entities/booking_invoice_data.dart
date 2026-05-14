@@ -57,7 +57,9 @@ class BookingInvoiceData {
   factory BookingInvoiceData.fromJson(Map<String, dynamic> json) {
     return BookingInvoiceData(
       id: json['id'] as String,
-      bookingId: json['booking_id'] as String? ?? json['bookingId'] as String,
+      bookingId: json['booking_id'] is String
+          ? json['booking_id'] as String
+          : json['bookingId'] as String,
       servicesSnapshot: json['servicesSnapshot'] as Map<String, dynamic>?,
       partsSnapshot: json['partsSnapshot'] as Map<String, dynamic>?,
       totalPrice: (json['totalPrice'] is num ? json['totalPrice'] as num : double.tryParse(json['totalPrice'] as String? ?? '0'))?.toDouble() ?? 0,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
 import '../core/widgets/professional_dialog.dart';
@@ -16,28 +17,69 @@ class VehiclesScreen extends StatefulWidget {
 class _VehiclesScreenState extends State<VehiclesScreen> {
   List<dynamic> _vehicles = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  Timer? _debounce;
+  final ScrollController _scrollController = ScrollController();
+  int _currentPage = 1;
+  int _totalCount = 0;
+  int _totalPages = 0;
+  bool _hasNextPage = false;
+  static const int _pageSize = 20;
 
   @override
   void initState() {
     super.initState();
     _loadVehicles();
+    _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
+      if (_hasNextPage && !_isLoadingMore && !_isLoading) {
+        _loadMoreVehicles();
+      }
+    }
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = _searchController.text.trim();
+        _currentPage = 1;
+        _vehicles = [];
+      });
+      _loadVehicles();
+    });
   }
 
   Future<void> _loadVehicles() async {
     setState(() => _isLoading = true);
     try {
-      final response = await widget.apiService.get(ApiConstants.vehicles);
+      String url = '${ApiConstants.vehicles}?page=$_currentPage&limit=$_pageSize';
+      if (_searchQuery.isNotEmpty) {
+        url += '&search=$_searchQuery';
+      }
+      final response = await widget.apiService.get(url);
       setState(() {
         final raw = response is List ? response : (response['data'] ?? []);
         _vehicles = List<Map<String, dynamic>>.from(raw);
+        _totalCount = response['totalCount'] ?? 0;
+        _totalPages = response['totalPages'] ?? 0;
+        _hasNextPage = response['hasNextPage'] ?? false;
         _isLoading = false;
       });
     } catch (e) {
@@ -50,16 +92,36 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
     }
   }
 
+  Future<void> _loadMoreVehicles() async {
+    if (_isLoadingMore) return;
+    setState(() => _isLoadingMore = true);
+    try {
+      _currentPage++;
+      String url = '${ApiConstants.vehicles}?page=$_currentPage&limit=$_pageSize';
+      if (_searchQuery.isNotEmpty) {
+        url += '&search=$_searchQuery';
+      }
+      final response = await widget.apiService.get(url);
+      setState(() {
+        final raw = response is List ? response : (response['data'] ?? []);
+        _vehicles.addAll(List<Map<String, dynamic>>.from(raw));
+        _totalCount = response['totalCount'] ?? 0;
+        _totalPages = response['totalPages'] ?? 0;
+        _hasNextPage = response['hasNextPage'] ?? false;
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingMore = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطأ في تحميل المزيد: $e')),
+        );
+      }
+    }
+  }
+
   List<dynamic> get _filteredVehicles {
-    if (_searchQuery.isEmpty) return _vehicles;
-    return _vehicles.where((vehicle) {
-      final make = vehicle['make']?.toString().toLowerCase() ?? '';
-      final model = vehicle['model']?.toString().toLowerCase() ?? '';
-      final plate = vehicle['licensePlate']?.toString().toLowerCase() ?? '';
-      return make.contains(_searchQuery.toLowerCase()) ||
-          model.contains(_searchQuery.toLowerCase()) ||
-          plate.contains(_searchQuery.toLowerCase());
-    }).toList();
+    return _vehicles;
   }
 
   Future<void> _updateVehicle(String vehicleId, String licensePlate) async {
@@ -139,6 +201,11 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
                 'إدارة السيارات',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
+              const SizedBox(height: 8),
+              Text(
+                '$_totalCount سيارة',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              ),
               const SizedBox(height: 12),
               _buildSearchField(),
             ],
@@ -146,9 +213,18 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
         : Row(
             children: [
               Expanded(
-                child: Text(
-                  'إدارة السيارات',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'إدارة السيارات',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      '$_totalCount سيارة',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(width: 300, child: _buildSearchField()),
@@ -207,6 +283,7 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
                 : 1;
 
         return GridView.builder(
+          controller: _scrollController,
           padding: EdgeInsets.zero,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
@@ -214,8 +291,11 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
           ),
-          itemCount: _filteredVehicles.length,
+          itemCount: _filteredVehicles.length + (_hasNextPage ? 1 : 0),
           itemBuilder: (context, index) {
+            if (index == _filteredVehicles.length && _hasNextPage) {
+              return const Center(child: CircularProgressIndicator());
+            }
             final vehicle = _filteredVehicles[index];
             return _VehicleCard(
               vehicle: vehicle,

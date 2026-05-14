@@ -19,11 +19,18 @@ class BookingsScreen extends StatefulWidget {
 class _BookingsScreenState extends State<BookingsScreen> {
   List<Map<String, dynamic>> _bookings = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String? _selectedStatus;
   DateTimeRange? _selectedDateRange;
   Timer? _debounce;
+  final ScrollController _scrollController = ScrollController();
+  int _currentPage = 1;
+  int _totalCount = 0;
+  int _totalPages = 0;
+  bool _hasNextPage = false;
+  static const int _pageSize = 20;
 
   final List<String> _statusOptions = [
     'ALL',
@@ -40,19 +47,35 @@ class _BookingsScreenState extends State<BookingsScreen> {
     super.initState();
     _loadBookings();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
+      if (_hasNextPage && !_isLoadingMore && !_isLoading) {
+        _loadMoreBookings();
+      }
+    }
   }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = _searchController.text.trim();
+        _currentPage = 1;
+        _bookings = [];
+      });
       _loadBookings();
     });
   }
@@ -60,32 +83,71 @@ class _BookingsScreenState extends State<BookingsScreen> {
   Future<void> _loadBookings() async {
     setState(() => _isLoading = true);
     try {
-      String url = ApiConstants.bookings;
-      final params = <String, String>{};
+      String url = '${ApiConstants.bookings}?page=$_currentPage&limit=$_pageSize';
       
       if (_selectedStatus != null && _selectedStatus != 'ALL') {
-        params['status'] = _selectedStatus!;
+        url += '&status=$_selectedStatus';
       }
       
       if (_selectedDateRange != null) {
-        params['from'] = _selectedDateRange!.start.toIso8601String();
-        params['to'] = _selectedDateRange!.end.toIso8601String();
+        url += '&from=${_selectedDateRange!.start.toIso8601String()}';
+        url += '&to=${_selectedDateRange!.end.toIso8601String()}';
       }
       
-      if (params.isNotEmpty) {
-        url += '?' + params.entries.map((e) => '${e.key}=${e.value}').join('&');
+      if (_searchQuery.isNotEmpty) {
+        url += '&search=$_searchQuery';
       }
       
       final response = await widget.apiService.get(url);
       setState(() {
         final raw = response is List ? response : (response['data'] ?? []);
         _bookings = List<Map<String, dynamic>>.from(raw);
+        _totalCount = response['totalCount'] ?? 0;
+        _totalPages = response['totalPages'] ?? 0;
+        _hasNextPage = response['hasNextPage'] ?? false;
         _isLoading = false;
       });
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل الحجوزات: $e')));
+      }
+    }
+  }
+
+  Future<void> _loadMoreBookings() async {
+    if (_isLoadingMore) return;
+    setState(() => _isLoadingMore = true);
+    try {
+      _currentPage++;
+      String url = '${ApiConstants.bookings}?page=$_currentPage&limit=$_pageSize';
+      
+      if (_selectedStatus != null && _selectedStatus != 'ALL') {
+        url += '&status=$_selectedStatus';
+      }
+      
+      if (_selectedDateRange != null) {
+        url += '&from=${_selectedDateRange!.start.toIso8601String()}';
+        url += '&to=${_selectedDateRange!.end.toIso8601String()}';
+      }
+      
+      if (_searchQuery.isNotEmpty) {
+        url += '&search=$_searchQuery';
+      }
+      
+      final response = await widget.apiService.get(url);
+      setState(() {
+        final raw = response is List ? response : (response['data'] ?? []);
+        _bookings.addAll(List<Map<String, dynamic>>.from(raw));
+        _totalCount = response['totalCount'] ?? 0;
+        _totalPages = response['totalPages'] ?? 0;
+        _hasNextPage = response['hasNextPage'] ?? false;
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingMore = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل المزيد: $e')));
       }
     }
   }
@@ -128,6 +190,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 'إدارة الحجوزات',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
+              const SizedBox(height: 8),
+              Text(
+                '$_totalCount حجز',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              ),
               const SizedBox(height: 12),
               _buildSearchField(),
               const SizedBox(height: 8),
@@ -169,9 +236,18 @@ class _BookingsScreenState extends State<BookingsScreen> {
         : Row(
             children: [
               Expanded(
-                child: Text(
-                  'إدارة الحجوزات',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'إدارة الحجوزات',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      '$_totalCount حجز',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 12),
@@ -230,6 +306,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
       onChanged: (value) {
         setState(() {
           _selectedStatus = value;
+          _currentPage = 1;
+          _bookings = [];
         });
         _loadBookings();
       },
@@ -279,6 +357,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
     if (picked != null && mounted) {
       setState(() {
         _selectedDateRange = picked;
+        _currentPage = 1;
+        _bookings = [];
       });
       _loadBookings();
     }
@@ -362,6 +442,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
             : 1;
 
         return GridView.builder(
+          controller: _scrollController,
           padding: EdgeInsets.zero,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
@@ -369,8 +450,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
           ),
-          itemCount: _filteredBookings.length,
+          itemCount: _filteredBookings.length + (_hasNextPage ? 1 : 0),
           itemBuilder: (context, index) {
+            if (index == _filteredBookings.length && _hasNextPage) {
+              return const Center(child: CircularProgressIndicator());
+            }
             return _BookingCard(
               booking: _filteredBookings[index],
               onInvoice: () => _showInvoiceForBooking(_filteredBookings[index]),

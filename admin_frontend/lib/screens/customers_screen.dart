@@ -17,23 +17,41 @@ class CustomersScreen extends StatefulWidget {
 class _CustomersScreenState extends State<CustomersScreen> {
   List<dynamic> _customers = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   Timer? _debounce;
+  final ScrollController _scrollController = ScrollController();
+  int _currentPage = 1;
+  int _totalCount = 0;
+  int _totalPages = 0;
+  bool _hasNextPage = false;
+  static const int _pageSize = 20;
 
   @override
   void initState() {
     super.initState();
     _loadCustomers();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
+      if (_hasNextPage && !_isLoadingMore && !_isLoading) {
+        _loadMoreCustomers();
+      }
+    }
   }
 
   void _onSearchChanged() {
@@ -41,6 +59,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       setState(() {
         _searchQuery = _searchController.text.trim();
+        _currentPage = 1;
+        _customers = [];
       });
       _loadCustomers();
     });
@@ -49,20 +69,49 @@ class _CustomersScreenState extends State<CustomersScreen> {
   Future<void> _loadCustomers() async {
     setState(() => _isLoading = true);
     try {
-      String url = ApiConstants.customers;
+      String url = '${ApiConstants.customers}?page=$_currentPage&limit=$_pageSize';
       if (_searchQuery.isNotEmpty) {
-        url += '?search=$_searchQuery';
+        url += '&search=$_searchQuery';
       }
       final response = await widget.apiService.get(url);
       setState(() {
         final raw = response is List ? response : (response['data'] ?? []);
         _customers = List<Map<String, dynamic>>.from(raw);
+        _totalCount = response['totalCount'] ?? 0;
+        _totalPages = response['totalPages'] ?? 0;
+        _hasNextPage = response['hasNextPage'] ?? false;
         _isLoading = false;
       });
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل العملاء: $e')));
+      }
+    }
+  }
+
+  Future<void> _loadMoreCustomers() async {
+    if (_isLoadingMore) return;
+    setState(() => _isLoadingMore = true);
+    try {
+      _currentPage++;
+      String url = '${ApiConstants.customers}?page=$_currentPage&limit=$_pageSize';
+      if (_searchQuery.isNotEmpty) {
+        url += '&search=$_searchQuery';
+      }
+      final response = await widget.apiService.get(url);
+      setState(() {
+        final raw = response is List ? response : (response['data'] ?? []);
+        _customers.addAll(List<Map<String, dynamic>>.from(raw));
+        _totalCount = response['totalCount'] ?? 0;
+        _totalPages = response['totalPages'] ?? 0;
+        _hasNextPage = response['hasNextPage'] ?? false;
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingMore = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل المزيد: $e')));
       }
     }
   }
@@ -105,6 +154,11 @@ class _CustomersScreenState extends State<CustomersScreen> {
                 'إدارة العملاء',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
+              const SizedBox(height: 8),
+              Text(
+                '$_totalCount عميل',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              ),
               const SizedBox(height: 12),
               _buildSearchField(),
               const SizedBox(height: 12),
@@ -122,9 +176,18 @@ class _CustomersScreenState extends State<CustomersScreen> {
         : Row(
             children: [
               Expanded(
-                child: Text(
-                  'إدارة العملاء',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'إدارة العملاء',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      '$_totalCount عميل',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 12),
@@ -202,6 +265,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                 : 1;
 
         return GridView.builder(
+          controller: _scrollController,
           padding: EdgeInsets.zero,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
@@ -209,8 +273,11 @@ class _CustomersScreenState extends State<CustomersScreen> {
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
           ),
-          itemCount: _filteredCustomers.length,
+          itemCount: _filteredCustomers.length + (_hasNextPage ? 1 : 0),
           itemBuilder: (context, index) {
+            if (index == _filteredCustomers.length && _hasNextPage) {
+              return const Center(child: CircularProgressIndicator());
+            }
             return _CustomerCard(
               customer: _filteredCustomers[index],
               onTap: () => _showCustomerDetailsDialog(context, _filteredCustomers[index]),

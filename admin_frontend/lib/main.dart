@@ -8,6 +8,7 @@ import 'core/constants/api_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/loading_screen.dart';
 import 'core/widgets/animated_sidebar.dart';
+import 'core/websocket_service.dart';
 import 'screens/overview_screen.dart';
 import 'screens/bookings_screen.dart';
 import 'screens/customers_screen.dart';
@@ -194,6 +195,10 @@ class _LoginScreenState extends State<LoginScreen>
           final apiService = ApiService();
           apiService.setToken(_authService.token);
           apiService.setRefreshToken(_authService.refreshToken);
+          
+          // Connect to WebSocket
+          webSocketService.connect();
+          
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
@@ -395,16 +400,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _apiService = widget.apiService;
+    
+    // Listen for low stock alerts
+    webSocketService.addListener(_handleLowStockAlert);
+  }
+
+  void _handleLowStockAlert(Map<String, dynamic> alert) {
+    if (alert['type'] == 'LOW_STOCK' && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(alert['message'] ?? 'تنبيه: مخزون منخفض'),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'عرض',
+            textColor: Colors.white,
+            onPressed: () {
+              setState(() => _selectedIndex = 8); // Inventory screen index
+            },
+          ),
+        ),
+      );
+    }
   }
 
   @override
   void dispose() {
     _apiService.dispose();
+    webSocketService.removeListener(_handleLowStockAlert);
     super.dispose();
   }
 
   void _onDestinationSelected(int index) {
     if (index == -1) {
+      // Disconnect WebSocket before logout
+      webSocketService.disconnect();
+      
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(

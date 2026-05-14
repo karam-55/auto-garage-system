@@ -3,6 +3,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:convert';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
+import '../core/websocket_service.dart';
 import '../models/booking.dart';
 import '../models/booking_service.dart';
 
@@ -28,11 +29,23 @@ class _TrackingScreenState extends State<TrackingScreen> {
     super.initState();
     _fetchBookingDetails();
     _startPolling();
+    
+    // Connect to WebSocket
+    webSocketService.connect();
+    webSocketService.addListener(_handleWebSocketMessage);
+  }
+
+  void _handleWebSocketMessage(Map<String, dynamic> message) {
+    // Handle WebSocket messages if needed
+    // For now, we use polling for data updates
+    print('WebSocket message: $message');
   }
 
   @override
   void dispose() {
     _pollingTimer?.cancel();
+    webSocketService.removeListener(_handleWebSocketMessage);
+    webSocketService.disconnect();
     super.dispose();
   }
 

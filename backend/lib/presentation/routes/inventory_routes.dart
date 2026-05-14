@@ -47,7 +47,7 @@ class InventoryRoutes {
     router.get('/api/inventory/variants', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getAllVariants)));
     router.get('/api/inventory/variants/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getVariantById)));
     router.get('/api/inventory/items/<itemId>/variants', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getVariantsByItemId)));
-    router.post('/api/inventory/variants', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_createVariant)));
+    router.post('/api/inventory/variants', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_createVariant)));
     router.put('/api/inventory/variants/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_updateVariant)));
     router.delete('/api/inventory/variants/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_deleteVariant)));
 

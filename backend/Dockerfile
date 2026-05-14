@@ -1,6 +1,9 @@
 # Use latest stable Dart SDK
 FROM dart:stable AS build
 
+# Cache busting
+ARG CACHEBUST=1
+
 # Set working directory
 WORKDIR /app
 

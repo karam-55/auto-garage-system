@@ -337,50 +337,83 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredItems.isEmpty
                     ? const Center(child: Text('لا توجد أصناف'))
-                    : ListView.builder(
-                        itemCount: _filteredItems.length,
-                        itemBuilder: (context, index) {
-                          final item = _filteredItems[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: ListTile(
-                              title: Text(item.name),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (item.category != null) Text('التصنيف: ${item.category}'),
-                                  if (item.unit != null) Text('الوحدة: ${item.unit}'),
-                                  Text('الحد الأدنى: ${item.lowStockThreshold}'),
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () => _editItem(item),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete),
-                                    onPressed: () => _deleteItem(item),
-                                  ),
-                                ],
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => InventoryVariantsScreen(
-                                      apiService: widget.apiService,
-                                      itemId: item.id,
-                                      itemName: item.name,
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              itemCount: _currentPage * _pageSize < _filteredItems.length
+                                  ? _pageSize
+                                  : _filteredItems.length - (_currentPage - 1) * _pageSize,
+                              itemBuilder: (context, index) {
+                                final itemIndex = (_currentPage - 1) * _pageSize + index;
+                                if (itemIndex >= _filteredItems.length) return null;
+                                final item = _filteredItems[itemIndex];
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  child: ListTile(
+                                    title: Text(item.name),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (item.category != null) Text('التصنيف: ${item.category}'),
+                                        if (item.unit != null) Text('الوحدة: ${item.unit}'),
+                                        Text('الحد الأدنى: ${item.lowStockThreshold}'),
+                                      ],
                                     ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.edit),
+                                          onPressed: () => _editItem(item),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete),
+                                          onPressed: () => _deleteItem(item),
+                                        ),
+                                      ],
+                                    ),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => InventoryVariantsScreen(
+                                            apiService: widget.apiService,
+                                            itemId: item.id,
+                                            itemName: item.name,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 );
                               },
                             ),
-                          );
-                        },
+                          ),
+                          if (_filteredItems.length > _pageSize)
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.chevron_left),
+                                    onPressed: _currentPage > 1
+                                        ? () => setState(() => _currentPage--)
+                                        : null,
+                                  ),
+                                  Text('صفحة $_currentPage من ${(_filteredItems.length / _pageSize).ceil()}'),
+                                  IconButton(
+                                    icon: const Icon(Icons.chevron_right),
+                                    onPressed: _currentPage * _pageSize < _filteredItems.length
+                                        ? () => setState(() => _currentPage++)
+                                        : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
           ),
         ],

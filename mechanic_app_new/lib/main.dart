@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import './core/constants/backend_constants.dart';
 import 'providers/auth_provider.dart';
 import 'providers/mechanic_provider.dart';
@@ -10,17 +12,22 @@ import 'screens/available_bookings/available_bookings_screen.dart';
 import 'screens/my_assignments/my_assignments_screen.dart';
 import 'services/company_settings_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  final prefs = await SharedPreferences.getInstance();
+  final localeCode = prefs.getString('locale') ?? 'ar';
   
   // Note: Using Render backend API
   print('Using Render backend: ${BackendConstants.backendUrl}');
   
-  runApp(const MyApp());
+  runApp(MyApp(initialLocale: Locale(localeCode)));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final Locale initialLocale;
+  
+  const MyApp({super.key, required this.initialLocale});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -29,11 +36,22 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final CompanySettingsService _companySettingsService = CompanySettingsService();
   String _appTitle = 'تطبيق الميكانيكي';
+  late Locale _locale;
 
   @override
   void initState() {
     super.initState();
+    _locale = widget.initialLocale;
     _loadCompanySettings();
+  }
+
+  void _toggleLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final newLocale = _locale.languageCode == 'ar' ? const Locale('en') : const Locale('ar');
+    setState(() {
+      _locale = newLocale;
+    });
+    await prefs.setString('locale', newLocale.languageCode);
   }
 
   Future<void> _loadCompanySettings() async {
@@ -71,15 +89,24 @@ class _MyAppState extends State<MyApp> {
           fontFamily: 'Cairo',
           textTheme: GoogleFonts.cairoTextTheme(),
         ),
-        localizationsDelegates: const [
+        localizationsDelegates: [
+          AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [
-          Locale('ar', ''),
+          Locale('ar'),
+          Locale('en'),
         ],
-        locale: const Locale('ar', ''),
+        locale: _locale,
+        builder: (context, child) {
+          final isRTL = _locale.languageCode == 'ar';
+          return Directionality(
+            textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+            child: child!,
+          );
+        },
         home: const LoginScreen(),
         routes: {
           '/login': (context) => const LoginScreen(),

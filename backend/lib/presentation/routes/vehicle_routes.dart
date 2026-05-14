@@ -40,9 +40,27 @@ class VehicleRoutes {
 
   Future<Response> _getAllVehicles(Request request) async {
     try {
-      final vehicles = await _vehicleRepository.findAll();
+      final queryParams = request.url.queryParameters;
+      final search = queryParams['search'];
+      final page = int.tryParse(queryParams['page'] ?? '1') ?? 1;
+      final limit = int.tryParse(queryParams['limit'] ?? '20') ?? 20;
+
+      final result = await _vehicleRepository.findAllPaginated(
+        search: search,
+        page: page,
+        limit: limit,
+      );
+
       return Response.ok(
-        jsonEncode(vehicles.map((v) => v.toJson()).toList()),
+        jsonEncode({
+          'data': result.data.map((v) => v.toJson()).toList(),
+          'totalCount': result.totalCount,
+          'page': result.page,
+          'limit': result.limit,
+          'totalPages': result.totalPages,
+          'hasNextPage': result.hasNextPage,
+          'hasPreviousPage': result.hasPreviousPage,
+        }),
       );
     } catch (e) {
       return Response.internalServerError(

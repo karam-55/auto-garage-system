@@ -4,6 +4,7 @@ import '../../domain/entities/booking.dart';
 import '../../domain/entities/booking_status.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../../core/errors/exceptions.dart';
+import '../../core/utils/pagination_result.dart';
 import '../database/database_connection.dart';
 
 class BookingRepositoryImpl implements BookingRepository {
@@ -102,6 +103,88 @@ class BookingRepositoryImpl implements BookingRepository {
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all bookings: $e');
+    }
+  }
+
+  @override
+  Future<PaginationResult<Booking>> findAllPaginated({
+    String? status,
+    String? customerId,
+    DateTime? fromDate,
+    DateTime? toDate,
+    String? search,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    try {
+      final offset = (page - 1) * limit;
+      List<Booking> bookings;
+      int totalCount;
+
+      // Build WHERE clause dynamically
+      final whereConditions = <String>[];
+      final parameters = <String, dynamic>{};
+
+      if (status != null && status.isNotEmpty) {
+        whereConditions.add('status = @status');
+        parameters['status'] = status;
+      }
+
+      if (customerId != null && customerId.isNotEmpty) {
+        whereConditions.add('customer_id = @customerId');
+        parameters['customerId'] = customerId;
+      }
+
+      if (fromDate != null) {
+        whereConditions.add('created_at >= @fromDate');
+        parameters['fromDate'] = fromDate.toUtc();
+      }
+
+      if (toDate != null) {
+        whereConditions.add('created_at <= @toDate');
+        parameters['toDate'] = toDate.toUtc();
+      }
+
+      if (search != null && search.isNotEmpty) {
+        final searchPattern = '%$search%';
+        whereConditions.add('(public_token ILIKE @search OR notes ILIKE @search)');
+        parameters['search'] = searchPattern;
+      }
+
+      final whereClause = whereConditions.isNotEmpty ? 'WHERE ${whereConditions.join(' AND ')}' : '';
+
+      // Get total count
+      final countQuery = 'SELECT COUNT(*) as count FROM bookings $whereClause';
+      final countResult = await _db.execute(
+        Sql.named(countQuery),
+        parameters: parameters,
+      );
+      totalCount = countResult.first[0] as int;
+
+      // Get paginated data
+      final dataQuery = '''
+        SELECT * FROM bookings
+        $whereClause
+        ORDER BY created_at DESC
+        LIMIT @limit OFFSET @offset
+      ''';
+      parameters['limit'] = limit;
+      parameters['offset'] = offset;
+
+      final dataResult = await _db.execute(
+        Sql.named(dataQuery),
+        parameters: parameters,
+      );
+      bookings = dataResult.map(_mapRowToBooking).toList();
+
+      return PaginationResult(
+        data: bookings,
+        totalCount: totalCount,
+        page: page,
+        limit: limit,
+      );
+    } catch (e) {
+      throw DatabaseException('Failed to get paginated bookings: $e');
     }
   }
 

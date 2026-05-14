@@ -70,23 +70,44 @@ class BookingRoutes {
     try {
       final queryParams = request.url.queryParameters;
       final status = queryParams['status'];
+      final customerId = queryParams['customerId'];
       final from = queryParams['from'];
       final to = queryParams['to'];
-      
-      List<Booking> bookings;
-      
-      if (status != null && status.isNotEmpty) {
-        bookings = await _bookingRepository.findByStatus(status);
-      } else if (from != null && to != null) {
-        final fromDate = DateTime.parse(from);
-        final toDate = DateTime.parse(to);
-        bookings = await _bookingRepository.findByDateRange(fromDate, toDate);
-      } else {
-        bookings = await _bookingRepository.findAll();
+      final search = queryParams['search'];
+      final page = int.tryParse(queryParams['page'] ?? '1') ?? 1;
+      final limit = int.tryParse(queryParams['limit'] ?? '20') ?? 20;
+
+      DateTime? fromDate;
+      DateTime? toDate;
+
+      if (from != null && from.isNotEmpty) {
+        fromDate = DateTime.parse(from);
       }
-      
+
+      if (to != null && to.isNotEmpty) {
+        toDate = DateTime.parse(to);
+      }
+
+      final result = await _bookingRepository.findAllPaginated(
+        status: status,
+        customerId: customerId,
+        fromDate: fromDate,
+        toDate: toDate,
+        search: search,
+        page: page,
+        limit: limit,
+      );
+
       return Response.ok(
-        jsonEncode(bookings.map((b) => b.toJson()).toList()),
+        jsonEncode({
+          'data': result.data.map((b) => b.toJson()).toList(),
+          'totalCount': result.totalCount,
+          'page': result.page,
+          'limit': result.limit,
+          'totalPages': result.totalPages,
+          'hasNextPage': result.hasNextPage,
+          'hasPreviousPage': result.hasPreviousPage,
+        }),
       );
     } catch (e) {
       return Response.internalServerError(

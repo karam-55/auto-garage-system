@@ -39,16 +39,25 @@ class CustomerRoutes {
     try {
       final queryParams = request.url.queryParameters;
       final search = queryParams['search'];
-      
-      List<Customer> customers;
-      if (search != null && search.isNotEmpty) {
-        customers = await _customerRepository.search(search);
-      } else {
-        customers = await _customerRepository.findAll();
-      }
-      
+      final page = int.tryParse(queryParams['page'] ?? '1') ?? 1;
+      final limit = int.tryParse(queryParams['limit'] ?? '20') ?? 20;
+
+      final result = await _customerRepository.findAllPaginated(
+        search: search,
+        page: page,
+        limit: limit,
+      );
+
       return Response.ok(
-        jsonEncode(customers.map((c) => c.toJson()).toList()),
+        jsonEncode({
+          'data': result.data.map((c) => c.toJson()).toList(),
+          'totalCount': result.totalCount,
+          'page': result.page,
+          'limit': result.limit,
+          'totalPages': result.totalPages,
+          'hasNextPage': result.hasNextPage,
+          'hasPreviousPage': result.hasPreviousPage,
+        }),
       );
     } catch (e) {
       return Response.internalServerError(

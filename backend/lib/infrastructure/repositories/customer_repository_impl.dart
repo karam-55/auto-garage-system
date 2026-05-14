@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../domain/entities/customer.dart';
 import '../../domain/repositories/customer_repository.dart';
 import '../../core/errors/exceptions.dart';
+import '../../core/utils/pagination_result.dart';
 import '../database/database_connection.dart';
 
 class CustomerRepositoryImpl implements CustomerRepository {
@@ -81,7 +82,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
       final searchPattern = '%$query%';
       final result = await _db.execute(
         Sql.named('''
-          SELECT * FROM customers 
+          SELECT * FROM customers
           WHERE full_name ILIKE @search OR phone ILIKE @search
           ORDER BY created_at DESC
         '''),
@@ -90,6 +91,75 @@ class CustomerRepositoryImpl implements CustomerRepository {
       return result.map(_mapRowToCustomer).toList();
     } catch (e) {
       throw DatabaseException('Failed to search customers: $e');
+    }
+  }
+
+  @override
+  Future<PaginationResult<Customer>> findAllPaginated({
+    String? search,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    try {
+      final offset = (page - 1) * limit;
+      List<Customer> customers;
+      int totalCount;
+
+      if (search != null && search.isNotEmpty) {
+        final searchPattern = '%$search%';
+        // Get total count
+        final countResult = await _db.execute(
+          Sql.named('''
+            SELECT COUNT(*) as count FROM customers
+            WHERE full_name ILIKE @search OR phone ILIKE @search
+          '''),
+          parameters: {'search': searchPattern},
+        );
+        totalCount = countResult.first[0] as int;
+
+        // Get paginated data
+        final dataResult = await _db.execute(
+          Sql.named('''
+            SELECT * FROM customers
+            WHERE full_name ILIKE @search OR phone ILIKE @search
+            ORDER BY created_at DESC
+            LIMIT @limit OFFSET @offset
+          '''),
+          parameters: {
+            'search': searchPattern,
+            'limit': limit,
+            'offset': offset,
+          },
+        );
+        customers = dataResult.map(_mapRowToCustomer).toList();
+      } else {
+        // Get total count
+        final countResult = await _db.execute('SELECT COUNT(*) as count FROM customers');
+        totalCount = countResult.first[0] as int;
+
+        // Get paginated data
+        final dataResult = await _db.execute(
+          Sql.named('''
+            SELECT * FROM customers
+            ORDER BY created_at DESC
+            LIMIT @limit OFFSET @offset
+          '''),
+          parameters: {
+            'limit': limit,
+            'offset': offset,
+          },
+        );
+        customers = dataResult.map(_mapRowToCustomer).toList();
+      }
+
+      return PaginationResult(
+        data: customers,
+        totalCount: totalCount,
+        page: page,
+        limit: limit,
+      );
+    } catch (e) {
+      throw DatabaseException('Failed to get paginated customers: $e');
     }
   }
 

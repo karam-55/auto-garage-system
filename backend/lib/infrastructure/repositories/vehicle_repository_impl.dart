@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../domain/entities/vehicle.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../../core/errors/exceptions.dart';
+import '../../core/utils/pagination_result.dart';
 import '../database/database_connection.dart';
 
 class VehicleRepositoryImpl implements VehicleRepository {
@@ -119,6 +120,75 @@ class VehicleRepositoryImpl implements VehicleRepository {
       return result.map(_mapRowToVehicle).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all vehicles: $e');
+    }
+  }
+
+  @override
+  Future<PaginationResult<Vehicle>> findAllPaginated({
+    String? search,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    try {
+      final offset = (page - 1) * limit;
+      List<Vehicle> vehicles;
+      int totalCount;
+
+      if (search != null && search.isNotEmpty) {
+        final searchPattern = '%$search%';
+        // Get total count
+        final countResult = await _db.execute(
+          Sql.named('''
+            SELECT COUNT(*) as count FROM vehicles
+            WHERE license_plate ILIKE @search OR make ILIKE @search OR model ILIKE @search
+          '''),
+          parameters: {'search': searchPattern},
+        );
+        totalCount = countResult.first[0] as int;
+
+        // Get paginated data
+        final dataResult = await _db.execute(
+          Sql.named('''
+            SELECT * FROM vehicles
+            WHERE license_plate ILIKE @search OR make ILIKE @search OR model ILIKE @search
+            ORDER BY created_at DESC
+            LIMIT @limit OFFSET @offset
+          '''),
+          parameters: {
+            'search': searchPattern,
+            'limit': limit,
+            'offset': offset,
+          },
+        );
+        vehicles = dataResult.map(_mapRowToVehicle).toList();
+      } else {
+        // Get total count
+        final countResult = await _db.execute('SELECT COUNT(*) as count FROM vehicles');
+        totalCount = countResult.first[0] as int;
+
+        // Get paginated data
+        final dataResult = await _db.execute(
+          Sql.named('''
+            SELECT * FROM vehicles
+            ORDER BY created_at DESC
+            LIMIT @limit OFFSET @offset
+          '''),
+          parameters: {
+            'limit': limit,
+            'offset': offset,
+          },
+        );
+        vehicles = dataResult.map(_mapRowToVehicle).toList();
+      }
+
+      return PaginationResult(
+        data: vehicles,
+        totalCount: totalCount,
+        page: page,
+        limit: limit,
+      );
+    } catch (e) {
+      throw DatabaseException('Failed to get paginated vehicles: $e');
     }
   }
 

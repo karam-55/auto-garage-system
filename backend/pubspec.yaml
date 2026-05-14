@@ -24,6 +24,7 @@ dependencies:
   supabase: ^2.0.0
   pdf: ^3.10.7
   excel: ^4.0.3
+  openapi_spec: ^0.7.0
 
 dev_dependencies:
   http: ^1.2.2

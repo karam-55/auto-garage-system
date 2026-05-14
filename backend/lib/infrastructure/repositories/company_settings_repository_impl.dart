@@ -25,6 +25,28 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
   }
 
   @override
+  Future<CompanySettings> createSettings(CompanySettings settings) async {
+    try {
+      final result = await _db.execute(
+        Sql.named('''
+          INSERT INTO company_settings (company_name, company_logo_url)
+          VALUES (@companyName, @companyLogoUrl)
+          RETURNING *
+        '''),
+        parameters: {
+          'companyName': settings.companyName,
+          'companyLogoUrl': settings.companyLogoUrl,
+        },
+      );
+
+      final row = result.first.toColumnMap();
+      return _mapRowToCompanySettings(row);
+    } catch (e) {
+      throw DatabaseException('Failed to create company settings: $e');
+    }
+  }
+
+  @override
   Future<CompanySettings> updateSettings(CompanySettings settings) async {
     try {
       final result = await _db.execute(

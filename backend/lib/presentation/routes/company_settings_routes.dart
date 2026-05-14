@@ -51,20 +51,27 @@ class CompanySettingsRoutes {
         // Get current settings first
         final currentSettings = await _repository.getSettings();
         
+        CompanySettings result;
         if (currentSettings == null) {
-          return Response.notFound(
-            jsonEncode({'error': 'Company settings not found'}),
-            headers: {'Content-Type': 'application/json'},
+          // Create default settings if not exists
+          final defaultSettings = CompanySettings(
+            id: 0,
+            companyName: data['companyName'] as String? ?? 'Garage Go',
+            companyLogoUrl: data['companyLogoUrl'] as String?,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
           );
+          
+          result = await _repository.createSettings(defaultSettings);
+        } else {
+          // Update existing settings
+          final updatedSettings = currentSettings.copyWith(
+            companyName: data['companyName'] as String? ?? currentSettings.companyName,
+            companyLogoUrl: data['companyLogoUrl'] as String?,
+          );
+          
+          result = await _repository.updateSettings(updatedSettings);
         }
-        
-        // Update settings
-        final updatedSettings = currentSettings.copyWith(
-          companyName: data['companyName'] as String? ?? currentSettings.companyName,
-          companyLogoUrl: data['companyLogoUrl'] as String?,
-        );
-        
-        final result = await _repository.updateSettings(updatedSettings);
         
         return Response.ok(
           jsonEncode(result.toJson()),

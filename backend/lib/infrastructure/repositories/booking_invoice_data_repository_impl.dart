@@ -78,63 +78,66 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
   @override
   Future<BookingInvoiceData> create(BookingInvoiceData invoiceData) async {
     print('DEBUG create invoiceData: ${invoiceData.toJson()}');
-    final result = await _db.execute(
-      Sql.named('''
-        INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at, public_token, qr_code_url)
-        VALUES (@id, @bookingId, @servicesSnapshot, @partsSnapshot, @totalPrice, @invoiceCreatedAt, @publicToken, @qrCodeUrl)
-        RETURNING *
-      '''),
-      parameters: {
-        'id': invoiceData.id,
-        'bookingId': invoiceData.bookingId,
-        'servicesSnapshot': invoiceData.servicesSnapshot != null
-            ? jsonEncode(invoiceData.servicesSnapshot)
-            : null,
-        'partsSnapshot': invoiceData.partsSnapshot != null
-            ? jsonEncode(invoiceData.partsSnapshot)
-            : null,
-        'totalPrice': invoiceData.totalPrice,
-        'invoiceCreatedAt': invoiceData.invoiceCreatedAt,
-        'publicToken': invoiceData.publicToken,
-        'qrCodeUrl': invoiceData.qrCodeUrl,
-      },
-    );
+    
+    return await _db.runInTransaction((session) async {
+      final result = await session.execute(
+        Sql.named('''
+          INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at, public_token, qr_code_url)
+          VALUES (@id, @bookingId, @servicesSnapshot, @partsSnapshot, @totalPrice, @invoiceCreatedAt, @publicToken, @qrCodeUrl)
+          RETURNING *
+        '''),
+        parameters: {
+          'id': invoiceData.id,
+          'bookingId': invoiceData.bookingId,
+          'servicesSnapshot': invoiceData.servicesSnapshot != null
+              ? jsonEncode(invoiceData.servicesSnapshot)
+              : null,
+          'partsSnapshot': invoiceData.partsSnapshot != null
+              ? jsonEncode(invoiceData.partsSnapshot)
+              : null,
+          'totalPrice': invoiceData.totalPrice,
+          'invoiceCreatedAt': invoiceData.invoiceCreatedAt,
+          'publicToken': invoiceData.publicToken,
+          'qrCodeUrl': invoiceData.qrCodeUrl,
+        },
+      );
 
-    final data = result.first.toColumnMap();
-    print('DEBUG create result data: $data');
-    
-    // Handle services_snapshot - it might be Map or String
-    Map<String, dynamic>? servicesSnapshot;
-    if (data['services_snapshot'] != null) {
-      if (data['services_snapshot'] is Map) {
-        servicesSnapshot = data['services_snapshot'] as Map<String, dynamic>;
-      } else if (data['services_snapshot'] is String) {
-        servicesSnapshot = jsonDecode(data['services_snapshot'] as String) as Map<String, dynamic>;
+      final data = result.first.toColumnMap();
+      print('DEBUG create result data: $data');
+      
+      // Handle services_snapshot - it might be Map or String
+      Map<String, dynamic>? servicesSnapshot;
+      if (data['services_snapshot'] != null) {
+        if (data['services_snapshot'] is Map) {
+          servicesSnapshot = data['services_snapshot'] as Map<String, dynamic>;
+        } else if (data['services_snapshot'] is String) {
+          servicesSnapshot = jsonDecode(data['services_snapshot'] as String) as Map<String, dynamic>;
+        }
       }
-    }
-    
-    // Handle parts_snapshot - it might be Map or String
-    Map<String, dynamic>? partsSnapshot;
-    if (data['parts_snapshot'] != null) {
-      if (data['parts_snapshot'] is Map) {
-        partsSnapshot = data['parts_snapshot'] as Map<String, dynamic>;
-      } else if (data['parts_snapshot'] is String) {
-        partsSnapshot = jsonDecode(data['parts_snapshot'] as String) as Map<String, dynamic>;
+      
+      // Handle parts_snapshot - it might be Map or String
+      Map<String, dynamic>? partsSnapshot;
+      if (data['parts_snapshot'] != null) {
+        if (data['parts_snapshot'] is Map) {
+          partsSnapshot = data['parts_snapshot'] as Map<String, dynamic>;
+        } else if (data['parts_snapshot'] is String) {
+          partsSnapshot = jsonDecode(data['parts_snapshot'] as String) as Map<String, dynamic>;
+        }
       }
-    }
-    
-    return BookingInvoiceData(
-      id: data['id'] as String,
-      bookingId: data['booking_id'] as String,
-      servicesSnapshot: servicesSnapshot,
-      partsSnapshot: partsSnapshot,
-      totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
-      invoiceCreatedAt: data['invoice_created_at'] is DateTime 
-          ? data['invoice_created_at'] as DateTime 
-          : DateTime.parse(data['invoice_created_at'] as String),
-      publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
-      qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
-    );
+      
+      return BookingInvoiceData(
+        id: data['id'] as String,
+        bookingId: data['booking_id'] as String,
+        servicesSnapshot: servicesSnapshot,
+        partsSnapshot: partsSnapshot,
+        totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
+        invoiceCreatedAt: data['invoice_created_at'] is DateTime 
+            ? data['invoice_created_at'] as DateTime 
+            : DateTime.parse(data['invoice_created_at'] as String),
+        publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
+        qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
+      );
+    });
   }
 
   @override

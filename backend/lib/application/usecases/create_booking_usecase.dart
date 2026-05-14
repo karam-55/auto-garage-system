@@ -5,6 +5,7 @@ import '../../domain/entities/booking_service.dart';
 import '../../domain/entities/booking_status.dart';
 import '../../core/errors/failures.dart';
 import '../../infrastructure/database/database_connection.dart';
+import '../../domain/repositories/booking_invoice_data_repository.dart';
 
 class CreateBookingUseCase {
   final DatabaseConnection _db;

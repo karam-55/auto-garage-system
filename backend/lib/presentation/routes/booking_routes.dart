@@ -307,7 +307,7 @@ class BookingRoutes {
           bookingId: booking.id,
           serviceId: serviceId,
           priceSYP: priceSYPDouble,
-          notes: data['notes'] as String?,
+          notes: data['notes'] is String ? data['notes'] as String? : null,
         );
       }).toList();
 
@@ -439,7 +439,7 @@ class BookingRoutes {
           bookingId: id,
           serviceId: serviceId,
           priceSYP: priceSYPDouble,
-          notes: data['notes'] as String?,
+          notes: data['notes'] is String ? data['notes'] as String? : null,
         );
         await _bookingServiceRepository.create(service);
       }

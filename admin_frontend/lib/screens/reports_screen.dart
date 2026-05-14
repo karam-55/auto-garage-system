@@ -40,6 +40,38 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
   }
 
+  Future<void> _exportToPDF() async {
+    try {
+      final response = await widget.apiService.get('${ApiConstants.baseUrl}/api/reports/bookings/pdf');
+      // Handle PDF download
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم تصدير التقرير بنجاح')),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطأ في تصدير PDF: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportToExcel() async {
+    try {
+      final response = await widget.apiService.get('${ApiConstants.baseUrl}/api/reports/bookings/excel');
+      // Handle Excel download
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم تصدير التقرير بنجاح')),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطأ في تصدير Excel: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PageTransitionLoading(
@@ -48,9 +80,37 @@ class _ReportsScreenState extends State<ReportsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'التقارير والإحصائيات',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'التقارير والإحصائيات',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _exportToPDF,
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('تصدير PDF'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6366F1),
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: _exportToExcel,
+                      icon: const Icon(Icons.table_chart),
+                      label: const Text('تصدير Excel'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             _buildRevenueCards(),

@@ -27,6 +27,7 @@ import '../lib/presentation/routes/mechanic_routes.dart';
 import '../lib/presentation/routes/dashboard_routes.dart';
 import '../lib/presentation/routes/public_routes.dart';
 import '../lib/presentation/routes/company_settings_routes.dart';
+import '../lib/presentation/routes/report_routes.dart';
 import '../lib/presentation/websocket/booking_websocket.dart';
 import '../lib/presentation/middlewares/auth_middleware.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
@@ -107,6 +108,7 @@ void main(List<String> args) async {
   );
   final publicRoutes = PublicRoutes(db);
   final companySettingsRoutes = CompanySettingsRoutes(companySettingsRepository);
+  final reportRoutes = ReportRoutes(bookingRepository, bookingServiceRepository);
 
   // Create static file handler for uploads directory
   final uploadsDir = Directory('uploads');
@@ -128,6 +130,7 @@ void main(List<String> args) async {
       .add(dashboardRoutes.router)
       .add(publicRoutes.router)
       .add(companySettingsRoutes.router)
+      .add(reportRoutes.router)
       .add((Request request) {
         if (request.url.path == 'health') {
           return Response.ok(

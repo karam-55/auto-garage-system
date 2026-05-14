@@ -21,11 +21,25 @@ class _TrackingScreenState extends State<TrackingScreen> {
   List<BookingService> _services = [];
   bool _isLoading = true;
   String? _errorMessage;
+  Timer? _pollingTimer;
 
   @override
   void initState() {
     super.initState();
     _fetchBookingDetails();
+    _startPolling();
+  }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startPolling() {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _fetchBookingDetails();
+    });
   }
 
   Future<void> _fetchBookingDetails() async {

@@ -241,6 +241,22 @@ flutter build web
 - `PATCH /api/mechanics/assignments/:id/status` - Update assignment status
 - `POST /api/mechanics/bookings/:id/part-suggestions` - Create part suggestion
 
+### Inventory
+- `GET /api/inventory/items` - List all inventory items
+- `POST /api/inventory/items` - Create new inventory item (MANAGER)
+- `PUT /api/inventory/items/:id` - Update inventory item (MANAGER)
+- `DELETE /api/inventory/items/:id` - Delete inventory item (OWNER)
+- `GET /api/inventory/variants` - List all inventory variants
+- `POST /api/inventory/variants` - Create new inventory variant (MANAGER)
+- `PUT /api/inventory/variants/:id` - Update inventory variant (MANAGER)
+- `DELETE /api/inventory/variants/:id` - Delete inventory variant (OWNER)
+- `GET /api/inventory/low-stock` - Get low stock items
+- `POST /api/inventory/consume` - Consume inventory parts (MECHANIC)
+
+### Invoices
+- `GET /api/bookings/:id/invoice` - Get invoice by booking ID
+- `GET /api/bookings/:id/invoice/pdf` - Get invoice PDF by booking ID
+
 ### Dashboard
 - `GET /api/dashboard/stats` - Get dashboard statistics
 - `GET /api/dashboard/revenue?period=month` - Get revenue statistics
@@ -281,6 +297,11 @@ The PostgreSQL database includes:
 - `booking_services` - Many-to-many relationship between bookings and services
 - `mechanic_assignments` - Mechanic assignments to bookings
 - `part_suggestions` - Part suggestions from mechanics
+- `inventory_items` - Inventory items (parts, materials)
+- `inventory_variants` - Inventory variants (original, commercial, used)
+- `inventory_transactions` - Inventory transaction history
+- `booking_invoice_data` - Invoice data snapshots
+- `alerts` - System alerts (low stock, etc.)
 
 All tables use UUID primary keys and include appropriate indexes for performance.
 
@@ -323,12 +344,10 @@ All tables use UUID primary keys and include appropriate indexes for performance
 ## 📝 Future Enhancements
 
 - WhatsApp Business API integration for customer notifications
-- Invoice generation and printing
 - Advanced reporting and analytics
 - Multi-language support
 - Push notifications
 - Photo attachments for vehicles and parts
-- Inventory management system
 
 ## 🤝 Contributing
 

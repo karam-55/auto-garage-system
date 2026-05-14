@@ -38,6 +38,7 @@ import '../lib/presentation/middlewares/auth_middleware.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
 import '../lib/presentation/middlewares/logging_middleware.dart';
+import '../lib/presentation/websocket/booking_websocket.dart';
 import '../lib/application/services/auth_service.dart';
 import '../lib/domain/entities/user.dart';
 import '../lib/domain/entities/role.dart';
@@ -119,6 +120,7 @@ void main(List<String> args) async {
   );
   final publicRoutes = PublicRoutes(db);
   final companySettingsRoutes = CompanySettingsRoutes(companySettingsRepository, authMiddleware);
+  final webSocket = BookingWebSocket(alertRepository);
   final inventoryRoutes = InventoryRoutes(
     inventoryItemRepository,
     inventoryVariantRepository,
@@ -126,6 +128,7 @@ void main(List<String> args) async {
     bookingInvoiceDataRepository,
     alertRepository,
     authMiddleware,
+    webSocket,
   );
   final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
 
@@ -150,6 +153,7 @@ void main(List<String> args) async {
       .add(inventoryRoutes.router)
       .add(invoiceRoutes.router)
       .add(publicRoutes.router)
+      .add(webSocket.handler)
       .add((Request request) {
         return Response.notFound('Not Found');
       })

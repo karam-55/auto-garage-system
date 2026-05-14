@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart';
 import '../../domain/entities/booking_invoice_data.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/booking_invoice_data_repository.dart';
@@ -45,17 +48,43 @@ class InvoiceRoutes {
     try {
       final invoice = await _invoiceRepository.generateOrGetInvoice(id);
       
-      // TODO: Generate PDF from invoice data
-      // For now, return a simple text response
-      final invoiceText = '''
-Invoice for Booking: ${invoice.bookingId}
-Total Price: ${invoice.totalPrice} SYP
-Invoice Created At: ${invoice.invoiceCreatedAt}
-''';
+      // Generate PDF from invoice data
+      final pdf = Document();
+      
+      pdf.addPage(Page(
+        build: (Context context) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('فاتورة الحجز', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              SizedBox(height: 20),
+              Text('رقم الحجز: ${invoice.bookingId}'),
+              Text('تاريخ الفاتورة: ${invoice.invoiceCreatedAt.toIso8601String()}'),
+              SizedBox(height: 20),
+              Text('الخدمات:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+              if (invoice.servicesSnapshot != null)
+                ..._buildServicesList(invoice.servicesSnapshot!),
+              SizedBox(height: 20),
+              Text('القطع:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+              if (invoice.partsSnapshot != null)
+                ..._buildPartsList(invoice.partsSnapshot!),
+              SizedBox(height: 20),
+              Text('الإجمالي: ${invoice.totalPrice} ل.س', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ],
+          );
+        },
+      ));
 
+      final pdfData = await pdf.save();
+      
       return Response.ok(
-        invoiceText,
-        headers: {'Content-Type': 'text/plain'},
+        pdfData,
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'attachment; filename=invoice_${invoice.bookingId}.pdf',
+        },
       );
     } catch (e) {
       return Response.internalServerError(
@@ -63,5 +92,51 @@ Invoice Created At: ${invoice.invoiceCreatedAt}
         headers: {'Content-Type': 'application/json'},
       );
     }
+  }
+
+  List<Widget> _buildServicesList(Map<String, dynamic> servicesSnapshot) {
+    final services = servicesSnapshot['services'] as List<dynamic>?;
+    if (services == null || services.isEmpty) {
+      return [Text('لا توجد خدمات')];
+    }
+    
+    return services.map((service) {
+      final s = service as Map<String, dynamic>;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('${s['serviceName'] ?? 'خدمة'}'),
+            Text('${s['priceSYP'] ?? 0} ل.س'),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  List<Widget> _buildPartsList(Map<String, dynamic> partsSnapshot) {
+    final parts = partsSnapshot['parts'] as List<dynamic>?;
+    if (parts == null || parts.isEmpty) {
+      return [Text('لا توجد قطع')];
+    }
+    
+    return parts.map((part) {
+      final p = part as Map<String, dynamic>;
+      final quantity = p['quantity'] as int? ?? 1;
+      final price = (p['sellingPrice'] as num?)?.toDouble() ?? 0;
+      final total = price * quantity;
+      
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('${p['itemName'] ?? 'قطعة'} (${p['variantType'] ?? ''}) x$quantity'),
+            Text('$total ل.س'),
+          ],
+        ),
+      );
+    }).toList();
   }
 }

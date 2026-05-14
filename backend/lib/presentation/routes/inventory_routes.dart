@@ -19,6 +19,7 @@ class InventoryRoutes {
   final BookingInvoiceDataRepository _invoiceDataRepository;
   final AlertRepository _alertRepository;
   final AuthMiddleware _authMiddleware;
+  final dynamic _webSocket; // BookingWebSocket instance
 
   InventoryRoutes(
     this._itemRepository,
@@ -27,6 +28,7 @@ class InventoryRoutes {
     this._invoiceDataRepository,
     this._alertRepository,
     this._authMiddleware,
+    this._webSocket,
   );
 
   Router get router {
@@ -397,6 +399,20 @@ class InventoryRoutes {
               createdAt: DateTime.now().toUtc(),
             ),
           );
+          
+          // Broadcast via WebSocket if available
+          if (_webSocket != null) {
+            try {
+              await _webSocket.broadcastLowStockAlert(
+                item.id,
+                item.name,
+                variant.variantType.toStringValue(),
+                updatedVariant.quantity,
+              );
+            } catch (e) {
+              print('Warning: Failed to broadcast low stock alert via WebSocket: $e');
+            }
+          }
         } catch (e) {
           // Don't fail the request if alert creation fails
           print('Warning: Failed to create low stock alert: $e');

@@ -1,13 +1,60 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/backend_constants.dart';
 
 class ApiService {
   final String _baseUrl = BackendConstants.backendUrl;
   String? _token;
+  String? _refreshToken;
+  
+  ApiService() {
+    _loadTokens();
+  }
+
+  Future<void> _loadTokens() async {
+    final prefs = await SharedPreferences.getInstance();
+    _token = prefs.getString('token');
+    _refreshToken = prefs.getString('refresh_token');
+  }
   
   void setToken(String? token) {
     _token = token;
+  }
+
+  void setRefreshToken(String? refreshToken) {
+    _refreshToken = refreshToken;
+  }
+
+  Future<bool> _refreshAccessToken() async {
+    if (_refreshToken == null) return false;
+    
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/api/auth/refresh'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'refreshToken': _refreshToken,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _token = data['token'];
+        _refreshToken = data['refreshToken'];
+        
+        // Save new tokens to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', data['token']);
+        await prefs.setString('refresh_token', data['refreshToken']);
+        
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
   }
   
   Map<String, String> get _headers => {

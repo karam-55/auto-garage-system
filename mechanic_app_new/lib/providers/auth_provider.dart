@@ -11,12 +11,14 @@ class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   String? _token;
+  String? _refreshToken;
   
   app_user.User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _currentUser != null;
   String? get token => _token;
+  String? get refreshToken => _refreshToken;
   
   AuthProvider() {
     _checkAuthStatus();
@@ -29,6 +31,7 @@ class AuthProvider with ChangeNotifier {
     final username = prefs.getString('username');
     final role = prefs.getString('role');
     final token = prefs.getString('token');
+    final refreshToken = prefs.getString('refresh_token');
     
     if (userId != null && fullName != null && token != null) {
       _currentUser = app_user.User(
@@ -38,7 +41,9 @@ class AuthProvider with ChangeNotifier {
         role: role ?? '',
       );
       _token = token;
+      _refreshToken = refreshToken;
       _apiService.setToken(token);
+      _apiService.setRefreshToken(refreshToken);
       notifyListeners();
     }
   }
@@ -63,9 +68,11 @@ class AuthProvider with ChangeNotifier {
       
       print('Login successful');
       
-      // Store token
+      // Store tokens
       _token = response['token'];
+      _refreshToken = response['refreshToken'];
       _apiService.setToken(_token);
+      _apiService.setRefreshToken(_refreshToken);
       
       // Save user info
       final userData = response['user'];
@@ -83,6 +90,7 @@ class AuthProvider with ChangeNotifier {
       await prefs.setString('username', userData['username']);
       await prefs.setString('role', userData['role']);
       await prefs.setString('token', _token!);
+      await prefs.setString('refresh_token', _refreshToken!);
       
       _isLoading = false;
       notifyListeners();
@@ -131,7 +139,9 @@ class AuthProvider with ChangeNotifier {
     
     _currentUser = null;
     _token = null;
+    _refreshToken = null;
     _apiService.setToken(null);
+    _apiService.setRefreshToken(null);
     notifyListeners();
   }
   

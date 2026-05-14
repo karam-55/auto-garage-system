@@ -122,109 +122,120 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
 
   @override
   Future<BookingInvoiceData> generateOrGetInvoice(String bookingId) async {
-    // Check if invoice already exists
-    final existing = await findByBookingId(bookingId);
-    if (existing != null) {
-      return existing;
-    }
-
-    // Generate new invoice from booking data
-    final bookingResult = await _db.execute(
-      Sql.named('SELECT * FROM bookings WHERE id = @bookingId'),
-      parameters: {'bookingId': bookingId},
-    );
-
-    if (bookingResult.isEmpty) {
-      throw Exception('Booking not found');
-    }
-
-    final bookingData = bookingResult.first.toColumnMap();
-    final publicToken = bookingData['public_token'] as String?;
-
-    // Get booking services
-    final servicesResult = await _db.execute(
-      Sql.named('''
-        SELECT bs.*, s.name as service_name, s.description as service_description
-        FROM booking_services bs
-        JOIN services s ON bs.service_id = s.id
-        WHERE bs.booking_id = @bookingId
-      '''),
-      parameters: {'bookingId': bookingId},
-    );
-
-    final servicesSnapshot = servicesResult.map((row) {
-      final data = row.toColumnMap();
-      return {
-        'serviceId': data['service_id'],
-        'serviceName': data['service_name'],
-        'serviceDescription': data['service_description'],
-        'priceSYP': data['price_syp'],
-        'notes': data['notes'],
-      };
-    }).toList();
-
-    // Get consumed parts from transactions
-    final partsResult = await _db.execute(
-      Sql.named('''
-        SELECT it.*, iv.variant_type, iv.selling_price, i.name as item_name
-        FROM inventory_transactions it
-        JOIN inventory_variants iv ON it.variant_id = iv.id
-        JOIN inventory_items i ON iv.item_id = i.id
-        WHERE it.booking_id = @bookingId AND it.type = 'CONSUME'
-      '''),
-      parameters: {'bookingId': bookingId},
-    );
-
-    final partsSnapshot = partsResult.map((row) {
-      final data = row.toColumnMap();
-      return {
-        'itemId': data['item_id'],
-        'itemName': data['item_name'],
-        'variantId': data['variant_id'],
-        'variantType': data['variant_type'],
-        'quantity': data['quantity'],
-        'sellingPrice': data['selling_price'],
-      };
-    }).toList();
-
-    // Calculate total price
-    double totalPrice = 0;
-    for (final service in servicesSnapshot) {
-      final price = service['priceSYP'];
-      if (price is num) {
-        totalPrice += price.toDouble();
-      } else if (price is String) {
-        totalPrice += double.tryParse(price) ?? 0.0;
+    try {
+      print('DEBUG generateOrGetInvoice bookingId: $bookingId');
+      final existingInvoice = await findByBookingId(bookingId);
+      if (existingInvoice != null) {
+        print('DEBUG existingInvoice found');
+        return existingInvoice;
       }
+
+      print('DEBUG fetching booking from database');
+      final bookingResult = await _db.execute(
+        Sql.named('SELECT * FROM bookings WHERE id = @bookingId'),
+        parameters: {'bookingId': bookingId},
+      );
+
+      if (bookingResult.isEmpty) {
+        throw Exception('Booking not found');
+      }
+
+      final bookingData = bookingResult.first.toColumnMap();
+      final publicToken = bookingData['public_token'] as String?;
+      print('DEBUG publicToken from booking: $publicToken');
+
+      // Get booking services
+      print('DEBUG fetching booking services');
+      final servicesResult = await _db.execute(
+        Sql.named('''
+          SELECT bs.*, s.name as service_name, s.description as service_description
+          FROM booking_services bs
+          JOIN services s ON bs.service_id = s.id
+          WHERE bs.booking_id = @bookingId
+        '''),
+        parameters: {'bookingId': bookingId},
+      );
+
+      print('DEBUG services count: ${servicesResult.length}');
+      final servicesSnapshot = servicesResult.map((row) {
+        final data = row.toColumnMap();
+        return {
+          'serviceId': data['service_id'],
+          'serviceName': data['service_name'],
+          'serviceDescription': data['service_description'],
+          'priceSYP': data['price_syp'],
+          'notes': data['notes'],
+        };
+      }).toList();
+
+      // Get consumed parts from transactions
+      print('DEBUG fetching parts');
+      final partsResult = await _db.execute(
+        Sql.named('''
+          SELECT it.*, iv.variant_type, iv.selling_price, i.name as item_name
+          FROM inventory_transactions it
+          JOIN inventory_variants iv ON it.variant_id = iv.id
+          JOIN inventory_items i ON iv.item_id = i.id
+          WHERE it.booking_id = @bookingId AND it.type = 'CONSUME'
+        '''),
+        parameters: {'bookingId': bookingId},
+      );
+
+      final partsSnapshot = partsResult.map((row) {
+        final data = row.toColumnMap();
+        return {
+          'itemId': data['item_id'],
+          'itemName': data['item_name'],
+          'variantId': data['variant_id'],
+          'variantType': data['variant_type'],
+          'quantity': data['quantity'],
+          'sellingPrice': data['selling_price'],
+        };
+      }).toList();
+
+      // Calculate total price
+      double totalPrice = 0;
+      for (final service in servicesSnapshot) {
+        final price = service['priceSYP'];
+        if (price is num) {
+          totalPrice += price.toDouble();
+        } else if (price is String) {
+          totalPrice += double.tryParse(price) ?? 0.0;
+        }
+      }
+      for (final part in partsSnapshot) {
+        final sellingPrice = part['sellingPrice'];
+        final quantity = part['quantity'];
+        final price = sellingPrice is num
+            ? sellingPrice.toDouble()
+            : double.tryParse(sellingPrice?.toString() ?? '0') ?? 0.0;
+        final qty = quantity is int ? quantity : int.tryParse(quantity?.toString() ?? '0') ?? 0;
+        totalPrice += price * qty;
+      }
+
+      // Create invoice data
+      // Generate QR code URL using publicToken
+      final qrCodeUrl = publicToken != null
+          ? 'https://auto-garage-system-backend.onrender.com/track?token=$publicToken'
+          : null;
+
+      print('DEBUG creating invoice data');
+      final invoiceData = BookingInvoiceData(
+        id: bookingData['id'].toString(),
+        bookingId: bookingId,
+        servicesSnapshot: {'services': servicesSnapshot},
+        partsSnapshot: {'parts': partsSnapshot},
+        totalPrice: totalPrice,
+        invoiceCreatedAt: DateTime.now().toUtc(),
+        publicToken: publicToken,
+        qrCodeUrl: qrCodeUrl,
+      );
+
+      // Save to database
+      print('DEBUG saving invoice to database');
+      return await create(invoiceData);
+    } catch (e) {
+      print('ERROR in generateOrGetInvoice: $e');
+      rethrow;
     }
-    for (final part in partsSnapshot) {
-      final sellingPrice = part['sellingPrice'];
-      final quantity = part['quantity'];
-      final price = sellingPrice is num
-          ? sellingPrice.toDouble()
-          : double.tryParse(sellingPrice?.toString() ?? '0') ?? 0.0;
-      final qty = quantity is int ? quantity : int.tryParse(quantity?.toString() ?? '0') ?? 0;
-      totalPrice += price * qty;
-    }
-
-    // Create invoice data
-    // Generate QR code URL using publicToken
-    final qrCodeUrl = publicToken != null
-        ? 'https://auto-garage-system-backend.onrender.com/track?token=$publicToken'
-        : null;
-
-    final invoiceData = BookingInvoiceData(
-      id: bookingData['id'].toString(),
-      bookingId: bookingId,
-      servicesSnapshot: {'services': servicesSnapshot},
-      partsSnapshot: {'parts': partsSnapshot},
-      totalPrice: totalPrice,
-      invoiceCreatedAt: DateTime.now().toUtc(),
-      publicToken: publicToken,
-      qrCodeUrl: qrCodeUrl,
-    );
-
-    // Save to database
-    return await create(invoiceData);
   }
-}

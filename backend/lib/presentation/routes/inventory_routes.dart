@@ -38,7 +38,7 @@ class InventoryRoutes {
     // Inventory Items CRUD
     router.get('/api/inventory/items', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getAllItems)));
     router.get('/api/inventory/items/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getItemById)));
-    router.post('/api/inventory/items', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_createItem)));
+    router.post('/api/inventory/items', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_createItem)));
     router.put('/api/inventory/items/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_updateItem)));
     router.delete('/api/inventory/items/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_deleteItem)));
 

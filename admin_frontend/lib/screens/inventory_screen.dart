@@ -571,7 +571,6 @@ class _InventoryVariantsScreenState extends State<InventoryVariantsScreen> {
       await widget.apiService.post(
         '/api/inventory/variants',
         {
-          'id': DateTime.now().millisecondsSinceEpoch.toString(),
           'itemId': widget.itemId,
           'variantType': _selectedVariantType,
           'quantity': int.tryParse(_quantityController.text) ?? 0,

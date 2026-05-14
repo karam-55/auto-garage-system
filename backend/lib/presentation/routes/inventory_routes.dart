@@ -255,8 +255,11 @@ class InventoryRoutes {
       final payload = await request.readAsString();
       final data = jsonDecode(payload) as Map<String, dynamic>;
 
+      // Generate ID if not provided
+      final id = data['id'] ?? const Uuid().v4();
+
       final variant = InventoryVariant(
-        id: data['id'],
+        id: id,
         itemId: data['itemId'] as String,
         variantType: VariantType.fromString(data['variantType'] as String),
         quantity: data['quantity'] as int? ?? 0,

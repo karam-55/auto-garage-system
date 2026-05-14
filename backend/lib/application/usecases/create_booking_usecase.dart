@@ -66,6 +66,11 @@ class CreateBookingUseCase {
 
   Booking _mapRowToBooking(ResultRow row) {
     final data = row.toColumnMap();
+    print('DEBUG _mapRowToBooking data: $data');
+    print('DEBUG status type: ${data['status'].runtimeType}');
+    print('DEBUG publicToken type: ${data['public_token'].runtimeType}');
+    print('DEBUG notes type: ${data['notes'].runtimeType}');
+    
     return Booking(
       id: data['id'].toString(),
       customerId: data['customer_id'].toString(),

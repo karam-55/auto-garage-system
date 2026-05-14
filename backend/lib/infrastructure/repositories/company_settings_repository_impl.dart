@@ -50,7 +50,7 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
 
   CompanySettings _mapRowToCompanySettings(ResultRow row) {
     return CompanySettings(
-      id: row['id'] as String,
+      id: row['id'] as int,
       companyName: row['company_name'] as String,
       companyLogoUrl: row['company_logo_url'] as String?,
       createdAt: row['created_at'] as DateTime,

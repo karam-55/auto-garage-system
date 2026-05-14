@@ -3,6 +3,7 @@ import 'dart:async';
 import '../core/widgets/loading_screen.dart';
 import '../core/widgets/professional_dialog.dart';
 import '../core/services/api_service.dart';
+import '../core/services/websocket_service.dart';
 import '../core/constants/api_constants.dart';
 import 'create_booking_screen.dart';
 import 'invoice_screen.dart';
@@ -31,6 +32,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
   int _totalPages = 0;
   bool _hasNextPage = false;
   static const int _pageSize = 20;
+  final WebSocketService _webSocketService = WebSocketService();
 
   final List<String> _statusOptions = [
     'ALL',
@@ -48,6 +50,20 @@ class _BookingsScreenState extends State<BookingsScreen> {
     _loadBookings();
     _searchController.addListener(_onSearchChanged);
     _scrollController.addListener(_onScroll);
+    
+    // Connect to WebSocket
+    _webSocketService.connect();
+    
+    // Listen for booking updates
+    _webSocketService.addListener(_onBookingUpdate);
+  }
+
+  void _onBookingUpdate() {
+    final update = _webSocketService.lastBookingUpdate;
+    if (update != null) {
+      // Reload bookings when a booking is updated
+      _loadBookings();
+    }
   }
 
   @override
@@ -57,6 +73,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _debounce?.cancel();
+    _webSocketService.removeListener(_onBookingUpdate);
+    _webSocketService.disconnect();
     super.dispose();
   }
 

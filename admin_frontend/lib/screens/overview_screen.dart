@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/widgets/loading_screen.dart';
 import '../core/services/api_service.dart';
+import '../core/services/websocket_service.dart';
 import '../core/constants/api_constants.dart';
 
 class OverviewScreen extends StatefulWidget {
@@ -16,17 +17,34 @@ class _OverviewScreenState extends State<OverviewScreen> with TickerProviderStat
   Map<String, dynamic>? _stats;
   bool _isLoading = false;
   late AnimationController _staggerController;
+  final WebSocketService _webSocketService = WebSocketService();
 
   @override
   void initState() {
     super.initState();
     _staggerController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
     _loadStats();
+    
+    // Connect to WebSocket
+    _webSocketService.connect();
+    
+    // Listen for booking updates
+    _webSocketService.addListener(_onBookingUpdate);
+  }
+
+  void _onBookingUpdate() {
+    final update = _webSocketService.lastBookingUpdate;
+    if (update != null) {
+      // Reload stats when a booking is updated
+      _loadStats();
+    }
   }
 
   @override
   void dispose() {
     _staggerController.dispose();
+    _webSocketService.removeListener(_onBookingUpdate);
+    _webSocketService.disconnect();
     super.dispose();
   }
 

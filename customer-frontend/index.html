@@ -304,10 +304,10 @@
                 clearInterval(pollingInterval);
             }
             
-            // Poll every 30 seconds
+            // Poll every 10 seconds
             pollingInterval = setInterval(() => {
                 loadBookingData();
-            }, 30000);
+            }, 10000);
         }
 
         function stopPolling() {

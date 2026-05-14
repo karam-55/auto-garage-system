@@ -14,6 +14,7 @@ import '../../infrastructure/database/database_connection.dart';
 import '../middlewares/json_middleware.dart';
 import '../middlewares/auth_middleware.dart';
 import 'package:uuid/uuid.dart';
+import '../websocket/booking_websocket.dart';
 
 class BookingRoutes {
   final BookingRepository _bookingRepository;
@@ -319,6 +320,9 @@ class BookingRoutes {
         if (vehicle != null) 'publicCarId': vehicle.publicCarId,
       };
 
+      // Broadcast booking update via WebSocket
+      bookingWebSocketHandler.broadcastBookingUpdate(response);
+
       return Response.ok(jsonEncode(response));
     } catch (e) {
       print('ERROR: Failed to create booking: $e');
@@ -358,6 +362,10 @@ class BookingRoutes {
       );
 
       final result = await _bookingRepository.update(updatedBooking);
+      
+      // Broadcast booking update via WebSocket
+      bookingWebSocketHandler.broadcastBookingUpdate(result.toJson());
+      
       return Response.ok(jsonEncode(result.toJson()));
     } catch (e) {
       return Response.internalServerError(
@@ -384,6 +392,10 @@ class BookingRoutes {
     try {
       final useCase = UpdateBookingStatusUseCase(_bookingRepository);
       final updatedBooking = await useCase.execute(id, BookingStatus.fromString(statusStr));
+      
+      // Broadcast booking update via WebSocket
+      bookingWebSocketHandler.broadcastBookingUpdate(updatedBooking.toJson());
+      
       return Response.ok(jsonEncode(updatedBooking.toJson()));
     } catch (e) {
       return Response.internalServerError(
@@ -441,6 +453,9 @@ class BookingRoutes {
       if (booking == null) {
         return Response.notFound(jsonEncode({'error': 'Booking not found'}));
       }
+
+      // Broadcast booking update via WebSocket
+      bookingWebSocketHandler.broadcastBookingUpdate(booking.toJson());
 
       final services = await _bookingServiceRepository.findByBookingId(id);
       return Response.ok(jsonEncode({

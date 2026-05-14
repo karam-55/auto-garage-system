@@ -5,6 +5,7 @@ import '../../providers/mechanic_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/booking.dart';
 import '../../services/company_settings_service.dart';
+import '../../services/websocket_service.dart';
 import '../vehicle_detail/vehicle_detail_screen.dart';
 
 class AvailableBookingsScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class AvailableBookingsScreen extends StatefulWidget {
 class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
   Timer? _refreshTimer;
   final CompanySettingsService _companySettingsService = CompanySettingsService();
+  final WebSocketService _webSocketService = WebSocketService();
   String _companyName = 'تطبيق الميكانيكي';
   String? _companyLogoUrl;
 
@@ -28,6 +30,24 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
       context.read<MechanicProvider>().fetchAvailableBookings();
     });
     _startAutoRefresh();
+    
+    // Connect to WebSocket
+    final authProvider = context.read<AuthProvider>();
+    _webSocketService.connect(
+      userId: authProvider.userId,
+      role: authProvider.currentUser?.role,
+    );
+    
+    // Listen for booking updates
+    _webSocketService.addListener(_onBookingUpdate);
+  }
+
+  void _onBookingUpdate() {
+    final update = _webSocketService.lastBookingUpdate;
+    if (update != null) {
+      // Reload available bookings when a booking is updated
+      context.read<MechanicProvider>().fetchAvailableBookings();
+    }
   }
 
   Future<void> _loadCompanySettings() async {
@@ -47,6 +67,8 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _webSocketService.removeListener(_onBookingUpdate);
+    _webSocketService.disconnect();
     super.dispose();
   }
 

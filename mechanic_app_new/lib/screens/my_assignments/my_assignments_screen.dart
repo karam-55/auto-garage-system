@@ -5,6 +5,7 @@ import '../../providers/mechanic_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/mechanic_assignment.dart';
 import '../../services/company_settings_service.dart';
+import '../../services/websocket_service.dart';
 import '../vehicle_detail/vehicle_detail_screen.dart';
 import '../update_maintenance_status/update_maintenance_status_screen.dart';
 
@@ -18,6 +19,7 @@ class MyAssignmentsScreen extends StatefulWidget {
 class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
   Timer? _refreshTimer;
   final CompanySettingsService _companySettingsService = CompanySettingsService();
+  final WebSocketService _webSocketService = WebSocketService();
   String _companyName = 'تطبيق الميكانيكي';
   String? _companyLogoUrl;
 
@@ -29,6 +31,24 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
       context.read<MechanicProvider>().fetchMyAssignments();
     });
     _startAutoRefresh();
+    
+    // Connect to WebSocket
+    final authProvider = context.read<AuthProvider>();
+    _webSocketService.connect(
+      userId: authProvider.userId,
+      role: authProvider.currentUser?.role,
+    );
+    
+    // Listen for booking updates
+    _webSocketService.addListener(_onBookingUpdate);
+  }
+
+  void _onBookingUpdate() {
+    final update = _webSocketService.lastBookingUpdate;
+    if (update != null) {
+      // Reload my assignments when a booking is updated
+      context.read<MechanicProvider>().fetchMyAssignments();
+    }
   }
 
   Future<void> _loadCompanySettings() async {
@@ -48,6 +68,8 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _webSocketService.removeListener(_onBookingUpdate);
+    _webSocketService.disconnect();
     super.dispose();
   }
 

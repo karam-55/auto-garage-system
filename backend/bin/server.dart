@@ -27,6 +27,7 @@ import '../lib/presentation/routes/mechanic_routes.dart';
 import '../lib/presentation/routes/dashboard_routes.dart';
 import '../lib/presentation/routes/public_routes.dart';
 import '../lib/presentation/routes/company_settings_routes.dart';
+import '../lib/presentation/websocket/booking_websocket.dart';
 import '../lib/presentation/middlewares/auth_middleware.dart';
 import '../lib/presentation/middlewares/error_middleware.dart';
 import '../lib/presentation/middlewares/json_middleware.dart';
@@ -117,6 +118,7 @@ void main(List<String> args) async {
   // Combine all routes
   final handler = Cascade()
       .add(staticHandler)
+      .add(webSocketHandler())
       .add(authRoutes.router)
       .add(customerRoutes.router)
       .add(vehicleRoutes.router)

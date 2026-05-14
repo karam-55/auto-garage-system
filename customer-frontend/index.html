@@ -83,7 +83,7 @@
 
         <!-- Error State -->
         <div id="error" class="hidden max-w-md mx-auto bg-red-50 border-2 border-red-200 rounded-2xl p-6 fade-in">
-            <div class="flex items-center">
+            <div class="flex items-center mb-4">
                 <div class="flex-shrink-0">
                     <svg class="w-10 h-10 text-red-600 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -94,6 +94,12 @@
                     <p id="errorMessage" class="text-red-600 mt-1"></p>
                 </div>
             </div>
+            <button 
+                onclick="retryLoad()" 
+                class="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-all"
+            >
+                إعادة المحاولة
+            </button>
         </div>
 
         <!-- Car Details -->
@@ -231,8 +237,14 @@
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('tokenInput').classList.remove('hidden');
         } else {
-            currentToken = publicToken;
-            loadBookingData();
+            if (publicToken.length < 6) {
+                showError('الرجاء إدخال رمز التتبع المكون من 6 خانات على الأقل');
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('tokenInput').classList.remove('hidden');
+            } else {
+                currentToken = publicToken;
+                loadBookingData();
+            }
         }
 
         function searchBooking() {
@@ -249,18 +261,26 @@
 
         async function loadBookingData() {
             console.log('DEBUG: loadBookingData called');
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('carDetails').classList.add('hidden');
+            
             try {
                 const response = await fetch(`${API_BASE_URL}/public/bookings/${currentToken}`);
                 console.log('DEBUG: Response status:', response.status);
                 
                 if (!response.ok) {
+                    stopPolling();
                     if (response.status === 404) {
                         showError('رمز التتبع غير صحيح أو الحجز غير موجود');
                     } else if (response.status === 400) {
                         showError('رمز التتبع غير صالح');
+                    } else if (response.status === 500) {
+                        showError('حدث خطأ في الخادم، يرجى المحاولة مرة أخرى لاحقاً');
                     } else {
-                        throw new Error('فشل في تحميل البيانات');
+                        showError('فشل في تحميل البيانات، يرجى المحاولة مرة أخرى');
                     }
+                    document.getElementById('loading').classList.add('hidden');
                     return;
                 }
 
@@ -272,7 +292,9 @@
                 startPolling();
             } catch (error) {
                 console.error('Error loading booking data:', error);
-                showError('فشل في الاتصال بالخادم');
+                stopPolling();
+                showError('فشل في الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى');
+                document.getElementById('loading').classList.add('hidden');
             }
         }
 
@@ -392,6 +414,16 @@
             document.getElementById('error').classList.remove('hidden');
             document.getElementById('carDetails').classList.add('hidden');
             document.getElementById('errorMessage').textContent = message;
+        }
+
+        function retryLoad() {
+            if (!currentToken) {
+                document.getElementById('error').classList.add('hidden');
+                document.getElementById('tokenInput').classList.remove('hidden');
+            } else {
+                document.getElementById('error').classList.add('hidden');
+                loadBookingData();
+            }
         }
 
         // Load company settings on page load

@@ -262,14 +262,19 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
         index: 7,
       ),
       _SidebarDestination(
-        icon: Icons.settings_rounded,
-        label: 'إعدادات النظام',
+        icon: Icons.inventory_2_rounded,
+        label: 'المخزون',
         index: 8,
       ),
       _SidebarDestination(
-        icon: Icons.lock_rounded,
-        label: 'تغيير كلمة المرور',
+        icon: Icons.settings_rounded,
+        label: 'إعدادات النظام',
         index: 9,
+      ),
+      _SidebarDestination(
+        icon: Icons.lock_rounded,
+        label: 'كلمة المرور',
+        index: 10,
       ),
     ];
 

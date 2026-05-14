@@ -115,6 +115,7 @@ void main(List<String> args) async {
     db,
     vehicleRepository,
     bookingInvoiceDataRepository,
+    customerRepository,
   );
   final mechanicRoutes = MechanicRoutes(
     mechanicAssignmentRepository,

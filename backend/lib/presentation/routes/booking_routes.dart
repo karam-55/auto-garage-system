@@ -8,6 +8,7 @@ import '../../domain/entities/role.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../../domain/repositories/booking_service_repository.dart';
 import '../../domain/repositories/vehicle_repository.dart';
+import '../../domain/repositories/customer_repository.dart';
 import '../../domain/repositories/booking_invoice_data_repository.dart';
 import '../../application/usecases/create_booking_usecase.dart';
 import '../../application/usecases/update_booking_status_usecase.dart';
@@ -23,6 +24,7 @@ class BookingRoutes {
   final DatabaseConnection _db;
   final VehicleRepository _vehicleRepository;
   final BookingInvoiceDataRepository _invoiceDataRepository;
+  final CustomerRepository _customerRepository;
 
   BookingRoutes(
     this._bookingRepository,
@@ -31,6 +33,7 @@ class BookingRoutes {
     this._db,
     this._vehicleRepository,
     this._invoiceDataRepository,
+    this._customerRepository,
   );
 
   Router get router {

@@ -144,7 +144,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       final publicToken = bookingData['public_token'] as String?;
       print('DEBUG publicToken from booking: $publicToken');
 
-      // Get booking services
       print('DEBUG fetching booking services');
       final servicesResult = await _db.execute(
         Sql.named('''
@@ -168,7 +167,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         };
       }).toList();
 
-      // Get consumed parts from transactions
       print('DEBUG fetching parts');
       final partsResult = await _db.execute(
         Sql.named('''
@@ -193,7 +191,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         };
       }).toList();
 
-      // Calculate total price
       double totalPrice = 0;
       for (final service in servicesSnapshot) {
         final price = service['priceSYP'];
@@ -213,8 +210,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         totalPrice += price * qty;
       }
 
-      // Create invoice data
-      // Generate QR code URL using publicToken
       final qrCodeUrl = publicToken != null
           ? 'https://auto-garage-system-backend.onrender.com/track?token=$publicToken'
           : null;
@@ -231,7 +226,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         qrCodeUrl: qrCodeUrl,
       );
 
-      // Save to database
       print('DEBUG saving invoice to database');
       return await create(invoiceData);
     } catch (e) {
@@ -239,3 +233,4 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       rethrow;
     }
   }
+}

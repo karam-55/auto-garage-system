@@ -123,6 +123,8 @@ class InventoryRoutes {
         headers: {'Content-Type': 'application/json'},
       );
     } catch (e) {
+      print('Error creating inventory item: $e');
+      print('Stack trace: ${StackTrace.current}');
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to create inventory item: $e'}),
         headers: {'Content-Type': 'application/json'},

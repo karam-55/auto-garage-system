@@ -7,8 +7,12 @@ class Env {
 
   // WebSocket URL
   static String get wsUrl {
-    final url = baseUrl.replaceAll('https://', 'wss://').replaceAll('http://', 'ws://');
-    return url;
+    if (baseUrl.startsWith('https://')) {
+      return baseUrl.replaceFirst('https://', 'wss://');
+    } else if (baseUrl.startsWith('http://')) {
+      return baseUrl.replaceFirst('http://', 'ws://');
+    }
+    return baseUrl;
   }
 
   // API Endpoints

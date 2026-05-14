@@ -46,7 +46,9 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       servicesSnapshot: servicesSnapshot,
       partsSnapshot: partsSnapshot,
       totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
-      invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
+      invoiceCreatedAt: data['invoice_created_at'] is DateTime 
+          ? data['invoice_created_at'] as DateTime 
+          : DateTime.parse(data['invoice_created_at'] as String),
       publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
       qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
     );
@@ -106,7 +108,9 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       servicesSnapshot: servicesSnapshot,
       partsSnapshot: partsSnapshot,
       totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
-      invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
+      invoiceCreatedAt: data['invoice_created_at'] is DateTime 
+          ? data['invoice_created_at'] as DateTime 
+          : DateTime.parse(data['invoice_created_at'] as String),
       publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
       qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
     );
@@ -167,7 +171,9 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       servicesSnapshot: servicesSnapshot,
       partsSnapshot: partsSnapshot,
       totalPrice: (data['total_price'] is num ? data['total_price'] as num : double.tryParse(data['total_price'] as String? ?? '0'))?.toDouble() ?? 0,
-      invoiceCreatedAt: DateTime.parse(data['invoice_created_at'] as String),
+      invoiceCreatedAt: data['invoice_created_at'] is DateTime 
+          ? data['invoice_created_at'] as DateTime 
+          : DateTime.parse(data['invoice_created_at'] as String),
       publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
       qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
     );

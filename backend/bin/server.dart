@@ -7,6 +7,7 @@ import 'package:shelf_static/shelf_static.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
+import 'package:logger/logger.dart';
 
 import '../lib/infrastructure/database/database_connection.dart';
 import '../lib/infrastructure/repositories/user_repository_impl.dart';
@@ -43,6 +44,17 @@ import '../lib/application/services/auth_service.dart';
 import '../lib/domain/entities/user.dart';
 import '../lib/domain/entities/role.dart';
 
+final logger = Logger(
+  printer: PrettyPrinter(
+    methodCount: 2,
+    errorMethodCount: 8,
+    lineLength: 120,
+    colors: true,
+    printEmojis: true,
+    printTime: true,
+  ),
+);
+
 void main(List<String> args) async {
   // Load environment variables
   final env = DotEnv()..load();
@@ -50,7 +62,7 @@ void main(List<String> args) async {
   // JWT Secret from environment (mandatory)
   final jwtSecret = Platform.environment['JWT_SECRET'] ?? env['JWT_SECRET'];
   if (jwtSecret == null || jwtSecret.isEmpty) {
-    print('❌ FATAL: JWT_SECRET environment variable is not set. Server cannot start securely.');
+    logger.e('❌ FATAL: JWT_SECRET environment variable is not set. Server cannot start securely.');
     exit(1);
   }
 
@@ -58,11 +70,11 @@ void main(List<String> args) async {
   final db = DatabaseConnection.instance;
   try {
     await db.initialize();
-    print('Database connected successfully');
+    logger.i('Database connected successfully');
     
     // Execute schema (in production, you might want to use migrations)
     await db.executeSchema();
-    print('Database schema executed successfully');
+    logger.i('Database schema executed successfully');
     
     // Create default admin user if not exists
     await _createDefaultAdminUser(db, jwtSecret);
@@ -70,7 +82,7 @@ void main(List<String> args) async {
     // Create default receptionist user if not exists
     await _createDefaultReceptionistUser(db, jwtSecret);
   } catch (e) {
-    print('Failed to initialize database: $e');
+    logger.e('Failed to initialize database: $e');
     rethrow;
   }
 
@@ -172,36 +184,42 @@ void main(List<String> args) async {
   final port = int.parse(env['PORT'] ?? '8080');
 
   final server = await serve(pipeline, ip, port);
-  print('Server listening on http://${server.address.host}:${server.port}');
-  print('API Documentation:');
-  print('  POST   /api/auth/login');
-  print('  POST   /api/auth/register');
-  print('  GET    /api/users');
-  print('  DELETE /api/users/:id');
-  print('  GET    /api/customers');
-  print('  POST   /api/customers');
-  print('  GET    /api/vehicles');
-  print('  POST   /api/vehicles');
-  print('  GET    /api/services');
-  print('  POST   /api/services');
-  print('  GET    /api/bookings');
-  print('  POST   /api/bookings');
-  print('  GET    /api/mechanics/available-bookings');
-  print('  POST   /api/mechanics/assign');
-  print('  GET    /api/dashboard/stats');
-  print('  GET    /api/dashboard/revenue');
-  print('  GET    /public/bookings/<publicToken>');
-  print('  GET    /api/company/settings');
-  print('  PATCH  /api/company/settings');
-  print('  POST   /api/company/upload-logo');
+  logger.i('Server listening on http://${server.address.host}:${server.port}');
+  logger.i('API Documentation:');
+  logger.i('  POST   /api/auth/login');
+  logger.i('  POST   /api/auth/register');
+  logger.i('  GET    /api/users');
+  logger.i('  DELETE /api/users/:id');
+  logger.i('  GET    /api/customers');
+  logger.i('  POST   /api/customers');
+  logger.i('  GET    /api/vehicles');
+  logger.i('  POST   /api/vehicles');
+  logger.i('  GET    /api/services');
+  logger.i('  POST   /api/services');
+  logger.i('  GET    /api/bookings');
+  logger.i('  POST   /api/bookings');
+  logger.i('  GET    /api/mechanics/available-bookings');
+  logger.i('  POST   /api/mechanics/assign');
+  logger.i('  GET    /api/dashboard/stats');
+  logger.i('  GET    /api/dashboard/revenue');
+  logger.i('  GET    /public/bookings/<publicToken>');
+  logger.i('  GET    /api/company/settings');
+  logger.i('  PATCH  /api/company/settings');
+  logger.i('  POST   /api/company/upload-logo');
+  logger.i('  GET    /api/inventory/items');
+  logger.i('  POST   /api/inventory/items');
+  logger.i('  GET    /api/inventory/variants');
+  logger.i('  POST   /api/inventory/consume');
+  logger.i('  GET    /api/bookings/:id/invoice');
+  logger.i('  GET    /api/bookings/:id/invoice/pdf');
 }
 
 Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) async {
   final env = DotEnv()..load();
   final adminPassword = Platform.environment['DEFAULT_ADMIN_PASSWORD'] ?? env['DEFAULT_ADMIN_PASSWORD'];
   if (adminPassword == null || adminPassword.isEmpty) {
-    print('DEFAULT_ADMIN_PASSWORD not set. Skipping default admin creation.');
-    print('Set DEFAULT_ADMIN_PASSWORD to create an admin user on startup.');
+    logger.w('DEFAULT_ADMIN_PASSWORD not set. Skipping default admin creation.');
+    logger.w('Set DEFAULT_ADMIN_PASSWORD to create an admin user on startup.');
     return;
   }
 
@@ -219,14 +237,14 @@ Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) as
 
     try {
       await userRepository.create(adminUser);
-      print('Default admin user created successfully');
-      print('⚠️  Please change the password after first login!');
+      logger.i('Default admin user created successfully');
+      logger.w('⚠️  Please change the password after first login!');
     } catch (e) {
       // User might already exist, that's okay
-      print('Admin user already exists or creation failed: $e');
+      logger.i('Admin user already exists or creation failed: $e');
     }
   } catch (e) {
-    print('Failed to create default admin user: $e');
+    logger.e('Failed to create default admin user: $e');
     // Don't rethrow - this is not critical for the server to start
   }
 }
@@ -235,8 +253,8 @@ Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSec
   final env = DotEnv()..load();
   final receptionistPassword = Platform.environment['DEFAULT_RECEPTIONIST_PASSWORD'] ?? env['DEFAULT_RECEPTIONIST_PASSWORD'];
   if (receptionistPassword == null || receptionistPassword.isEmpty) {
-    print('DEFAULT_RECEPTIONIST_PASSWORD not set. Skipping default receptionist creation.');
-    print('Set DEFAULT_RECEPTIONIST_PASSWORD to create a receptionist user on startup.');
+    logger.w('DEFAULT_RECEPTIONIST_PASSWORD not set. Skipping default receptionist creation.');
+    logger.w('Set DEFAULT_RECEPTIONIST_PASSWORD to create a receptionist user on startup.');
     return;
   }
 
@@ -254,14 +272,14 @@ Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSec
 
     try {
       await userRepository.create(receptionistUser);
-      print('Default receptionist user created successfully');
-      print('⚠️  Please change the password after first login!');
+      logger.i('Default receptionist user created successfully');
+      logger.w('⚠️  Please change the password after first login!');
     } catch (e) {
       // User might already exist, that's okay
-      print('Receptionist user already exists or creation failed: $e');
+      logger.i('Receptionist user already exists or creation failed: $e');
     }
   } catch (e) {
-    print('Failed to create default receptionist user: $e');
+    logger.e('Failed to create default receptionist user: $e');
     // Don't rethrow - this is not critical for the server to start
   }
 }
@@ -273,8 +291,8 @@ Middleware _corsMiddleware() {
   final mechanicOrigin = Platform.environment['MECHANIC_CORS_ORIGIN'] ?? env['MECHANIC_CORS_ORIGIN'];
 
   if (allowedOrigin == null || allowedOrigin.isEmpty) {
-    print('❌ FATAL: CORS_ORIGIN environment variable is not set. Server cannot start securely.');
-    print('Set CORS_ORIGIN to your frontend domain (e.g., https://your-frontend.com)');
+    logger.e('❌ FATAL: CORS_ORIGIN environment variable is not set. Server cannot start securely.');
+    logger.e('Set CORS_ORIGIN to your frontend domain (e.g., https://your-frontend.com)');
     exit(1);
   }
 
@@ -287,7 +305,7 @@ Middleware _corsMiddleware() {
     allowedOrigins.add(mechanicOrigin);
   }
 
-  print('✅ CORS configured for: ${allowedOrigins.join(", ")}');
+  logger.i('✅ CORS configured for: ${allowedOrigins.join(", ")}');
 
   return (Handler innerHandler) {
     return (Request request) async {

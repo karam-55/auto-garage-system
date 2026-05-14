@@ -56,6 +56,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
   final TextEditingController _thresholdController = TextEditingController();
   String? _selectedCategory;
   Timer? _lowStockCheckTimer;
+  final ScrollController _scrollController = ScrollController();
+  final int _pageSize = 20;
+  int _currentPage = 1;
 
   @override
   void initState() {
@@ -73,6 +76,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     _unitController.dispose();
     _thresholdController.dispose();
     _lowStockCheckTimer?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 

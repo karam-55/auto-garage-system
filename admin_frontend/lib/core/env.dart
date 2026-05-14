@@ -5,6 +5,12 @@ class Env {
     defaultValue: 'https://auto-garage-system-backend.onrender.com',
   );
 
+  // WebSocket URL
+  static String get wsUrl {
+    final url = baseUrl.replaceAll('https://', 'wss://').replaceAll('http://', 'ws://');
+    return url;
+  }
+
   // API Endpoints
   static const String apiBase = '$baseUrl/api';
   static const String publicBase = '$baseUrl/public';

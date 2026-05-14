@@ -2,6 +2,7 @@ import '../env.dart';
 
 class ApiConstants {
   static String get baseUrl => Env.baseUrl;
+  static String get wsUrl => Env.wsUrl;
   
   static const String apiVersion = '/api';
   

@@ -22,8 +22,8 @@ class InventoryVariantRepositoryImpl implements InventoryVariantRepository {
         itemId: data['item_id'] as String,
         variantType: VariantType.fromString(data['variant_type'] as String),
         quantity: data['quantity'] as int? ?? 0,
-        costPrice: (data['cost_price'] as num?)?.toDouble() ?? 0,
-        sellingPrice: (data['selling_price'] as num?)?.toDouble() ?? 0,
+        costPrice: (data['cost_price'] is num ? data['cost_price'] as num : double.tryParse(data['cost_price'] as String? ?? '0'))?.toDouble() ?? 0,
+        sellingPrice: (data['selling_price'] is num ? data['selling_price'] as num : double.tryParse(data['selling_price'] as String? ?? '0'))?.toDouble() ?? 0,
         supplier: data['supplier'] as String?,
         createdAt: DateTime.parse(data['created_at'] as String),
       );
@@ -66,8 +66,8 @@ class InventoryVariantRepositoryImpl implements InventoryVariantRepository {
         itemId: data['item_id'] as String,
         variantType: VariantType.fromString(data['variant_type'] as String),
         quantity: data['quantity'] as int? ?? 0,
-        costPrice: (data['cost_price'] as num?)?.toDouble() ?? 0,
-        sellingPrice: (data['selling_price'] as num?)?.toDouble() ?? 0,
+        costPrice: (data['cost_price'] is num ? data['cost_price'] as num : double.tryParse(data['cost_price'] as String? ?? '0'))?.toDouble() ?? 0,
+        sellingPrice: (data['selling_price'] is num ? data['selling_price'] as num : double.tryParse(data['selling_price'] as String? ?? '0'))?.toDouble() ?? 0,
         supplier: data['supplier'] as String?,
         createdAt: DateTime.parse(data['created_at'] as String),
       );
@@ -194,8 +194,8 @@ class InventoryVariantRepositoryImpl implements InventoryVariantRepository {
         itemId: data['item_id'] as String,
         variantType: VariantType.fromString(data['variant_type'] as String),
         quantity: data['quantity'] as int? ?? 0,
-        costPrice: (data['cost_price'] as num?)?.toDouble() ?? 0,
-        sellingPrice: (data['selling_price'] as num?)?.toDouble() ?? 0,
+        costPrice: (data['cost_price'] is num ? data['cost_price'] as num : double.tryParse(data['cost_price'] as String? ?? '0'))?.toDouble() ?? 0,
+        sellingPrice: (data['selling_price'] is num ? data['selling_price'] as num : double.tryParse(data['selling_price'] as String? ?? '0'))?.toDouble() ?? 0,
         supplier: data['supplier'] as String?,
         createdAt: DateTime.parse(data['created_at'] as String),
       );

@@ -99,6 +99,7 @@ class PublicRoutes {
           'model': vehicleData['model'],
           'year': vehicleData['year'],
           'licensePlate': vehicleData['license_plate'],
+          'publicCarId': vehicleData['public_car_id'],
         },
         'customer': {
           'fullName': customerData['full_name'],

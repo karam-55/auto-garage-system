@@ -1,11 +1,11 @@
 # Use latest stable Dart SDK
 FROM dart:stable AS build
 
-# Cache busting
-ARG CACHEBUST=1
+# Cache busting - change this value to force rebuild
+ARG CACHEBUST=2026-05-14-002
 
 # Force rebuild by changing this value
-ENV REBUILD_ID=2026-05-14-001
+ENV REBUILD_ID=2026-05-14-002
 
 # Set working directory
 WORKDIR /app

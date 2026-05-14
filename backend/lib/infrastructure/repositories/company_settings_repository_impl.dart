@@ -1,8 +1,8 @@
 import 'package:postgres/postgres.dart';
-import '../../domain/entities/company_settings.dart';
-import '../../domain/repositories/company_settings_repository.dart';
-import '../../core/errors/exceptions.dart';
-import '../database/database_connection.dart';
+import 'package:backend/domain/entities/company_settings.dart';
+import 'package:backend/domain/repositories/company_settings_repository.dart';
+import 'package:backend/core/errors/exceptions.dart';
+import 'package:backend/infrastructure/database/database_connection.dart';
 
 class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
   final DatabaseConnection _db;
@@ -53,8 +53,8 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
       id: row['id'].toString(),
       companyName: row['company_name'].toString(),
       companyLogoUrl: row['company_logo_url']?.toString(),
-      createdAt: row['created_at'] as DateTime,
-      updatedAt: row['updated_at'] as DateTime?,
+      createdAt: DateTime.parse(row['created_at'].toString()),
+      updatedAt: row['updated_at'] != null ? DateTime.parse(row['updated_at'].toString()) : null,
     );
   }
 }

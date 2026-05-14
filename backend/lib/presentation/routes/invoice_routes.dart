@@ -29,6 +29,9 @@ class InvoiceRoutes {
 
   Future<Response> _getInvoice(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid booking ID'}));
+    }
     try {
       final invoice = await _invoiceRepository.generateOrGetInvoice(id);
       return Response.ok(
@@ -45,6 +48,9 @@ class InvoiceRoutes {
 
   Future<Response> _getInvoicePdf(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid booking ID'}));
+    }
     try {
       final invoice = await _invoiceRepository.generateOrGetInvoice(id);
       

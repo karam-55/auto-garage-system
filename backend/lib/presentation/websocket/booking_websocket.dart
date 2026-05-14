@@ -5,7 +5,7 @@ import '../../domain/repositories/alert_repository.dart';
 
 class BookingWebSocket {
   final AlertRepository _alertRepository;
-  final Set<WebSocket> _connections = {};
+  final Set<dynamic> _connections = {};
 
   BookingWebSocket(this._alertRepository);
 

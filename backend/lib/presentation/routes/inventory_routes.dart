@@ -5,6 +5,7 @@ import '../../domain/entities/inventory_item.dart';
 import '../../domain/entities/inventory_variant.dart';
 import '../../domain/entities/inventory_transaction.dart';
 import '../../domain/entities/role.dart';
+import '../../domain/entities/alert.dart' as alert_domain;
 import '../../domain/repositories/inventory_item_repository.dart';
 import '../../domain/repositories/inventory_variant_repository.dart';
 import '../../domain/repositories/inventory_transaction_repository.dart';
@@ -76,6 +77,9 @@ class InventoryRoutes {
 
   Future<Response> _getItemById(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid item ID'}));
+    }
     try {
       final item = await _itemRepository.findById(id);
       if (item == null) {
@@ -125,6 +129,9 @@ class InventoryRoutes {
 
   Future<Response> _updateItem(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid item ID'}));
+    }
     try {
       final payload = await request.readAsString();
       final data = jsonDecode(payload) as Map<String, dynamic>;
@@ -160,6 +167,9 @@ class InventoryRoutes {
 
   Future<Response> _deleteItem(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid item ID'}));
+    }
     try {
       await _itemRepository.delete(id);
       return Response.ok(
@@ -192,6 +202,9 @@ class InventoryRoutes {
 
   Future<Response> _getVariantById(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid variant ID'}));
+    }
     try {
       final variant = await _variantRepository.findById(id);
       if (variant == null) {
@@ -214,6 +227,9 @@ class InventoryRoutes {
 
   Future<Response> _getVariantsByItemId(Request request) async {
     final itemId = request.params['itemId'];
+    if (itemId == null || itemId.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid item ID'}));
+    }
     try {
       final variants = await _variantRepository.findByItemId(itemId);
       return Response.ok(
@@ -259,6 +275,9 @@ class InventoryRoutes {
 
   Future<Response> _updateVariant(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid variant ID'}));
+    }
     try {
       final payload = await request.readAsString();
       final data = jsonDecode(payload) as Map<String, dynamic>;
@@ -293,6 +312,9 @@ class InventoryRoutes {
 
   Future<Response> _deleteVariant(Request request) async {
     final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid variant ID'}));
+    }
     try {
       await _variantRepository.delete(id);
       return Response.ok(
@@ -390,9 +412,9 @@ class InventoryRoutes {
       if (updatedVariant.quantity <= item.lowStockThreshold) {
         try {
           await _alertRepository.create(
-            Alert(
+            alert_domain.Alert(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
-              type: AlertType.lowStock,
+              type: alert_domain.AlertType.lowStock,
               relatedId: variant.id,
               message: 'تنبيه: ${item.name} (${variant.variantType}) وصل للحد الأدنى (${updatedVariant.quantity})',
               isRead: false,

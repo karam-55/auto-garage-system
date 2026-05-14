@@ -1,5 +1,5 @@
 # Use latest stable Dart SDK
-FROM dart:3.3.0 AS build
+FROM dart:stable AS build
 
 # Cache busting
 ARG CACHEBUST=1

@@ -81,6 +81,7 @@ class PublicRoutes {
           parameters: {'bookingId': bookingData['id']},
         );
 
+        print('DEBUG public route servicesResult count: ${servicesResult.length}');
         servicesData = servicesResult.map((row) {
           final data = row.toColumnMap();
           print('DEBUG public route service data: $data');
@@ -93,6 +94,8 @@ class PublicRoutes {
             'notes': data['notes'],
           };
         }).toList();
+        
+        print('DEBUG public route servicesData: $servicesData');
       }
 
       // Build response with only safe data

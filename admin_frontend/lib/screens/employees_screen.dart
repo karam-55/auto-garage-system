@@ -259,7 +259,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedRole,
+                initialValue: selectedRole,
                 decoration: InputDecoration(
                   labelText: 'المسمى الوظيفي',
                   filled: true,
@@ -389,7 +389,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedRole,
+                initialValue: selectedRole,
                 decoration: InputDecoration(
                   labelText: 'المسمى الوظيفي',
                   filled: true,
@@ -555,7 +555,7 @@ class _EmployeeCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isActive ? const Color(0xFF10B981).withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                  color: isActive ? const Color(0xFF10B981).withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -610,13 +610,13 @@ class _EmployeeCard extends StatelessWidget {
               const SizedBox(width: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: isActive ? const Color(0xFF10B981).withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                  color: isActive ? const Color(0xFF10B981).withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Switch(
                   value: isActive,
                   onChanged: (_) => onToggleStatus(),
-                  activeColor: const Color(0xFF10B981),
+                  activeThumbColor: const Color(0xFF10B981),
                 ),
               ),
             ],

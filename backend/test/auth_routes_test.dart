@@ -1,7 +1,4 @@
 import 'package:test/test.dart';
-import 'package:shelf/shelf.dart';
-import 'package:shelf/shelf_io.dart' as io;
-import 'package:http/http.dart' as http;
 
 void main() {
   group('Auth Routes', () {

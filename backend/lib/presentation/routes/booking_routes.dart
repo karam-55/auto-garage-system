@@ -15,7 +15,6 @@ import '../../infrastructure/database/database_connection.dart';
 import '../middlewares/json_middleware.dart';
 import '../middlewares/auth_middleware.dart';
 import 'package:uuid/uuid.dart';
-import '../websocket/booking_websocket.dart';
 
 class BookingRoutes {
   final BookingRepository _bookingRepository;
@@ -245,10 +244,10 @@ class BookingRoutes {
         print('ERROR: priceSYP is null');
         return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid priceSYP'}));
       } else if (priceSYP is num) {
-        priceSYPDouble = (priceSYP as num).toDouble();
+        priceSYPDouble = (priceSYP).toDouble();
       } else if (priceSYP is String) {
         try {
-          priceSYPDouble = double.parse(priceSYP as String);
+          priceSYPDouble = double.parse(priceSYP);
         } catch (e) {
           print('ERROR: priceSYP is invalid string');
           return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
@@ -296,9 +295,9 @@ class BookingRoutes {
         // Handle priceSYP type safely
         double priceSYPDouble;
         if (priceSYP is num) {
-          priceSYPDouble = (priceSYP as num).toDouble();
+          priceSYPDouble = (priceSYP).toDouble();
         } else if (priceSYP is String) {
-          priceSYPDouble = double.parse(priceSYP as String);
+          priceSYPDouble = double.parse(priceSYP);
         } else {
           throw Exception('Invalid priceSYP type: ${priceSYP.runtimeType}');
         }
@@ -428,9 +427,9 @@ class BookingRoutes {
         // Handle priceSYP type safely
         double priceSYPDouble;
         if (priceSYP is num) {
-          priceSYPDouble = (priceSYP as num).toDouble();
+          priceSYPDouble = (priceSYP).toDouble();
         } else if (priceSYP is String) {
-          priceSYPDouble = double.parse(priceSYP as String);
+          priceSYPDouble = double.parse(priceSYP);
         } else {
           throw Exception('Invalid priceSYP type: ${priceSYP.runtimeType}');
         }

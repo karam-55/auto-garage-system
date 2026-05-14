@@ -82,20 +82,20 @@ class _AnimatedDashboardCardState extends State<AnimatedDashboardCard>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  widget.color.withOpacity(_isHovered ? 0.15 : 0.1),
-                  widget.color.withOpacity(_isHovered ? 0.08 : 0.05),
+                  widget.color.withValues(alpha: _isHovered ? 0.15 : 0.1),
+                  widget.color.withValues(alpha: _isHovered ? 0.08 : 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: widget.color.withOpacity(_isHovered ? 0.4 : 0.15),
+                color: widget.color.withValues(alpha: _isHovered ? 0.4 : 0.15),
                 width: _isHovered ? 2 : 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: widget.color.withOpacity(_isHovered ? 0.25 : 0.12),
+                  color: widget.color.withValues(alpha: _isHovered ? 0.25 : 0.12),
                   blurRadius: _isHovered ? 24 : 12,
                   offset: const Offset(0, 8),
                 ),
@@ -114,7 +114,7 @@ class _AnimatedDashboardCardState extends State<AnimatedDashboardCard>
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: widget.color.withOpacity(_isHovered ? 0.25 : 0.2),
+                            color: widget.color.withValues(alpha: _isHovered ? 0.25 : 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -146,7 +146,7 @@ class _AnimatedDashboardCardState extends State<AnimatedDashboardCard>
                         widget.title,
                         key: ValueKey('title_$_isHovered'),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                       ),
                     ),
@@ -167,7 +167,7 @@ class _AnimatedDashboardCardState extends State<AnimatedDashboardCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -276,13 +276,13 @@ class _AnimatedServiceCardState extends State<AnimatedServiceCard>
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _isHovered
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.4)
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)
                       : Theme.of(context).dividerColor,
                   width: _isHovered ? 2 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(_isHovered ? 0.12 : 0.06),
+                    color: Colors.black.withValues(alpha: _isHovered ? 0.12 : 0.06),
                     blurRadius: _isHovered ? 24 : 12,
                     offset: const Offset(0, 8),
                   ),
@@ -333,7 +333,7 @@ class _AnimatedServiceCardState extends State<AnimatedServiceCard>
                     Text(
                       widget.description,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -342,7 +342,7 @@ class _AnimatedServiceCardState extends State<AnimatedServiceCard>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -373,7 +373,7 @@ class _AnimatedServiceCardState extends State<AnimatedServiceCard>
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -468,18 +468,18 @@ class _AnimatedCustomerTileState extends State<AnimatedCustomerTile>
               transform: Matrix4.identity()..scale(_isHovered ? _scaleAnimation.value : 1.0),
               decoration: BoxDecoration(
                 color: _isHovered
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.08)
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
                     : Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _isHovered
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
                       : Theme.of(context).dividerColor,
                   width: _isHovered ? 2 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(_isHovered ? 0.1 : 0.05),
+                    color: Colors.black.withValues(alpha: _isHovered ? 0.1 : 0.05),
                     blurRadius: _isHovered ? 20 : 10,
                     offset: const Offset(0, 4),
                   ),
@@ -488,7 +488,7 @@ class _AnimatedCustomerTileState extends State<AnimatedCustomerTile>
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 leading: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   child: Text(
                     widget.name[0].toUpperCase(),
                     style: TextStyle(
@@ -509,14 +509,14 @@ class _AnimatedCustomerTileState extends State<AnimatedCustomerTile>
                     Text(
                       widget.phone,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                     ),
                     if (widget.address != null)
                       Text(
                         widget.address!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                             ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -532,9 +532,9 @@ class _AnimatedCustomerTileState extends State<AnimatedCustomerTile>
                           color: Colors.red,
                           onPressed: widget.onDelete,
                         )
-                      : Icon(
+                      : const Icon(
                           Icons.chevron_right_rounded,
-                          key: const ValueKey('delete_hidden'),
+                          key: ValueKey('delete_hidden'),
                         ),
                 ),
               ),

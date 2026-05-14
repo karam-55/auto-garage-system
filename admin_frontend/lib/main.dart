@@ -4,9 +4,7 @@ import 'l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
-import 'core/constants/api_constants.dart';
 import 'core/theme/app_theme.dart';
-import 'core/widgets/loading_screen.dart';
 import 'core/widgets/animated_sidebar.dart';
 import 'core/websocket_service.dart';
 import 'screens/overview_screen.dart';
@@ -87,7 +85,7 @@ class _MyAppState extends State<MyApp> {
       darkTheme: AppTheme.darkTheme,
       themeMode: _themeMode,
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: [
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -241,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               Theme.of(context).colorScheme.surface,
             ],
             begin: Alignment.topLeft,
@@ -270,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen>
                               gradient: LinearGradient(
                                 colors: [
                                   Theme.of(context).colorScheme.primary,
-                                  Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -278,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen>
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                                   blurRadius: 30,
                                   offset: const Offset(0, 10),
                                 ),
@@ -302,7 +300,7 @@ class _LoginScreenState extends State<LoginScreen>
                           Text(
                             'لوحة التحكم',
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                 ),
                           ),
                           const SizedBox(height: 48),
@@ -371,7 +369,7 @@ class DashboardScreen extends StatefulWidget {
   final VoidCallback? onThemeToggle;
   final ThemeMode themeMode;
   
-  DashboardScreen({super.key, required this.apiService, this.onThemeToggle, required this.themeMode});
+  const DashboardScreen({super.key, required this.apiService, this.onThemeToggle, required this.themeMode});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -383,17 +381,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _destinations = [
-    _NavItem(icon: Icons.dashboard_rounded, label: 'نظرة عامة'),
-    _NavItem(icon: Icons.calendar_today_rounded, label: 'الحجوزات'),
-    _NavItem(icon: Icons.flash_on_rounded, label: 'حجز سريع'),
-    _NavItem(icon: Icons.people_rounded, label: 'العملاء'),
-    _NavItem(icon: Icons.directions_car_rounded, label: 'السيارات'),
-    _NavItem(icon: Icons.build_rounded, label: 'الخدمات'),
-    _NavItem(icon: Icons.work_rounded, label: 'الموظفين'),
-    _NavItem(icon: Icons.bar_chart_rounded, label: 'التقارير'),
-    _NavItem(icon: Icons.inventory_2_rounded, label: 'المخزون'),
-    _NavItem(icon: Icons.settings_rounded, label: 'إعدادات النظام'),
-    _NavItem(icon: Icons.lock_rounded, label: 'كلمة المرور'),
+    const _NavItem(icon: Icons.dashboard_rounded, label: 'نظرة عامة'),
+    const _NavItem(icon: Icons.calendar_today_rounded, label: 'الحجوزات'),
+    const _NavItem(icon: Icons.flash_on_rounded, label: 'حجز سريع'),
+    const _NavItem(icon: Icons.people_rounded, label: 'العملاء'),
+    const _NavItem(icon: Icons.directions_car_rounded, label: 'السيارات'),
+    const _NavItem(icon: Icons.build_rounded, label: 'الخدمات'),
+    const _NavItem(icon: Icons.work_rounded, label: 'الموظفين'),
+    const _NavItem(icon: Icons.bar_chart_rounded, label: 'التقارير'),
+    const _NavItem(icon: Icons.inventory_2_rounded, label: 'المخزون'),
+    const _NavItem(icon: Icons.settings_rounded, label: 'إعدادات النظام'),
+    const _NavItem(icon: Icons.lock_rounded, label: 'كلمة المرور'),
   ];
 
   @override
@@ -535,7 +533,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   alignment: Alignment.topLeft,
                   children: <Widget>[
                     ...previousChildren,
-                    if (currentChild != null) currentChild,
+                    ?currentChild,
                   ],
                 );
               },
@@ -570,7 +568,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       gradient: LinearGradient(
                         colors: [
                           Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(12),
@@ -629,7 +627,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       tileColor: isSelected
-                          ? Theme.of(context).colorScheme.primary.withOpacity(0.08)
+                          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
                           : null,
                       onTap: () => _onDestinationSelected(index),
                     ),

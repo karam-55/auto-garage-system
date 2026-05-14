@@ -124,7 +124,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
         'address': _customerAddressController.text.trim(),
       });
 
-      if (customerResponse is! Map || customerResponse['id'] == null) {
+      if (customerResponse['id'] == null) {
         throw Exception('فشل في إنشاء العميل');
       }
 
@@ -144,7 +144,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
             : _vehicleColorController.text.trim(),
       });
 
-      if (vehicleResponse is! Map || vehicleResponse['id'] == null) {
+      if (vehicleResponse['id'] == null) {
         throw Exception('فشل في إنشاء المركبة');
       }
 
@@ -168,7 +168,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
 
       final bookingResponse = await widget.apiService.post(ApiConstants.bookings, bookingData);
 
-      if (bookingResponse is! Map || bookingResponse['id'] == null) {
+      if (bookingResponse['id'] == null) {
         throw Exception('فشل في إنشاء الحجز');
       }
 
@@ -351,7 +351,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
           Icon(
             Icons.person_add_rounded,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 24),
           Text(
@@ -414,7 +414,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
           Icon(
             Icons.directions_car_rounded,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 24),
           Text(
@@ -523,7 +523,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
           Icon(
             Icons.build_rounded,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 24),
           Text(
@@ -565,7 +565,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
                       child: Container(
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
                               : Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
@@ -608,7 +608,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -670,7 +670,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
           Icon(
             Icons.description_rounded,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 24),
           Text(
@@ -769,7 +769,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
           Icon(
             Icons.check_circle_rounded,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 24),
           Text(
@@ -852,7 +852,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
                 Text(
                   label,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
                 const SizedBox(height: 4),

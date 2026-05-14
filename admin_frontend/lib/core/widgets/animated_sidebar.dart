@@ -153,7 +153,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
                       Text(
                         'لوحة التحكم',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                       ),
                     ],
@@ -181,13 +181,13 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
               gradient: LinearGradient(
                 colors: [
                   Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -436,26 +436,26 @@ class _AnimatedDestinationItemState extends State<_AnimatedDestinationItem>
                   decoration: BoxDecoration(
                     color: widget.isSelected
                         ? (widget.isDanger
-                            ? Colors.red.withOpacity(0.15)
-                            : Theme.of(context).colorScheme.primary.withOpacity(0.15))
+                            ? Colors.red.withValues(alpha: 0.15)
+                            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.15))
                         : (_isHovered
-                            ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
+                            ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
                             : Colors.transparent),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: widget.isSelected
                           ? (widget.isDanger
-                              ? Colors.red.withOpacity(0.4)
-                              : Theme.of(context).colorScheme.primary.withOpacity(0.4))
+                              ? Colors.red.withValues(alpha: 0.4)
+                              : Theme.of(context).colorScheme.primary.withValues(alpha: 0.4))
                           : (_isHovered
-                              ? Theme.of(context).dividerColor.withOpacity(0.5)
+                              ? Theme.of(context).dividerColor.withValues(alpha: 0.5)
                               : Colors.transparent),
                       width: widget.isSelected || _isHovered ? 1.5 : 1,
                     ),
                     boxShadow: _isHovered && !widget.isSelected
                         ? [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -471,7 +471,7 @@ class _AnimatedDestinationItemState extends State<_AnimatedDestinationItem>
                             ? (widget.isDanger
                                 ? Colors.red
                                 : Theme.of(context).colorScheme.primary)
-                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                       if (widget.isExpanded) ...[
                         const SizedBox(width: 12),

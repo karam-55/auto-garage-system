@@ -98,7 +98,7 @@ class _ProfessionalDialogState extends State<ProfessionalDialog>
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 40,
                             offset: const Offset(0, 20),
                             spreadRadius: -8,
@@ -152,7 +152,7 @@ class _ProfessionalDialogState extends State<ProfessionalDialog>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -269,7 +269,7 @@ Future<T?> showProfessionalDialog<T>({
   return showDialog<T>(
     context: context,
     barrierDismissible: false,
-    barrierColor: Colors.black.withOpacity(0.45),
+    barrierColor: Colors.black.withValues(alpha: 0.45),
     builder: (context) => ProfessionalDialog(
       title: title,
       content: content,

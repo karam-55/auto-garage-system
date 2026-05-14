@@ -87,10 +87,10 @@ class ServiceRoutes {
     if (priceSYP == null) {
       priceSYPDouble = null;
     } else if (priceSYP is num) {
-      priceSYPDouble = (priceSYP as num).toDouble();
+      priceSYPDouble = (priceSYP).toDouble();
     } else if (priceSYP is String) {
       try {
-        priceSYPDouble = double.parse(priceSYP as String);
+        priceSYPDouble = double.parse(priceSYP);
       } catch (e) {
         print('ERROR: Failed to parse priceSYP: $e');
         return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
@@ -105,10 +105,10 @@ class ServiceRoutes {
     if (estimatedDurationMinutes == null) {
       estimatedDurationMinutesInt = null;
     } else if (estimatedDurationMinutes is int) {
-      estimatedDurationMinutesInt = estimatedDurationMinutes as int;
+      estimatedDurationMinutesInt = estimatedDurationMinutes;
     } else if (estimatedDurationMinutes is String) {
       try {
-        estimatedDurationMinutesInt = int.parse(estimatedDurationMinutes as String);
+        estimatedDurationMinutesInt = int.parse(estimatedDurationMinutes);
       } catch (e) {
         print('ERROR: Failed to parse estimatedDurationMinutes: $e');
         return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be a valid integer'}));
@@ -130,7 +130,7 @@ class ServiceRoutes {
     }
 
     // Validate estimated duration if provided
-    if (estimatedDurationMinutesInt != null && estimatedDurationMinutesInt! < 0) {
+    if (estimatedDurationMinutesInt != null && estimatedDurationMinutesInt < 0) {
       print('ERROR: estimatedDurationMinutes must be greater than or equal to 0');
       return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be greater than or equal to 0'}));
     }

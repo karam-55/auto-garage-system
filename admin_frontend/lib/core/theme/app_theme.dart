@@ -172,7 +172,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 2,
-          shadowColor: primaryColor.withOpacity(0.3),
+          shadowColor: primaryColor.withValues(alpha: 0.3),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -194,7 +194,7 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: lightDividerColor, width: 1.5),
+            side: const BorderSide(color: lightDividerColor, width: 1.5),
           ),
           foregroundColor: lightTextPrimary,
           textStyle: const TextStyle(
@@ -227,7 +227,7 @@ class AppTheme {
         shadowColor: lightShadowColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: lightDividerColor, width: 1),
+          side: const BorderSide(color: lightDividerColor, width: 1),
         ),
         color: lightCardColor,
         margin: const EdgeInsets.all(8),
@@ -240,23 +240,23 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: lightDividerColor, width: 1.5),
+          borderSide: const BorderSide(color: lightDividerColor, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: lightDividerColor, width: 1.5),
+          borderSide: const BorderSide(color: lightDividerColor, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: primaryColor, width: 2),
+          borderSide: const BorderSide(color: primaryColor, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: dangerColor, width: 1.5),
+          borderSide: const BorderSide(color: dangerColor, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: dangerColor, width: 2),
+          borderSide: const BorderSide(color: dangerColor, width: 2),
         ),
         labelStyle: const TextStyle(
           color: lightTextSecondary,
@@ -335,8 +335,8 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: lightSurfaceColor,
         disabledColor: lightDividerColor,
-        selectedColor: primaryColor.withOpacity(0.15),
-        secondarySelectedColor: primaryColor.withOpacity(0.15),
+        selectedColor: primaryColor.withValues(alpha: 0.15),
+        secondarySelectedColor: primaryColor.withValues(alpha: 0.15),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         labelStyle: const TextStyle(
           fontSize: 14,
@@ -344,7 +344,7 @@ class AppTheme {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: BorderSide(color: lightDividerColor),
+          side: const BorderSide(color: lightDividerColor),
         ),
       ),
     );
@@ -467,7 +467,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 2,
-          shadowColor: primaryColor.withOpacity(0.4),
+          shadowColor: primaryColor.withValues(alpha: 0.4),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -489,7 +489,7 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: darkDividerColor, width: 1.5),
+            side: const BorderSide(color: darkDividerColor, width: 1.5),
           ),
           foregroundColor: darkTextPrimary,
           textStyle: const TextStyle(
@@ -522,7 +522,7 @@ class AppTheme {
         shadowColor: darkShadowColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: darkDividerColor, width: 1),
+          side: const BorderSide(color: darkDividerColor, width: 1),
         ),
         color: darkCardColor,
         margin: const EdgeInsets.all(8),
@@ -535,23 +535,23 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: darkDividerColor, width: 1.5),
+          borderSide: const BorderSide(color: darkDividerColor, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: darkDividerColor, width: 1.5),
+          borderSide: const BorderSide(color: darkDividerColor, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: primaryLight, width: 2),
+          borderSide: const BorderSide(color: primaryLight, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: dangerColor, width: 1.5),
+          borderSide: const BorderSide(color: dangerColor, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: dangerColor, width: 2),
+          borderSide: const BorderSide(color: dangerColor, width: 2),
         ),
         labelStyle: const TextStyle(
           color: darkTextSecondary,
@@ -631,8 +631,8 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: darkSurfaceColor,
         disabledColor: darkDividerColor,
-        selectedColor: primaryColor.withOpacity(0.2),
-        secondarySelectedColor: primaryColor.withOpacity(0.2),
+        selectedColor: primaryColor.withValues(alpha: 0.2),
+        secondarySelectedColor: primaryColor.withValues(alpha: 0.2),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         labelStyle: const TextStyle(
           fontSize: 14,
@@ -641,7 +641,7 @@ class AppTheme {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: BorderSide(color: darkDividerColor),
+          side: const BorderSide(color: darkDividerColor),
         ),
       ),
     );

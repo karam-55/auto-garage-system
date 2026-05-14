@@ -38,6 +38,8 @@ dependencies:
   # File Picker
   file_picker: ^8.0.0
 
+  webview_flutter: any
+  pdf: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

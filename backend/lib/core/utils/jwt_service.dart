@@ -23,8 +23,8 @@ class JwtService {
       'exp': now + expiresInSeconds,
       'type': 'access',
     });
-    final signature = _sign('${header}.${payload}');
-    return '${header}.${payload}.${signature}';
+    final signature = _sign('$header.$payload');
+    return '$header.$payload.$signature';
   }
 
   String generateRefreshToken({
@@ -39,8 +39,8 @@ class JwtService {
       'exp': now + expiresInSeconds,
       'type': 'refresh',
     });
-    final signature = _sign('${header}.${payload}');
-    return '${header}.${payload}.${signature}';
+    final signature = _sign('$header.$payload');
+    return '$header.$payload.$signature';
   }
 
   Map<String, dynamic>? verifyToken(String token) {

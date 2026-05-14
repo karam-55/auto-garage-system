@@ -516,7 +516,8 @@
         // Load company settings on page load
         async function loadCompanySettings() {
             try {
-                const response = await fetch('http://localhost:8080/api/company/settings');
+                // Use production API URL for company settings
+                const response = await fetch(`${API_BASE_URL}/api/company/settings`);
                 if (response.ok) {
                     const settings = await response.json();
                     

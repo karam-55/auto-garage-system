@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './core/constants/backend_constants.dart';
+import './core/logger.dart';
 import 'providers/auth_provider.dart';
 import 'providers/mechanic_provider.dart';
 import 'screens/login/login_screen.dart';
@@ -14,13 +15,13 @@ import 'services/company_settings_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final prefs = await SharedPreferences.getInstance();
   final localeCode = prefs.getString('locale') ?? 'ar';
-  
+
   // Note: Using Render backend API
-  print('Using Render backend: ${BackendConstants.backendUrl}');
-  
+  logger.info('Using Render backend: ${BackendConstants.backendUrl}');
+
   runApp(MyApp(initialLocale: Locale(localeCode)));
 }
 

@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import '../lib/core/utils/jwt_service.dart';
+import 'package:backend/core/utils/jwt_service.dart';
 
 void main() {
   const testSecret = 'test-secret-key-1234567890';

@@ -281,7 +281,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             
-            final inventory = snapshot.data as List<dynamic>?;
+            final inventory = snapshot.data;
             if (inventory == null || inventory.isEmpty) {
               return const Text('المخزون فارغ أو لا توجد قطع متاحة');
             }
@@ -391,7 +391,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               return Text('خطأ في تحميل الفاتورة: ${snapshot.error}');
             }
             
-            final invoice = snapshot.data as Map<String, dynamic>?;
+            final invoice = snapshot.data;
             if (invoice == null) {
               return const Text('لا توجد فاتورة لهذا الحجز');
             }

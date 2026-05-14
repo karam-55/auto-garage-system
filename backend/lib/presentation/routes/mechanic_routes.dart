@@ -1,12 +1,8 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import '../../domain/entities/mechanic_assignment.dart';
 import '../../domain/entities/mechanic_assignment_status.dart';
-import '../../domain/entities/booking_status.dart';
-import '../../domain/entities/part_suggestion.dart';
 import '../../domain/entities/part_suggestion_status.dart';
-import '../../domain/entities/part_type.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/mechanic_assignment_repository.dart';
@@ -17,7 +13,6 @@ import '../../application/usecases/create_part_suggestion_usecase.dart';
 import '../middlewares/json_middleware.dart';
 import '../middlewares/auth_middleware.dart';
 import '../../application/services/notification_service.dart';
-import 'package:uuid/uuid.dart';
 
 class MechanicRoutes {
   final MechanicAssignmentRepository _mechanicAssignmentRepository;
@@ -185,10 +180,10 @@ class MechanicRoutes {
     if (priceSYP == null) {
       priceSYPDouble = null;
     } else if (priceSYP is num) {
-      priceSYPDouble = (priceSYP as num).toDouble();
+      priceSYPDouble = (priceSYP).toDouble();
     } else if (priceSYP is String) {
       try {
-        priceSYPDouble = double.parse(priceSYP as String);
+        priceSYPDouble = double.parse(priceSYP);
       } catch (e) {
         return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
       }

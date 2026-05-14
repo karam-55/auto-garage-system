@@ -164,7 +164,7 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 4,
-      shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+      shadowColor: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -194,7 +194,7 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
                       gradient: LinearGradient(
                         colors: [
                           Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
                         ],
                         begin: Alignment.topRight,
                         end: Alignment.bottomLeft,
@@ -228,7 +228,7 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
                           Text(
                             'رقم اللوحة: ${assignment.booking!.vehicle!.licensePlate}',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                 ),
                           ),
                       ],
@@ -249,7 +249,7 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
                     Text(
                       'العميل: ${assignment.booking!.customer!.fullName}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                     ),
                   ],
@@ -258,10 +258,10 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(assignment.status).withOpacity(0.1),
+                  color: _getStatusColor(assignment.status).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: _getStatusColor(assignment.status).withOpacity(0.3),
+                    color: _getStatusColor(assignment.status).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -288,7 +288,7 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(

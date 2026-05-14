@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:shelf/shelf.dart';
@@ -9,40 +8,40 @@ import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
 import 'package:logger/logger.dart';
 
-import '../lib/infrastructure/database/database_connection.dart';
-import '../lib/infrastructure/repositories/user_repository_impl.dart';
-import '../lib/infrastructure/repositories/customer_repository_impl.dart';
-import '../lib/infrastructure/repositories/vehicle_repository_impl.dart';
-import '../lib/infrastructure/repositories/service_repository_impl.dart';
-import '../lib/infrastructure/repositories/booking_repository_impl.dart';
-import '../lib/infrastructure/repositories/booking_service_repository_impl.dart';
-import '../lib/infrastructure/repositories/mechanic_assignment_repository_impl.dart';
-import '../lib/infrastructure/repositories/part_suggestion_repository_impl.dart';
-import '../lib/infrastructure/repositories/company_settings_repository_impl.dart';
-import '../lib/infrastructure/repositories/inventory_item_repository_impl.dart';
-import '../lib/infrastructure/repositories/inventory_variant_repository_impl.dart';
-import '../lib/infrastructure/repositories/inventory_transaction_repository_impl.dart';
-import '../lib/infrastructure/repositories/booking_invoice_data_repository_impl.dart';
-import '../lib/infrastructure/repositories/alert_repository_impl.dart';
-import '../lib/presentation/routes/auth_routes.dart';
-import '../lib/presentation/routes/customer_routes.dart';
-import '../lib/presentation/routes/vehicle_routes.dart';
-import '../lib/presentation/routes/service_routes.dart';
-import '../lib/presentation/routes/booking_routes.dart';
-import '../lib/presentation/routes/mechanic_routes.dart';
-import '../lib/presentation/routes/dashboard_routes.dart';
-import '../lib/presentation/routes/public_routes.dart';
-import '../lib/presentation/routes/company_settings_routes.dart';
-import '../lib/presentation/routes/inventory_routes.dart';
-import '../lib/presentation/routes/invoice_routes.dart';
-import '../lib/presentation/middlewares/auth_middleware.dart';
-import '../lib/presentation/middlewares/error_middleware.dart';
-import '../lib/presentation/middlewares/json_middleware.dart';
-import '../lib/presentation/middlewares/logging_middleware.dart';
-import '../lib/presentation/websocket/booking_websocket.dart';
-import '../lib/application/services/auth_service.dart';
-import '../lib/domain/entities/user.dart';
-import '../lib/domain/entities/role.dart';
+import 'package:backend/infrastructure/database/database_connection.dart';
+import 'package:backend/infrastructure/repositories/user_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/customer_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/vehicle_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/service_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/booking_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/booking_service_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/mechanic_assignment_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/part_suggestion_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/company_settings_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/inventory_item_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/inventory_variant_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/inventory_transaction_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/booking_invoice_data_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/alert_repository_impl.dart';
+import 'package:backend/presentation/routes/auth_routes.dart';
+import 'package:backend/presentation/routes/customer_routes.dart';
+import 'package:backend/presentation/routes/vehicle_routes.dart';
+import 'package:backend/presentation/routes/service_routes.dart';
+import 'package:backend/presentation/routes/booking_routes.dart';
+import 'package:backend/presentation/routes/mechanic_routes.dart';
+import 'package:backend/presentation/routes/dashboard_routes.dart';
+import 'package:backend/presentation/routes/public_routes.dart';
+import 'package:backend/presentation/routes/company_settings_routes.dart';
+import 'package:backend/presentation/routes/inventory_routes.dart';
+import 'package:backend/presentation/routes/invoice_routes.dart';
+import 'package:backend/presentation/middlewares/auth_middleware.dart';
+import 'package:backend/presentation/middlewares/error_middleware.dart';
+import 'package:backend/presentation/middlewares/json_middleware.dart';
+import 'package:backend/presentation/middlewares/logging_middleware.dart';
+import 'package:backend/presentation/websocket/booking_websocket.dart';
+import 'package:backend/application/services/auth_service.dart';
+import 'package:backend/domain/entities/user.dart';
+import 'package:backend/domain/entities/role.dart';
 
 final logger = Logger(
   printer: PrettyPrinter(
@@ -154,17 +153,17 @@ void main(List<String> args) async {
   // Combine all routes
   final handler = Cascade()
       .add(staticHandler)
-      .add(companySettingsRoutes.router)
-      .add(authRoutes.router)
-      .add(customerRoutes.router)
-      .add(vehicleRoutes.router)
-      .add(serviceRoutes.router)
-      .add(bookingRoutes.router)
-      .add(mechanicRoutes.router)
-      .add(dashboardRoutes.router)
-      .add(inventoryRoutes.router)
-      .add(invoiceRoutes.router)
-      .add(publicRoutes.router)
+      .add(companySettingsRoutes.router.call)
+      .add(authRoutes.router.call)
+      .add(customerRoutes.router.call)
+      .add(vehicleRoutes.router.call)
+      .add(serviceRoutes.router.call)
+      .add(bookingRoutes.router.call)
+      .add(mechanicRoutes.router.call)
+      .add(dashboardRoutes.router.call)
+      .add(inventoryRoutes.router.call)
+      .add(invoiceRoutes.router.call)
+      .add(publicRoutes.router.call)
       .add(webSocket.handler)
       .add((Request request) {
         return Response.notFound('Not Found');

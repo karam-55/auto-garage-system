@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../core/services/api_service.dart';
-import 'package:intl/intl.dart';
 import 'dart:async';
 
 class InventoryItem {
@@ -38,7 +37,7 @@ class InventoryItem {
 class InventoryScreen extends StatefulWidget {
   final ApiService apiService;
 
-  const InventoryScreen({Key? key, required this.apiService}) : super(key: key);
+  const InventoryScreen({super.key, required this.apiService});
 
   @override
   State<InventoryScreen> createState() => _InventoryScreenState();
@@ -513,11 +512,11 @@ class InventoryVariantsScreen extends StatefulWidget {
   final String itemName;
 
   const InventoryVariantsScreen({
-    Key? key,
+    super.key,
     required this.apiService,
     required this.itemId,
     required this.itemName,
-  }) : super(key: key);
+  });
 
   @override
   State<InventoryVariantsScreen> createState() => _InventoryVariantsScreenState();
@@ -682,7 +681,7 @@ class _InventoryVariantsScreenState extends State<InventoryVariantsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('تأكيد الحذف'),
-        content: Text('هل أنت متأكد من حذف هذا النوع؟'),
+        content: const Text('هل أنت متأكد من حذف هذا النوع؟'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -785,7 +784,7 @@ class _InventoryVariantsScreenState extends State<InventoryVariantsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DropdownButtonFormField<String>(
-                      value: _selectedVariantType,
+                      initialValue: _selectedVariantType,
                       decoration: const InputDecoration(labelText: 'النوع'),
                       items: const [
                         DropdownMenuItem(value: 'ORIGINAL', child: Text('أصلي')),

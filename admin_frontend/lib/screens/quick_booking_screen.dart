@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/widgets/professional_dialog.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
 import '../core/utils/error_handler.dart';
@@ -35,7 +34,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
   
   // Services
   List<Map<String, dynamic>> _availableServices = [];
-  List<String> _selectedServiceIds = [];
+  final List<String> _selectedServiceIds = [];
   bool _isLoadingServices = false;
   
   // Notes
@@ -120,7 +119,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
       // Filter vehicles by customer ID
       final allVehiclesResponse = await widget.apiService.get(ApiConstants.vehicles);
       if (allVehiclesResponse is List) {
-        final customerVehicles = (allVehiclesResponse as List)
+        final customerVehicles = (allVehiclesResponse)
             .where((v) => v['customerId'] == customerId)
             .toList();
         
@@ -325,7 +324,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
                             },
                           );
 
-                          if (vehicleResponse != null && vehicleResponse['id'] != null) {
+                          if (vehicleResponse['id'] != null) {
                             // Reload vehicles for the customer
                             await _loadVehicles(_selectedCustomerId!);
                             
@@ -496,7 +495,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
                                   },
                                 ),
                               );
-                            }).toList(),
+                            }),
                             if (_showAddVehicleOption)
                               ListTile(
                                 leading: const Icon(Icons.add_circle_outline),
@@ -544,7 +543,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
                                   }
                                 });
                               },
-                              selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                              selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                               checkmarkColor: Theme.of(context).colorScheme.primary,
                             );
                           }).toList(),

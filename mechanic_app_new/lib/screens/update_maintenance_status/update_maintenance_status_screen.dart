@@ -98,7 +98,7 @@ class _UpdateMaintenanceStatusScreenState extends State<UpdateMaintenanceStatusS
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _selectedStatus,
+                      initialValue: _selectedStatus,
                       decoration: const InputDecoration(
                         labelText: 'الحالة',
                         border: OutlineInputBorder(),

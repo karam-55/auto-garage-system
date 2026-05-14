@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart' as app_user;
 import '../services/api_service.dart';
+import '../core/logger.dart';
 
 class AuthProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -52,28 +52,28 @@ class AuthProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    
+
     try {
-      print('Attempting login for username: $username');
-      
+      logger.info('Attempting login for username: $username');
+
       // Login via Render backend
       final response = await _apiService.login(username, password);
-      
+
       if (response == null) {
         _errorMessage = 'المستخدم غير موجود أو حدث خطأ في الاتصال بقاعدة البيانات. تأكد من اسم المستخدم.';
         _isLoading = false;
         notifyListeners();
         return false;
       }
-      
-      print('Login successful');
-      
+
+      logger.info('Login successful');
+
       // Store tokens
       _token = response['token'];
       _refreshToken = response['refreshToken'];
       _apiService.setToken(_token);
       _apiService.setRefreshToken(_refreshToken);
-      
+
       // Save user info
       final userData = response['user'];
       _currentUser = app_user.User(
@@ -82,7 +82,7 @@ class AuthProvider with ChangeNotifier {
         username: userData['username'],
         role: userData['role'],
       );
-      
+
       // Save to local storage
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', userData['id']);
@@ -91,12 +91,12 @@ class AuthProvider with ChangeNotifier {
       await prefs.setString('role', userData['role']);
       await prefs.setString('token', _token!);
       await prefs.setString('refresh_token', _refreshToken!);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
-      print('Login exception: $e');
+      logger.severe('Login exception: $e');
       _errorMessage = 'خطأ في الاتصال: $e';
       _isLoading = false;
       notifyListeners();
@@ -108,24 +108,25 @@ class AuthProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    
+
     try {
-      print('Registering user: $username, role: $role');
-      
+      logger.info('Registering user: $username, role: $role');
+
       // Register via Render backend (password is sent as plain text, backend handles bcrypt)
       final success = await _apiService.register(username, fullName, password, role);
-      
+
       if (!success) {
         _errorMessage = 'فشل إنشاء المستخدم - قد يكون الاسم مستخدم بالفعل أو الدور غير صحيح';
         _isLoading = false;
         notifyListeners();
         return false;
       }
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
+      logger.severe('Error registering user: $e');
       _errorMessage = 'خطأ في إنشاء المستخدم: $e';
       _isLoading = false;
       notifyListeners();

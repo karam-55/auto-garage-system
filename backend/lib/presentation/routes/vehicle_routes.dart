@@ -122,10 +122,10 @@ class VehicleRoutes {
     if (year == null) {
       yearInt = null;
     } else if (year is int) {
-      yearInt = year as int;
+      yearInt = year;
     } else if (year is String) {
       try {
-        yearInt = int.parse(year as String);
+        yearInt = int.parse(year);
       } catch (e) {
         return Response.badRequest(body: jsonEncode({'error': 'year must be a valid integer'}));
       }

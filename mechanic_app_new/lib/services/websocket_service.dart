@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../core/constants/backend_constants.dart';
+import '../core/logger.dart';
 
 class WebSocketService extends ChangeNotifier {
   WebSocketChannel? _channel;
@@ -44,18 +45,18 @@ class WebSocketService extends ChangeNotifier {
           _handleMessage(message);
         },
         onError: (error) {
-          print('WebSocket error: $error');
+          logger.warning('WebSocket error: $error');
           _isConnected = false;
           notifyListeners();
         },
         onDone: () {
-          print('WebSocket connection closed');
+          logger.info('WebSocket connection closed');
           _isConnected = false;
           notifyListeners();
         },
       );
     } catch (e) {
-      print('WebSocket connection error: $e');
+      logger.severe('WebSocket connection error: $e');
       _isConnected = false;
       notifyListeners();
     }
@@ -69,7 +70,7 @@ class WebSocketService extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error parsing WebSocket message: $e');
+      logger.warning('Error parsing WebSocket message: $e');
     }
   }
 

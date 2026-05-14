@@ -1,11 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../domain/entities/company_settings.dart';
-import '../../domain/entities/role.dart';
 import '../../domain/repositories/company_settings_repository.dart';
-import '../../core/errors/failures.dart';
 import '../middlewares/auth_middleware.dart';
 
 class CompanySettingsRoutes {

@@ -302,7 +302,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
 
   Widget _buildStatusFilter() {
     return DropdownButtonFormField<String>(
-      value: _selectedStatus,
+      initialValue: _selectedStatus,
       decoration: InputDecoration(
         hintText: 'الحالة',
         prefixIcon: const Icon(Icons.filter_list, size: 20),
@@ -692,7 +692,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
       content: StatefulBuilder(
         builder: (context, setState) {
           return DropdownButtonFormField<String>(
-            value: selectedStatus,
+            initialValue: selectedStatus,
             decoration: InputDecoration(
               labelText: 'الحالة الجديدة',
               filled: true,
@@ -929,7 +929,7 @@ class _BookingCard extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.1),
+            color: statusColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(_getStatusIcon(status), color: statusColor, size: 20),
@@ -942,7 +942,7 @@ class _BookingCard extends StatelessWidget {
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.1),
+            color: statusColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(_getStatusText(status), style: TextStyle(color: statusColor, fontSize: 11, fontWeight: FontWeight.w600)),

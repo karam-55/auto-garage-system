@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
-import '../lib/domain/entities/booking.dart';
-import '../lib/domain/entities/booking_status.dart';
+import 'package:backend/domain/entities/booking.dart';
+import 'package:backend/domain/entities/booking_status.dart';
 
 void main() {
   group('Booking Entity', () {

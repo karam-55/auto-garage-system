@@ -1,5 +1,4 @@
 import 'package:shelf/shelf.dart';
-import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:postgres/postgres.dart';
 import 'dart:convert';
@@ -68,7 +67,7 @@ class PublicRoutes {
       Map<String, dynamic>? bookingData;
       List<Map<String, dynamic>> servicesData = [];
 
-      if (!bookingResult.isEmpty) {
+      if (bookingResult.isNotEmpty) {
         bookingData = bookingResult.first.toColumnMap();
 
         // Get booking services

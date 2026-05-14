@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               Theme.of(context).colorScheme.surface,
             ],
             begin: Alignment.topRight,
@@ -121,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
               constraints: const BoxConstraints(maxWidth: 400),
               child: Card(
                 elevation: 8,
-                shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.2),
+                shadowColor: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             gradient: LinearGradient(
                               colors: [
                                 Theme.of(context).colorScheme.primary,
-                                Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                                Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
                               ],
                               begin: Alignment.topRight,
                               end: Alignment.bottomLeft,
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -188,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text(
                           'تسجيل الدخول',
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                           textAlign: TextAlign.center,
                         ),
@@ -258,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 24),
                         Consumer<AuthProvider>(
                           builder: (context, authProvider, child) {
-                            if (authProvider.errorMessage != null)
+                            if (authProvider.errorMessage != null) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 16),
                                 child: Container(
@@ -286,6 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               );
+                            }
 
                             if (authProvider.isLoading) {
                               return const Center(

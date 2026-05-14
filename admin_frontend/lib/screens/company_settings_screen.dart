@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import '../core/services/api_service.dart';
-import '../core/widgets/professional_dialog.dart';
 import '../core/constants/api_constants.dart';
 
 class CompanySettingsScreen extends StatefulWidget {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/backend_constants.dart';
+import '../core/logger.dart';
 
 class ApiService {
   final String _baseUrl = BackendConstants.backendUrl;
@@ -66,8 +67,8 @@ class ApiService {
   // Auth operations
   Future<Map<String, dynamic>?> login(String username, String password) async {
     try {
-      print('Attempting login via Render backend for username: $username');
-      
+      logger.info('Attempting login via Render backend for username: $username');
+
       final response = await http.post(
         Uri.parse('$_baseUrl/api/auth/login'),
         headers: _headers,
@@ -76,31 +77,31 @@ class ApiService {
           'password': password,
         }),
       );
-      
-      print('Login response status: ${response.statusCode}');
-      
+
+      logger.info('Login response status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Login response: $data');
-        
+        logger.info('Login response: $data');
+
         // Store token
         _token = data['token'];
-        
+
         return data;
       }
-      
-      print('Login failed: ${response.body}');
+
+      logger.warning('Login failed: ${response.body}');
       return null;
     } catch (e) {
-      print('Login error: $e');
+      logger.severe('Login error: $e');
       return null;
     }
   }
   
   Future<bool> register(String username, String fullName, String passwordHash, String role) async {
     try {
-      print('Attempting register via Render backend for username: $username');
-      
+      logger.info('Attempting register via Render backend for username: $username');
+
       final response = await http.post(
         Uri.parse('$_baseUrl/api/auth/register'),
         headers: _headers,
@@ -111,18 +112,18 @@ class ApiService {
           'role': role,
         }),
       );
-      
-      print('Register response status: ${response.statusCode}');
-      
+
+      logger.info('Register response status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
-        print('User registered successfully');
+        logger.info('User registered successfully');
         return true;
       }
-      
-      print('Register failed: ${response.body}');
+
+      logger.warning('Register failed: ${response.body}');
       return false;
     } catch (e) {
-      print('Register error: $e');
+      logger.severe('Register error: $e');
       return false;
     }
   }
@@ -142,7 +143,7 @@ class ApiService {
       
       return [];
     } catch (e) {
-      print('Error fetching bookings: $e');
+      logger.severe('Error fetching bookings: $e');
       return [];
     }
   }
@@ -159,7 +160,7 @@ class ApiService {
       
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating booking status: $e');
+      logger.severe('Error updating booking status: $e');
       return false;
     }
   }
@@ -176,7 +177,7 @@ class ApiService {
       
       return response.statusCode == 200;
     } catch (e) {
-      print('Error assigning booking: $e');
+      logger.severe('Error assigning booking: $e');
       return false;
     }
   }
@@ -196,7 +197,7 @@ class ApiService {
       
       return [];
     } catch (e) {
-      print('Error fetching assignments: $e');
+      logger.severe('Error fetching assignments: $e');
       return [];
     }
   }
@@ -219,7 +220,7 @@ class ApiService {
       
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating assignment status: $e');
+      logger.severe('Error updating assignment status: $e');
       return false;
     }
   }
@@ -244,7 +245,7 @@ class ApiService {
       
       return response.statusCode == 200;
     } catch (e) {
-      print('Error creating part suggestion: $e');
+      logger.severe('Error creating part suggestion: $e');
       return false;
     }
   }
@@ -263,7 +264,7 @@ class ApiService {
       
       return [];
     } catch (e) {
-      print('Error fetching part suggestions: $e');
+      logger.severe('Error fetching part suggestions: $e');
       return [];
     }
   }
@@ -290,7 +291,7 @@ class ApiService {
       
       return response.statusCode == 201;
     } catch (e) {
-      print('Error adding repair: $e');
+      logger.severe('Error adding repair: $e');
       return false;
     }
   }
@@ -310,7 +311,7 @@ class ApiService {
       
       return [];
     } catch (e) {
-      print('Error fetching inventory: $e');
+      logger.severe('Error fetching inventory: $e');
       return [];
     }
   }
@@ -329,7 +330,7 @@ class ApiService {
       
       return response.statusCode == 200;
     } catch (e) {
-      print('Error consuming part: $e');
+      logger.severe('Error consuming part: $e');
       return false;
     }
   }
@@ -347,7 +348,7 @@ class ApiService {
       
       return null;
     } catch (e) {
-      print('Error fetching invoice: $e');
+      logger.severe('Error fetching invoice: $e');
       return null;
     }
   }

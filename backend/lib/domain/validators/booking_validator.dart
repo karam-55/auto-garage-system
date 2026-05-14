@@ -1,5 +1,4 @@
 import 'validation_result.dart';
-import 'common_validators.dart';
 
 class BookingValidator {
   static ValidationResult validate(Map<String, dynamic> data) {

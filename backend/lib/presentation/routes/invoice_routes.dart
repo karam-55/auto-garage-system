@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import '../../domain/entities/booking_invoice_data.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/booking_invoice_data_repository.dart';
 import '../middlewares/auth_middleware.dart';

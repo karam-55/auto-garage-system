@@ -72,7 +72,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
   Future<void> _loadCompanySettings() async {
     try {
       // Get API base URL from environment or use default
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:8080');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://auto-garage-system-backend.onrender.com');
       final response = await http.get(Uri.parse('$baseUrl/api/company/settings'));
       
       if (response.statusCode == 200) {

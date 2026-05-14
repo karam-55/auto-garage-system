@@ -12,13 +12,26 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
   @override
   Future<BookingInvoiceData?> findByBookingId(String bookingId) async {
     print('DEBUG findByBookingId bookingId: $bookingId');
+    print('DEBUG findByBookingId executing SQL: SELECT * FROM booking_invoice_data WHERE booking_id = @bookingId');
+    print('DEBUG findByBookingId parameter: bookingId=$bookingId');
     final result = await _db.execute(
       Sql.named('SELECT * FROM booking_invoice_data WHERE booking_id = @bookingId'),
       parameters: {'bookingId': bookingId},
     );
 
+    print('DEBUG findByBookingId result count: ${result.length}');
     if (result.isEmpty) {
       print('DEBUG findByBookingId: No invoice found for booking $bookingId');
+      
+      // Debug: check if any invoices exist at all
+      final allInvoices = await _db.execute(
+        Sql.named('SELECT * FROM booking_invoice_data'),
+      );
+      print('DEBUG findByBookingId total invoices in database: ${allInvoices.length}');
+      if (allInvoices.isNotEmpty) {
+        print('DEBUG findByBookingId all invoices: ${allInvoices.map((r) => r.toColumnMap()).toList()}');
+      }
+      
       return null;
     }
 

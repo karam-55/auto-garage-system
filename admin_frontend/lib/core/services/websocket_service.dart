@@ -16,8 +16,16 @@ class WebSocketService extends ChangeNotifier {
 
     try {
       // Use ws:// for local, wss:// for production
-      final protocol = ApiConstants.baseUrl.startsWith('https') ? 'wss' : 'ws';
-      final wsUrl = ApiConstants.baseUrl.replaceFirst('http', protocol).replaceFirst('https', 'wss');
+      String wsUrl = ApiConstants.baseUrl;
+      if (wsUrl.startsWith('https://')) {
+        wsUrl = wsUrl.replaceFirst('https://', 'wss://');
+      } else if (wsUrl.startsWith('http://')) {
+        wsUrl = wsUrl.replaceFirst('http://', 'ws://');
+      }
+      // Fix double 'wsss' issue
+      if (wsUrl.contains('wsss://')) {
+        wsUrl = wsUrl.replaceFirst('wsss://', 'wss://');
+      }
       
       _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/ws'));
       

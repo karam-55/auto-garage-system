@@ -142,7 +142,14 @@ void main(List<String> args) async {
     authMiddleware,
     webSocket,
   );
-  final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
+  final invoiceRoutes = InvoiceRoutes(
+    bookingInvoiceDataRepository,
+    bookingRepository,
+    vehicleRepository,
+    customerRepository,
+    bookingServiceRepository,
+    authMiddleware,
+  );
 
   // Create static file handler for uploads directory
   final uploadsDir = Directory('uploads');

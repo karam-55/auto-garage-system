@@ -4,13 +4,28 @@ import 'package:shelf_router/shelf_router.dart';
 import 'package:pdf/widgets.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/repositories/booking_invoice_data_repository.dart';
+import '../../domain/repositories/booking_repository.dart';
+import '../../domain/repositories/vehicle_repository.dart';
+import '../../domain/repositories/customer_repository.dart';
+import '../../domain/repositories/booking_service_repository.dart';
 import '../middlewares/auth_middleware.dart';
 
 class InvoiceRoutes {
   final BookingInvoiceDataRepository _invoiceRepository;
+  final BookingRepository _bookingRepository;
+  final VehicleRepository _vehicleRepository;
+  final CustomerRepository _customerRepository;
+  final BookingServiceRepository _bookingServiceRepository;
   final AuthMiddleware _authMiddleware;
 
-  InvoiceRoutes(this._invoiceRepository, this._authMiddleware);
+  InvoiceRoutes(
+    this._invoiceRepository,
+    this._bookingRepository,
+    this._vehicleRepository,
+    this._customerRepository,
+    this._bookingServiceRepository,
+    this._authMiddleware,
+  );
 
   Router get router {
     final router = Router();
@@ -31,8 +46,45 @@ class InvoiceRoutes {
     }
     try {
       final invoice = await _invoiceRepository.generateOrGetInvoice(id);
+      
+      // Get booking details
+      final booking = await _bookingRepository.findById(id);
+      if (booking == null) {
+        return Response.ok(
+          jsonEncode(invoice.toJson()),
+          headers: {'Content-Type': 'application/json'},
+        );
+      }
+
+      // Get vehicle
+      final vehicle = await _vehicleRepository.findById(booking.vehicleId);
+
+      // Get customer
+      final customer = await _customerRepository.findById(booking.customerId);
+
+      // Get services
+      final services = await _bookingServiceRepository.findByBookingId(id);
+
+      // Build response with all data
+      final response = {
+        'id': invoice.bookingId,
+        'bookingId': invoice.bookingId,
+        'status': booking.status,
+        'notes': booking.notes,
+        'createdAt': booking.createdAt.toIso8601String(),
+        'estimatedCompletionDate': booking.estimatedCompletionDate?.toIso8601String(),
+        'customer': customer?.toJson(),
+        'vehicle': vehicle?.toJson(),
+        'services': services.map((s) => s.toJson()).toList(),
+        'servicesSnapshot': invoice.servicesSnapshot,
+        'partsSnapshot': invoice.partsSnapshot,
+        'totalPrice': invoice.totalPrice,
+        'qrCodeUrl': invoice.qrCodeUrl,
+        'publicToken': invoice.publicToken,
+      };
+
       return Response.ok(
-        jsonEncode(invoice.toJson()),
+        jsonEncode(response),
         headers: {'Content-Type': 'application/json'},
       );
     } catch (e) {

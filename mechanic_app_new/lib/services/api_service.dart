@@ -142,12 +142,13 @@ class ApiService {
         Uri.parse('$_baseUrl/api/mechanics/available-bookings'),
         headers: _headers,
       );
-      
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        logger.info('Available bookings data: $data');
         return List<Map<String, dynamic>>.from(data);
       }
-      
+
       return [];
     } catch (e) {
       logger.severe('Error fetching bookings: $e');

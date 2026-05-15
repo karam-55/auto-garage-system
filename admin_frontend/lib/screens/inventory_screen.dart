@@ -63,7 +63,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
   String _formatPrice(dynamic price) {
     if (price == null) return '0';
     double num = 0;
-    if (price is num) {
+    if (price is double) {
+      num = price;
+    } else if (price is int) {
       num = price.toDouble();
     } else if (price is String) {
       num = double.tryParse(price) ?? 0;
@@ -545,6 +547,23 @@ class _InventoryVariantsScreenState extends State<InventoryVariantsScreen> {
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _supplierController = TextEditingController();
   String _selectedVariantType = 'ORIGINAL';
+
+  // Format number with thousands separator
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    double num = 0;
+    if (price is double) {
+      num = price;
+    } else if (price is int) {
+      num = price.toDouble();
+    } else if (price is String) {
+      num = double.tryParse(price) ?? 0;
+    }
+    return num.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
 
   @override
   void initState() {

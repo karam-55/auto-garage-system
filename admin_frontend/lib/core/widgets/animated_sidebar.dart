@@ -233,7 +233,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
       ),
       _SidebarDestination(
         icon: Icons.flash_on_rounded,
-        label: 'حجز سريع',
+        label: 'حجز لعميل مسجل مسبقا',
         index: 2,
       ),
       _SidebarDestination(

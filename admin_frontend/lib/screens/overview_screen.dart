@@ -23,7 +23,9 @@ class _OverviewScreenState extends State<OverviewScreen> with TickerProviderStat
   String _formatPrice(dynamic price) {
     if (price == null) return '0';
     double num = 0;
-    if (price is num) {
+    if (price is double) {
+      num = price;
+    } else if (price is int) {
       num = price.toDouble();
     } else if (price is String) {
       num = double.tryParse(price) ?? 0;

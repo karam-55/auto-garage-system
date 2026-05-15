@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../providers/auth_provider.dart';
-import '../register_screen.dart';
 import '../../core/constants/backend_constants.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -312,16 +311,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             );
                           },
-                        ),
-                        const SizedBox(height: 16),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                            );
-                          },
-                          child: const Text('إنشاء حساب جديد'),
                         ),
                       ],
                     ),

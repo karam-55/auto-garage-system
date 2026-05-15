@@ -20,7 +20,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
   String _formatPrice(dynamic price) {
     if (price == null) return '0';
     double num = 0;
-    if (price is num) {
+    if (price is double) {
+      num = price;
+    } else if (price is int) {
       num = price.toDouble();
     } else if (price is String) {
       num = double.tryParse(price) ?? 0;
@@ -150,12 +152,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
             icon: Icons.account_balance_wallet_rounded,
             color: const Color(0xFF6366F1),
           ),
-          _StatCard(
-            title: 'الإيراد الشهري',
+          _RevenueItem(
+            label: 'الإيراد الشهري',
             value: '${_formatPrice(_revenueData!['monthlyRevenue'] ?? 0)} ل.س',
+            icon: Icons.calendar_month_rounded,
+            color: const Color(0xFF10B981),
           ),
-          _StatCard(
-            title: 'متوسط الإيراد اليومي',
+          _RevenueItem(
+            label: 'متوسط الإيراد اليومي',
             value: '${_formatPrice(_revenueData!['averageDailyRevenue'] ?? 0)} ل.س',
             icon: Icons.trending_up_rounded,
             color: const Color(0xFFF59E0B),

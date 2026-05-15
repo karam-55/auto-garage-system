@@ -21,10 +21,10 @@ class CreateBookingScreen extends StatefulWidget {
 
 class _CreateBookingScreenState extends State<CreateBookingScreen>
     with TickerProviderStateMixin {
-  final ApiService _apiService = widget.apiService;
-  final VoidCallback? onBookingCreated = widget.onBookingCreated;
+  late ApiService _apiService;
+  late VoidCallback? onBookingCreated;
   final List<Map<String, dynamic>> _availableServices = [];
-  final List<Map<String, dynamic>> _selectedServices = [];
+  List<Map<String, dynamic>> _selectedServices = [];
   bool _isLoadingServices = false;
   bool _isLoading = false;
   final _notesController = TextEditingController();
@@ -34,7 +34,9 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
   String _formatPrice(dynamic price) {
     if (price == null) return '0';
     double num = 0;
-    if (price is num) {
+    if (price is double) {
+      num = price;
+    } else if (price is int) {
       num = price.toDouble();
     } else if (price is String) {
       num = double.tryParse(price) ?? 0;
@@ -64,15 +66,11 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
   final _bookingNotesController = TextEditingController();
   DateTime? _preferredDate;
 
-  // Services
-  List<Map<String, dynamic>> _selectedServices = [];
-  double _totalPrice = 0.0;
-
-  bool _isLoading = false;
-
   @override
   void initState() {
     super.initState();
+    _apiService = widget.apiService;
+    onBookingCreated = widget.onBookingCreated;
     _tabController = TabController(length: 5, vsync: this);
   }
 

@@ -237,8 +237,8 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
             
             print('Final invoice data: $invoiceData');
             
-            // Replace current screen with invoice screen
-            Navigator.of(context).pushReplacement(
+            // Push invoice screen (don't replace, so back button works)
+            Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => InvoiceScreen(invoiceData: invoiceData),
               ),

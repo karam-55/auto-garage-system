@@ -27,64 +27,86 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   Map<String, dynamic> get _data => widget.invoiceData;
 
   String get _customerName {
-    final customer = _data['customer'] as Map<String, dynamic>?;
-    return customer?['fullName']?.toString() ??
-        customer?['full_name']?.toString() ??
-        'غير معروف';
+    // Try new structure first, then old structure
+    if (_data['customer'] is Map) {
+      final customer = _data['customer'] as Map<String, dynamic>?;
+      return customer?['fullName']?.toString() ??
+          customer?['full_name']?.toString() ??
+          'غير معروف';
+    }
+    return 'غير معروف';
   }
 
   String get _customerPhone {
-    final customer = _data['customer'] as Map<String, dynamic>?;
-    return customer?['phone']?.toString() ?? '';
+    if (_data['customer'] is Map) {
+      final customer = _data['customer'] as Map<String, dynamic>?;
+      return customer?['phone']?.toString() ?? '';
+    }
+    return '';
   }
 
   String get _vehicleName {
-    final vehicle = _data['vehicle'] as Map<String, dynamic>?;
-    final make = vehicle?['make']?.toString() ?? '';
-    final model = vehicle?['model']?.toString() ?? '';
-    return '$make $model'.trim();
+    if (_data['vehicle'] is Map) {
+      final vehicle = _data['vehicle'] as Map<String, dynamic>?;
+      final make = vehicle?['make']?.toString() ?? '';
+      final model = vehicle?['model']?.toString() ?? '';
+      return '$make $model'.trim();
+    }
+    return '';
   }
 
   String get _licensePlate {
-    final vehicle = _data['vehicle'] as Map<String, dynamic>?;
-    return vehicle?['licensePlate']?.toString() ??
-        vehicle?['license_plate']?.toString() ??
-        'غير متوفر';
+    if (_data['vehicle'] is Map) {
+      final vehicle = _data['vehicle'] as Map<String, dynamic>?;
+      return vehicle?['licensePlate']?.toString() ??
+          vehicle?['license_plate']?.toString() ??
+          'غير متوفر';
+    }
+    return 'غير متوفر';
   }
 
   int? get _vehicleYear {
-    final vehicle = _data['vehicle'] as Map<String, dynamic>?;
-    final year = vehicle?['year'];
-    if (year is int) return year;
-    if (year is String) return int.tryParse(year);
+    if (_data['vehicle'] is Map) {
+      final vehicle = _data['vehicle'] as Map<String, dynamic>?;
+      final year = vehicle?['year'];
+      if (year is int) return year;
+      if (year is String) return int.tryParse(year);
+    }
     return null;
   }
 
   String get _publicCarId {
-    final vehicle = _data['vehicle'] as Map<String, dynamic>?;
-    return vehicle?['publicCarId']?.toString() ??
-        vehicle?['public_car_id']?.toString() ??
-        '';
+    // Try to extract from qrCodeUrl first
+    if (_data['qrCodeUrl'] is String) {
+      final url = _data['qrCodeUrl'] as String;
+      if (url.contains('publicCarId=')) {
+        return url.split('publicCarId=').last;
+      }
+    }
+    // Fallback to vehicle data
+    if (_data['vehicle'] is Map) {
+      final vehicle = _data['vehicle'] as Map<String, dynamic>?;
+      return vehicle?['publicCarId']?.toString() ??
+          vehicle?['public_car_id']?.toString() ??
+          '';
+    }
+    return '';
   }
 
   String get _bookingId {
-    final booking = _data['booking'] as Map<String, dynamic>?;
-    return booking?['id']?.toString() ?? _data['id']?.toString() ?? '';
+    return _data['bookingId']?.toString() ?? _data['id']?.toString() ?? '';
   }
 
   String get _status {
-    final booking = _data['booking'] as Map<String, dynamic>?;
-    return booking?['status']?.toString() ?? _data['status']?.toString() ?? 'PENDING';
+    return _data['status']?.toString() ?? 'PENDING';
   }
 
   String get _notes {
-    final booking = _data['booking'] as Map<String, dynamic>?;
-    return booking?['notes']?.toString() ?? _data['notes']?.toString() ?? '';
+    return _data['notes']?.toString() ?? '';
   }
 
   DateTime? get _createdAt {
-    final booking = _data['booking'] as Map<String, dynamic>?;
-    final raw = booking?['createdAt'] ?? booking?['created_at'] ?? _data['createdAt'];
+    final raw = _data['invoiceCreatedAt'] ?? _data['createdAt'];
     if (raw == null) return null;
     try {
       return DateTime.parse(raw.toString());
@@ -94,14 +116,26 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   List<Map<String, dynamic>> get _services {
-    final services = _data['services'];
-    if (services is List) {
-      return List<Map<String, dynamic>>.from(services);
+    // Try new structure from servicesSnapshot
+    if (_data['servicesSnapshot'] is Map) {
+      final snapshot = _data['servicesSnapshot'] as Map<String, dynamic>?;
+      if (snapshot?['services'] is List) {
+        return List<Map<String, dynamic>>.from(snapshot!['services'] as List);
+      }
+    }
+    // Fallback to old structure
+    if (_data['services'] is List) {
+      return List<Map<String, dynamic>>.from(_data['services'] as List);
     }
     return [];
   }
 
   double get _total {
+    // Try totalPrice from invoice data first
+    if (_data['totalPrice'] is num) {
+      return (_data['totalPrice'] as num).toDouble();
+    }
+    // Fallback to calculating from services
     double sum = 0;
     for (final s in _services) {
       final price = s['priceSYP'] ?? s['price_syp'] ?? 0;
@@ -111,9 +145,12 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   String get _trackingUrl {
+    if (_data['qrCodeUrl'] is String) {
+      return _data['qrCodeUrl'] as String;
+    }
     const base = 'https://auto-garage-customer-frontend.pages.dev';
     if (_publicCarId.isEmpty) return base;
-    return '$base?car=$_publicCarId';
+    return '$base?publicCarId=$_publicCarId';
   }
 
   static const Map<String, String> _statusLabels = {

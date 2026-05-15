@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
 import '../core/utils/error_handler.dart';
+import 'invoice_screen.dart';
 
 class QuickBookingScreen extends StatefulWidget {
   final ApiService apiService;
@@ -24,7 +25,6 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
   String? _selectedCustomerId;
   List<Map<String, dynamic>> _customers = [];
   bool _isLoadingCustomers = false;
-  final _customerSearchController = TextEditingController();
   
   // Vehicle Selection
   String? _selectedVehicleId;
@@ -47,7 +47,6 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
     super.initState();
     _loadCustomers();
     _loadServices();
-    _customerSearchController.addListener(_filterCustomers);
   }
 
   // Vehicle Form Controllers
@@ -61,7 +60,6 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
 
   @override
   void dispose() {
-    _customerSearchController.dispose();
     _notesController.dispose();
     _vehicleMakeController.dispose();
     _vehicleModelController.dispose();
@@ -74,13 +72,28 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
   Future<void> _loadCustomers() async {
     setState(() => _isLoadingCustomers = true);
     try {
+      print('Loading customers from: ${ApiConstants.customers}');
       final response = await widget.apiService.get(ApiConstants.customers);
+      print('Response type: ${response.runtimeType}');
+      print('Response: $response');
+      
+      List<dynamic> customersList = [];
+      
       if (response is List) {
-        setState(() {
-          _customers = List<Map<String, dynamic>>.from(response);
-        });
+        customersList = response;
+      } else if (response is Map<String, dynamic>) {
+        // Handle wrapped response with 'data' field
+        if (response['data'] is List) {
+          customersList = response['data'] as List<dynamic>;
+        }
       }
+      
+      setState(() {
+        _customers = List<Map<String, dynamic>>.from(customersList);
+        print('Loaded ${_customers.length} customers');
+      });
     } catch (e) {
+      print('Error loading customers: $e');
       if (mounted) {
         ErrorHandler.showError(context, ErrorHandler.parseError(e));
       }
@@ -95,11 +108,20 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
     setState(() => _isLoadingServices = true);
     try {
       final response = await widget.apiService.get(ApiConstants.services);
+      
+      List<dynamic> servicesList = [];
+      
       if (response is List) {
-        setState(() {
-          _availableServices = List<Map<String, dynamic>>.from(response);
-        });
+        servicesList = response;
+      } else if (response is Map<String, dynamic>) {
+        if (response['data'] is List) {
+          servicesList = response['data'] as List<dynamic>;
+        }
       }
+      
+      setState(() {
+        _availableServices = List<Map<String, dynamic>>.from(servicesList);
+      });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -118,17 +140,26 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
     try {
       // Filter vehicles by customer ID
       final allVehiclesResponse = await widget.apiService.get(ApiConstants.vehicles);
+      
+      List<dynamic> vehiclesList = [];
+      
       if (allVehiclesResponse is List) {
-        final customerVehicles = (allVehiclesResponse)
-            .where((v) => v['customerId'] == customerId)
-            .toList();
-        
-        setState(() {
-          _vehicles = List<Map<String, dynamic>>.from(customerVehicles);
-          _selectedVehicleId = null;
-          _showAddVehicleOption = true;
-        });
+        vehiclesList = allVehiclesResponse;
+      } else if (allVehiclesResponse is Map<String, dynamic>) {
+        if (allVehiclesResponse['data'] is List) {
+          vehiclesList = allVehiclesResponse['data'] as List<dynamic>;
+        }
       }
+      
+      final customerVehicles = vehiclesList
+          .where((v) => v['customerId'] == customerId)
+          .toList();
+      
+      setState(() {
+        _vehicles = List<Map<String, dynamic>>.from(customerVehicles);
+        _selectedVehicleId = null;
+        _showAddVehicleOption = true;
+      });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -140,13 +171,6 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
         setState(() => _isLoadingVehicles = false);
       }
     }
-  }
-
-  void _filterCustomers() {
-    final query = _customerSearchController.text.toLowerCase();
-    setState(() {
-      // The filtering will be done in the dropdown search
-    });
   }
 
   Future<void> _createBooking() async {
@@ -171,7 +195,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
       final bookingResponse = await widget.apiService.post(ApiConstants.bookings, {
         'customerId': _selectedCustomerId,
         'vehicleId': _selectedVehicleId,
-        'serviceIds': _selectedServiceIds,
+        'services': _selectedServiceIds,
         'notes': _notesController.text.trim(),
       });
 
@@ -183,8 +207,27 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
         if (widget.onBookingCreated != null) {
           widget.onBookingCreated!();
         }
-        
-        Navigator.of(context).pop();
+
+        // Fetch invoice data
+        final bookingId = bookingResponse['id']?.toString();
+        if (bookingId != null) {
+          try {
+            final invoiceResponse = await widget.apiService.get('${ApiConstants.bookings}/$bookingId/invoice');
+            if (invoiceResponse is Map<String, dynamic>) {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => InvoiceScreen(invoiceData: invoiceResponse),
+                ),
+              );
+            }
+          } catch (e) {
+            // If invoice fetch fails, just go back
+            Navigator.of(context).pop();
+          }
+        } else {
+          Navigator.of(context).pop();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -374,7 +417,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('حجز سريع'),
+        title: const Text('حجز لعميل مسجل مسبقا'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -398,57 +441,48 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
                       const SizedBox(height: 16),
                       if (_isLoadingCustomers)
                         const Center(child: CircularProgressIndicator())
+                      else if (_customers.isEmpty)
+                        const Center(child: Text('لا يوجد عملاء مسجلين'))
                       else
-                        Column(
-                          children: [
-                            TextField(
-                              controller: _customerSearchController,
-                              decoration: const InputDecoration(
-                                labelText: 'بحث عن عميل',
-                                prefixIcon: Icon(Icons.search),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              height: 200,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: ListView.builder(
-                                itemCount: _customers.length,
-                                itemBuilder: (context, index) {
-                                  final customer = _customers[index];
-                                  final matchesSearch = customer['fullName']
-                                      .toString()
-                                      .toLowerCase()
-                                      .contains(_customerSearchController.text.toLowerCase()) ||
-                                      customer['phone']
-                                          .toString()
-                                          .contains(_customerSearchController.text);
-                                  
-                                  if (!matchesSearch) return const SizedBox.shrink();
-                                  
-                                  return ListTile(
-                                    title: Text(customer['fullName'] ?? 'غير معروف'),
-                                    subtitle: Text(customer['phone'] ?? ''),
-                                    trailing: Radio<String>(
-                                      value: customer['id']?.toString() ?? '',
-                                      groupValue: _selectedCustomerId,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _selectedCustomerId = value;
-                                        });
-                                        _loadVehicles(value!);
-                                      },
+                        DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                            labelText: 'اختر العميل',
+                            prefixIcon: Icon(Icons.person),
+                            border: OutlineInputBorder(),
+                          ),
+                          value: _selectedCustomerId,
+                          items: _customers.map((customer) {
+                            return DropdownMenuItem<String>(
+                              value: customer['id']?.toString(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    customer['fullName'] ?? '',
+                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    customer['phone'] ?? '',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
                                     ),
-                                  );
-                                },
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            );
+                          }).toList(),
+                          onChanged: (String? customerId) {
+                            if (customerId != null) {
+                              setState(() {
+                                _selectedCustomerId = customerId;
+                                _selectedVehicleId = null;
+                                _vehicles = [];
+                              });
+                              _loadVehicles(customerId);
+                            }
+                          },
                         ),
                     ],
                   ),
@@ -481,27 +515,41 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
                       else
                         Column(
                           children: [
-                            ..._vehicles.map((vehicle) {
-                              return ListTile(
-                                title: Text('${vehicle['make']} ${vehicle['model']}'),
-                                subtitle: Text(vehicle['licensePlate'] ?? ''),
-                                trailing: Radio<String>(
-                                  value: vehicle['id']?.toString() ?? '',
-                                  groupValue: _selectedVehicleId,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedVehicleId = value;
-                                    });
-                                  },
-                                ),
-                              );
-                            }),
+                            if (_vehicles.isNotEmpty)
+                              Autocomplete<String>(
+                                optionsBuilder: (TextEditingValue textEditingValue) {
+                                  return _vehicles.map((vehicle) => vehicle['id']?.toString() ?? '');
+                                },
+                                displayStringForOption: (String vehicleId) {
+                                  final vehicle = _vehicles.firstWhere(
+                                    (v) => v['id']?.toString() == vehicleId,
+                                    orElse: () => {},
+                                  );
+                                  return '${vehicle['make']} ${vehicle['model']} - ${vehicle['licensePlate'] ?? ''}';
+                                },
+                                fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                                  return TextField(
+                                    controller: textEditingController,
+                                    focusNode: focusNode,
+                                    decoration: const InputDecoration(
+                                      labelText: 'اختر سيارة',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  );
+                                },
+                                onSelected: (String vehicleId) {
+                                  setState(() {
+                                    _selectedVehicleId = vehicleId;
+                                  });
+                                },
+                              ),
                             if (_showAddVehicleOption)
-                              ListTile(
-                                leading: const Icon(Icons.add_circle_outline),
-                                title: const Text('إضافة سيارة جديدة'),
-                                subtitle: const Text('لإضافة سيارة جديدة لهذا العميل'),
-                                onTap: _showAddVehicleDialog,
+                              const SizedBox(height: 16),
+                            if (_showAddVehicleOption)
+                              OutlinedButton.icon(
+                                onPressed: _showAddVehicleDialog,
+                                icon: const Icon(Icons.add_circle_outline),
+                                label: const Text('إضافة سيارة جديدة'),
                               ),
                           ],
                         ),

@@ -7,12 +7,17 @@ class Env {
 
   // WebSocket URL
   static String get wsUrl {
-    if (baseUrl.startsWith('https://')) {
-      return baseUrl.replaceFirst('https://', 'wss://');
-    } else if (baseUrl.startsWith('http://')) {
-      return baseUrl.replaceFirst('http://', 'ws://');
+    String url = baseUrl;
+    if (url.startsWith('https://')) {
+      url = url.replaceFirst('https://', 'wss://');
+    } else if (url.startsWith('http://')) {
+      url = url.replaceFirst('http://', 'ws://');
     }
-    return baseUrl;
+    // Fix double 'wsss' issue
+    if (url.contains('wsss://')) {
+      url = url.replaceFirst('wsss://', 'wss://');
+    }
+    return url;
   }
 
   // API Endpoints

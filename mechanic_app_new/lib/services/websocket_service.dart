@@ -19,14 +19,16 @@ class WebSocketService extends ChangeNotifier {
       // Use ws:// for local, wss:// for production
       final protocol = BackendConstants.backendUrl.startsWith('https') ? 'wss' : 'ws';
       var wsUrl = BackendConstants.backendUrl.replaceFirst('http', protocol);
-      
+
       // Fix protocol if it's already ws/wss
       if (wsUrl.startsWith('wsss')) {
         wsUrl = wsUrl.replaceFirst('wsss', 'wss');
       }
-      
+
+      logger.info('Connecting to WebSocket: $wsUrl/ws');
+
       _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/ws'));
-      
+
       // Send auth message
       if (userId != null || role != null) {
         _channel!.sink.add(jsonEncode({
@@ -56,7 +58,7 @@ class WebSocketService extends ChangeNotifier {
         },
       );
     } catch (e) {
-      logger.severe('WebSocket connection error: $e');
+      logger.warning('WebSocket connection failed (non-critical): $e');
       _isConnected = false;
       notifyListeners();
     }

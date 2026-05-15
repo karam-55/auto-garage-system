@@ -184,6 +184,10 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: const Text('فاتورة الحجز'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           if (widget.showPrintButton)
             IconButton(

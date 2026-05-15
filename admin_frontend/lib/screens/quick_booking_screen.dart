@@ -223,16 +223,28 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
         final bookingId = bookingResponse['id']?.toString();
         if (bookingId != null) {
           try {
+            print('Fetching invoice for booking: $bookingId');
             final invoiceResponse = await widget.apiService.get('${ApiConstants.bookings}/$bookingId/invoice');
+            print('Invoice response type: ${invoiceResponse.runtimeType}');
+            print('Invoice response: $invoiceResponse');
+            
+            Map<String, dynamic> invoiceData = {};
             if (invoiceResponse is Map<String, dynamic>) {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => InvoiceScreen(invoiceData: invoiceResponse),
-                ),
-              );
+              invoiceData = invoiceResponse;
+            } else if (invoiceResponse is Map && invoiceResponse['data'] is Map) {
+              invoiceData = invoiceResponse['data'] as Map<String, dynamic>;
             }
+            
+            print('Final invoice data: $invoiceData');
+            
+            Navigator.of(context).pop();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => InvoiceScreen(invoiceData: invoiceData),
+              ),
+            );
           } catch (e) {
+            print('Error fetching invoice: $e');
             // If invoice fetch fails, just go back
             Navigator.of(context).pop();
           }

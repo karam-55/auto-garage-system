@@ -88,11 +88,13 @@ class Customer {
   final String id;
   final String fullName;
   final String? phone;
+  final String? address;
   
   Customer({
     required this.id,
     required this.fullName,
     this.phone,
+    this.address,
   });
   
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -100,6 +102,7 @@ class Customer {
       id: json['id'] as String,
       fullName: json['full_name'] as String? ?? '',
       phone: json['phone'] as String?,
+      address: json['address'] as String?,
     );
   }
   
@@ -108,6 +111,7 @@ class Customer {
       'id': id,
       'full_name': fullName,
       'phone': phone,
+      'address': address,
     };
   }
 }

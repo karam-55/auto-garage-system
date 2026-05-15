@@ -21,7 +21,7 @@ class Booking {
     return Booking(
       id: json['id'] as String,
       status: json['status'] as String? ?? 'PENDING',
-      notes: json['notes'] as String?,
+      notes: json['notes'] as String? ?? '',
       estimatedCompletionDate: json['estimated_completion_date'] != null
           ? DateTime.parse(json['estimated_completion_date'] as String)
           : null,

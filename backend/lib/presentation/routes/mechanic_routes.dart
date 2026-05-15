@@ -8,6 +8,8 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/mechanic_assignment_repository.dart';
 import '../../domain/repositories/part_suggestion_repository.dart';
 import '../../domain/repositories/booking_repository.dart';
+import '../../domain/repositories/vehicle_repository.dart';
+import '../../domain/repositories/customer_repository.dart';
 import '../../application/usecases/assign_mechanic_usecase.dart';
 import '../../application/usecases/create_part_suggestion_usecase.dart';
 import '../middlewares/json_middleware.dart';
@@ -18,12 +20,16 @@ class MechanicRoutes {
   final MechanicAssignmentRepository _mechanicAssignmentRepository;
   final PartSuggestionRepository _partSuggestionRepository;
   final BookingRepository _bookingRepository;
+  final VehicleRepository _vehicleRepository;
+  final CustomerRepository _customerRepository;
   final AuthMiddleware _authMiddleware;
 
   MechanicRoutes(
     this._mechanicAssignmentRepository,
     this._partSuggestionRepository,
     this._bookingRepository,
+    this._vehicleRepository,
+    this._customerRepository,
     this._authMiddleware,
   );
 
@@ -59,9 +65,20 @@ class MechanicRoutes {
       print('Fetching available bookings for mechanic...');
       final availableBookings = await _bookingRepository.findAvailableForMechanic();
       print('Found ${availableBookings.length} available bookings');
-      return Response.ok(
-        jsonEncode(availableBookings.map((b) => b.toJson()).toList()),
-      );
+
+      // Fetch vehicle and customer data for each booking
+      final enrichedBookings = await Future.wait(availableBookings.map((booking) async {
+        final vehicle = await _vehicleRepository.findById(booking.vehicleId);
+        final customer = await _customerRepository.findById(booking.customerId);
+
+        return {
+          ...booking.toJson(),
+          'vehicles': vehicle?.toJson(),
+          'customers': customer?.toJson(),
+        };
+      }).toList());
+
+      return Response.ok(jsonEncode(enrichedBookings));
     } catch (e) {
       print('Error fetching available bookings: $e');
       return Response.internalServerError(

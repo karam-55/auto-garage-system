@@ -218,7 +218,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final roleController = TextEditingController();
     String? selectedRole;
 
-    final roles = ['مالك', 'مدير', 'موظف استقبال', 'ميكانيكي'];
+    final roles = {
+      'مالك': 'OWNER',
+      'مدير': 'MANAGER',
+      'موظف استقبال': 'RECEPTIONIST',
+      'ميكانيكي': 'MECHANIC',
+    };
 
     showProfessionalDialog(
       context: context,
@@ -303,10 +308,10 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                 ),
-                items: roles.map((role) {
+                items: roles.entries.map((entry) {
                   return DropdownMenuItem<String>(
-                    value: role,
-                    child: Text(role),
+                    value: entry.value,
+                    child: Text(entry.key),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -381,7 +386,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final phoneController = TextEditingController(text: employee['phone'] ?? '');
     String? selectedRole = employee['role']?.toString();
 
-    final roles = ['مالك', 'مدير', 'موظف استقبال', 'ميكانيكي'];
+    final roles = {
+      'مالك': 'OWNER',
+      'مدير': 'MANAGER',
+      'موظف استقبال': 'RECEPTIONIST',
+      'ميكانيكي': 'MECHANIC',
+    };
 
     showProfessionalDialog(
       context: context,
@@ -435,10 +445,10 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                 ),
-                items: roles.map((role) {
+                items: roles.entries.map((entry) {
                   return DropdownMenuItem<String>(
-                    value: role,
-                    child: Text(role),
+                    value: entry.value,
+                    child: Text(entry.key),
                   );
                 }).toList(),
                 onChanged: (value) {

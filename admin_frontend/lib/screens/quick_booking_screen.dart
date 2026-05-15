@@ -191,11 +191,22 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
     setState(() => _isCreatingBooking = true);
 
     try {
-      // Create booking
+      // Create booking - convert service IDs to service objects with price
+      final servicesData = _selectedServiceIds.map((serviceId) {
+        final service = _availableServices.firstWhere(
+          (s) => s['id']?.toString() == serviceId,
+          orElse: () => {},
+        );
+        return {
+          'serviceId': serviceId,
+          'priceSYP': service['priceSYP'] ?? service['price_syp'] ?? 0,
+        };
+      }).toList();
+
       final bookingResponse = await widget.apiService.post(ApiConstants.bookings, {
         'customerId': _selectedCustomerId,
         'vehicleId': _selectedVehicleId,
-        'services': _selectedServiceIds,
+        'services': servicesData,
         'notes': _notesController.text.trim(),
       });
 

@@ -16,6 +16,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Map<String, dynamic>? _revenueData;
   bool _isLoading = false;
 
+  // Format number with thousands separator
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    double num = 0;
+    if (price is num) {
+      num = price.toDouble();
+    } else if (price is String) {
+      num = double.tryParse(price) ?? 0;
+    }
+    return num.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -131,19 +146,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
         final items = [
           _RevenueItem(
             label: 'إجمالي الإيرادات',
-            value: '${(_revenueData!['totalRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
+            value: '${_formatPrice(_revenueData!['totalRevenue'] ?? 0)} ل.س',
             icon: Icons.account_balance_wallet_rounded,
             color: const Color(0xFF6366F1),
           ),
-          _RevenueItem(
-            label: 'إيرادات هذا الشهر',
-            value: '${(_revenueData!['monthlyRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
-            icon: Icons.calendar_today_rounded,
-            color: const Color(0xFF10B981),
+          _StatCard(
+            title: 'الإيراد الشهري',
+            value: '${_formatPrice(_revenueData!['monthlyRevenue'] ?? 0)} ل.س',
           ),
-          _RevenueItem(
-            label: 'متوسط يومي',
-            value: '${(_revenueData!['averageDailyRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
+          _StatCard(
+            title: 'متوسط الإيراد اليومي',
+            value: '${_formatPrice(_revenueData!['averageDailyRevenue'] ?? 0)} ل.س',
             icon: Icons.trending_up_rounded,
             color: const Color(0xFFF59E0B),
           ),

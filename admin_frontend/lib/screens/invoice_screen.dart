@@ -171,6 +171,21 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     'CANCELLED': Colors.red,
   };
 
+  // Format number with thousands separator
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    double num = 0;
+    if (price is num) {
+      num = price.toDouble();
+    } else if (price is String) {
+      num = double.tryParse(price) ?? 0;
+    }
+    return num.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
   Future<void> _printInvoice() async {
     setState(() => _isPrinting = true);
     try {
@@ -454,7 +469,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                             ),
                           ),
                           Text(
-                            '${_total.toStringAsFixed(0)} ل.س',
+                            '${_formatPrice(_total)} ل.س',
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -636,7 +651,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             ),
           ),
           Text(
-            '${price.toStringAsFixed(0)} ل.س',
+            '${_formatPrice(price)} ل.س',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.primary,

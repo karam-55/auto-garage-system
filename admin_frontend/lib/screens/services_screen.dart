@@ -457,6 +457,21 @@ class _ServiceCard extends StatelessWidget {
 
   const _ServiceCard({required this.service, required this.onEdit, required this.onDelete});
 
+  // Format number with thousands separator
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    double num = 0;
+    if (price is num) {
+      num = price.toDouble();
+    } else if (price is String) {
+      num = double.tryParse(price) ?? 0;
+    }
+    return num.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final price = (service['priceSYP'] as num?)?.toDouble() ?? 0.0;
@@ -511,7 +526,7 @@ class _ServiceCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '$price ل.س',
+                  '${_formatPrice(price)} ل.س',
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)),
                 ),
               ),

@@ -21,6 +21,30 @@ class CreateBookingScreen extends StatefulWidget {
 
 class _CreateBookingScreenState extends State<CreateBookingScreen>
     with TickerProviderStateMixin {
+  final ApiService _apiService = widget.apiService;
+  final VoidCallback? onBookingCreated = widget.onBookingCreated;
+  final List<Map<String, dynamic>> _availableServices = [];
+  final List<Map<String, dynamic>> _selectedServices = [];
+  bool _isLoadingServices = false;
+  bool _isLoading = false;
+  final _notesController = TextEditingController();
+  double _totalPrice = 0;
+
+  // Format number with thousands separator
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    double num = 0;
+    if (price is num) {
+      num = price.toDouble();
+    } else if (price is String) {
+      num = double.tryParse(price) ?? 0;
+    }
+    return num.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
   late TabController _tabController;
   final _formKey = GlobalKey<FormState>();
 
@@ -589,7 +613,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${service['priceSYP'] ?? 0} ل.س',
+                                '${_formatPrice(service['priceSYP'])} ل.س',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(context).colorScheme.primary,
                                     ),
@@ -621,7 +645,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
                       ),
                 ),
                 Text(
-                  '$_totalPrice ل.س',
+                  '${_formatPrice(_totalPrice)} ل.س',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.primary,
@@ -785,7 +809,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
           const SizedBox(height: 12),
           _buildSummaryCard('الخدمات المختارة', '${_selectedServices.length} خدمة', Icons.build_rounded),
           const SizedBox(height: 12),
-          _buildSummaryCard('الإجمالي', '$_totalPrice ل.س', Icons.attach_money_rounded),
+          _buildSummaryCard('الإجمالي', '${_formatPrice(_totalPrice)} ل.س', Icons.attach_money_rounded),
           const Spacer(),
           Row(
             children: [

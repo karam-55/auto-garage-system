@@ -19,6 +19,21 @@ class _OverviewScreenState extends State<OverviewScreen> with TickerProviderStat
   late AnimationController _staggerController;
   final WebSocketService _webSocketService = WebSocketService();
 
+  // Format number with thousands separator
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    double num = 0;
+    if (price is num) {
+      num = price.toDouble();
+    } else if (price is String) {
+      num = double.tryParse(price) ?? 0;
+    }
+    return num.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -254,7 +269,7 @@ class _OverviewScreenState extends State<OverviewScreen> with TickerProviderStat
                 Text('الإيرادات الشهرية', style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 4),
                 Text(
-                  '${(_stats!['monthlyRevenue'] ?? 0).toStringAsFixed(0)} ل.س',
+                  '${_formatPrice(_stats!['monthlyRevenue'] ?? 0)} ل.س',
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)),
                 ),
               ],

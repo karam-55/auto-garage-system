@@ -59,6 +59,21 @@ class _InventoryScreenState extends State<InventoryScreen> {
   final int _pageSize = 20;
   int _currentPage = 1;
 
+  // Format number with thousands separator
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    double num = 0;
+    if (price is num) {
+      num = price.toDouble();
+    } else if (price is String) {
+      num = double.tryParse(price) ?? 0;
+    }
+    return num.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -750,8 +765,8 @@ class _InventoryVariantsScreenState extends State<InventoryVariantsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('الكمية: ${variant.quantity}'),
-                            Text('سعر الشراء: ${variant.costPrice} ل.س'),
-                            Text('سعر البيع: ${variant.sellingPrice} ل.س'),
+                            Text('سعر الشراء: ${_formatPrice(variant.costPrice)} ل.س'),
+                            Text('سعر البيع: ${_formatPrice(variant.sellingPrice)} ل.س'),
                             if (variant.supplier != null) Text('المورد: ${variant.supplier}'),
                           ],
                         ),

@@ -110,11 +110,11 @@ class ApiService {
       logger.info('Attempting register via Render backend for username: $username');
 
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/auth/register'),
+        Uri.parse('$_baseUrl/api/auth/mechanic-register'),
         headers: _headers,
         body: jsonEncode({
           'username': username,
-          'full_name': fullName,
+          'fullName': fullName,
           'password': passwordHash,
           'role': role,
         }),

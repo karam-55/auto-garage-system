@@ -62,6 +62,9 @@ class AuthRoutes {
     // POST /api/auth/register (protected: only OWNER can create users)
     router.post('/api/auth/register', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_register)));
 
+    // POST /api/auth/mechanic-register (public: for mechanics to self-register)
+    router.post('/api/auth/mechanic-register', _mechanicRegister);
+
     // POST /api/users (protected: only OWNER can create users - alias for register)
     router.post('/api/users', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_register)));
 
@@ -221,6 +224,58 @@ class AuthRoutes {
 
     if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
       return Response.badRequest(body: jsonEncode({'error': 'Password must contain uppercase, lowercase, number, and special character'}));
+    }
+
+    try {
+      // Hash password
+      final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+
+      final user = User(
+        id: const Uuid().v4(),
+        fullName: fullName,
+        username: username,
+        passwordHash: passwordHash,
+        role: Role.fromString(role),
+        createdAt: DateTime.now().toUtc(),
+      );
+
+      final createdUser = await _userRepository.create(user);
+
+      return Response.ok(
+        jsonEncode({
+          'id': createdUser.id,
+          'fullName': createdUser.fullName,
+          'username': createdUser.username,
+          'role': createdUser.role.value,
+        }),
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Registration failed: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _mechanicRegister(Request request) async {
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    final fullName = (body['fullName'] as String?)?.trim();
+    final username = (body['username'] as String?)?.trim();
+    final password = body['password'] as String?;
+    final role = (body['role'] as String?)?.trim();
+
+    if (fullName == null || fullName.isEmpty ||
+        username == null || username.isEmpty ||
+        password == null || password.isEmpty ||
+        role == null || role.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'All fields are required and cannot be empty'}));
+    }
+
+    if (password.length < 6) {
+      return Response.badRequest(body: jsonEncode({'error': 'Password must be at least 6 characters'}));
     }
 
     try {

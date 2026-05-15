@@ -736,6 +736,20 @@ class _BookingsScreenState extends State<BookingsScreen> {
           ? (vehicleResponse['publicCarId']?.toString() ?? vehicleResponse['public_car_id']?.toString())
           : null;
 
+      // Fetch customer details to get full customer data
+      final customerId = booking['customerId']?.toString();
+      Map<String, dynamic>? customerData;
+      if (customerId != null && customerId.isNotEmpty) {
+        try {
+          final customerResponse = await widget.apiService.get('${ApiConstants.customers}/$customerId');
+          if (customerResponse is Map<String, dynamic>) {
+            customerData = customerResponse;
+          }
+        } catch (e) {
+          print('Error fetching customer data: $e');
+        }
+      }
+
       if (publicCarId == null || publicCarId.isEmpty) {
         if (mounted) Navigator.pop(context);
         if (mounted) {
@@ -760,6 +774,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
         // Add bookingId at top level for invoice screen
         publicResponse['bookingId'] = booking['id'];
         publicResponse['id'] = booking['id'];
+        // Add full customer data if available
+        if (customerData != null) {
+          publicResponse['customer'] = customerData;
+        }
 
         if (mounted) {
           Navigator.push(

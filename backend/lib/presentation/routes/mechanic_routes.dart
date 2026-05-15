@@ -56,11 +56,14 @@ class MechanicRoutes {
 
   Future<Response> _getAvailableBookings(Request request) async {
     try {
+      print('Fetching available bookings for mechanic...');
       final availableBookings = await _bookingRepository.findAvailableForMechanic();
+      print('Found ${availableBookings.length} available bookings');
       return Response.ok(
         jsonEncode(availableBookings.map((b) => b.toJson()).toList()),
       );
     } catch (e) {
+      print('Error fetching available bookings: $e');
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get available bookings: $e'}),
       );

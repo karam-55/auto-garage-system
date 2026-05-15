@@ -311,9 +311,15 @@ Middleware _corsMiddleware() {
     return (Request request) async {
       // Determine the allowed origin based on request origin
       final requestOrigin = request.headers['Origin'];
+      logger.i('🔍 Request Origin: $requestOrigin');
+      logger.i('🔍 Allowed Origins: $allowedOrigins');
+      logger.i('🔍 Request Origin in allowed: ${allowedOrigins.contains(requestOrigin)}');
+      
       final effectiveOrigin = allowedOrigins.contains(requestOrigin) 
           ? requestOrigin ?? allowedOrigin ?? ''
           : allowedOrigin ?? '';
+      
+      logger.i('🔍 Effective Origin: $effectiveOrigin');
 
       // Handle preflight OPTIONS request
       if (request.method == 'OPTIONS') {

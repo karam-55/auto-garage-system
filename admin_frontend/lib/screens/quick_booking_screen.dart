@@ -227,16 +227,39 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
             final invoiceResponse = await widget.apiService.get('${ApiConstants.bookings}/$bookingId/invoice');
             print('Invoice response type: ${invoiceResponse.runtimeType}');
             print('Invoice response: $invoiceResponse');
-            
+
+            // Fetch booking details to get customer and vehicle info
+            final bookingDetailsResponse = await widget.apiService.get('${ApiConstants.bookings}/$bookingId');
+            print('Booking details response: $bookingDetailsResponse');
+
             Map<String, dynamic> invoiceData = {};
             if (invoiceResponse is Map<String, dynamic>) {
               invoiceData = invoiceResponse;
             } else if (invoiceResponse is Map && invoiceResponse['data'] is Map) {
               invoiceData = invoiceResponse['data'] as Map<String, dynamic>;
             }
-            
+
+            // Merge booking details (customer, vehicle, services) with invoice data
+            if (bookingDetailsResponse is Map<String, dynamic>) {
+              final bookingData = bookingDetailsResponse;
+              if (bookingData['customer'] != null) {
+                invoiceData['customer'] = bookingData['customer'];
+              }
+              if (bookingData['vehicle'] != null) {
+                invoiceData['vehicle'] = bookingData['vehicle'];
+              }
+              if (bookingData['booking'] != null) {
+                invoiceData['status'] = bookingData['booking']['status'];
+                invoiceData['notes'] = bookingData['booking']['notes'];
+                invoiceData['createdAt'] = bookingData['booking']['createdAt'];
+              }
+              if (bookingData['services'] != null) {
+                invoiceData['services'] = bookingData['services'];
+              }
+            }
+
             print('Final invoice data: $invoiceData');
-            
+
             // Push invoice screen (don't replace, so back button works)
             Navigator.of(context).push(
               MaterialPageRoute(

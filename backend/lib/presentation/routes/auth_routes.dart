@@ -65,8 +65,8 @@ class AuthRoutes {
     // POST /api/auth/mechanic-register (public: for mechanics to self-register)
     router.post('/api/auth/mechanic-register', _mechanicRegister);
 
-    // POST /api/users (protected: only OWNER can create users - alias for register)
-    router.post('/api/users', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_register)));
+    // POST /api/users (protected: MANAGER or higher can create users)
+    router.post('/api/users', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_register)));
 
     // GET /api/users (protected: MANAGER or higher)
     router.get('/api/users', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_getAllUsers)));
@@ -212,18 +212,8 @@ class AuthRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'All fields are required and cannot be empty'}));
     }
 
-    if (password.length < 12) {
-      return Response.badRequest(body: jsonEncode({'error': 'Password must be at least 12 characters'}));
-    }
-
-    // Check password complexity
-    final hasUpperCase = password.contains(RegExp(r'[A-Z]'));
-    final hasLowerCase = password.contains(RegExp(r'[a-z]'));
-    final hasNumber = password.contains(RegExp(r'[0-9]'));
-    final hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-
-    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
-      return Response.badRequest(body: jsonEncode({'error': 'Password must contain uppercase, lowercase, number, and special character'}));
+    if (password.length < 6) {
+      return Response.badRequest(body: jsonEncode({'error': 'Password must be at least 6 characters'}));
     }
 
     try {

@@ -27,6 +27,13 @@ class ApiService {
     _refreshToken = refreshToken;
   }
 
+  String? get token => _token;
+  String? get refreshToken => _refreshToken;
+
+  Future<bool> refreshAccessToken() async {
+    return await _refreshAccessToken();
+  }
+
   Future<bool> _refreshAccessToken() async {
     if (_refreshToken == null) return false;
     

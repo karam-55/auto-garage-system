@@ -48,6 +48,16 @@ class AuthService {
     _refreshToken = prefs.getString('refresh_token');
   }
 
+  // Try auto login using refresh token
+  Future<bool> tryAutoLogin() async {
+    await loadTokens();
+    
+    if (_refreshToken == null) return false;
+    
+    final success = await refreshAccessToken();
+    return success;
+  }
+
   // Refresh access token
   Future<bool> refreshAccessToken() async {
     try {

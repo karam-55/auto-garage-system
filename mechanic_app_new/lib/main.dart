@@ -108,12 +108,63 @@ class _MyAppState extends State<MyApp> {
             child: child!,
           );
         },
-        home: const LoginScreen(),
+        home: const SplashScreen(),
         routes: {
           '/login': (context) => const LoginScreen(),
           '/available-bookings': (context) => const AvailableBookingsScreen(),
           '/my-assignments': (context) => const MyAssignmentsScreen(),
         },
+      ),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthStatus();
+  }
+
+  Future<void> _checkAuthStatus() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final isLoggedIn = await authProvider.tryAutoLogin();
+
+    if (mounted) {
+      if (isLoggedIn) {
+        Navigator.pushReplacementNamed(context, '/available-bookings');
+      } else {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      body: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.build,
+              color: Colors.white,
+              size: 80,
+            ),
+            SizedBox(height: 24),
+            CircularProgressIndicator(
+              color: Colors.white,
+            ),
+          ],
+        ),
       ),
     );
   }

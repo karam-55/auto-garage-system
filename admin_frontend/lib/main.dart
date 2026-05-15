@@ -103,10 +103,93 @@ class _MyAppState extends State<MyApp> {
           child: child!,
         );
       },
-      home: LoginScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),
+      home: SplashScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),
     );
   }
 }
+
+class SplashScreen extends StatefulWidget {
+  final VoidCallback? onThemeToggle;
+  final ThemeMode themeMode;
+
+  const SplashScreen({super.key, this.onThemeToggle, required this.themeMode});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  final AuthService _authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthStatus();
+  }
+
+  Future<void> _checkAuthStatus() async {
+    // Try auto login using refresh token
+    final isLoggedIn = await _authService.tryAutoLogin();
+
+    if (mounted) {
+      if (isLoggedIn) {
+        // User is logged in, navigate to dashboard
+        final apiService = ApiService();
+        apiService.setToken(_authService.token);
+        apiService.setRefreshToken(_authService.refreshToken);
+        
+        // Connect to WebSocket
+        webSocketService.connect();
+        
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DashboardScreen(
+              apiService: apiService,
+              onThemeToggle: widget.onThemeToggle,
+              themeMode: widget.themeMode,
+            ),
+          ),
+        );
+      } else {
+        // User is not logged in, navigate to login screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginScreen(
+              onThemeToggle: widget.onThemeToggle,
+              themeMode: widget.themeMode,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      body: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.directions_car,
+              color: Colors.white,
+              size: 80,
+            ),
+            SizedBox(height: 24),
+            CircularProgressIndicator(
+              color: Colors.white,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onThemeToggle;
   final ThemeMode themeMode;
@@ -383,7 +466,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _destinations = [
     const _NavItem(icon: Icons.dashboard_rounded, label: 'نظرة عامة'),
     const _NavItem(icon: Icons.calendar_today_rounded, label: 'الحجوزات'),
-    const _NavItem(icon: Icons.flash_on_rounded, label: 'حجز سريع'),
+    const _NavItem(icon: Icons.flash_on_rounded, label: 'حجز لعميل مسجل مسبقا'),
     const _NavItem(icon: Icons.people_rounded, label: 'العملاء'),
     const _NavItem(icon: Icons.directions_car_rounded, label: 'السيارات'),
     const _NavItem(icon: Icons.build_rounded, label: 'الخدمات'),

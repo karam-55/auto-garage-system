@@ -29,7 +29,7 @@ class JwtService {
 
   String generateRefreshToken({
     required String userId,
-    int expiresInSeconds = 604800, // 7 days
+    int expiresInSeconds = 31536000, // 365 days (persistent login)
   }) {
     final header = _base64UrlEncode({'alg': 'HS256', 'typ': 'JWT'});
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;

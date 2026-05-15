@@ -47,6 +47,52 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Try auto login using refresh token
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final refreshToken = prefs.getString('refresh_token');
+    
+    if (refreshToken == null) return false;
+    
+    try {
+      final success = await _apiService.refreshAccessToken();
+      if (success) {
+        _token = _apiService.token;
+        _refreshToken = _apiService.refreshToken;
+        
+        // Update stored tokens
+        await prefs.setString('token', _token!);
+        if (_refreshToken != null) {
+          await prefs.setString('refresh_token', _refreshToken!);
+        }
+        
+        // Reload user data
+        final userId = prefs.getString('user_id');
+        final fullName = prefs.getString('full_name');
+        final username = prefs.getString('username');
+        final role = prefs.getString('role');
+        
+        if (userId != null && fullName != null) {
+          _currentUser = app_user.User(
+            id: userId,
+            fullName: fullName,
+            username: username ?? '',
+            role: role ?? '',
+          );
+          _apiService.setToken(_token);
+          _apiService.setRefreshToken(_refreshToken);
+          notifyListeners();
+        }
+        
+        return true;
+      }
+    } catch (e) {
+      logger.severe('Auto login failed: $e');
+    }
+    
+    return false;
+  }
   
   Future<bool> login(String username, String password) async {
     _isLoading = true;

@@ -212,6 +212,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   void _showAddEmployeeDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     final fullNameController = TextEditingController();
+    final usernameController = TextEditingController();
+    final passwordController = TextEditingController();
     final phoneController = TextEditingController();
     final roleController = TextEditingController();
     String? selectedRole;
@@ -239,6 +241,37 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                 ),
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: usernameController,
+                decoration: InputDecoration(
+                  labelText: 'اسم المستخدم',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                ),
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: 'كلمة السر',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                ),
+                obscureText: true,
                 validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
               ),
               const SizedBox(height: 12),
@@ -290,6 +323,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
           try {
             await widget.apiService.post(ApiConstants.employees, {
               'fullName': fullNameController.text,
+              'username': usernameController.text,
+              'password': passwordController.text,
               'phone': phoneController.text,
               'role': selectedRole,
             });

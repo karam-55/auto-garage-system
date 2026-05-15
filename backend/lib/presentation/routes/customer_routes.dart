@@ -29,6 +29,9 @@ class CustomerRoutes {
     // PUT /api/customers/:id
     router.put('/api/customers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateCustomer)));
 
+    // PATCH /api/customers/:id
+    router.patch('/api/customers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateCustomer)));
+
     // DELETE /api/customers/:id
     router.delete('/api/customers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_deleteCustomer)));
 

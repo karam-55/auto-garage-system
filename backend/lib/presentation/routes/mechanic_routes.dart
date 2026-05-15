@@ -71,6 +71,9 @@ class MechanicRoutes {
         final vehicle = await _vehicleRepository.findById(booking.vehicleId);
         final customer = await _customerRepository.findById(booking.customerId);
 
+        print('Vehicle: ${vehicle?.toJson()}');
+        print('Customer: ${customer?.toJson()}');
+
         return {
           ...booking.toJson(),
           'vehicles': vehicle?.toJson(),
@@ -78,6 +81,7 @@ class MechanicRoutes {
         };
       }).toList());
 
+      print('Enriched bookings: $enrichedBookings');
       return Response.ok(jsonEncode(enrichedBookings));
     } catch (e) {
       print('Error fetching available bookings: $e');

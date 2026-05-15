@@ -45,6 +45,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     return '';
   }
 
+  String get _customerAddress {
+    if (_data['customer'] is Map) {
+      final customer = _data['customer'] as Map<String, dynamic>?;
+      return customer?['address']?.toString() ?? '';
+    }
+    return '';
+  }
+
   String get _vehicleName {
     if (_data['vehicle'] is Map) {
       final vehicle = _data['vehicle'] as Map<String, dynamic>?;
@@ -175,7 +183,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   String _formatPrice(dynamic price) {
     if (price == null) return '0';
     double num = 0;
-    if (price is num) {
+    if (price is double) {
+      num = price;
+    } else if (price is int) {
       num = price.toDouble();
     } else if (price is String) {
       num = double.tryParse(price) ?? 0;
@@ -385,6 +395,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                         _buildInfoRow(Icons.person_rounded, 'الاسم', _customerName),
                         if (_customerPhone.isNotEmpty)
                           _buildInfoRow(Icons.phone_rounded, 'الهاتف', _customerPhone),
+                        if (_customerAddress.isNotEmpty)
+                          _buildInfoRow(Icons.location_on_rounded, 'العنوان', _customerAddress),
                         const Divider(height: 32, color: Color(0xFFE2E8F0)),
                         _buildSectionTitle('بيانات المركبة'),
                         _buildInfoRow(Icons.directions_car_rounded, 'المركبة', _vehicleName),

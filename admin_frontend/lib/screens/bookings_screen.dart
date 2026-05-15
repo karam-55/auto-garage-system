@@ -226,22 +226,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () => _navigateToCreateBooking(),
                       icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('حجز كامل'),
+                      label: const Text('حجز لعميل جديد'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF10B981),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _showAddBookingDialog(context),
-                      icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('حجز سريع'),
-                      style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
@@ -278,20 +266,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
               ElevatedButton.icon(
                 onPressed: () => _navigateToCreateBooking(),
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('حجز كامل'),
+                label: const Text('حجز لعميل جديد'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF10B981),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: () => _showAddBookingDialog(context),
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('حجز سريع'),
-                style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
@@ -440,12 +418,16 @@ class _BookingsScreenState extends State<BookingsScreen> {
           const SizedBox(height: 16),
           Text('لا توجد حجوزات حالياً', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.grey)),
           const SizedBox(height: 8),
-          Text('اضغط على "إضافة حجز" لإنشاء حجز جديد', style: TextStyle(color: Colors.grey.shade500)),
+          Text('اضغط على "إضافة حجز جديد" لإنشاء حجز جديد', style: TextStyle(color: Colors.grey.shade500)),
           const SizedBox(height: 16),
           ElevatedButton.icon(
-            onPressed: () => _showAddBookingDialog(context),
+            onPressed: () => _navigateToCreateBooking(),
             icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text('إضافة حجز'),
+            label: const Text('إضافة حجز جديد'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+            ),
           ),
         ],
       ),
@@ -775,6 +757,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
           'createdAt': booking['createdAt'],
           'estimatedCompletionDate': booking['estimatedCompletionDate'],
         };
+        // Add bookingId at top level for invoice screen
+        publicResponse['bookingId'] = booking['id'];
+        publicResponse['id'] = booking['id'];
 
         if (mounted) {
           Navigator.push(

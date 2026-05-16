@@ -75,6 +75,7 @@ class ApiService {
   Future<Map<String, dynamic>?> login(String username, String password) async {
     try {
       logger.info('Attempting login via Render backend for username: $username');
+      logger.info('Login URL: $_baseUrl/api/auth/login');
 
       final response = await http.post(
         Uri.parse('$_baseUrl/api/auth/login'),
@@ -83,6 +84,12 @@ class ApiService {
           'username': username,
           'password': password,
         }),
+      ).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          logger.severe('Login request timed out');
+          throw Exception('Request timeout');
+        },
       );
 
       logger.info('Login response status: ${response.statusCode}');

@@ -39,7 +39,13 @@ class _UpdateMaintenanceStatusScreenState extends State<UpdateMaintenanceStatusS
 
   Future<void> _updateStatus() async {
     final mechanicProvider = context.read<MechanicProvider>();
-    final bookingId = widget.assignment.bookingId;
+    final bookingId = widget.assignment.booking?.id;
+    if (bookingId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('خطأ: لم يتم العثور على معرف الحجز')),
+      );
+      return;
+    }
     final success = await mechanicProvider.updateBookingStatus(
       bookingId,
       _selectedStatus,

@@ -9,6 +9,7 @@ import '../../data/datasources/local/cache_datasource.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/constants/backend_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'auth_provider.dart';
 
 final inventoryRemoteDataSourceProvider = Provider<InventoryRemoteDataSource>((ref) {
   final dioClient = ref.watch(dioClientProvider);

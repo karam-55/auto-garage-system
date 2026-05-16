@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/booking.dart';
+import '../consume_part/consume_part_screen.dart';
 
 class VehicleDetailScreen extends StatefulWidget {
   final Booking booking;
@@ -45,6 +46,25 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               if (widget.booking.notes != null && widget.booking.notes!.isNotEmpty)
                 _buildDetailRow('الملاحظات', widget.booking.notes!),
             ]),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ConsumePartScreen(bookingId: widget.booking.id),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.inventory_2),
+                label: const Text('استهلاك قطع'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import '../../core/error/failures.dart';
 import '../../core/error/exceptions.dart';
 import '../datasources/remote/inventory_remote_datasource.dart';
 import '../datasources/local/cache_datasource.dart';
+import '../models/inventory_item_model.dart';
 
 class InventoryRepositoryImpl implements InventoryRepository {
   final InventoryRemoteDataSource _remoteDataSource;
@@ -20,7 +21,12 @@ class InventoryRepositoryImpl implements InventoryRepository {
       if (!isExpired) {
         final cachedData = await _cacheDataSource.getList('inventory_items');
         if (cachedData.isNotEmpty) {
-          return cachedData.map((json) => InventoryItemModel.fromJson(json).toEntity()).toList();
+          return cachedData.map((json) {
+            if (json is Map<String, dynamic>) {
+              return InventoryItemModel.fromJson(json).toEntity();
+            }
+            return InventoryItemModel.fromJson(json as Map<String, dynamic>).toEntity();
+          }).toList();
         }
       }
 

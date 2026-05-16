@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/mechanic_assignment.dart';
+import '../../presentation/providers/booking_provider.dart';
 
-class UpdateMaintenanceStatusScreen extends StatefulWidget {
+class UpdateMaintenanceStatusScreen extends ConsumerStatefulWidget {
   final MechanicAssignment assignment;
 
   const UpdateMaintenanceStatusScreen({super.key, required this.assignment});
 
   @override
-  State<UpdateMaintenanceStatusScreen> createState() => _UpdateMaintenanceStatusScreenState();
+  ConsumerState<UpdateMaintenanceStatusScreen> createState() => _UpdateMaintenanceStatusScreenState();
 }
 
-class _UpdateMaintenanceStatusScreenState extends State<UpdateMaintenanceStatusScreen> {
+class _UpdateMaintenanceStatusScreenState extends ConsumerState<UpdateMaintenanceStatusScreen> {
   final _notesController = TextEditingController();
   String _selectedStatus = 'IN_PROGRESS';
 
@@ -36,13 +38,32 @@ class _UpdateMaintenanceStatusScreenState extends State<UpdateMaintenanceStatusS
   }
 
   Future<void> _updateStatus() async {
-    // TODO: Implement status update using Riverpod
     final bookingId = widget.assignment.booking?.id;
-    if (bookingId == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تم تحديث الحالة بنجاح')),
-    );
-    Navigator.pop(context);
+    if (bookingId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('خطأ: لم يتم العثور على معرف الحجز')),
+        );
+      }
+      return;
+    }
+
+    try {
+      await ref.read(bookingStateProvider.notifier).updateBookingStatus(bookingId, _selectedStatus);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم تحديث حالة الحجز بنجاح')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطأ في تحديث الحالة: $e')),
+        );
+      }
+    }
   }
 
   @override

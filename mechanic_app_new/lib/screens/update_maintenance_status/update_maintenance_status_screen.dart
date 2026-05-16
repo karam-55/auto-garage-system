@@ -18,14 +18,16 @@ class _UpdateMaintenanceStatusScreenState extends State<UpdateMaintenanceStatusS
 
   final List<String> _statusOptions = [
     'IN_PROGRESS',
-    'COMPLETED',
+    'WAITING_PARTS',
+    'READY',
+    'DELIVERED',
     'CANCELLED',
   ];
 
   @override
   void initState() {
     super.initState();
-    _selectedStatus = widget.assignment.status;
+    _selectedStatus = widget.assignment.booking?.status ?? 'IN_PROGRESS';
     _notesController.text = widget.assignment.notes ?? '';
   }
 
@@ -37,15 +39,15 @@ class _UpdateMaintenanceStatusScreenState extends State<UpdateMaintenanceStatusS
 
   Future<void> _updateStatus() async {
     final mechanicProvider = context.read<MechanicProvider>();
-    final success = await mechanicProvider.updateAssignmentStatus(
-      widget.assignment.id,
+    final bookingId = widget.assignment.bookingId;
+    final success = await mechanicProvider.updateBookingStatus(
+      bookingId,
       _selectedStatus,
-      _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
     );
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تحديث حالة الصيانة بنجاح')),
+        const SnackBar(content: Text('تم تحديث حالة الحجز بنجاح')),
       );
       Navigator.pop(context);
     }
@@ -153,11 +155,15 @@ class _UpdateMaintenanceStatusScreenState extends State<UpdateMaintenanceStatusS
   String _getStatusText(String status) {
     switch (status) {
       case 'IN_PROGRESS':
-        return 'قيد العمل';
-      case 'COMPLETED':
-        return 'مكتملة';
+        return 'جاري العمل';
+      case 'WAITING_PARTS':
+        return 'بانتظار القطع';
+      case 'READY':
+        return 'جاهز';
+      case 'DELIVERED':
+        return 'تم التسليم';
       case 'CANCELLED':
-        return 'ملغية';
+        return 'ملغي';
       default:
         return status;
     }

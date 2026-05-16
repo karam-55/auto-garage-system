@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../providers/auth_provider.dart';
+import '../../presentation/providers/auth_provider.dart';
 import '../../core/constants/backend_constants.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _LoginScreenContent();
+  }
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenContent extends StatefulWidget {
+  @override
+  State<_LoginScreenContent> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<_LoginScreenContent> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -82,21 +89,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
-      final success = await authProvider.login(
-        _usernameController.text.trim(),
-        _passwordController.text,
-      );
-
-      if (success && mounted) {
-        await _saveCredentials(_usernameController.text.trim(), _passwordController.text);
-        Navigator.pushReplacementNamed(context, '/available-bookings');
-      }
-    }
   }
 
   @override
@@ -255,9 +247,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        Consumer<AuthProvider>(
-                          builder: (context, authProvider, child) {
-                            if (authProvider.errorMessage != null) {
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final authState = ref.watch(authStateProvider);
+                            
+                            if (authState.error != null) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 16),
                                 child: Container(
@@ -275,7 +269,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          authProvider.errorMessage!,
+                                          authState.error!,
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.onErrorContainer,
                                           ),
@@ -287,14 +281,27 @@ class _LoginScreenState extends State<LoginScreen> {
                               );
                             }
 
-                            if (authProvider.isLoading) {
+                            if (authState.isLoading) {
                               return const Center(
                                 child: CircularProgressIndicator(),
                               );
                             }
 
                             return ElevatedButton(
-                              onPressed: _login,
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  final authNotifier = ref.read(authStateProvider.notifier);
+                                  await authNotifier.login(_usernameController.text.trim(), _passwordController.text);
+
+                                  if (mounted) {
+                                    final authState = ref.read(authStateProvider);
+                                    if (authState.isAuthenticated) {
+                                      await _saveCredentials(_usernameController.text.trim(), _passwordController.text);
+                                      Navigator.pushReplacementNamed(context, '/available-bookings');
+                                    }
+                                  }
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(

@@ -138,20 +138,36 @@ class ApiService {
   // Booking operations
   Future<List<Map<String, dynamic>>> fetchAvailableBookings() async {
     try {
+      logger.info('Fetching available bookings from: $_baseUrl/api/mechanics/available-bookings');
       final response = await http.get(
         Uri.parse('$_baseUrl/api/mechanics/available-bookings'),
         headers: _headers,
       );
 
+      logger.info('Response status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         logger.info('Available bookings data: $data');
-        return List<Map<String, dynamic>>.from(data);
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        } else {
+          logger.warning('Expected list but got: ${data.runtimeType}');
+          return [];
+        }
+      } else if (response.statusCode == 401) {
+        logger.warning('Unauthorized, attempting token refresh');
+        final refreshed = await refreshAccessToken();
+        if (refreshed) {
+          return fetchAvailableBookings();
+        }
+        return [];
+      } else {
+        logger.warning('Failed to fetch bookings: ${response.statusCode} - ${response.body}');
+        return [];
       }
-
-      return [];
-    } catch (e) {
-      logger.severe('Error fetching bookings: $e');
+    } catch (e, stack) {
+      logger.severe('Error fetching bookings: $e', e, stack);
       return [];
     }
   }
@@ -193,19 +209,36 @@ class ApiService {
   // Assignment operations
   Future<List<Map<String, dynamic>>> fetchMyAssignments(String mechanicUserId) async {
     try {
+      logger.info('Fetching my assignments from: $_baseUrl/api/mechanics/my-assignments');
       final response = await http.get(
         Uri.parse('$_baseUrl/api/mechanics/my-assignments'),
         headers: _headers,
       );
-      
+
+      logger.info('Response status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return List<Map<String, dynamic>>.from(data);
+        logger.info('My assignments data: $data');
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        } else {
+          logger.warning('Expected list but got: ${data.runtimeType}');
+          return [];
+        }
+      } else if (response.statusCode == 401) {
+        logger.warning('Unauthorized, attempting token refresh');
+        final refreshed = await refreshAccessToken();
+        if (refreshed) {
+          return fetchMyAssignments(mechanicUserId);
+        }
+        return [];
+      } else {
+        logger.warning('Failed to fetch assignments: ${response.statusCode} - ${response.body}');
+        return [];
       }
-      
-      return [];
-    } catch (e) {
-      logger.severe('Error fetching assignments: $e');
+    } catch (e, stack) {
+      logger.severe('Error fetching assignments: $e', e, stack);
       return [];
     }
   }

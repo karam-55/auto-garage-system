@@ -27,7 +27,7 @@ class Booking {
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? '',
       customerId: json['customer_id'] as String? ?? '',
       vehicleId: json['vehicle_id'] as String? ?? '',
       status: json['status'] as String? ?? 'PENDING',
@@ -35,7 +35,9 @@ class Booking {
       estimatedCompletionDate: json['estimated_completion_date'] != null
           ? DateTime.parse(json['estimated_completion_date'] as String)
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
@@ -87,10 +89,10 @@ class Vehicle {
 
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? '',
       customerId: json['customer_id'] as String?,
-      make: json['make'] as String? ?? '',
-      model: json['model'] as String? ?? '',
+      make: json['make'] as String? ?? 'غير محدد',
+      model: json['model'] as String? ?? 'غير محدد',
       year: json['year'] as int?,
       licensePlate: json['license_plate'] as String?,
       vin: json['vin'] as String?,
@@ -141,8 +143,8 @@ class Customer {
 
   factory Customer.fromJson(Map<String, dynamic> json) {
     return Customer(
-      id: json['id'] as String,
-      fullName: json['full_name'] as String? ?? '',
+      id: json['id'] as String? ?? '',
+      fullName: json['full_name'] as String? ?? 'غير محدد',
       phone: json['phone'] as String?,
       address: json['address'] as String?,
       createdAt: json['created_at'] != null

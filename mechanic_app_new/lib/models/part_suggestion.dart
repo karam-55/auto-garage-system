@@ -23,14 +23,16 @@ class PartSuggestion {
   
   factory PartSuggestion.fromJson(Map<String, dynamic> json) {
     return PartSuggestion(
-      id: json['id'] as String,
-      bookingId: json['booking_id'] as String,
-      mechanicUserId: json['mechanic_user_id'] as String,
+      id: json['id'] as String? ?? '',
+      bookingId: json['booking_id'] as String? ?? '',
+      mechanicUserId: json['mechanic_user_id'] as String? ?? '',
       type: json['type'] as String? ?? 'GENERIC',
       description: json['description'] as String? ?? '',
       priceSYP: json['price_syp'] as double?,
       status: json['status'] as String? ?? 'PENDING_CUSTOMER_APPROVAL',
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,

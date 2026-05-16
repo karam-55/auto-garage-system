@@ -19,10 +19,12 @@ class MechanicAssignment {
   
   factory MechanicAssignment.fromJson(Map<String, dynamic> json) {
     return MechanicAssignment(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? '',
       status: json['status'] as String? ?? 'ASSIGNED',
       notes: json['notes'] as String?,
-      assignedAt: DateTime.parse(json['assigned_at'] as String),
+      assignedAt: json['assigned_at'] != null
+          ? DateTime.parse(json['assigned_at'] as String)
+          : DateTime.now(),
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,

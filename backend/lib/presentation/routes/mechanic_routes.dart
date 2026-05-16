@@ -74,15 +74,24 @@ class MechanicRoutes {
         print('Vehicle: ${vehicle?.toJson()}');
         print('Customer: ${customer?.toJson()}');
 
+        // Skip bookings without vehicle or customer data
+        if (vehicle == null || customer == null) {
+          print('Skipping booking ${booking.id} due to missing vehicle or customer data');
+          return null;
+        }
+
         return {
           ...booking.toJson(),
-          'vehicles': vehicle?.toJson(),
-          'customers': customer?.toJson(),
+          'vehicles': vehicle.toJson(),
+          'customers': customer.toJson(),
         };
       }).toList());
 
-      print('Enriched bookings: $enrichedBookings');
-      return Response.ok(jsonEncode(enrichedBookings));
+      // Filter out null bookings
+      final validBookings = enrichedBookings.where((b) => b != null).cast<Map<String, dynamic>>().toList();
+
+      print('Valid bookings: $validBookings');
+      return Response.ok(jsonEncode(validBookings));
     } catch (e) {
       print('Error fetching available bookings: $e');
       return Response.internalServerError(

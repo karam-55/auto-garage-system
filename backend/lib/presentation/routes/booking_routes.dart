@@ -57,8 +57,8 @@ class BookingRoutes {
     // PUT /api/bookings/:id
     router.put('/api/bookings/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateBooking)));
 
-    // PATCH /api/bookings/:id/status
-    router.patch('/api/bookings/<id>/status', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateBookingStatus)));
+    // PATCH /api/bookings/:id/status (accessible by RECEPTIONIST and MECHANIC)
+    router.patch('/api/bookings/<id>/status', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.RECEPTIONIST, Role.MECHANIC])(_updateBookingStatus)));
 
     // PATCH /api/bookings/:id/services
     router.patch('/api/bookings/<id>/services', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateBookingServices)));

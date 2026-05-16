@@ -15,11 +15,11 @@ class InvoiceRoutes {
   Router get router {
     final router = Router();
 
-    // Get invoice by booking ID
-    router.get('/api/bookings/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getInvoice)));
+    // Get invoice by booking ID (accessible by RECEPTIONIST and MECHANIC)
+    router.get('/api/bookings/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.RECEPTIONIST, Role.MECHANIC])(_getInvoice)));
 
-    // Get invoice PDF by booking ID
-    router.get('/api/bookings/<id>/invoice/pdf', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getInvoicePdf)));
+    // Get invoice PDF by booking ID (accessible by RECEPTIONIST and MECHANIC)
+    router.get('/api/bookings/<id>/invoice/pdf', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.RECEPTIONIST, Role.MECHANIC])(_getInvoicePdf)));
 
     return router;
   }

@@ -144,28 +144,9 @@ class MechanicProvider with ChangeNotifier {
   }
   
   Future<bool> addRepair(String bookingId, String description, String status, double? cost) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
-    try {
-      final success = await _apiService.addRepair(
-        bookingId,
-        '',
-        description,
-        status,
-        cost,
-      );
-      
-      _isLoading = false;
-      notifyListeners();
-      return success;
-    } catch (e) {
-      _errorMessage = 'Error adding repair: $e';
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
+    // This feature is not implemented in Backend yet
+    _errorMessage = 'Feature not implemented in Backend';
+    return false;
   }
   
   Future<bool> updateBookingStatus(String bookingId, String status) async {

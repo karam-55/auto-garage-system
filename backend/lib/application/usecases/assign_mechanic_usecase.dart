@@ -1,5 +1,7 @@
 import '../../domain/entities/mechanic_assignment.dart';
 import '../../domain/entities/mechanic_assignment_status.dart';
+import '../../domain/entities/booking.dart';
+import '../../domain/entities/booking_status.dart';
 import '../../domain/repositories/mechanic_assignment_repository.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../../core/errors/failures.dart';
@@ -37,7 +39,17 @@ class AssignMechanicUseCase {
         assignedAt: DateTime.now().toUtc(),
       );
 
-      return await _mechanicAssignmentRepository.create(assignment);
+      final createdAssignment = await _mechanicAssignmentRepository.create(assignment);
+
+      // Update booking status to IN_PROGRESS
+      final updatedBooking = booking.copyWith(
+        status: BookingStatus.IN_PROGRESS,
+      );
+      await _bookingRepository.update(updatedBooking);
+
+      print('Booking $bookingId status updated to IN_PROGRESS');
+
+      return createdAssignment;
     } catch (e) {
       throw ServerFailure('Failed to assign mechanic: $e');
     }

@@ -93,7 +93,30 @@ class AuthMiddleware {
 
     final userLevel = roleHierarchy[userRole] ?? 0;
     final requiredLevel = roleHierarchy[requiredRole] ?? 0;
-    
+
     return userLevel >= requiredLevel;
+  }
+
+  Middleware requireAnyRole(List<Role> allowedRoles) {
+    return (Handler innerHandler) {
+      return (Request request) async {
+        final user = request.context['user'];
+
+        if (user == null) {
+          return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+        }
+
+        // Cast user to User type
+        final typedUser = user as User;
+
+        // Check if user has any of the allowed roles
+        final userRole = typedUser.role;
+        if (!allowedRoles.contains(userRole)) {
+          return Response.forbidden(jsonEncode({'error': 'Insufficient permissions'}));
+        }
+
+        return innerHandler(request);
+      };
+    };
   }
 }

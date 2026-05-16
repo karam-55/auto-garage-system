@@ -312,29 +312,9 @@ class ApiService {
   
   // Repair operations
   Future<bool> addRepair(String bookingId, String mechanicUserId, String description, String status, double? cost) async {
-    try {
-      final body = {
-        'booking_id': bookingId,
-        'mechanic_user_id': mechanicUserId,
-        'description': description,
-        'status': status,
-      };
-      
-      if (cost != null) {
-        body['cost'] = cost.toString();
-      }
-      
-      final response = await http.post(
-        Uri.parse('$_baseUrl/api/repairs'),
-        headers: _headers,
-        body: jsonEncode(body),
-      );
-      
-      return response.statusCode == 201;
-    } catch (e) {
-      logger.severe('Error adding repair: $e');
-      return false;
-    }
+    // This feature is not implemented in Backend yet
+    logger.warning('addRepair called but not implemented in Backend');
+    return false;
   }
   
   // Inventory operations

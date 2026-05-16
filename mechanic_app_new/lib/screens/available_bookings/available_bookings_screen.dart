@@ -1,24 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/mechanic_provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../models/booking.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../presentation/providers/booking_provider.dart';
+import '../../presentation/providers/auth_provider.dart';
+import '../../domain/entities/booking.dart';
 import '../../services/company_settings_service.dart';
-import '../../services/websocket_service.dart';
 import '../vehicle_detail/vehicle_detail_screen.dart';
 
-class AvailableBookingsScreen extends StatefulWidget {
+class AvailableBookingsScreen extends ConsumerStatefulWidget {
   const AvailableBookingsScreen({super.key});
 
   @override
-  State<AvailableBookingsScreen> createState() => _AvailableBookingsScreenState();
+  ConsumerState<AvailableBookingsScreen> createState() => _AvailableBookingsScreenState();
 }
 
-class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
+class _AvailableBookingsScreenState extends ConsumerState<AvailableBookingsScreen> {
   Timer? _refreshTimer;
   final CompanySettingsService _companySettingsService = CompanySettingsService();
-  final WebSocketService _webSocketService = WebSocketService();
   String _companyName = 'تطبيق الميكانيكي';
   String? _companyLogoUrl;
 
@@ -27,27 +25,9 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
     super.initState();
     _loadCompanySettings();
     Future.microtask(() {
-      context.read<MechanicProvider>().fetchAvailableBookings();
+      ref.read(bookingStateProvider.notifier).fetchAvailableBookings();
     });
     _startAutoRefresh();
-    
-    // Connect to WebSocket
-    final authProvider = context.read<AuthProvider>();
-    _webSocketService.connect(
-      userId: authProvider.userId,
-      role: authProvider.currentUser?.role,
-    );
-    
-    // Listen for booking updates
-    _webSocketService.addListener(_onBookingUpdate);
-  }
-
-  void _onBookingUpdate() {
-    final update = _webSocketService.lastBookingUpdate;
-    if (update != null) {
-      // Reload available bookings when a booking is updated
-      context.read<MechanicProvider>().fetchAvailableBookings();
-    }
   }
 
   Future<void> _loadCompanySettings() async {
@@ -67,15 +47,13 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
   @override
   void dispose() {
     _refreshTimer?.cancel();
-    _webSocketService.removeListener(_onBookingUpdate);
-    _webSocketService.disconnect();
     super.dispose();
   }
 
   void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
-        context.read<MechanicProvider>().fetchAvailableBookings();
+        ref.read(bookingStateProvider.notifier).fetchAvailableBookings();
       }
     });
   }
@@ -110,29 +88,35 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthProvider>().logout();
-              Navigator.pushReplacementNamed(context, '/login');
+            onPressed: () async {
+              await ref.read(authStateProvider.notifier).logout();
+              if (mounted) {
+                Navigator.pushReplacementNamed(context, '/login');
+              }
             },
           ),
         ],
       ),
-      body: Consumer<MechanicProvider>(
-        builder: (context, mechanicProvider, child) {
-          if (mechanicProvider.isLoading) {
+      body: Consumer(
+        builder: (context, ref, child) {
+          final bookingState = ref.watch(bookingStateProvider);
+          
+          if (bookingState.isLoadingAvailable) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (mechanicProvider.errorMessage != null) {
+          if (bookingState.availableError != null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(mechanicProvider.errorMessage!),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(bookingState.availableError!),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      mechanicProvider.fetchAvailableBookings();
+                      ref.read(bookingStateProvider.notifier).fetchAvailableBookings();
                     },
                     child: const Text('إعادة المحاولة'),
                   ),
@@ -141,25 +125,37 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
             );
           }
 
-          if (mechanicProvider.availableBookings.isEmpty) {
+          if (bookingState.availableBookings.isEmpty) {
             return const Center(
-              child: Text('لا توجد سيارات متاحة حالياً'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.car_repair, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('لا توجد سيارات متاحة حالياً'),
+                ],
+              ),
             );
           }
 
-          return ListView.builder(
-            itemCount: mechanicProvider.availableBookings.length,
-            itemBuilder: (context, index) {
-              final booking = mechanicProvider.availableBookings[index];
-              return _buildBookingCard(booking, mechanicProvider);
+          return RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(bookingStateProvider.notifier).fetchAvailableBookings();
             },
+            child: ListView.builder(
+              itemCount: bookingState.availableBookings.length,
+              itemBuilder: (context, index) {
+                final booking = bookingState.availableBookings[index];
+                return _buildBookingCard(booking);
+              },
+            ),
           );
         },
       ),
     );
   }
 
-  Widget _buildBookingCard(Booking booking, MechanicProvider mechanicProvider) {
+  Widget _buildBookingCard(Booking booking) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 4,
@@ -200,7 +196,7 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        booking.vehicle?.displayName[0] ?? '?',
+                        booking.vehicle.make[0] ?? '?',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -215,15 +211,15 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          booking.vehicle?.displayName ?? 'غير معروف',
+                          '${booking.vehicle.make} ${booking.vehicle.model}',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                         ),
                         const SizedBox(height: 4),
-                        if (booking.vehicle?.licensePlate != null)
+                        if (booking.vehicle.licensePlate != null)
                           Text(
-                            'رقم اللوحة: ${booking.vehicle!.licensePlate}',
+                            'رقم اللوحة: ${booking.vehicle.licensePlate}',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                 ),
@@ -234,7 +230,7 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              if (booking.customer?.fullName != null)
+              if (booking.customer.fullName != null)
                 Row(
                   children: [
                     Icon(
@@ -244,7 +240,7 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'العميل: ${booking.customer!.fullName}',
+                      'العميل: ${booking.customer.fullName}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
@@ -291,7 +287,7 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         title: const Text('تأكيد استلام السيارة'),
-                        content: Text('هل تريد استلام سيارة ${booking.vehicle?.displayName}?'),
+                        content: Text('هل تريد استلام سيارة ${booking.vehicle.make} ${booking.vehicle.model}?'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
@@ -311,7 +307,7 @@ class _AvailableBookingsScreenState extends State<AvailableBookingsScreen> {
                     );
 
                     if (confirmed == true && mounted) {
-                      await mechanicProvider.assignBooking(booking.id);
+                      await ref.read(bookingStateProvider.notifier).assignBooking(booking.id);
                     }
                   },
                   icon: const Icon(Icons.directions_car),

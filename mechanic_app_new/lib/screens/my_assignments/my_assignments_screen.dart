@@ -1,25 +1,23 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/mechanic_provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../models/mechanic_assignment.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../presentation/providers/booking_provider.dart';
+import '../../presentation/providers/auth_provider.dart';
+import '../../domain/entities/mechanic_assignment.dart';
 import '../../services/company_settings_service.dart';
-import '../../services/websocket_service.dart';
 import '../vehicle_detail/vehicle_detail_screen.dart';
 import '../update_maintenance_status/update_maintenance_status_screen.dart';
 
-class MyAssignmentsScreen extends StatefulWidget {
+class MyAssignmentsScreen extends ConsumerStatefulWidget {
   const MyAssignmentsScreen({super.key});
 
   @override
-  State<MyAssignmentsScreen> createState() => _MyAssignmentsScreenState();
+  ConsumerState<MyAssignmentsScreen> createState() => _MyAssignmentsScreenState();
 }
 
-class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
+class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
   Timer? _refreshTimer;
   final CompanySettingsService _companySettingsService = CompanySettingsService();
-  final WebSocketService _webSocketService = WebSocketService();
   String _companyName = 'تطبيق الميكانيكي';
   String? _companyLogoUrl;
 
@@ -28,27 +26,9 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
     super.initState();
     _loadCompanySettings();
     Future.microtask(() {
-      context.read<MechanicProvider>().fetchMyAssignments();
+      ref.read(bookingStateProvider.notifier).fetchMyAssignments();
     });
     _startAutoRefresh();
-    
-    // Connect to WebSocket
-    final authProvider = context.read<AuthProvider>();
-    _webSocketService.connect(
-      userId: authProvider.userId,
-      role: authProvider.currentUser?.role,
-    );
-    
-    // Listen for booking updates
-    _webSocketService.addListener(_onBookingUpdate);
-  }
-
-  void _onBookingUpdate() {
-    final update = _webSocketService.lastBookingUpdate;
-    if (update != null) {
-      // Reload my assignments when a booking is updated
-      context.read<MechanicProvider>().fetchMyAssignments();
-    }
   }
 
   Future<void> _loadCompanySettings() async {
@@ -68,15 +48,13 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
   @override
   void dispose() {
     _refreshTimer?.cancel();
-    _webSocketService.removeListener(_onBookingUpdate);
-    _webSocketService.disconnect();
     super.dispose();
   }
 
   void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
-        context.read<MechanicProvider>().fetchMyAssignments();
+        ref.read(bookingStateProvider.notifier).fetchMyAssignments();
       }
     });
   }
@@ -111,29 +89,35 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthProvider>().logout();
-              Navigator.pushReplacementNamed(context, '/login');
+            onPressed: () async {
+              await ref.read(authStateProvider.notifier).logout();
+              if (mounted) {
+                Navigator.pushReplacementNamed(context, '/login');
+              }
             },
           ),
         ],
       ),
-      body: Consumer<MechanicProvider>(
-        builder: (context, mechanicProvider, child) {
-          if (mechanicProvider.isLoading) {
+      body: Consumer(
+        builder: (context, ref, child) {
+          final bookingState = ref.watch(bookingStateProvider);
+          
+          if (bookingState.isLoadingAssignments) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (mechanicProvider.errorMessage != null) {
+          if (bookingState.assignmentsError != null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(mechanicProvider.errorMessage!),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(bookingState.assignmentsError!),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      mechanicProvider.fetchMyAssignments();
+                      ref.read(bookingStateProvider.notifier).fetchMyAssignments();
                     },
                     child: const Text('إعادة المحاولة'),
                   ),
@@ -142,18 +126,30 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
             );
           }
 
-          if (mechanicProvider.myAssignments.isEmpty) {
+          if (bookingState.myAssignments.isEmpty) {
             return const Center(
-              child: Text('لا توجد مهام حالياً'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.assignment_turned_in, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('لا توجد مهام حالياً'),
+                ],
+              ),
             );
           }
 
-          return ListView.builder(
-            itemCount: mechanicProvider.myAssignments.length,
-            itemBuilder: (context, index) {
-              final assignment = mechanicProvider.myAssignments[index];
-              return _buildAssignmentCard(assignment);
+          return RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(bookingStateProvider.notifier).fetchMyAssignments();
             },
+            child: ListView.builder(
+              itemCount: bookingState.myAssignments.length,
+              itemBuilder: (context, index) {
+                final assignment = bookingState.myAssignments[index];
+                return _buildAssignmentCard(assignment);
+              },
+            ),
           );
         },
       ),
@@ -203,7 +199,7 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        assignment.booking?.vehicle?.displayName[0] ?? '?',
+                        assignment.booking?.vehicle.make[0] ?? '?',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -218,15 +214,15 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          assignment.booking?.vehicle?.displayName ?? 'غير معروف',
+                          '${assignment.booking?.vehicle.make} ${assignment.booking?.vehicle.model}',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                         ),
                         const SizedBox(height: 4),
-                        if (assignment.booking?.vehicle?.licensePlate != null)
+                        if (assignment.booking?.vehicle.licensePlate != null)
                           Text(
-                            'رقم اللوحة: ${assignment.booking!.vehicle!.licensePlate}',
+                            'رقم اللوحة: ${assignment.booking!.vehicle.licensePlate}',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                 ),
@@ -237,7 +233,7 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              if (assignment.booking?.customer?.fullName != null)
+              if (assignment.booking?.customer.fullName != null)
                 Row(
                   children: [
                     Icon(
@@ -247,7 +243,7 @@ class _MyAssignmentsScreenState extends State<MyAssignmentsScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'العميل: ${assignment.booking!.customer!.fullName}',
+                      'العميل: ${assignment.booking!.customer.fullName}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),

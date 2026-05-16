@@ -4,6 +4,7 @@ import 'package:mechanic_app_new/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 import './core/constants/backend_constants.dart';
 import './core/logger.dart';
 import 'presentation/providers/auth_provider.dart';
@@ -16,13 +17,26 @@ import 'services/company_settings_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final prefs = await SharedPreferences.getInstance();
-  final localeCode = prefs.getString('locale') ?? 'ar';
+  // إضافة Error Handling شامل
+  FlutterError.onError = (FlutterErrorDetails details) {
+    logger.severe('Flutter Error: ${details.exception}');
+    logger.severe('Stack Trace: ${details.stack}');
+    FlutterError.presentError(details);
+  };
 
-  // Note: Using Render backend API
-  logger.info('Using Render backend: ${BackendConstants.backendUrl}');
+  await runZonedGuarded(() async {
+    final prefs = await SharedPreferences.getInstance();
+    final localeCode = prefs.getString('locale') ?? 'ar';
 
-  runApp(ProviderScope(child: MyApp(initialLocale: Locale(localeCode))));
+    // Note: Using Render backend API
+    logger.info('Using Render backend: ${BackendConstants.backendUrl}');
+    logger.info('Locale: $localeCode');
+
+    runApp(ProviderScope(child: MyApp(initialLocale: Locale(localeCode))));
+  }, (error, stack) {
+    logger.severe('Uncaught Error: $error');
+    logger.severe('Stack Trace: $stack');
+  });
 }
 
 class MyApp extends StatefulWidget {
@@ -73,6 +87,20 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: _appTitle,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        ErrorWidget.builder = (FlutterErrorDetails details) {
+          return ErrorScreen(
+            error: details.exception.toString(),
+            stackTrace: details.stack.toString(),
+          );
+        };
+        
+        final isRTL = _locale.languageCode == 'ar';
+        return Directionality(
+          textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+          child: child!,
+        );
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blue,
@@ -93,13 +121,6 @@ class _MyAppState extends State<MyApp> {
         Locale('en'),
       ],
       locale: _locale,
-      builder: (context, child) {
-        final isRTL = _locale.languageCode == 'ar';
-        return Directionality(
-          textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-          child: child!,
-        );
-      },
       home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),
@@ -110,25 +131,102 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class SplashScreen extends StatefulWidget {
+// ErrorWidget مخصص لعرض الأخطاء بدلاً من الشاشة البيضاء
+class ErrorScreen extends StatelessWidget {
+  final String? error;
+  final String? stackTrace;
+
+  const ErrorScreen({super.key, this.error, this.stackTrace});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 80,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'حدث خطأ غير متوقع',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              if (error != null)
+                Text(
+                  'الخطأ: $error',
+                  style: const TextStyle(fontSize: 14, color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+                child: const Text('العودة إلى تسجيل الدخول'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/');
+                },
+                child: const Text('إعادة تشغيل التطبيق'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuthStatus();
+    _checkAuthAndNavigate();
   }
 
-  Future<void> _checkAuthStatus() async {
-    // For now, always go to login screen
-    // TODO: Implement proper auth check with Riverpod
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/login');
+  Future<void> _checkAuthAndNavigate() async {
+    try {
+      logger.info('Checking auth status...');
+      
+      // تحقق من حالة المصادقة
+      await ref.read(authStateProvider.notifier).checkAuthStatus();
+      
+      if (!mounted) return;
+      
+      final authState = ref.read(authStateProvider);
+      
+      if (authState.isAuthenticated) {
+        logger.info('User is authenticated, navigating to available bookings');
+        Navigator.pushReplacementNamed(context, '/available-bookings');
+      } else {
+        logger.info('User is not authenticated, navigating to login');
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e, stack) {
+      logger.severe('Error in splash screen: $e');
+      logger.severe('Stack trace: $stack');
+      
+      if (mounted) {
+        // في حالة الخطأ، اذهب إلى شاشة تسجيل الدخول
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     }
   }
 
@@ -148,6 +246,11 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(height: 24),
             CircularProgressIndicator(
               color: Colors.white,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'جاري التحميل...',
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),

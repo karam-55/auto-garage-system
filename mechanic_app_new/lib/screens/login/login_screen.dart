@@ -272,7 +272,10 @@ class _LoginScreenState extends State<_LoginScreenContent> {
                                           authState.error!,
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.onErrorContainer,
+                                            fontSize: 12,
                                           ),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],

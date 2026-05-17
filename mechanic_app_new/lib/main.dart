@@ -15,9 +15,7 @@ import 'screens/my_assignments/my_assignments_screen.dart';
 import 'services/company_settings_service.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // إضافة Error Handling شامل
+  // إضافة Error Handling شامل قبل تهيئة Flutter bindings
   FlutterError.onError = (FlutterErrorDetails details) {
     logger.severe('Flutter Error: ${details.exception}');
     logger.severe('Stack Trace: ${details.stack}');
@@ -25,6 +23,8 @@ void main() async {
   };
 
   await runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    
     final prefs = await SharedPreferences.getInstance();
     final localeCode = prefs.getString('locale') ?? 'ar';
 

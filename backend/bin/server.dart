@@ -298,13 +298,13 @@ Middleware _corsMiddleware() {
     exit(1);
   }
 
-  // Allow multiple origins
+  // Allow multiple origins (support comma-separated values)
   final allowedOrigins = <String>[allowedOrigin];
   if (customerOrigin != null && customerOrigin.isNotEmpty) {
-    allowedOrigins.add(customerOrigin);
+    allowedOrigins.addAll(customerOrigin.split(',').map((e) => e.trim()));
   }
   if (mechanicOrigin != null && mechanicOrigin.isNotEmpty) {
-    allowedOrigins.add(mechanicOrigin);
+    allowedOrigins.addAll(mechanicOrigin.split(',').map((e) => e.trim()));
   }
 
   logger.i('✅ CORS configured for: ${allowedOrigins.join(", ")}');

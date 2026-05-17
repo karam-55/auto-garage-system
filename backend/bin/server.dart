@@ -317,9 +317,12 @@ Middleware _corsMiddleware() {
       logger.i('🔍 Allowed Origins: $allowedOrigins');
       logger.i('🔍 Request Origin in allowed: ${allowedOrigins.contains(requestOrigin)}');
       
-      final effectiveOrigin = allowedOrigins.contains(requestOrigin) 
-          ? requestOrigin ?? allowedOrigin ?? ''
-          : allowedOrigin ?? '';
+      // If * is in allowed origins, allow any origin
+      final effectiveOrigin = allowedOrigins.contains('*')
+          ? requestOrigin ?? '*'
+          : allowedOrigins.contains(requestOrigin) 
+              ? requestOrigin ?? allowedOrigin ?? ''
+              : allowedOrigin ?? '';
       
       logger.i('🔍 Effective Origin: $effectiveOrigin');
 

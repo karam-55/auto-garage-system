@@ -40,6 +40,11 @@ class _LoginScreenState extends State<_LoginScreenContent> {
     try {
       final response = await http.get(
         Uri.parse('${BackendConstants.backendUrl}/api/company/settings'),
+      ).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw Exception('Request timeout');
+        },
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -51,7 +56,8 @@ class _LoginScreenState extends State<_LoginScreenContent> {
         }
       }
     } catch (e) {
-      // Use default values on error
+      // Use default values on error - don't retry
+      print('Failed to load company settings: $e');
     }
   }
 

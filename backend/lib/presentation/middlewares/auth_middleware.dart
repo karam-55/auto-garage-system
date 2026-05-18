@@ -85,8 +85,9 @@ class AuthMiddleware {
   bool _hasRequiredRole(Role userRole, Role requiredRole) {
     // Define role hierarchy
     final roleHierarchy = {
-      Role.OWNER: 4,
-      Role.MANAGER: 3,
+      Role.OWNER: 5,
+      Role.MANAGER: 4,
+      Role.ACCOUNTANT: 3,
       Role.RECEPTIONIST: 2,
       Role.MECHANIC: 1,
     };

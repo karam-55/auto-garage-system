@@ -10,8 +10,12 @@ import '../../domain/repositories/booking_service_repository.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../../domain/repositories/customer_repository.dart';
 import '../../domain/repositories/booking_invoice_data_repository.dart';
+import '../../domain/repositories/account_repository.dart';
+import '../../domain/repositories/journal_repository.dart';
 import '../../application/usecases/create_booking_usecase.dart';
 import '../../application/usecases/update_booking_status_usecase.dart';
+import '../../application/services/journal_service.dart';
+import '../../application/services/accounting_settings_service.dart';
 import '../../infrastructure/database/database_connection.dart';
 import '../middlewares/json_middleware.dart';
 import '../middlewares/auth_middleware.dart';
@@ -25,6 +29,10 @@ class BookingRoutes {
   final VehicleRepository _vehicleRepository;
   final BookingInvoiceDataRepository _invoiceDataRepository;
   final CustomerRepository _customerRepository;
+  final AccountRepository _accountRepository;
+  final JournalRepository _journalRepository;
+  final JournalService _journalService;
+  final AccountingSettingsService _accountingSettingsService;
 
   BookingRoutes(
     this._bookingRepository,
@@ -34,6 +42,10 @@ class BookingRoutes {
     this._vehicleRepository,
     this._invoiceDataRepository,
     this._customerRepository,
+    this._accountRepository,
+    this._journalRepository,
+    this._journalService,
+    this._accountingSettingsService,
   );
 
   Router get router {
@@ -416,8 +428,16 @@ class BookingRoutes {
     }
 
     try {
-      final useCase = UpdateBookingStatusUseCase(_bookingRepository);
-      final updatedBooking = await useCase.execute(id, BookingStatus.fromString(statusStr));
+      final useCase = UpdateBookingStatusUseCase(
+        _bookingRepository,
+        _invoiceDataRepository,
+        _accountRepository,
+        _journalRepository,
+        _journalService,
+        _accountingSettingsService,
+      );
+      final userId = request.context['user'] != null ? (request.context['user'] as dynamic).id : null;
+      final updatedBooking = await useCase.execute(id, BookingStatus.fromString(statusStr), userId: userId);
       
       return Response.ok(jsonEncode(updatedBooking.toJson()));
     } catch (e) {

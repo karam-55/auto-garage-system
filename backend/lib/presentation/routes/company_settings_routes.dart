@@ -2,14 +2,19 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../domain/entities/company_settings.dart';
+import '../../domain/entities/role.dart';
 import '../../domain/repositories/company_settings_repository.dart';
+import '../../domain/repositories/account_repository.dart';
 import '../middlewares/auth_middleware.dart';
+import '../../application/services/accounting_settings_service.dart';
 
 class CompanySettingsRoutes {
   final CompanySettingsRepository _repository;
   final AuthMiddleware _authMiddleware;
+  final AccountRepository _accountRepository;
+  final AccountingSettingsService _accountingSettingsService;
 
-  CompanySettingsRoutes(this._repository, this._authMiddleware);
+  CompanySettingsRoutes(this._repository, this._authMiddleware, this._accountRepository, this._accountingSettingsService);
 
   Router get router {
     final router = Router();
@@ -22,6 +27,14 @@ class CompanySettingsRoutes {
 
     // POST /api/company/upload-logo - Upload company logo
     router.post('/api/company/upload-logo', _uploadLogo);
+
+    // GET /api/accounting-settings - Get accounting settings
+    router.get('/api/accounting-settings', 
+      _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_getAccountingSettings)));
+
+    // PUT /api/accounting-settings - Update accounting settings
+    router.put('/api/accounting-settings',
+      _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_updateAccountingSettings)));
 
     return router;
   }
@@ -104,6 +117,41 @@ class CompanySettingsRoutes {
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to upload logo: $e'}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  Future<Response> _getAccountingSettings(Request request) async {
+    try {
+      final settings = await _accountingSettingsService.getSettings();
+      return Response.ok(
+        jsonEncode(settings.toJson()),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get accounting settings: $e'}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  Future<Response> _updateAccountingSettings(Request request) async {
+    try {
+      final payload = await request.readAsString();
+      final data = jsonDecode(payload) as Map<String, dynamic>;
+      
+      final newSettings = AccountingSettings.fromJson(data);
+      await _accountingSettingsService.saveSettings(newSettings);
+      
+      return Response.ok(
+        jsonEncode({'message': 'Accounting settings updated successfully'}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to update accounting settings: $e'}),
         headers: {'Content-Type': 'application/json'},
       );
     }

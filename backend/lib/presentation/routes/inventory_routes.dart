@@ -12,7 +12,11 @@ import '../../domain/repositories/inventory_variant_repository.dart';
 import '../../domain/repositories/inventory_transaction_repository.dart';
 import '../../domain/repositories/booking_invoice_data_repository.dart';
 import '../../domain/repositories/alert_repository.dart';
+import '../../domain/repositories/account_repository.dart';
+import '../../domain/repositories/journal_repository.dart';
 import '../middlewares/auth_middleware.dart';
+import '../../application/services/journal_service.dart';
+import '../../application/services/accounting_settings_service.dart';
 
 class InventoryRoutes {
   final InventoryItemRepository _itemRepository;
@@ -22,6 +26,10 @@ class InventoryRoutes {
   final AlertRepository _alertRepository;
   final AuthMiddleware _authMiddleware;
   final dynamic _webSocket; // BookingWebSocket instance
+  final AccountRepository _accountRepository;
+  final JournalRepository _journalRepository;
+  final JournalService _journalService;
+  final AccountingSettingsService _accountingSettingsService;
 
   InventoryRoutes(
     this._itemRepository,
@@ -31,6 +39,10 @@ class InventoryRoutes {
     this._alertRepository,
     this._authMiddleware,
     this._webSocket,
+    this._accountRepository,
+    this._journalRepository,
+    this._journalService,
+    this._accountingSettingsService,
   );
 
   Router get router {
@@ -406,6 +418,38 @@ class InventoryRoutes {
       );
 
       await _transactionRepository.create(transaction);
+
+      // Create accounting journal entry for COGS
+      try {
+        final accountingSettings = await _accountingSettingsService.getSettings();
+        final totalCost = quantity * (variant.costPrice > 0 ? variant.costPrice : variant.sellingPrice * 0.7);
+        
+        await _journalService.createJournalEntry(
+          date: DateTime.now(),
+          reference: 'CONS-${bookingId?.substring(0, 8) ?? DateTime.now().millisecondsSinceEpoch.toString()}',
+          description: 'استهلاك قطع غيار للحجز $bookingId',
+          lines: [
+            JournalLineInput(
+              accountId: accountingSettings.cogsPartsAccountId,
+              debit: totalCost,
+              credit: 0,
+              description: 'تكلفة ${item.name} (${variant.variantType})',
+            ),
+            JournalLineInput(
+              accountId: accountingSettings.inventoryAccountId,
+              debit: 0,
+              credit: totalCost,
+              description: 'تخفيض المخزون - ${item.name}',
+            ),
+          ],
+          sourceType: 'booking_consume',
+          sourceId: bookingId ?? variantId,
+          createdBy: request.context['user'] != null ? (request.context['user'] as dynamic).id : null,
+        );
+      } catch (e) {
+        // Don't fail the request if journal entry creation fails
+        print('Warning: Failed to create journal entry for COGS: $e');
+      }
 
       // Regenerate invoice if bookingId is provided
       if (bookingId != null) {

@@ -82,7 +82,7 @@ class AuthRoutes {
 
   Future<Response> _getMe(Request request) async {
     try {
-      final user = request.attributes['user'] as User;
+      final user = request.context['user'] as User;
       return Response.ok(jsonEncode(user.toJson()));
     } catch (e) {
       return Response.internalServerError(

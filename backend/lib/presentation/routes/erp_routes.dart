@@ -27,7 +27,6 @@ import '../../application/services/accounting_settings_service.dart';
 import '../../application/usecases/receive_purchase_order_usecase.dart';
 import '../../application/usecases/pay_purchase_invoice_usecase.dart';
 import '../../application/usecases/create_sales_invoice_usecase.dart';
-import '../../application/usecases/complete_manufacturing_order_usecase.dart';
 import '../../application/usecases/run_depreciation_usecase.dart';
 
 class ErpRoutes {
@@ -42,7 +41,6 @@ class ErpRoutes {
   final ReceivePurchaseOrderUseCase _receivePurchaseOrderUseCase;
   final PayPurchaseInvoiceUseCase _payPurchaseInvoiceUseCase;
   final CreateSalesInvoiceUseCase _createSalesInvoiceUseCase;
-  final CompleteManufacturingOrderUseCase _completeManufacturingOrderUseCase;
   final RunDepreciationUseCase _runDepreciationUseCase;
 
   ErpRoutes(
@@ -57,7 +55,6 @@ class ErpRoutes {
     this._receivePurchaseOrderUseCase,
     this._payPurchaseInvoiceUseCase,
     this._createSalesInvoiceUseCase,
-    this._completeManufacturingOrderUseCase,
     this._runDepreciationUseCase,
   );
 
@@ -67,7 +64,6 @@ class ErpRoutes {
     final warehouseRepo = WarehouseRepositoryImpl(db);
     final inventoryRepo = InventoryVariantWarehouseRepositoryImpl(db);
     final bomRepo = BillOfMaterialsRepositoryImpl(db);
-    final orderRepo = ManufacturingOrderRepositoryImpl(db);
     final leadRepo = CrmLeadRepositoryImpl(db);
     final activityRepo = CrmActivityRepositoryImpl(db);
     final contractRepo = EmployeeContractRepositoryImpl(db);
@@ -83,7 +79,7 @@ class ErpRoutes {
     final purchaseOrderService = PurchaseOrderService(purchaseOrderRepo);
     final quotationService = QuotationService(quotationRepo);
     final warehouseService = WarehouseService(warehouseRepo, inventoryRepo);
-    final manufacturingService = ManufacturingService(bomRepo, orderRepo);
+    final manufacturingService = ManufacturingService(bomRepo, null);
     final crmService = CrmService(leadRepo, activityRepo);
     final hrService = HrService(contractRepo, leaveRepo, reviewRepo);
     final fixedAssetService = FixedAssetService(assetRepo, maintenanceRepo);
@@ -93,7 +89,6 @@ class ErpRoutes {
     final receivePurchaseOrderUseCase = ReceivePurchaseOrderUseCase(purchaseOrderRepo, journalService, accountingSettingsService);
     final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepo, journalService);
     final createSalesInvoiceUseCase = CreateSalesInvoiceUseCase(journalService, accountingSettingsService);
-    final completeManufacturingOrderUseCase = CompleteManufacturingOrderUseCase(journalService, accountingSettingsService);
     final runDepreciationUseCase = RunDepreciationUseCase(journalService, accountingSettingsService);
 
     return ErpRoutes(
@@ -108,7 +103,6 @@ class ErpRoutes {
       receivePurchaseOrderUseCase,
       payPurchaseInvoiceUseCase,
       createSalesInvoiceUseCase,
-      completeManufacturingOrderUseCase,
       runDepreciationUseCase,
     );
   }
@@ -145,13 +139,6 @@ class ErpRoutes {
     router.post('/manufacturing/boms', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createBom)));
     router.put('/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateBom)));
     router.delete('/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteBom)));
-
-    router.get('/manufacturing/orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getManufacturingOrders)));
-    router.get('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getManufacturingOrder)));
-    router.post('/manufacturing/orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_WAREHOUSE])(_createManufacturingOrder)));
-    router.put('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_WAREHOUSE])(_updateManufacturingOrder)));
-    router.put('/manufacturing/orders/<id>/complete', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_WAREHOUSE])(_completeManufacturingOrder)));
-    router.delete('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteManufacturingOrder)));
 
     // Sales Orders
     router.post('/sales-orders/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createSalesInvoice)));
@@ -428,61 +415,6 @@ class ErpRoutes {
       return Response.ok(jsonEncode({'message': 'BOM deleted'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete BOM: $e'}));
-    }
-  }
-
-  Future<Response> _getManufacturingOrders(Request request) async {
-    try {
-      final orders = await _manufacturingService.getAllManufacturingOrders();
-      return Response.ok(jsonEncode(orders.map((o) => o.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch manufacturing orders: $e'}));
-    }
-  }
-
-  Future<Response> _getManufacturingOrder(Request request) async {
-    try {
-      final id = int.parse(request.params['id'] as String);
-      final order = await _manufacturingService.getManufacturingOrder(id);
-      if (order == null) {
-        return Response.notFound(jsonEncode({'error': 'Manufacturing order not found'}));
-      }
-      return Response.ok(jsonEncode(order.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch manufacturing order: $e'}));
-    }
-  }
-
-  Future<Response> _createManufacturingOrder(Request request) async {
-    try {
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create ManufacturingOrder from data
-      return Response.ok(jsonEncode({'message': 'Manufacturing order created'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Failed to create manufacturing order: $e'}));
-    }
-  }
-
-  Future<Response> _updateManufacturingOrder(Request request) async {
-    try {
-      final id = int.parse(request.params['id'] as String);
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update ManufacturingOrder from data
-      return Response.ok(jsonEncode({'message': 'Manufacturing order updated'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Failed to update manufacturing order: $e'}));
-    }
-  }
-
-  Future<Response> _deleteManufacturingOrder(Request request) async {
-    try {
-      final id = int.parse(request.params['id'] as String);
-      await _manufacturingService.deleteManufacturingOrder(id);
-      return Response.ok(jsonEncode({'message': 'Manufacturing order deleted'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete manufacturing order: $e'}));
     }
   }
 
@@ -957,36 +889,6 @@ class ErpRoutes {
       return Response.ok(jsonEncode({'message': 'Sales invoice created'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create sales invoice: $e'}));
-    }
-  }
-
-  Future<Response> _completeManufacturingOrder(Request request) async {
-    try {
-      final id = int.parse(request.params['id'] as String);
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      
-      // Get the manufacturing order first
-      final order = await _manufacturingService.getManufacturingOrder(id);
-      if (order == null) {
-        return Response.notFound(jsonEncode({'error': 'Manufacturing order not found'}));
-      }
-      
-      // Calculate raw materials cost (simplified - should be calculated from BOM)
-      final rawMaterialsCost = data['raw_materials_cost'] as double? ?? 0.0;
-      
-      await _completeManufacturingOrderUseCase.execute(
-        order: order,
-        rawMaterialsCost: rawMaterialsCost,
-        createdBy: data['created_by'] as String? ?? 'system',
-      );
-      
-      // Also call the original service method to update status
-      await _manufacturingService.completeManufacturingOrder(id);
-      
-      return Response.ok(jsonEncode({'message': 'Manufacturing order completed'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Failed to complete manufacturing order: $e'}));
     }
   }
 

@@ -123,8 +123,7 @@ void main(List<String> args) async {
   final quotationRepository = QuotationRepositoryImpl(db);
   final warehouseRepository = WarehouseRepositoryImpl(db);
   final billOfMaterialsRepository = BillOfMaterialsRepositoryImpl(db);
-  final manufacturingOrderRepository = ManufacturingOrderRepositoryImpl(db);
-  final hrRepository = HrRepositoryImpl(db);
+  final hrRepository = EmployeeContractRepositoryImpl(db);
   final fixedAssetRepository = FixedAssetRepositoryImpl(db);
 
   // Initialize routes
@@ -147,6 +146,10 @@ void main(List<String> args) async {
     vehicleRepository,
     bookingInvoiceDataRepository,
     customerRepository,
+    accountRepository,
+    journalRepository,
+    journalService,
+    accountingSettingsService,
   );
   final mechanicRoutes = MechanicRoutes(
     mechanicAssignmentRepository,
@@ -169,13 +172,14 @@ void main(List<String> args) async {
     inventoryVariantRepository,
     hrRepository,
     fixedAssetRepository,
-    manufacturingOrderRepository,
     authRoutes.authMiddleware,
   );
   final publicRoutes = PublicRoutes(db);
   final companySettingsRoutes = CompanySettingsRoutes(
     companySettingsRepository,
     authMiddleware,
+    accountRepository,
+    accountingSettingsService,
   );
   final webSocket = BookingWebSocket(alertRepository);
   final inventoryRoutes = InventoryRoutes(
@@ -186,6 +190,10 @@ void main(List<String> args) async {
     alertRepository,
     authMiddleware,
     webSocket,
+    accountRepository,
+    journalRepository,
+    journalService,
+    accountingSettingsService,
   );
   final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
   final accountingRoutes = AccountingRoutes.create(db, authMiddleware);

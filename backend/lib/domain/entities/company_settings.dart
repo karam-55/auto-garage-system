@@ -4,6 +4,7 @@ class CompanySettings {
   final String? companyLogoUrl;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final Map<String, dynamic>? accountingSettings;
 
   CompanySettings({
     required this.id,
@@ -11,6 +12,7 @@ class CompanySettings {
     this.companyLogoUrl,
     required this.createdAt,
     this.updatedAt,
+    this.accountingSettings,
   });
 
   factory CompanySettings.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class CompanySettings {
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
+      accountingSettings: json['accountingSettings'] as Map<String, dynamic>?,
     );
   }
 
@@ -32,6 +35,7 @@ class CompanySettings {
       'companyLogoUrl': companyLogoUrl,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'accountingSettings': accountingSettings,
     };
   }
 
@@ -41,6 +45,7 @@ class CompanySettings {
     String? companyLogoUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Map<String, dynamic>? accountingSettings,
   }) {
     return CompanySettings(
       id: id ?? this.id,
@@ -48,6 +53,7 @@ class CompanySettings {
       companyLogoUrl: companyLogoUrl ?? this.companyLogoUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      accountingSettings: accountingSettings ?? this.accountingSettings,
     );
   }
 }

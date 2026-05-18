@@ -7,6 +7,7 @@ class BookingInvoiceData {
   final DateTime invoiceCreatedAt;
   final String? publicToken;
   final String? qrCodeUrl;
+  final int? journalEntryId;
 
   BookingInvoiceData({
     required this.id,
@@ -17,6 +18,7 @@ class BookingInvoiceData {
     required this.invoiceCreatedAt,
     this.publicToken,
     this.qrCodeUrl,
+    this.journalEntryId,
   });
 
   BookingInvoiceData copyWith({
@@ -28,6 +30,7 @@ class BookingInvoiceData {
     DateTime? invoiceCreatedAt,
     String? publicToken,
     String? qrCodeUrl,
+    int? journalEntryId,
   }) {
     return BookingInvoiceData(
       id: id ?? this.id,
@@ -38,6 +41,7 @@ class BookingInvoiceData {
       invoiceCreatedAt: invoiceCreatedAt ?? this.invoiceCreatedAt,
       publicToken: publicToken ?? this.publicToken,
       qrCodeUrl: qrCodeUrl ?? this.qrCodeUrl,
+      journalEntryId: journalEntryId ?? this.journalEntryId,
     );
   }
 
@@ -51,6 +55,7 @@ class BookingInvoiceData {
       'invoiceCreatedAt': invoiceCreatedAt.toIso8601String(),
       'publicToken': publicToken,
       'qrCodeUrl': qrCodeUrl,
+      'journalEntryId': journalEntryId,
     };
   }
 
@@ -66,6 +71,7 @@ class BookingInvoiceData {
       invoiceCreatedAt: DateTime.parse(json['invoiceCreatedAt'] as String),
       publicToken: json['publicToken'] as String?,
       qrCodeUrl: json['qrCodeUrl'] as String?,
+      journalEntryId: json['journalEntryId'] as int?,
     );
   }
 }

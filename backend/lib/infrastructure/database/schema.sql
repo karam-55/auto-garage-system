@@ -1,5 +1,156 @@
--- Database Schema for Auto Garage Management System
--- PostgreSQL
+-- ========================================
+-- Accounting System Tables
+-- ========================================
+
+-- 1.1.1 Fiscal Periods
+CREATE TABLE IF NOT EXISTS fiscal_periods (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    is_closed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 1.1.2 Chart of Accounts
+CREATE TYPE IF NOT EXISTS account_type_enum AS ENUM ('asset', 'liability', 'equity', 'revenue', 'expense', 'cogs');
+CREATE TABLE IF NOT EXISTS accounts (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(20) NOT NULL UNIQUE,
+    name_ar VARCHAR(255) NOT NULL,
+    name_en VARCHAR(255) NOT NULL,
+    parent_id INT REFERENCES accounts(id) ON DELETE CASCADE,
+    account_type account_type_enum NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 1.1.3 Journal Entries
+CREATE TABLE IF NOT EXISTS journal_entries (
+    id SERIAL PRIMARY KEY,
+    entry_date DATE NOT NULL,
+    reference VARCHAR(50),
+    description TEXT,
+    is_reversing BOOLEAN DEFAULT FALSE,
+    reversing_date DATE,
+    is_reversed BOOLEAN DEFAULT FALSE,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    approved_by UUID REFERENCES users(id),
+    approved_at TIMESTAMP WITH TIME ZONE,
+    fiscal_period_id INT REFERENCES fiscal_periods(id)
+);
+
+-- 1.1.4 Journal Lines (debit/credit lines)
+CREATE TABLE IF NOT EXISTS journal_lines (
+    id SERIAL PRIMARY KEY,
+    entry_id INT REFERENCES journal_entries(id) ON DELETE CASCADE,
+    account_id INT REFERENCES accounts(id),
+    debit DECIMAL(15,2) DEFAULT 0,
+    credit DECIMAL(15,2) DEFAULT 0,
+    description TEXT,
+    source_type VARCHAR(50),
+    source_id VARCHAR(100)
+);
+
+-- 1.1.5 Bank Accounts and Cash
+CREATE TABLE IF NOT EXISTS bank_accounts (
+    id SERIAL PRIMARY KEY,
+    account_name VARCHAR(255) NOT NULL,
+    account_number VARCHAR(100),
+    bank_name VARCHAR(255),
+    initial_balance DECIMAL(15,2) DEFAULT 0,
+    current_balance DECIMAL(15,2) DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    account_id INT REFERENCES accounts(id)
+);
+
+-- 1.1.6 Bank Reconciliations
+CREATE TABLE IF NOT EXISTS bank_reconciliations (
+    id SERIAL PRIMARY KEY,
+    bank_account_id INT REFERENCES bank_accounts(id),
+    statement_date DATE NOT NULL,
+    statement_balance DECIMAL(15,2) NOT NULL,
+    reconciled_balance DECIMAL(15,2),
+    is_done BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS reconciliation_lines (
+    id SERIAL PRIMARY KEY,
+    reconciliation_id INT REFERENCES bank_reconciliations(id),
+    journal_line_id INT REFERENCES journal_lines(id),
+    is_matched BOOLEAN DEFAULT TRUE
+);
+
+-- 1.1.7 Vendors
+CREATE TABLE IF NOT EXISTS vendors (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    address TEXT,
+    tax_number VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 1.1.8 Purchase Invoices
+CREATE TABLE IF NOT EXISTS purchase_invoices (
+    id SERIAL PRIMARY KEY,
+    vendor_id INT REFERENCES vendors(id),
+    invoice_number VARCHAR(50) NOT NULL,
+    issue_date DATE NOT NULL,
+    due_date DATE,
+    total_amount DECIMAL(15,2) NOT NULL,
+    paid_amount DECIMAL(15,2) DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'unpaid',
+    journal_entry_id INT REFERENCES journal_entries(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS purchase_invoice_items (
+    id SERIAL PRIMARY KEY,
+    invoice_id INT REFERENCES purchase_invoices(id),
+    inventory_variant_id UUID,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(15,2) NOT NULL,
+    total_price DECIMAL(15,2) NOT NULL
+);
+
+-- 1.1.9 Operating Expenses
+CREATE TABLE IF NOT EXISTS expenses (
+    id SERIAL PRIMARY KEY,
+    expense_date DATE NOT NULL,
+    account_id INT REFERENCES accounts(id),
+    amount DECIMAL(15,2) NOT NULL,
+    description TEXT,
+    payment_method VARCHAR(50),
+    attachment_url TEXT,
+    journal_entry_id INT REFERENCES journal_entries(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 1.1.10 Payroll Settings and Salary Payments
+CREATE TABLE IF NOT EXISTS payroll_settings (
+    id SERIAL PRIMARY KEY,
+    monthly_work_days INT DEFAULT 30,
+    salary_payment_day INT DEFAULT 28
+);
+CREATE TABLE IF NOT EXISTS salary_payments (
+    id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    month_year DATE NOT NULL,
+    base_salary DECIMAL(15,2),
+    working_days INT,
+    bonuses DECIMAL(15,2) DEFAULT 0,
+    deductions DECIMAL(15,2) DEFAULT 0,
+    net_salary DECIMAL(15,2),
+    payment_date DATE,
+    is_paid BOOLEAN DEFAULT FALSE,
+    journal_entry_id INT REFERENCES journal_entries(id)
+);
+
+-- ========================================
+-- Core System Tables
+-- ========================================
 
 -- Enable UUID extension (for older PostgreSQL versions compatibility)
 -- Note: gen_random_uuid() is available in PostgreSQL 13+, which is the standard on modern platforms like Render
@@ -204,156 +355,6 @@ CREATE INDEX IF NOT EXISTS idx_booking_invoice_data_booking_id ON booking_invoic
 CREATE INDEX IF NOT EXISTS idx_alerts_type ON alerts(type);
 CREATE INDEX IF NOT EXISTS idx_alerts_is_read ON alerts(is_read);
 
--- ========================================
--- Accounting System Tables
--- ========================================
-
--- 1.1.1 Fiscal Periods
-CREATE TABLE IF NOT EXISTS fiscal_periods (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    is_closed BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 1.1.2 Chart of Accounts
-CREATE TYPE account_type_enum AS ENUM ('asset', 'liability', 'equity', 'revenue', 'expense', 'cogs');
-CREATE TABLE IF NOT EXISTS accounts (
-    id SERIAL PRIMARY KEY,
-    code VARCHAR(20) NOT NULL UNIQUE,
-    name_ar VARCHAR(255) NOT NULL,
-    name_en VARCHAR(255) NOT NULL,
-    parent_id INT REFERENCES accounts(id) ON DELETE CASCADE,
-    account_type account_type_enum NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 1.1.3 Journal Entries
-CREATE TABLE IF NOT EXISTS journal_entries (
-    id SERIAL PRIMARY KEY,
-    entry_date DATE NOT NULL,
-    reference VARCHAR(50),
-    description TEXT,
-    is_reversing BOOLEAN DEFAULT FALSE,
-    reversing_date DATE,
-    is_reversed BOOLEAN DEFAULT FALSE,
-    created_by UUID REFERENCES users(id),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    approved_by UUID REFERENCES users(id),
-    approved_at TIMESTAMP WITH TIME ZONE,
-    fiscal_period_id INT REFERENCES fiscal_periods(id)
-);
-
--- 1.1.4 Journal Lines (debit/credit lines)
-CREATE TABLE IF NOT EXISTS journal_lines (
-    id SERIAL PRIMARY KEY,
-    entry_id INT REFERENCES journal_entries(id) ON DELETE CASCADE,
-    account_id INT REFERENCES accounts(id),
-    debit DECIMAL(15,2) DEFAULT 0,
-    credit DECIMAL(15,2) DEFAULT 0,
-    description TEXT,
-    source_type VARCHAR(50),
-    source_id VARCHAR(100)
-);
-
--- 1.1.5 Bank Accounts and Cash
-CREATE TABLE IF NOT EXISTS bank_accounts (
-    id SERIAL PRIMARY KEY,
-    account_name VARCHAR(255) NOT NULL,
-    account_number VARCHAR(100),
-    bank_name VARCHAR(255),
-    initial_balance DECIMAL(15,2) DEFAULT 0,
-    current_balance DECIMAL(15,2) DEFAULT 0,
-    is_active BOOLEAN DEFAULT TRUE,
-    account_id INT REFERENCES accounts(id)
-);
-
--- 1.1.6 Bank Reconciliations
-CREATE TABLE IF NOT EXISTS bank_reconciliations (
-    id SERIAL PRIMARY KEY,
-    bank_account_id INT REFERENCES bank_accounts(id),
-    statement_date DATE NOT NULL,
-    statement_balance DECIMAL(15,2) NOT NULL,
-    reconciled_balance DECIMAL(15,2),
-    is_done BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS reconciliation_lines (
-    id SERIAL PRIMARY KEY,
-    reconciliation_id INT REFERENCES bank_reconciliations(id),
-    journal_line_id INT REFERENCES journal_lines(id),
-    is_matched BOOLEAN DEFAULT TRUE
-);
-
--- 1.1.7 Vendors
-CREATE TABLE IF NOT EXISTS vendors (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    phone VARCHAR(50),
-    address TEXT,
-    tax_number VARCHAR(100),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 1.1.8 Purchase Invoices
-CREATE TABLE IF NOT EXISTS purchase_invoices (
-    id SERIAL PRIMARY KEY,
-    vendor_id INT REFERENCES vendors(id),
-    invoice_number VARCHAR(50) NOT NULL,
-    issue_date DATE NOT NULL,
-    due_date DATE,
-    total_amount DECIMAL(15,2) NOT NULL,
-    paid_amount DECIMAL(15,2) DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'unpaid',
-    journal_entry_id INT REFERENCES journal_entries(id) ON DELETE SET NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS purchase_invoice_items (
-    id SERIAL PRIMARY KEY,
-    invoice_id INT REFERENCES purchase_invoices(id),
-    inventory_variant_id UUID REFERENCES inventory_variants(id),
-    quantity INT NOT NULL,
-    unit_price DECIMAL(15,2) NOT NULL,
-    total_price DECIMAL(15,2) NOT NULL
-);
-
--- 1.1.9 Operating Expenses
-CREATE TABLE IF NOT EXISTS expenses (
-    id SERIAL PRIMARY KEY,
-    expense_date DATE NOT NULL,
-    account_id INT REFERENCES accounts(id),
-    amount DECIMAL(15,2) NOT NULL,
-    description TEXT,
-    payment_method VARCHAR(50),
-    attachment_url TEXT,
-    journal_entry_id INT REFERENCES journal_entries(id) ON DELETE SET NULL,
-    created_by UUID REFERENCES users(id),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 1.1.10 Payroll Settings and Salary Payments
-CREATE TABLE IF NOT EXISTS payroll_settings (
-    id SERIAL PRIMARY KEY,
-    monthly_work_days INT DEFAULT 30,
-    salary_payment_day INT DEFAULT 28
-);
-CREATE TABLE IF NOT EXISTS salary_payments (
-    id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
-    month_year DATE NOT NULL,
-    base_salary DECIMAL(15,2),
-    working_days INT,
-    bonuses DECIMAL(15,2) DEFAULT 0,
-    deductions DECIMAL(15,2) DEFAULT 0,
-    net_salary DECIMAL(15,2),
-    payment_date DATE,
-    is_paid BOOLEAN DEFAULT FALSE,
-    journal_entry_id INT REFERENCES journal_entries(id)
-);
-
 -- Add missing columns to existing tables
 ALTER TABLE inventory_variants ADD COLUMN IF NOT EXISTS cost_price DECIMAL(12, 2) DEFAULT 0;
 ALTER TABLE inventory_variants ADD COLUMN IF NOT EXISTS selling_price DECIMAL(12, 2) DEFAULT 0;
@@ -367,3 +368,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS hire_date DATE;
 -- Add journal_entry_id to purchase_invoices and expenses
 ALTER TABLE purchase_invoices ADD COLUMN IF NOT EXISTS journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL;
 ALTER TABLE expenses ADD COLUMN IF NOT EXISTS journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL;
+
+-- Add foreign key constraint to purchase_invoice_items after inventory_variants is created
+ALTER TABLE purchase_invoice_items ADD CONSTRAINT fk_purchase_invoice_items_inventory_variant 
+FOREIGN KEY (inventory_variant_id) REFERENCES inventory_variants(id) ON DELETE SET NULL;

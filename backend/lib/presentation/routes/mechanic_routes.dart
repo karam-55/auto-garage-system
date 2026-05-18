@@ -170,6 +170,13 @@ class MechanicRoutes {
   }
 
   Future<Response> _updateAssignmentStatus(Request request) async {
+    final user = request.context['user'];
+    if (user == null) {
+      return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+    }
+
+    final typedUser = user as User;
+
     final id = request.params['id'];
     final body = await JsonMiddleware.parseJsonBody(request);
     if (body == null) {
@@ -190,6 +197,20 @@ class MechanicRoutes {
       final existingAssignment = await _mechanicAssignmentRepository.findById(id);
       if (existingAssignment == null) {
         return Response.notFound(jsonEncode({'error': 'Assignment not found'}));
+      }
+
+      // Check if user is the mechanic assigned to this task or has higher privileges
+      final isMechanic = typedUser.role == Role.MECHANIC;
+      final isHigherPrivilege = typedUser.role == Role.OWNER || 
+                               typedUser.role == Role.MANAGER || 
+                               typedUser.role == Role.RECEPTIONIST;
+
+      if (isMechanic && existingAssignment.mechanicUserId != typedUser.id) {
+        return Response.forbidden(jsonEncode({'error': 'You can only update your own assignments'}));
+      }
+
+      if (!isMechanic && !isHigherPrivilege) {
+        return Response.forbidden(jsonEncode({'error': 'Insufficient permissions'}));
       }
 
       final updatedAssignment = existingAssignment.copyWith(

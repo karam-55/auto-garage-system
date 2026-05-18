@@ -8,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'core/widgets/animated_sidebar.dart';
 import 'core/websocket_service.dart';
 import 'screens/overview_screen.dart';
+import 'screens/dashboard_screen.dart';
 import 'screens/bookings_screen.dart';
 import 'screens/customers_screen.dart';
 import 'screens/services_screen.dart';
@@ -18,6 +19,21 @@ import 'screens/change_password_screen.dart';
 import 'screens/company_settings_screen.dart';
 import 'screens/quick_booking_screen.dart';
 import 'screens/inventory_screen.dart';
+// ERP Screens
+import 'screens/purchasing/purchase_orders_screen.dart';
+import 'screens/sales/quotations_screen.dart';
+import 'screens/sales/sales_orders_screen.dart';
+import 'screens/warehouse/warehouses_screen.dart';
+import 'screens/warehouse/inventory_transfers_screen.dart';
+import 'screens/manufacturing/boms_screen.dart';
+import 'screens/manufacturing/manufacturing_orders_screen.dart';
+import 'screens/crm/leads_screen.dart';
+import 'screens/hr/employee_contracts_screen.dart';
+import 'screens/hr/leave_requests_screen.dart';
+import 'screens/fixed_assets/fixed_assets_screen.dart';
+import 'screens/maintenance/maintenance_contracts_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/providers/auth_provider.dart';
 
 class _NavItem {
   final IconData icon;
@@ -266,13 +282,20 @@ class _LoginScreenState extends State<LoginScreen>
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
       try {
-        await _authService.login(
+        final loginData = await _authService.login(
           _usernameController.text,
           _passwordController.text,
         );
         
         if (mounted) {
           await _saveCredentials(_usernameController.text, _passwordController.text);
+          
+          // Save user data to SharedPreferences for authProvider
+          if (loginData['user'] != null) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('user', jsonEncode(loginData['user']));
+          }
+          
           final apiService = ApiService();
           apiService.setToken(_authService.token);
           apiService.setRefreshToken(_authService.refreshToken);
@@ -517,6 +540,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // Disconnect WebSocket before logout
       webSocketService.disconnect();
       
+      // Clear user data from SharedPreferences
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.remove('user');
+      });
+      
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
@@ -540,6 +568,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isTablet = MediaQuery.sizeOf(context).width >= 800 && MediaQuery.sizeOf(context).width < 1200;
 
     final screens = [
+      const ProviderScope(child: DashboardScreen()),
       OverviewScreen(apiService: _apiService),
       BookingsScreen(apiService: _apiService),
       QuickBookingScreen(apiService: _apiService),
@@ -551,6 +580,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       InventoryScreen(apiService: _apiService),
       CompanySettingsScreen(apiService: _apiService),
       ChangePasswordScreen(apiService: _apiService),
+      // ERP Screens
+      ProviderScope(child: const PurchaseOrdersScreen()),
+      ProviderScope(child: const QuotationsScreen()),
+      ProviderScope(child: const SalesOrdersScreen()),
+      ProviderScope(child: const WarehousesScreen()),
+      ProviderScope(child: const InventoryTransfersScreen()),
+      ProviderScope(child: const BomsScreen()),
+      ProviderScope(child: const ManufacturingOrdersScreen()),
+      ProviderScope(child: const LeadsScreen()),
+      ProviderScope(child: const EmployeeContractsScreen()),
+      ProviderScope(child: const LeaveRequestsScreen()),
+      ProviderScope(child: const FixedAssetsScreen()),
+      ProviderScope(child: const MaintenanceContractsScreen()),
     ];
 
     return Scaffold(

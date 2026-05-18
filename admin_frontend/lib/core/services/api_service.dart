@@ -75,6 +75,19 @@ class ApiService {
     }
   }
 
+  // Get current user
+  Future<Map<String, dynamic>> getUser() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/auth/me'),
+        headers: _getHeaders(),
+      );
+      return await _handleResponse(response, endpoint: '/api/auth/me', method: 'GET');
+    } catch (e) {
+      throw Exception('فشل جلب المستخدم: $e');
+    }
+  }
+
   // Generic POST request
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
     try {

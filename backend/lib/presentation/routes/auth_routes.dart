@@ -74,7 +74,21 @@ class AuthRoutes {
     // DELETE /api/users/:id (protected: only OWNER)
     router.delete('/api/users/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.OWNER)(_deleteUser)));
 
+    // GET /api/auth/me (protected: returns current user)
+    router.get('/api/auth/me', _authMiddleware.authenticate()(_getMe));
+
     return router;
+  }
+
+  Future<Response> _getMe(Request request) async {
+    try {
+      final user = request.attributes['user'] as User;
+      return Response.ok(jsonEncode(user.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to get current user: $e'}),
+      );
+    }
   }
 
   Future<Response> _login(Request request) async {

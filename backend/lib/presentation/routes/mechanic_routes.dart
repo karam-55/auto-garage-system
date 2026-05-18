@@ -110,9 +110,29 @@ class MechanicRoutes {
 
     try {
       final assignments = await _mechanicAssignmentRepository.findByMechanicUserId(typedUser.id);
-      return Response.ok(
-        jsonEncode(assignments.map((a) => a.toJson()).toList()),
-      );
+      
+      final enrichedAssignments = await Future.wait(assignments.map((assignment) async {
+        final booking = await _bookingRepository.findById(assignment.bookingId);
+        if (booking == null) return null;
+        
+        final vehicle = await _vehicleRepository.findById(booking.vehicleId);
+        final customer = await _customerRepository.findById(booking.customerId);
+        
+        if (vehicle == null || customer == null) return null;
+        
+        return {
+          ...assignment.toJson(),
+          'booking': {
+            ...booking.toJson(),
+            'vehicle': vehicle.toJson(),
+            'customer': customer.toJson(),
+          },
+        };
+      }).toList());
+      
+      final validAssignments = enrichedAssignments.where((a) => a != null).cast<Map<String, dynamic>>().toList();
+      
+      return Response.ok(jsonEncode(validAssignments));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get assignments: $e'}),

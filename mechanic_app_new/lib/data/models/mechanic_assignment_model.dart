@@ -16,18 +16,18 @@ class MechanicAssignmentModel extends MechanicAssignment {
   factory MechanicAssignmentModel.fromJson(Map<String, dynamic> json) {
     return MechanicAssignmentModel(
       id: json['id'] as String? ?? '',
-      bookingId: json['booking_id'] as String? ?? '',
-      mechanicUserId: json['mechanic_user_id'] as String? ?? '',
+      bookingId: (json['bookingId'] ?? json['booking_id']) as String? ?? '',
+      mechanicUserId: (json['mechanicUserId'] ?? json['mechanic_user_id']) as String? ?? '',
       status: json['status'] as String? ?? 'ASSIGNED',
       notes: json['notes'] as String?,
-      assignedAt: json['assigned_at'] != null
-          ? DateTime.parse(json['assigned_at'] as String)
+      assignedAt: (json['assignedAt'] ?? json['assigned_at']) != null
+          ? DateTime.parse((json['assignedAt'] ?? json['assigned_at']) as String)
           : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+      updatedAt: (json['updatedAt'] ?? json['updated_at']) != null
+          ? DateTime.parse((json['updatedAt'] ?? json['updated_at']) as String)
           : null,
-      booking: json['bookings'] != null
-          ? BookingModel.fromJson(json['bookings'] as Map<String, dynamic>)
+      booking: (json['booking'] ?? json['bookings']) != null
+          ? BookingModel.fromJson((json['booking'] ?? json['bookings']) as Map<String, dynamic>)
           : null,
     );
   }

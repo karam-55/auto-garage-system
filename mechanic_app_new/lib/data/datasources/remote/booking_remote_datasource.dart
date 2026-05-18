@@ -64,7 +64,7 @@ class BookingRemoteDataSource {
   Future<bool> updateBookingStatus(String bookingId, String status) async {
     try {
       final response = await _dioClient.patch(
-        '/api/bookings/$bookingId/status',
+        '/api/mechanics/assignments/$bookingId/status',
         data: {'status': status},
       );
 

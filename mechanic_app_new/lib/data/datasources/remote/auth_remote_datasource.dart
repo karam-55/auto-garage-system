@@ -1,6 +1,7 @@
 import '../../models/user_model.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/error/exceptions.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRemoteDataSource {
   final DioClient _dioClient;
@@ -18,7 +19,27 @@ class AuthRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return UserModel.fromJson(response.data['user']);
+        final prefs = await SharedPreferences.getInstance();
+        
+        final data = response.data;
+        final token = data['token'] as String?;
+        final refreshToken = data['refreshToken'] as String?;
+        final userData = data['user'];
+        
+        if (token == null || token.isEmpty) {
+          throw ServerException('No token received from server');
+        }
+        
+        await prefs.setString('token', token);
+        if (refreshToken != null && refreshToken.isNotEmpty) {
+          await prefs.setString('refresh_token', refreshToken);
+        }
+        
+        if (userData == null) {
+          throw ServerException('No user data received from server');
+        }
+        
+        return UserModel.fromJson(userData);
       } else {
         throw ServerException('Login failed');
       }

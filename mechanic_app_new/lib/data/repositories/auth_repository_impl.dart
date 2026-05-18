@@ -4,6 +4,8 @@ import '../../core/error/failures.dart';
 import '../../core/error/exceptions.dart';
 import '../datasources/remote/auth_remote_datasource.dart';
 import '../datasources/local/cache_datasource.dart';
+import '../../core/network/dio_client.dart';
+import '../../core/constants/backend_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -76,10 +78,25 @@ class AuthRepositoryImpl implements AuthRepository {
       final prefs = await SharedPreferences.getInstance();
       final refreshToken = prefs.getString('refresh_token');
       
-      if (refreshToken == null) return false;
+      if (refreshToken == null || refreshToken.isEmpty) return false;
 
-      // This should be implemented in the remote datasource
-      // For now, return false
+      final dioClient = DioClient(BackendConstants.backendUrl);
+      final response = await dioClient.post(
+        '/api/auth/refresh',
+        data: {'refreshToken': refreshToken},
+      );
+
+      if (response.statusCode == 200) {
+        final newToken = response.data['token'];
+        final newRefreshToken = response.data['refreshToken'];
+        if (newToken != null) {
+          await prefs.setString('token', newToken);
+        }
+        if (newRefreshToken != null) {
+          await prefs.setString('refresh_token', newRefreshToken);
+        }
+        return true;
+      }
       return false;
     } catch (e) {
       throw ServerFailure('Token refresh failed: $e');

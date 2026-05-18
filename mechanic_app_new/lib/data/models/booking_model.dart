@@ -17,22 +17,22 @@ class BookingModel extends Booking {
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
       id: json['id'] as String? ?? '',
-      customerId: json['customer_id'] as String? ?? '',
-      vehicleId: json['vehicle_id'] as String? ?? '',
+      customerId: (json['customerId'] ?? json['customer_id']) as String? ?? '',
+      vehicleId: (json['vehicleId'] ?? json['vehicle_id']) as String? ?? '',
       status: json['status'] as String? ?? 'PENDING',
       notes: json['notes'] as String?,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+      createdAt: (json['createdAt'] ?? json['created_at']) != null
+          ? DateTime.parse((json['createdAt'] ?? json['created_at']) as String)
           : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+      updatedAt: (json['updatedAt'] ?? json['updated_at']) != null
+          ? DateTime.parse((json['updatedAt'] ?? json['updated_at']) as String)
           : null,
-      publicToken: json['public_token'] as String?,
-      vehicle: json['vehicles'] != null
-          ? VehicleModel.fromJson(json['vehicles'] as Map<String, dynamic>)
+      publicToken: (json['publicToken'] ?? json['public_token']) as String?,
+      vehicle: (json['vehicle'] ?? json['vehicles']) != null
+          ? VehicleModel.fromJson((json['vehicle'] ?? json['vehicles']) as Map<String, dynamic>)
           : VehicleModel.fromJson({}),
-      customer: json['customers'] != null
-          ? CustomerModel.fromJson(json['customers'] as Map<String, dynamic>)
+      customer: (json['customer'] ?? json['customers']) != null
+          ? CustomerModel.fromJson((json['customer'] ?? json['customers']) as Map<String, dynamic>)
           : CustomerModel.fromJson({}),
     );
   }
@@ -81,18 +81,18 @@ class VehicleModel extends Vehicle {
   factory VehicleModel.fromJson(Map<String, dynamic> json) {
     return VehicleModel(
       id: json['id'] as String? ?? '',
-      customerId: json['customer_id'] as String?,
+      customerId: (json['customerId'] ?? json['customer_id']) as String?,
       make: json['make'] as String? ?? 'غير محدد',
       model: json['model'] as String? ?? 'غير محدد',
       year: json['year'] as int?,
-      licensePlate: json['license_plate'] as String?,
+      licensePlate: (json['licensePlate'] ?? json['license_plate']) as String?,
       vin: json['vin'] as String?,
-      publicCarId: json['public_car_id'] as String?,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+      publicCarId: (json['publicCarId'] ?? json['public_car_id']) as String?,
+      createdAt: (json['createdAt'] ?? json['created_at']) != null
+          ? DateTime.parse((json['createdAt'] ?? json['created_at']) as String)
           : null,
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+      updatedAt: (json['updatedAt'] ?? json['updated_at']) != null
+          ? DateTime.parse((json['updatedAt'] ?? json['updated_at']) as String)
           : null,
     );
   }
@@ -139,14 +139,14 @@ class CustomerModel extends Customer {
   factory CustomerModel.fromJson(Map<String, dynamic> json) {
     return CustomerModel(
       id: json['id'] as String? ?? '',
-      fullName: json['full_name'] as String? ?? 'غير محدد',
+      fullName: (json['fullName'] ?? json['full_name']) as String? ?? 'غير محدد',
       phone: json['phone'] as String?,
       address: json['address'] as String?,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+      createdAt: (json['createdAt'] ?? json['created_at']) != null
+          ? DateTime.parse((json['createdAt'] ?? json['created_at']) as String)
           : null,
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+      updatedAt: (json['updatedAt'] ?? json['updated_at']) != null
+          ? DateTime.parse((json['updatedAt'] ?? json['updated_at']) as String)
           : null,
     );
   }

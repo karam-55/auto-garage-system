@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../../presentation/providers/auth_provider.dart';
+import '../../core/network/dio_client.dart';
 import '../../core/constants/backend_constants.dart';
 
 class LoginScreen extends ConsumerWidget {
@@ -38,16 +37,11 @@ class _LoginScreenState extends State<_LoginScreenContent> {
 
   Future<void> _loadCompanySettings() async {
     try {
-      final response = await http.get(
-        Uri.parse('${BackendConstants.backendUrl}/api/company/settings'),
-      ).timeout(
-        const Duration(seconds: 5),
-        onTimeout: () {
-          throw Exception('Request timeout');
-        },
-      );
+      final dioClient = DioClient(BackendConstants.backendUrl);
+      final response = await dioClient.get('/api/company/settings');
+      
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = response.data;
         if (mounted) {
           setState(() {
             _companyName = data['companyName'] ?? 'تطبيق الميكانيكي';
@@ -56,8 +50,7 @@ class _LoginScreenState extends State<_LoginScreenContent> {
         }
       }
     } catch (e) {
-      // Use default values on error - don't retry
-      print('Failed to load company settings: $e');
+      // Use default values on error
     }
   }
 

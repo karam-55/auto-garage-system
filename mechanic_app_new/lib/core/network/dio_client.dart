@@ -25,10 +25,12 @@ class DioClient {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final token = await _getToken();
-        if (token != null) {
+        if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
+          print('🔑 TOKEN SENT: ${options.method} ${options.uri}');
+        } else {
+          print('❌ NO TOKEN: ${options.method} ${options.uri}');
         }
-        logger.info('Request: ${options.method} ${options.uri}');
         return handler.next(options);
       },
       onResponse: (response, handler) {
@@ -36,15 +38,16 @@ class DioClient {
         return handler.next(response);
       },
       onError: (error, handler) async {
-        logger.severe('Error: ${error.message}');
+        logger.severe('Error: ${error.message} [${error.response?.statusCode}] ${error.requestOptions.uri}');
         
         if (error.response?.statusCode == 401) {
-          // Try to refresh token
           final refreshed = await _refreshToken();
           if (refreshed) {
             final token = await _getToken();
-            error.requestOptions.headers['Authorization'] = 'Bearer $token';
-            return handler.resolve(await _dio.fetch(error.requestOptions));
+            if (token != null && token.isNotEmpty) {
+              error.requestOptions.headers['Authorization'] = 'Bearer $token';
+              return handler.resolve(await _dio.fetch(error.requestOptions));
+            }
           }
         }
         
@@ -63,22 +66,39 @@ class DioClient {
       final prefs = await SharedPreferences.getInstance();
       final refreshToken = prefs.getString('refresh_token');
       
-      if (refreshToken == null) return false;
+      if (refreshToken == null || refreshToken.isEmpty) {
+        logger.info('No refresh token available');
+        return false;
+      }
 
-      final response = await _dio.post(
+      logger.info('Attempting token refresh...');
+      
+      final response = await Dio(BaseOptions(
+        baseUrl: _baseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      )).post(
         '/api/auth/refresh',
         data: {'refreshToken': refreshToken},
       );
 
       if (response.statusCode == 200) {
-        await prefs.setString('token', response.data['token']);
-        await prefs.setString('refresh_token', response.data['refreshToken']);
+        final newToken = response.data['token'];
+        final newRefreshToken = response.data['refreshToken'];
+        if (newToken != null) {
+          await prefs.setString('token', newToken);
+        }
+        if (newRefreshToken != null) {
+          await prefs.setString('refresh_token', newRefreshToken);
+        }
+        logger.info('Token refreshed successfully');
         return true;
       }
       
+      logger.severe('Token refresh failed with status: ${response.statusCode}');
       return false;
     } catch (e) {
-      logger.severe('Token refresh failed: $e');
+      logger.severe('Token refresh error: $e');
       return false;
     }
   }

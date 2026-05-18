@@ -38,18 +38,18 @@ class _UpdateMaintenanceStatusScreenState extends ConsumerState<UpdateMaintenanc
   }
 
   Future<void> _updateStatus() async {
-    final bookingId = widget.assignment.booking?.id;
-    if (bookingId == null) {
+    final assignmentId = widget.assignment.id;
+    if (assignmentId.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('خطأ: لم يتم العثور على معرف الحجز')),
+          const SnackBar(content: Text('خطأ: لم يتم العثور على معرف المهمة')),
         );
       }
       return;
     }
 
     try {
-      await ref.read(bookingStateProvider.notifier).updateBookingStatus(bookingId, _selectedStatus);
+      await ref.read(bookingStateProvider.notifier).updateBookingStatus(assignmentId, _selectedStatus);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

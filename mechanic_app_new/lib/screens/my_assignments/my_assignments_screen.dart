@@ -77,7 +77,13 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
                   },
                 ),
               ),
-            Text(_companyName),
+            Expanded(
+              child: Text(
+                _companyName,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
           ],
         ),
         actions: [
@@ -218,15 +224,19 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         if (assignment.booking?.vehicle.licensePlate != null)
                           Text(
-                            'رقم اللوحة: ${assignment.booking!.vehicle.licensePlate}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                                ),
-                          ),
+                          'رقم اللوحة: ${assignment.booking!.vehicle.licensePlate}',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
@@ -242,12 +252,16 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
-                    Text(
+                    Expanded(
+                    child: Text(
                       'العميل: ${assignment.booking!.customer.fullName}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  ),
                   ],
                 ),
               const SizedBox(height: 8),

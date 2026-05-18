@@ -4,9 +4,7 @@ import 'package:mechanic_app_new/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:async';
 import './core/constants/backend_constants.dart';
-import './core/logger.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/booking_provider.dart';
 import 'screens/login/login_screen.dart';
@@ -15,28 +13,12 @@ import 'screens/my_assignments/my_assignments_screen.dart';
 import 'services/company_settings_service.dart';
 
 void main() async {
-  // إضافة Error Handling شامل قبل تهيئة Flutter bindings
-  FlutterError.onError = (FlutterErrorDetails details) {
-    logger.severe('Flutter Error: ${details.exception}');
-    logger.severe('Stack Trace: ${details.stack}');
-    FlutterError.presentError(details);
-  };
+  WidgetsFlutterBinding.ensureInitialized();
 
-  await runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    
-    final prefs = await SharedPreferences.getInstance();
-    final localeCode = prefs.getString('locale') ?? 'ar';
+  final prefs = await SharedPreferences.getInstance();
+  final localeCode = prefs.getString('locale') ?? 'ar';
 
-    // Note: Using Render backend API
-    logger.info('Using Render backend: ${BackendConstants.backendUrl}');
-    logger.info('Locale: $localeCode');
-
-    runApp(ProviderScope(child: MyApp(initialLocale: Locale(localeCode))));
-  }, (error, stack) {
-    logger.severe('Uncaught Error: $error');
-    logger.severe('Stack Trace: $stack');
-  });
+  runApp(ProviderScope(child: MyApp(initialLocale: Locale(localeCode))));
 }
 
 class MyApp extends StatefulWidget {
@@ -198,13 +180,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuthAndNavigate();
+    // تأخير استدعاء checkAuthStatus لتجنب خطأ Riverpod
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuthAndNavigate();
+    });
   }
 
   Future<void> _checkAuthAndNavigate() async {
     try {
-      logger.info('Checking auth status...');
-      
       // تحقق من حالة المصادقة
       await ref.read(authStateProvider.notifier).checkAuthStatus();
       
@@ -213,16 +196,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final authState = ref.read(authStateProvider);
       
       if (authState.isAuthenticated) {
-        logger.info('User is authenticated, navigating to available bookings');
         Navigator.pushReplacementNamed(context, '/available-bookings');
       } else {
-        logger.info('User is not authenticated, navigating to login');
         Navigator.pushReplacementNamed(context, '/login');
       }
     } catch (e, stack) {
-      logger.severe('Error in splash screen: $e');
-      logger.severe('Stack trace: $stack');
-      
       if (mounted) {
         // في حالة الخطأ، اذهب إلى شاشة تسجيل الدخول
         Navigator.pushReplacementNamed(context, '/login');

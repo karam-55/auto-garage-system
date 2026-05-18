@@ -24,10 +24,6 @@ import '../../application/services/hr_service.dart';
 import '../../application/services/fixed_asset_service.dart';
 import '../../application/services/journal_service.dart';
 import '../../application/services/accounting_settings_service.dart';
-import '../../application/usecases/receive_purchase_order_usecase.dart';
-import '../../application/usecases/pay_purchase_invoice_usecase.dart';
-import '../../application/usecases/create_sales_invoice_usecase.dart';
-import '../../application/usecases/run_depreciation_usecase.dart';
 
 class ErpRoutes {
   final PurchaseOrderService _purchaseOrderService;
@@ -38,10 +34,6 @@ class ErpRoutes {
   final HrService _hrService;
   final FixedAssetService _fixedAssetService;
   final AuthMiddleware _authMiddleware;
-  final ReceivePurchaseOrderUseCase _receivePurchaseOrderUseCase;
-  final PayPurchaseInvoiceUseCase _payPurchaseInvoiceUseCase;
-  final CreateSalesInvoiceUseCase _createSalesInvoiceUseCase;
-  final RunDepreciationUseCase _runDepreciationUseCase;
 
   ErpRoutes(
     this._purchaseOrderService,
@@ -52,10 +44,6 @@ class ErpRoutes {
     this._hrService,
     this._fixedAssetService,
     this._authMiddleware,
-    this._receivePurchaseOrderUseCase,
-    this._payPurchaseInvoiceUseCase,
-    this._createSalesInvoiceUseCase,
-    this._runDepreciationUseCase,
   );
 
   factory ErpRoutes.create(DatabaseConnection db, AuthMiddleware authMiddleware) {
@@ -86,11 +74,6 @@ class ErpRoutes {
     final journalService = JournalService(journalRepo, accountRepo);
     final accountingSettingsService = AccountingSettingsService(settingsRepo, accountRepo);
 
-    final receivePurchaseOrderUseCase = ReceivePurchaseOrderUseCase(purchaseOrderRepo, journalService, accountingSettingsService);
-    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepo, journalService);
-    final createSalesInvoiceUseCase = CreateSalesInvoiceUseCase(journalService, accountingSettingsService);
-    final runDepreciationUseCase = RunDepreciationUseCase(journalService, accountingSettingsService);
-
     return ErpRoutes(
       purchaseOrderService,
       quotationService,
@@ -100,10 +83,6 @@ class ErpRoutes {
       hrService,
       fixedAssetService,
       authMiddleware,
-      receivePurchaseOrderUseCase,
-      payPurchaseInvoiceUseCase,
-      createSalesInvoiceUseCase,
-      runDepreciationUseCase,
     );
   }
 

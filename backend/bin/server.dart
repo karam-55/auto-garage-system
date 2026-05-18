@@ -36,7 +36,6 @@ import 'package:backend/infrastructure/repositories/purchase_order_repository_im
 import 'package:backend/infrastructure/repositories/quotation_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/warehouse_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/bill_of_materials_repository_impl.dart';
-import 'package:backend/infrastructure/repositories/manufacturing_order_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/hr_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/fixed_asset_repository_impl.dart';
 import 'package:backend/presentation/routes/dashboard_routes.dart';

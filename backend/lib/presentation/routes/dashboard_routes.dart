@@ -61,7 +61,6 @@ class DashboardRoutes {
     router.get('/dashboard/sales-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getSalesStats)));
     router.get('/dashboard/purchase-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseStats)));
     router.get('/dashboard/inventory-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getInventoryStats)));
-    router.get('/dashboard/manufacturing-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getManufacturingStats)));
     router.get('/dashboard/hr-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER])(_getHrStats)));
     router.get('/dashboard/fixed-assets-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getFixedAssetsStats)));
 
@@ -252,7 +251,7 @@ class DashboardRoutes {
 
   Future<Response> _getHrStats(Request request) async {
     try {
-      final contracts = await _hrRepository.findAllEmployeeContracts();
+      final contracts = await _hrRepository.findAll();
       
       int totalEmployees = contracts.length;
       double totalSalaries = contracts.fold(0.0, (sum, contract) => sum + (contract.baseSalary ?? 0));

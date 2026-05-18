@@ -11,6 +11,11 @@ import '../../infrastructure/repositories/bill_of_materials_repository_impl.dart
 import '../../infrastructure/repositories/crm_repository_impl.dart';
 import '../../infrastructure/repositories/hr_repository_impl.dart';
 import '../../infrastructure/repositories/fixed_asset_repository_impl.dart';
+import '../../infrastructure/repositories/crm_activity_repository_impl.dart';
+import '../../infrastructure/repositories/leave_request_repository_impl.dart';
+import '../../infrastructure/repositories/performance_review_repository_impl.dart';
+import '../../infrastructure/repositories/maintenance_contract_repository_impl.dart';
+import '../../infrastructure/repositories/manufacturing_order_repository_impl.dart';
 import '../../infrastructure/repositories/journal_repository_impl.dart';
 import '../../infrastructure/repositories/account_repository_impl.dart';
 import '../../infrastructure/repositories/company_settings_repository_impl.dart';
@@ -24,6 +29,11 @@ import '../../application/services/hr_service.dart';
 import '../../application/services/fixed_asset_service.dart';
 import '../../application/services/journal_service.dart';
 import '../../application/services/accounting_settings_service.dart';
+import '../../application/usecases/receive_purchase_order_usecase.dart';
+import '../../application/usecases/pay_purchase_invoice_usecase.dart';
+import '../../application/usecases/create_sales_invoice_usecase.dart';
+import '../../application/usecases/complete_manufacturing_order_usecase.dart';
+import '../../application/usecases/run_depreciation_usecase.dart';
 
 class ErpRoutes {
   final PurchaseOrderService _purchaseOrderService;
@@ -34,6 +44,11 @@ class ErpRoutes {
   final HrService _hrService;
   final FixedAssetService _fixedAssetService;
   final AuthMiddleware _authMiddleware;
+  final ReceivePurchaseOrderUseCase _receivePurchaseOrderUseCase;
+  final PayPurchaseInvoiceUseCase _payPurchaseInvoiceUseCase;
+  final CreateSalesInvoiceUseCase _createSalesInvoiceUseCase;
+  final CompleteManufacturingOrderUseCase _completeManufacturingOrderUseCase;
+  final RunDepreciationUseCase _runDepreciationUseCase;
 
   ErpRoutes(
     this._purchaseOrderService,
@@ -44,6 +59,11 @@ class ErpRoutes {
     this._hrService,
     this._fixedAssetService,
     this._authMiddleware,
+    this._receivePurchaseOrderUseCase,
+    this._payPurchaseInvoiceUseCase,
+    this._createSalesInvoiceUseCase,
+    this._completeManufacturingOrderUseCase,
+    this._runDepreciationUseCase,
   );
 
   factory ErpRoutes.create(DatabaseConnection db, AuthMiddleware authMiddleware) {
@@ -52,6 +72,7 @@ class ErpRoutes {
     final warehouseRepo = WarehouseRepositoryImpl(db);
     final inventoryRepo = InventoryVariantWarehouseRepositoryImpl(db);
     final bomRepo = BillOfMaterialsRepositoryImpl(db);
+    final orderRepo = ManufacturingOrderRepositoryImpl(db);
     final leadRepo = CrmLeadRepositoryImpl(db);
     final activityRepo = CrmActivityRepositoryImpl(db);
     final contractRepo = EmployeeContractRepositoryImpl(db);
@@ -67,12 +88,18 @@ class ErpRoutes {
     final purchaseOrderService = PurchaseOrderService(purchaseOrderRepo);
     final quotationService = QuotationService(quotationRepo);
     final warehouseService = WarehouseService(warehouseRepo, inventoryRepo);
-    final manufacturingService = ManufacturingService(bomRepo, null);
+    final manufacturingService = ManufacturingService(bomRepo, orderRepo);
     final crmService = CrmService(leadRepo, activityRepo);
     final hrService = HrService(contractRepo, leaveRepo, reviewRepo);
     final fixedAssetService = FixedAssetService(assetRepo, maintenanceRepo);
     final journalService = JournalService(journalRepo, accountRepo);
     final accountingSettingsService = AccountingSettingsService(settingsRepo, accountRepo);
+
+    final receivePurchaseOrderUseCase = ReceivePurchaseOrderUseCase(purchaseOrderRepo, journalService, accountingSettingsService);
+    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepo, journalService);
+    final createSalesInvoiceUseCase = CreateSalesInvoiceUseCase(journalService, accountingSettingsService);
+    final completeManufacturingOrderUseCase = CompleteManufacturingOrderUseCase(journalService, accountingSettingsService);
+    final runDepreciationUseCase = RunDepreciationUseCase(journalService, accountingSettingsService);
 
     return ErpRoutes(
       purchaseOrderService,
@@ -83,6 +110,11 @@ class ErpRoutes {
       hrService,
       fixedAssetService,
       authMiddleware,
+      receivePurchaseOrderUseCase,
+      payPurchaseInvoiceUseCase,
+      createSalesInvoiceUseCase,
+      completeManufacturingOrderUseCase,
+      runDepreciationUseCase,
     );
   }
 
@@ -118,6 +150,13 @@ class ErpRoutes {
     router.post('/manufacturing/boms', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createBom)));
     router.put('/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateBom)));
     router.delete('/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteBom)));
+
+    router.get('/manufacturing/orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getManufacturingOrders)));
+    router.get('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getManufacturingOrder)));
+    router.post('/manufacturing/orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createManufacturingOrder)));
+    router.put('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateManufacturingOrder)));
+    router.delete('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteManufacturingOrder)));
+    router.post('/manufacturing/orders/<id>/complete', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_completeManufacturingOrder)));
 
     // Sales Orders
     router.post('/sales-orders/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createSalesInvoice)));
@@ -394,6 +433,71 @@ class ErpRoutes {
       return Response.ok(jsonEncode({'message': 'BOM deleted'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete BOM: $e'}));
+    }
+  }
+
+  Future<Response> _getManufacturingOrders(Request request) async {
+    try {
+      final orders = await _manufacturingService.getAllManufacturingOrders();
+      return Response.ok(jsonEncode(orders.map((o) => o.toJson()).toList()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch manufacturing orders: $e'}));
+    }
+  }
+
+  Future<Response> _getManufacturingOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      final order = await _manufacturingService.getManufacturingOrder(id);
+      if (order == null) {
+        return Response.notFound(jsonEncode({'error': 'Manufacturing order not found'}));
+      }
+      return Response.ok(jsonEncode(order.toJson()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch manufacturing order: $e'}));
+    }
+  }
+
+  Future<Response> _createManufacturingOrder(Request request) async {
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      // TODO: Parse and create ManufacturingOrder from data
+      return Response.ok(jsonEncode({'message': 'Manufacturing order created'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to create manufacturing order: $e'}));
+    }
+  }
+
+  Future<Response> _updateManufacturingOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      // TODO: Parse and update ManufacturingOrder from data
+      return Response.ok(jsonEncode({'message': 'Manufacturing order updated'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to update manufacturing order: $e'}));
+    }
+  }
+
+  Future<Response> _deleteManufacturingOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      await _manufacturingService.deleteManufacturingOrder(id);
+      return Response.ok(jsonEncode({'message': 'Manufacturing order deleted'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete manufacturing order: $e'}));
+    }
+  }
+
+  Future<Response> _completeManufacturingOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      await _manufacturingService.completeManufacturingOrder(id);
+      return Response.ok(jsonEncode({'message': 'Manufacturing order completed'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to complete manufacturing order: $e'}));
     }
   }
 
@@ -822,9 +926,10 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
+      final createdBy = data['created_by'] as String? ?? 'system';
       
-      // TODO: Implement receive purchase order logic
-      return Response.ok(jsonEncode({'message': 'Purchase order received'}));
+      final updatedOrder = await _receivePurchaseOrderUseCase.execute(id, createdBy);
+      return Response.ok(jsonEncode(updatedOrder.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to receive purchase order: $e'}));
     }
@@ -836,7 +941,13 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      // TODO: Implement pay purchase invoice logic
+      await _payPurchaseInvoiceUseCase.execute(
+        id,
+        data['amount'] as double,
+        DateTime.now(),
+        data['created_by'] as String? ?? 'system',
+      );
+      
       return Response.ok(jsonEncode({'message': 'Purchase invoice paid'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to pay purchase invoice: $e'}));
@@ -849,7 +960,13 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      // TODO: Implement create sales invoice logic
+      await _createSalesInvoiceUseCase.execute(
+        bookingId: id,
+        amount: data['amount'] as double? ?? 0.0,
+        cogsAmount: data['cogs_amount'] as double? ?? 0.0,
+        createdBy: data['created_by'] as String? ?? 'system',
+      );
+      
       return Response.ok(jsonEncode({'message': 'Sales invoice created'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create sales invoice: $e'}));
@@ -860,8 +977,16 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
+      final createdBy = data['created_by'] as String? ?? 'system';
       
-      // TODO: Implement run depreciation logic
+      // Get all fixed assets
+      final assets = await _fixedAssetService.getAllFixedAssets();
+      
+      await _runDepreciationUseCase.execute(
+        assets: assets,
+        createdBy: createdBy,
+      );
+      
       return Response.ok(jsonEncode({'message': 'Depreciation run completed'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to run depreciation: $e'}));

@@ -1,33 +1,43 @@
 import '../../domain/entities/quotation.dart';
 import '../../domain/repositories/quotation_repository.dart';
+import '../../application/usecases/quotation_usecases.dart';
 
 class QuotationService {
   final QuotationRepository _repository;
+  late final CreateQuotationUseCase _createUseCase;
+  late final GetQuotationUseCase _getUseCase;
+  late final UpdateQuotationUseCase _updateUseCase;
+  late final DeleteQuotationUseCase _deleteUseCase;
 
-  QuotationService(this._repository);
+  QuotationService(this._repository) {
+    _createUseCase = CreateQuotationUseCase(_repository);
+    _getUseCase = GetQuotationUseCase(_repository);
+    _updateUseCase = UpdateQuotationUseCase(_repository);
+    _deleteUseCase = DeleteQuotationUseCase(_repository);
+  }
 
   Future<Quotation> createQuotation(Quotation quotation) async {
-    return await _repository.create(quotation);
+    return await _createUseCase.execute(quotation);
   }
 
   Future<Quotation?> getQuotation(int id) async {
-    return await _repository.findById(id);
+    return await _getUseCase.execute(id);
   }
 
   Future<List<Quotation>> getAllQuotations() async {
-    return await _repository.findAll();
+    return await _getUseCase.executeAll();
   }
 
   Future<List<Quotation>> getQuotationsByCustomer(String customerId) async {
-    return await _repository.findByCustomerId(customerId);
+    return await _getUseCase.executeByCustomerId(customerId);
   }
 
   Future<Quotation> updateQuotation(Quotation quotation) async {
-    return await _repository.update(quotation);
+    return await _updateUseCase.execute(quotation);
   }
 
   Future<void> deleteQuotation(int id) async {
-    await _repository.delete(id);
+    await _deleteUseCase.execute(id);
   }
 
   Future<String> generateQuotationNumber() async {

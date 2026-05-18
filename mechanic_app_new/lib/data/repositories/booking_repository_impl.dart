@@ -48,21 +48,11 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<List<MechanicAssignment>> getMyAssignments(String mechanicUserId) async {
     try {
-      // Check cache first (30 second expiry)
-      final isExpired = await _cacheDataSource.isExpired('my_assignments', const Duration(seconds: 30));
-      
-      if (!isExpired) {
-        final cachedData = await _cacheDataSource.getList('my_assignments');
-        if (cachedData.isNotEmpty) {
-          return cachedData.map((json) => MechanicAssignmentModel.fromJson(json).toEntity()).toList();
-        }
-      }
-
-      // Fetch from remote
+      // Always fetch from remote to avoid stale data
       final assignmentModels = await _remoteDataSource.getMyAssignments(mechanicUserId);
       final assignments = assignmentModels.map((model) => model.toEntity()).toList();
 
-      // Save to cache
+      // Save to cache (but don't use it for this endpoint)
       await _cacheDataSource.saveList('my_assignments', assignmentModels.map((m) => m.toJson()).toList());
       await _cacheDataSource.setTimestamp('my_assignments');
 

@@ -23,23 +23,37 @@ import 'package:backend/infrastructure/repositories/inventory_variant_repository
 import 'package:backend/infrastructure/repositories/inventory_transaction_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/booking_invoice_data_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/alert_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/account_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/journal_repository_impl.dart';
+import 'package:backend/infrastructure/database/accounting_seeder.dart';
 import 'package:backend/presentation/routes/auth_routes.dart';
 import 'package:backend/presentation/routes/customer_routes.dart';
 import 'package:backend/presentation/routes/vehicle_routes.dart';
 import 'package:backend/presentation/routes/service_routes.dart';
 import 'package:backend/presentation/routes/booking_routes.dart';
 import 'package:backend/presentation/routes/mechanic_routes.dart';
+import 'package:backend/infrastructure/repositories/purchase_order_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/quotation_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/warehouse_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/bill_of_materials_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/manufacturing_order_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/hr_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/fixed_asset_repository_impl.dart';
 import 'package:backend/presentation/routes/dashboard_routes.dart';
 import 'package:backend/presentation/routes/public_routes.dart';
 import 'package:backend/presentation/routes/company_settings_routes.dart';
 import 'package:backend/presentation/routes/inventory_routes.dart';
 import 'package:backend/presentation/routes/invoice_routes.dart';
+import 'package:backend/presentation/routes/accounting_routes.dart';
+import 'package:backend/presentation/routes/erp_routes.dart';
 import 'package:backend/presentation/middlewares/auth_middleware.dart';
 import 'package:backend/presentation/middlewares/error_middleware.dart';
 import 'package:backend/presentation/middlewares/json_middleware.dart';
 import 'package:backend/presentation/middlewares/logging_middleware.dart';
 import 'package:backend/presentation/websocket/booking_websocket.dart';
 import 'package:backend/application/services/auth_service.dart';
+import 'package:backend/application/services/journal_service.dart';
+import 'package:backend/application/services/accounting_settings_service.dart';
 import 'package:backend/domain/entities/user.dart';
 import 'package:backend/domain/entities/role.dart';
 
@@ -80,6 +94,9 @@ void main(List<String> args) async {
     
     // Create default receptionist user if not exists
     await _createDefaultReceptionistUser(db, jwtSecret);
+    
+    // Seed default accounting accounts
+    await _seedAccountingAccounts(db);
   } catch (e) {
     logger.e('Failed to initialize database: $e');
     rethrow;
@@ -100,6 +117,15 @@ void main(List<String> args) async {
   final inventoryTransactionRepository = InventoryTransactionRepositoryImpl(db);
   final bookingInvoiceDataRepository = BookingInvoiceDataRepositoryImpl(db);
   final alertRepository = AlertRepositoryImpl(db);
+  final accountRepository = AccountRepositoryImpl(db);
+  final journalRepository = JournalRepositoryImpl(db);
+  final purchaseOrderRepository = PurchaseOrderRepositoryImpl(db);
+  final quotationRepository = QuotationRepositoryImpl(db);
+  final warehouseRepository = WarehouseRepositoryImpl(db);
+  final billOfMaterialsRepository = BillOfMaterialsRepositoryImpl(db);
+  final manufacturingOrderRepository = ManufacturingOrderRepositoryImpl(db);
+  final hrRepository = HrRepositoryImpl(db);
+  final fixedAssetRepository = FixedAssetRepositoryImpl(db);
 
   // Initialize routes
   final authMiddleware = AuthMiddleware(userRepository);
@@ -108,6 +134,10 @@ void main(List<String> args) async {
   final customerRoutes = CustomerRoutes(customerRepository, authMiddleware);
   final vehicleRoutes = VehicleRoutes(vehicleRepository, authMiddleware);
   final serviceRoutes = ServiceRoutes(serviceRepository, authMiddleware);
+  
+  // Initialize accounting services
+  final journalService = JournalService(journalRepository, accountRepository);
+  final accountingSettingsService = AccountingSettingsService(companySettingsRepository, accountRepository);
   
   final bookingRoutes = BookingRoutes(
     bookingRepository,
@@ -131,6 +161,13 @@ void main(List<String> args) async {
     customerRepository,
     vehicleRepository,
     bookingServiceRepository,
+    purchaseOrderRepository,
+    quotationRepository,
+    warehouseRepository,
+    billOfMaterialsRepository,
+    manufacturingOrderRepository,
+    hrRepository,
+    fixedAssetRepository,
     authRoutes.authMiddleware,
   );
   final publicRoutes = PublicRoutes(db);
@@ -149,6 +186,8 @@ void main(List<String> args) async {
     webSocket,
   );
   final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
+  final accountingRoutes = AccountingRoutes.create(db, authMiddleware);
+  final erpRoutes = ErpRoutes.create(db, authMiddleware);
 
   // Create static file handler for uploads directory
   final uploadsDir = Directory('uploads');
@@ -170,6 +209,8 @@ void main(List<String> args) async {
       .add(dashboardRoutes.router.call)
       .add(inventoryRoutes.router.call)
       .add(invoiceRoutes.router.call)
+      .add(accountingRoutes.router.call)
+      .add(erpRoutes.router.call)
       .add(publicRoutes.router.call)
       .add(webSocket.handler)
       .add((Request request) {
@@ -286,6 +327,17 @@ Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSec
     }
   } catch (e) {
     logger.e('Failed to create default receptionist user: $e');
+    // Don't rethrow - this is not critical for the server to start
+  }
+}
+
+Future<void> _seedAccountingAccounts(DatabaseConnection db) async {
+  try {
+    final seeder = AccountingSeeder(db);
+    await seeder.seedDefaultAccounts();
+    logger.i('Default accounting accounts seeded successfully');
+  } catch (e) {
+    logger.w('Failed to seed accounting accounts: $e');
     // Don't rethrow - this is not critical for the server to start
   }
 }

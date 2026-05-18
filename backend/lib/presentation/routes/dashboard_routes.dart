@@ -7,6 +7,13 @@ import '../../domain/repositories/booking_repository.dart';
 import '../../domain/repositories/customer_repository.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../../domain/repositories/booking_service_repository.dart';
+import '../../infrastructure/repositories/purchase_order_repository_impl.dart';
+import '../../infrastructure/repositories/quotation_repository_impl.dart';
+import '../../infrastructure/repositories/warehouse_repository_impl.dart';
+import '../../infrastructure/repositories/bill_of_materials_repository_impl.dart';
+import '../../infrastructure/repositories/manufacturing_order_repository_impl.dart';
+import '../../infrastructure/repositories/hr_repository_impl.dart';
+import '../../infrastructure/repositories/fixed_asset_repository_impl.dart';
 import '../middlewares/auth_middleware.dart';
 
 class DashboardRoutes {
@@ -14,6 +21,13 @@ class DashboardRoutes {
   final CustomerRepository _customerRepository;
   final VehicleRepository _vehicleRepository;
   final BookingServiceRepository _bookingServiceRepository;
+  final PurchaseOrderRepositoryImpl _purchaseOrderRepository;
+  final QuotationRepositoryImpl _quotationRepository;
+  final WarehouseRepositoryImpl _warehouseRepository;
+  final BillOfMaterialsRepositoryImpl _bomRepository;
+  final ManufacturingOrderRepositoryImpl _manufacturingOrderRepository;
+  final HrRepositoryImpl _hrRepository;
+  final FixedAssetRepositoryImpl _fixedAssetRepository;
   final AuthMiddleware _authMiddleware;
 
   DashboardRoutes(
@@ -21,6 +35,13 @@ class DashboardRoutes {
     this._customerRepository,
     this._vehicleRepository,
     this._bookingServiceRepository,
+    this._purchaseOrderRepository,
+    this._quotationRepository,
+    this._warehouseRepository,
+    this._bomRepository,
+    this._manufacturingOrderRepository,
+    this._hrRepository,
+    this._fixedAssetRepository,
     this._authMiddleware,
   );
 
@@ -32,6 +53,14 @@ class DashboardRoutes {
 
     // GET /api/dashboard/revenue
     router.get('/api/dashboard/revenue', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_getRevenueStats)));
+
+    // ERP Dashboard Stats
+    router.get('/dashboard/sales-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getSalesStats)));
+    router.get('/dashboard/purchase-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseStats)));
+    router.get('/dashboard/inventory-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getInventoryStats)));
+    router.get('/dashboard/manufacturing-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getManufacturingStats)));
+    router.get('/dashboard/hr-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER])(_getHrStats)));
+    router.get('/dashboard/fixed-assets-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getFixedAssetsStats)));
 
     return router;
   }
@@ -126,6 +155,153 @@ class DashboardRoutes {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get revenue stats: $e'}),
       );
+    }
+  }
+
+  // ERP Dashboard Stats Handlers
+  Future<Response> _getSalesStats(Request request) async {
+    try {
+      final now = DateTime.now();
+      final monthStart = DateTime(now.year, now.month, 1);
+      
+      final quotations = await _quotationRepository.findAll();
+      final monthQuotations = quotations.where((q) => q.createdAt.isAfter(monthStart)).toList();
+      
+      double totalSales = 0;
+      int totalInvoices = 0;
+      final topServices = <String, double>{};
+      
+      for (final quote in monthQuotations) {
+        totalSales += quote.totalAmount;
+        totalInvoices++;
+      }
+
+      return Response.ok(jsonEncode({
+        'totalSales': totalSales,
+        'totalInvoices': totalInvoices,
+        'averageInvoiceValue': totalInvoices > 0 ? totalSales / totalInvoices : 0,
+        'topServices': topServices,
+      }));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to get sales stats: $e'}));
+    }
+  }
+
+  Future<Response> _getPurchaseStats(Request request) async {
+    try {
+      final now = DateTime.now();
+      final monthStart = DateTime(now.year, now.month, 1);
+      
+      final orders = await _purchaseOrderRepository.findAll();
+      final monthOrders = orders.where((o) => o.orderDate.isAfter(monthStart)).toList();
+      
+      double totalPurchases = 0;
+      int totalOrders = 0;
+      final topVendors = <String, double>{};
+      
+      for (final order in monthOrders) {
+        for (final line in order.lines) {
+          totalPurchases += line.totalPrice;
+        }
+        totalOrders++;
+        topVendors[order.vendorId.toString()] = (topVendors[order.vendorId.toString()] ?? 0) + order.lines.fold(0.0, (sum, line) => sum + line.totalPrice);
+      }
+
+      return Response.ok(jsonEncode({
+        'totalPurchases': totalPurchases,
+        'totalOrders': totalOrders,
+        'averageOrderValue': totalOrders > 0 ? totalPurchases / totalOrders : 0,
+        'topVendors': topVendors,
+      }));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to get purchase stats: $e'}));
+    }
+  }
+
+  Future<Response> _getInventoryStats(Request request) async {
+    try {
+      final inventory = await _warehouseRepository.findAll();
+      
+      double totalValue = 0;
+      int lowStockItems = 0;
+      final topMovingItems = <String, int>{};
+      
+      for (final item in inventory) {
+        totalValue += item.quantity * (item.unitCost ?? 0);
+        if (item.quantity < 10) {
+          lowStockItems++;
+        }
+        topMovingItems[item.name] = item.quantity;
+      }
+
+      return Response.ok(jsonEncode({
+        'totalValue': totalValue,
+        'totalItems': inventory.length,
+        'lowStockItems': lowStockItems,
+        'topMovingItems': topMovingItems,
+      }));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to get inventory stats: $e'}));
+    }
+  }
+
+  Future<Response> _getManufacturingStats(Request request) async {
+    try {
+      final orders = await _manufacturingOrderRepository.findAll();
+      
+      int completedOrders = orders.where((o) => o.status == 'completed').length;
+      int inProgressOrders = orders.where((o) => o.status == 'in_progress').length;
+      int pendingOrders = orders.where((o) => o.status == 'pending').length;
+      
+      double completionRate = orders.isNotEmpty ? (completedOrders / orders.length) * 100 : 0;
+
+      return Response.ok(jsonEncode({
+        'totalOrders': orders.length,
+        'completedOrders': completedOrders,
+        'inProgressOrders': inProgressOrders,
+        'pendingOrders': pendingOrders,
+        'completionRate': completionRate,
+      }));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to get manufacturing stats: $e'}));
+    }
+  }
+
+  Future<Response> _getHrStats(Request request) async {
+    try {
+      final contracts = await _hrRepository.findAllEmployeeContracts();
+      
+      int totalEmployees = contracts.length;
+      double totalSalaries = contracts.fold(0.0, (sum, contract) => sum + (contract.baseSalary ?? 0));
+      
+      return Response.ok(jsonEncode({
+        'totalEmployees': totalEmployees,
+        'totalSalaries': totalSalaries,
+      }));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to get HR stats: $e'}));
+    }
+  }
+
+  Future<Response> _getFixedAssetsStats(Request request) async {
+    try {
+      final assets = await _fixedAssetRepository.findAll();
+      
+      double totalCost = assets.fold(0.0, (sum, asset) => sum + asset.acquisitionCost);
+      double accumulatedDepreciation = assets.fold(0.0, (sum, asset) {
+        final netBookValue = asset.currentNetBookValue ?? asset.acquisitionCost;
+        return sum + (asset.acquisitionCost - netBookValue);
+      });
+      double netBookValue = totalCost - accumulatedDepreciation;
+
+      return Response.ok(jsonEncode({
+        'totalAssets': assets.length,
+        'totalCost': totalCost,
+        'accumulatedDepreciation': accumulatedDepreciation,
+        'netBookValue': netBookValue,
+      }));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to get fixed assets stats: $e'}));
     }
   }
 }

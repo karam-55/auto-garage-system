@@ -1,20 +1,17 @@
 import '../../domain/entities/purchase_order.dart';
 import '../../domain/repositories/purchase_order_repository.dart';
-import '../../application/usecases/create_purchase_order_usecase.dart';
-import '../../application/usecases/get_purchase_order_usecase.dart' as get_usecase;
-import '../../application/usecases/update_purchase_order_usecase.dart';
-import '../../application/usecases/delete_purchase_order_usecase.dart';
+import '../../application/usecases/purchase_order_usecases.dart';
 
 class PurchaseOrderService {
   final PurchaseOrderRepository _repository;
   late final CreatePurchaseOrderUseCase _createUseCase;
-  late final get_usecase.GetPurchaseOrderUseCase _getUseCase;
+  late final GetPurchaseOrderUseCase _getUseCase;
   late final UpdatePurchaseOrderUseCase _updateUseCase;
   late final DeletePurchaseOrderUseCase _deleteUseCase;
 
   PurchaseOrderService(this._repository) {
     _createUseCase = CreatePurchaseOrderUseCase(_repository);
-    _getUseCase = get_usecase.GetPurchaseOrderUseCase(_repository);
+    _getUseCase = GetPurchaseOrderUseCase(_repository);
     _updateUseCase = UpdatePurchaseOrderUseCase(_repository);
     _deleteUseCase = DeletePurchaseOrderUseCase(_repository);
   }

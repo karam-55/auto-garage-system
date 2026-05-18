@@ -56,6 +56,15 @@ class EmployeeContractRepositoryImpl implements EmployeeContractRepository {
   }
 
   @override
+  Future<List<EmployeeContract>> findAll() async {
+    final result = await _db.pool.execute('''
+      SELECT * FROM employee_contracts ORDER BY start_date DESC
+    ''');
+
+    return result.map((row) => _mapRowToContract(row)).toList();
+  }
+
+  @override
   Future<EmployeeContract> update(EmployeeContract contract) async {
     await _db.pool.execute('''
       UPDATE employee_contracts

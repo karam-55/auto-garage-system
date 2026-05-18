@@ -267,10 +267,23 @@ flutter build web
 - Full access to all features
 - Can manage users and roles
 - Can view all financial data
+- Can perform all accounting operations
 
 ### MANAGER
 - Full access to bookings, customers, vehicles, services
 - Can view dashboard statistics
+- Can view financial reports (read-only)
+- Cannot manage users
+- Cannot create journal entries
+
+### ACCOUNTANT
+- Full access to accounting features
+- Can manage chart of accounts
+- Can create and edit journal entries
+- Can view all financial reports
+- Can manage vendors, purchase invoices, expenses
+- Can perform bank reconciliation
+- Cannot access operations (bookings, inventory, etc.)
 - Cannot manage users
 
 ### RECEPTIONIST
@@ -278,12 +291,14 @@ flutter build web
 - Can create and view customers
 - Can create and view vehicles
 - Cannot modify services or users
+- Cannot access accounting features
 
 ### MECHANIC
 - Can view available bookings
 - Can assign bookings to self
 - Can update assignment status
 - Can create part suggestions
+- Can access inventory (consume parts only)
 - Cannot access financial data
 
 ## 🔧 Database Schema
@@ -302,8 +317,128 @@ The PostgreSQL database includes:
 - `inventory_transactions` - Inventory transaction history
 - `booking_invoice_data` - Invoice data snapshots
 - `alerts` - System alerts (low stock, etc.)
+- `accounts` - Chart of accounts for accounting
+- `journal_entries` - Journal entries with lines
+- `journal_lines` - Individual journal entry lines
+- `vendors` - Vendor information
+- `purchase_invoices` - Purchase invoices from vendors
+- `purchase_invoice_items` - Purchase invoice line items
+- `expenses` - Operating expenses
+- `bank_accounts` - Bank accounts
+- `bank_reconciliations` - Bank reconciliation records
+- `company_settings` - Company configuration
+- `service_categories` - Service categories
+- `spare_parts_categories` - Spare parts categories
+- `employees` - Employee records with salary details
+- `salary_payments` - Salary payment records
 
 All tables use UUID primary keys and include appropriate indexes for performance.
+
+## 💰 Accounting System
+
+The system includes a comprehensive double-entry accounting module:
+
+### Chart of Accounts
+- Hierarchical account structure with parent-child relationships
+- Account types: Asset, Liability, Equity, Revenue, Expense, COGS
+- Support for inactive accounts
+
+### Journal Entries
+- Double-entry bookkeeping with automatic validation
+- Debit/Credit balance verification
+- Automatic journal entry creation from operations:
+  - Bookings → Revenue entries
+  - Inventory consumption → COGS entries
+  - Purchase invoices → Inventory and vendor entries
+  - Expenses → Expense entries
+  - Salary payments → Salary expense entries
+
+### Financial Reports
+- **Trial Balance** - Summary of all account balances
+- **Profit & Loss Statement** - Revenue vs Expenses
+- **Balance Sheet** - Assets, Liabilities, Equity
+- **General Ledger** - Detailed transaction history
+- **Cash Flow Statement** - Indirect method
+- **Break-even Analysis** - Fixed vs Variable costs
+- **Trading Account** - Revenue, COGS, Gross Profit
+
+### Vendor Management
+- CRUD operations for vendors
+- Purchase invoice creation with automatic journal entries
+- Invoice payment tracking
+- Automatic inventory updates
+
+### Expense Management
+- Operating expense tracking
+- Automatic journal entry creation
+- Attachment support (receipts)
+- Expense categorization
+
+### Bank Reconciliation
+- Bank account management
+- Statement reconciliation
+- Automatic adjustment journal entries for discrepancies
+
+### Payroll
+- Employee salary management
+- Salary payment processing
+- Automatic journal entry creation
+- Payroll reports
+
+### Testing the Accounting System
+
+Run the following test scenarios to verify the accounting system:
+
+1. **Operations → Automatic Journal Entries**
+   - Create a booking with services → Verify revenue journal entry
+   - Consume inventory part → Verify COGS journal entry
+   - Create purchase invoice → Verify inventory/vendor journal entry
+   - Pay salary → Verify salary expense journal entry
+   - Add expense → Verify expense journal entry
+
+2. **Manual Journal Entries**
+   - Create manual journal entry → Verify it appears in general ledger
+   - Try unbalanced entry → Verify rejection with error
+   - Edit journal entry → Verify balance update
+   - Delete journal entry → Verify removal from ledger
+
+3. **Chart of Accounts**
+   - Add parent account → Verify it appears in tree
+   - Add child account → Verify it appears under parent
+   - Deactivate account → Verify it doesn't appear in dropdowns
+   - Try deleting account with transactions → Verify error
+
+4. **Financial Reports**
+   - Run trial balance → Verify debit = credit
+   - Run P&L → Verify net profit calculation
+   - Run balance sheet → Verify assets = liabilities + equity
+   - Run general ledger → Verify transaction history
+   - Run cash flow → Verify cash balance consistency
+   - Run break-even → Verify reasonable value
+   - Run trading account → Verify gross profit calculation
+
+5. **Vendors & Purchase Invoices**
+   - Add vendor → Verify it appears in list
+   - Create purchase invoice → Verify inventory update and journal entry
+   - Pay invoice partially → Verify status update and payment journal entry
+   - Pay full amount → Verify status becomes "paid"
+
+6. **Expenses & Bank Reconciliation**
+   - Add expense with receipt → Verify attachment and journal entry
+   - Reconcile bank account → Verify discrepancy handling
+   - Complete reconciliation → Verify record creation
+
+7. **Payroll**
+   - Create salary payment → Verify all employees included
+   - Edit employee salary → Verify recalculation
+   - Pay salary → Verify journal entry and status update
+   - Try paying already paid salary → Verify error
+
+8. **Permissions**
+   - Login as accountant → Verify only accounting menu visible
+   - Try accessing /api/users as accountant → Verify 403 error
+   - Login as manager → Verify reports only (read-only)
+   - Login as owner → Verify full access
 
 ## 📝 Important Notes
 

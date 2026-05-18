@@ -12,8 +12,10 @@ import '../../infrastructure/repositories/quotation_repository_impl.dart';
 import '../../infrastructure/repositories/warehouse_repository_impl.dart';
 import '../../infrastructure/repositories/bill_of_materials_repository_impl.dart';
 import '../../infrastructure/repositories/inventory_item_repository_impl.dart';
+import '../../infrastructure/repositories/inventory_variant_repository_impl.dart';
 import '../../infrastructure/repositories/hr_repository_impl.dart';
 import '../../infrastructure/repositories/fixed_asset_repository_impl.dart';
+import '../../infrastructure/repositories/manufacturing_order_repository_impl.dart';
 import '../middlewares/auth_middleware.dart';
 
 class DashboardRoutes {
@@ -26,8 +28,10 @@ class DashboardRoutes {
   final WarehouseRepositoryImpl _warehouseRepository;
   final BillOfMaterialsRepositoryImpl _bomRepository;
   final InventoryItemRepositoryImpl _inventoryItemRepository;
-  final HrRepositoryImpl _hrRepository;
+  final InventoryVariantRepositoryImpl _inventoryVariantRepository;
+  final EmployeeContractRepositoryImpl _hrRepository;
   final FixedAssetRepositoryImpl _fixedAssetRepository;
+  final ManufacturingOrderRepositoryImpl _manufacturingOrderRepository;
   final AuthMiddleware _authMiddleware;
 
   DashboardRoutes(
@@ -40,8 +44,10 @@ class DashboardRoutes {
     this._warehouseRepository,
     this._bomRepository,
     this._inventoryItemRepository,
+    this._inventoryVariantRepository,
     this._hrRepository,
     this._fixedAssetRepository,
+    this._manufacturingOrderRepository,
     this._authMiddleware,
   );
 
@@ -220,7 +226,7 @@ class DashboardRoutes {
 
   Future<Response> _getInventoryStats(Request request) async {
     try {
-      final inventory = await _inventoryItemRepository.findAll();
+      final inventory = await _inventoryVariantRepository.findAll();
       
       double totalValue = 0;
       int lowStockItems = 0;
@@ -269,7 +275,7 @@ class DashboardRoutes {
 
   Future<Response> _getHrStats(Request request) async {
     try {
-      final contracts = await _hrRepository.findAllEmployeeContracts();
+      final contracts = await _hrRepository.findAll();
       
       int totalEmployees = contracts.length;
       double totalSalaries = contracts.fold(0.0, (sum, contract) => sum + (contract.baseSalary ?? 0));

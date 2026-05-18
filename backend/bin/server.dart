@@ -165,9 +165,11 @@ void main(List<String> args) async {
     quotationRepository,
     warehouseRepository,
     billOfMaterialsRepository,
-    manufacturingOrderRepository,
+    inventoryItemRepository,
+    inventoryVariantRepository,
     hrRepository,
     fixedAssetRepository,
+    manufacturingOrderRepository,
     authRoutes.authMiddleware,
   );
   final publicRoutes = PublicRoutes(db);

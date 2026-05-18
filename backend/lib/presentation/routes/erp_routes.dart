@@ -14,6 +14,7 @@ import '../../infrastructure/repositories/fixed_asset_repository_impl.dart';
 import '../../infrastructure/repositories/journal_repository_impl.dart';
 import '../../infrastructure/repositories/account_repository_impl.dart';
 import '../../infrastructure/repositories/company_settings_repository_impl.dart';
+import '../../infrastructure/repositories/purchase_invoice_repository_impl.dart';
 import '../../application/services/purchase_order_service.dart';
 import '../../application/services/quotation_service.dart';
 import '../../application/services/warehouse_service.dart';

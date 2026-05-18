@@ -5,6 +5,7 @@ import '../../domain/entities/mechanic_assignment_status.dart';
 import '../../domain/entities/part_suggestion_status.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/entities/user.dart';
+import '../../domain/entities/booking_status.dart';
 import '../../domain/repositories/mechanic_assignment_repository.dart';
 import '../../domain/repositories/part_suggestion_repository.dart';
 import '../../domain/repositories/booking_repository.dart';
@@ -169,6 +170,21 @@ class MechanicRoutes {
     }
   }
 
+  BookingStatus _mapAssignmentStatusToBookingStatus(MechanicAssignmentStatus assignmentStatus) {
+    switch (assignmentStatus) {
+      case MechanicAssignmentStatus.ASSIGNED:
+        return BookingStatus.IN_PROGRESS;
+      case MechanicAssignmentStatus.IN_PROGRESS:
+        return BookingStatus.IN_PROGRESS;
+      case MechanicAssignmentStatus.WAITING_PARTS:
+        return BookingStatus.WAITING_PARTS;
+      case MechanicAssignmentStatus.READY:
+        return BookingStatus.READY;
+      case MechanicAssignmentStatus.DELIVERED:
+        return BookingStatus.DELIVERED;
+    }
+  }
+
   Future<Response> _updateAssignmentStatus(Request request) async {
     final user = request.context['user'];
     if (user == null) {
@@ -220,6 +236,26 @@ class MechanicRoutes {
       );
 
       final result = await _mechanicAssignmentRepository.update(updatedAssignment);
+
+      // Also update the booking status to keep them in sync
+      if (existingAssignment.bookingId != null) {
+        try {
+          final booking = await _bookingRepository.findById(existingAssignment.bookingId!);
+          if (booking != null) {
+            // Map assignment status to booking status
+            final bookingStatus = _mapAssignmentStatusToBookingStatus(MechanicAssignmentStatus.fromString(statusStr));
+            final updatedBooking = booking.copyWith(
+              status: bookingStatus,
+              updatedAt: DateTime.now().toUtc(),
+            );
+            await _bookingRepository.update(updatedBooking);
+          }
+        } catch (e) {
+          // Log error but don't fail the request
+          logger?.w('Failed to update booking status: $e');
+        }
+      }
+
       return Response.ok(jsonEncode(result.toJson()));
     } catch (e) {
       return Response.internalServerError(

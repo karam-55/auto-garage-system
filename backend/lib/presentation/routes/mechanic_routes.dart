@@ -252,7 +252,7 @@ class MechanicRoutes {
           }
         } catch (e) {
           // Log error but don't fail the request
-          logger?.w('Failed to update booking status: $e');
+          print('Failed to update booking status: $e');
         }
       }
 

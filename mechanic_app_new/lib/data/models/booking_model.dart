@@ -62,6 +62,43 @@ class BookingModel extends Booking {
         vehicle: vehicle,
         customer: customer,
       );
+
+  factory BookingModel.fromEntity(Booking booking) {
+    return BookingModel(
+      id: booking.id,
+      customerId: booking.customerId,
+      vehicleId: booking.vehicleId,
+      status: booking.status,
+      notes: booking.notes,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt,
+      publicToken: booking.publicToken,
+      vehicle: booking.vehicle is VehicleModel 
+          ? booking.vehicle as VehicleModel 
+          : VehicleModel(
+              id: booking.vehicle?.id ?? '',
+              customerId: booking.vehicle?.customerId,
+              make: booking.vehicle?.make ?? '',
+              model: booking.vehicle?.model ?? '',
+              year: booking.vehicle?.year,
+              licensePlate: booking.vehicle?.licensePlate,
+              vin: booking.vehicle?.vin,
+              publicCarId: booking.vehicle?.publicCarId,
+              createdAt: booking.vehicle?.createdAt,
+              updatedAt: booking.vehicle?.updatedAt,
+            ),
+      customer: booking.customer is CustomerModel 
+          ? booking.customer as CustomerModel 
+          : CustomerModel(
+              id: booking.customer?.id ?? '',
+              fullName: booking.customer?.fullName ?? '',
+              phone: booking.customer?.phone,
+              address: booking.customer?.address,
+              createdAt: booking.customer?.createdAt,
+              updatedAt: booking.customer?.updatedAt,
+            ),
+    );
+  }
 }
 
 class VehicleModel extends Vehicle {

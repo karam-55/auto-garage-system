@@ -33,7 +33,7 @@ class MechanicAssignmentModel extends MechanicAssignment {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final json = <String, dynamic>{
       'id': id,
       'booking_id': bookingId,
       'mechanic_user_id': mechanicUserId,
@@ -42,6 +42,15 @@ class MechanicAssignmentModel extends MechanicAssignment {
       'assigned_at': assignedAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };
+    
+    if (booking != null) {
+      final bookingModel = booking is BookingModel 
+          ? booking as BookingModel 
+          : BookingModel.fromEntity(booking!);
+      json['booking'] = bookingModel.toJson();
+    }
+    
+    return json;
   }
 
   MechanicAssignment toEntity() => MechanicAssignment(

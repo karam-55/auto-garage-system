@@ -1,6 +1,6 @@
 import '../../domain/entities/employee_contract.dart';
-import '../../domain/entities/leave_request.dart';
-import '../../domain/entities/performance_review.dart';
+import '../../domain/entities/leave_request.dart' as leave;
+import '../../domain/entities/performance_review.dart' as review;
 import '../../domain/repositories/hr_repository.dart';
 import '../../domain/repositories/leave_request_repository.dart';
 import '../../domain/repositories/performance_review_repository.dart';
@@ -58,7 +58,7 @@ class CreateLeaveRequestUseCase {
 
   CreateLeaveRequestUseCase(this._repository);
 
-  Future<LeaveRequest> execute(LeaveRequest request) async {
+  Future<leave.LeaveRequest> execute(leave.LeaveRequest request) async {
     return await _repository.create(request);
   }
 }
@@ -68,15 +68,15 @@ class GetLeaveRequestUseCase {
 
   GetLeaveRequestUseCase(this._repository);
 
-  Future<LeaveRequest?> execute(int id) async {
+  Future<leave.LeaveRequest?> execute(int id) async {
     return await _repository.findById(id);
   }
 
-  Future<List<LeaveRequest>> executeByUserId(String userId) async {
+  Future<List<leave.LeaveRequest>> executeByUserId(String userId) async {
     return await _repository.findByUserId(userId);
   }
 
-  Future<List<LeaveRequest>> executeByStatus(String status) async {
+  Future<List<leave.LeaveRequest>> executeByStatus(String status) async {
     return await _repository.findByStatus(status);
   }
 }
@@ -86,7 +86,7 @@ class UpdateLeaveRequestUseCase {
 
   UpdateLeaveRequestUseCase(this._repository);
 
-  Future<LeaveRequest> execute(LeaveRequest request) async {
+  Future<leave.LeaveRequest> execute(leave.LeaveRequest request) async {
     return await _repository.update(request);
   }
 }
@@ -101,12 +101,48 @@ class DeleteLeaveRequestUseCase {
   }
 }
 
+class ApproveLeaveRequestUseCase {
+  final LeaveRequestRepository _repository;
+
+  ApproveLeaveRequestUseCase(this._repository);
+
+  Future<leave.LeaveRequest> execute(int id, String approvedBy) async {
+    final request = await _repository.findById(id);
+    if (request == null) {
+      throw Exception('Leave request not found');
+    }
+    final updatedRequest = request.copyWith(
+      status: 'approved',
+      approvedBy: approvedBy,
+      approvedAt: DateTime.now(),
+    );
+    return await _repository.update(updatedRequest);
+  }
+}
+
+class RejectLeaveRequestUseCase {
+  final LeaveRequestRepository _repository;
+
+  RejectLeaveRequestUseCase(this._repository);
+
+  Future<leave.LeaveRequest> execute(int id) async {
+    final request = await _repository.findById(id);
+    if (request == null) {
+      throw Exception('Leave request not found');
+    }
+    final updatedRequest = request.copyWith(
+      status: 'rejected',
+    );
+    return await _repository.update(updatedRequest);
+  }
+}
+
 class CreatePerformanceReviewUseCase {
   final PerformanceReviewRepository _repository;
 
   CreatePerformanceReviewUseCase(this._repository);
 
-  Future<PerformanceReview> execute(PerformanceReview review) async {
+  Future<review.PerformanceReview> execute(review.PerformanceReview review) async {
     return await _repository.create(review);
   }
 }
@@ -116,11 +152,11 @@ class GetPerformanceReviewUseCase {
 
   GetPerformanceReviewUseCase(this._repository);
 
-  Future<PerformanceReview?> execute(int id) async {
+  Future<review.PerformanceReview?> execute(int id) async {
     return await _repository.findById(id);
   }
 
-  Future<List<PerformanceReview>> executeByUserId(String userId) async {
+  Future<List<review.PerformanceReview>> executeByUserId(String userId) async {
     return await _repository.findByUserId(userId);
   }
 }
@@ -130,7 +166,7 @@ class UpdatePerformanceReviewUseCase {
 
   UpdatePerformanceReviewUseCase(this._repository);
 
-  Future<PerformanceReview> execute(PerformanceReview review) async {
+  Future<review.PerformanceReview> execute(review.PerformanceReview review) async {
     return await _repository.update(review);
   }
 }

@@ -1,37 +1,41 @@
 import '../../domain/entities/employee_contract.dart';
+import '../../domain/entities/leave_request.dart' as leave;
+import '../../domain/entities/performance_review.dart' as review;
 import '../../domain/repositories/hr_repository.dart';
-import '../../application/usecases/hr_usecases.dart';
+import '../../domain/repositories/leave_request_repository.dart';
+import '../../domain/repositories/performance_review_repository.dart';
+import '../../application/usecases/hr_usecases.dart' as hr;
 
 class HrService {
   final EmployeeContractRepository _contractRepository;
   final LeaveRequestRepository _leaveRepository;
   final PerformanceReviewRepository _reviewRepository;
-  late final CreateEmployeeContractUseCase _createContractUseCase;
-  late final GetEmployeeContractUseCase _getContractUseCase;
-  late final UpdateEmployeeContractUseCase _updateContractUseCase;
-  late final DeleteEmployeeContractUseCase _deleteContractUseCase;
-  late final CreateLeaveRequestUseCase _createLeaveUseCase;
-  late final GetLeaveRequestUseCase _getLeaveUseCase;
-  late final ApproveLeaveRequestUseCase _approveLeaveUseCase;
-  late final RejectLeaveRequestUseCase _rejectLeaveUseCase;
-  late final DeleteLeaveRequestUseCase _deleteLeaveUseCase;
-  late final CreatePerformanceReviewUseCase _createReviewUseCase;
-  late final GetPerformanceReviewUseCase _getReviewUseCase;
-  late final DeletePerformanceReviewUseCase _deleteReviewUseCase;
+  late final hr.CreateEmployeeContractUseCase _createContractUseCase;
+  late final hr.GetEmployeeContractUseCase _getContractUseCase;
+  late final hr.UpdateEmployeeContractUseCase _updateContractUseCase;
+  late final hr.DeleteEmployeeContractUseCase _deleteContractUseCase;
+  late final hr.CreateLeaveRequestUseCase _createLeaveUseCase;
+  late final hr.GetLeaveRequestUseCase _getLeaveUseCase;
+  late final hr.ApproveLeaveRequestUseCase _approveLeaveUseCase;
+  late final hr.RejectLeaveRequestUseCase _rejectLeaveUseCase;
+  late final hr.DeleteLeaveRequestUseCase _deleteLeaveUseCase;
+  late final hr.CreatePerformanceReviewUseCase _createReviewUseCase;
+  late final hr.GetPerformanceReviewUseCase _getReviewUseCase;
+  late final hr.DeletePerformanceReviewUseCase _deleteReviewUseCase;
 
   HrService(this._contractRepository, this._leaveRepository, this._reviewRepository) {
-    _createContractUseCase = CreateEmployeeContractUseCase(_contractRepository);
-    _getContractUseCase = GetEmployeeContractUseCase(_contractRepository);
-    _updateContractUseCase = UpdateEmployeeContractUseCase(_contractRepository);
-    _deleteContractUseCase = DeleteEmployeeContractUseCase(_contractRepository);
-    _createLeaveUseCase = CreateLeaveRequestUseCase(_leaveRepository);
-    _getLeaveUseCase = GetLeaveRequestUseCase(_leaveRepository);
-    _approveLeaveUseCase = ApproveLeaveRequestUseCase(_leaveRepository);
-    _rejectLeaveUseCase = RejectLeaveRequestUseCase(_leaveRepository);
-    _deleteLeaveUseCase = DeleteLeaveRequestUseCase(_leaveRepository);
-    _createReviewUseCase = CreatePerformanceReviewUseCase(_reviewRepository);
-    _getReviewUseCase = GetPerformanceReviewUseCase(_reviewRepository);
-    _deleteReviewUseCase = DeletePerformanceReviewUseCase(_reviewRepository);
+    _createContractUseCase = hr.CreateEmployeeContractUseCase(_contractRepository);
+    _getContractUseCase = hr.GetEmployeeContractUseCase(_contractRepository);
+    _updateContractUseCase = hr.UpdateEmployeeContractUseCase(_contractRepository);
+    _deleteContractUseCase = hr.DeleteEmployeeContractUseCase(_contractRepository);
+    _createLeaveUseCase = hr.CreateLeaveRequestUseCase(_leaveRepository);
+    _getLeaveUseCase = hr.GetLeaveRequestUseCase(_leaveRepository);
+    _approveLeaveUseCase = hr.ApproveLeaveRequestUseCase(_leaveRepository);
+    _rejectLeaveUseCase = hr.RejectLeaveRequestUseCase(_leaveRepository);
+    _deleteLeaveUseCase = hr.DeleteLeaveRequestUseCase(_leaveRepository);
+    _createReviewUseCase = hr.CreatePerformanceReviewUseCase(_reviewRepository);
+    _getReviewUseCase = hr.GetPerformanceReviewUseCase(_reviewRepository);
+    _deleteReviewUseCase = hr.DeletePerformanceReviewUseCase(_reviewRepository);
   }
 
   Future<EmployeeContract> createContract(EmployeeContract contract) async {
@@ -54,27 +58,27 @@ class HrService {
     await _deleteContractUseCase.execute(id);
   }
 
-  Future<LeaveRequest> createLeaveRequest(LeaveRequest request) async {
+  Future<leave.LeaveRequest> createLeaveRequest(leave.LeaveRequest request) async {
     return await _createLeaveUseCase.execute(request);
   }
 
-  Future<LeaveRequest?> getLeaveRequest(int id) async {
+  Future<leave.LeaveRequest?> getLeaveRequest(int id) async {
     return await _getLeaveUseCase.execute(id);
   }
 
-  Future<List<LeaveRequest>> getLeaveRequestsByUser(String userId) async {
+  Future<List<leave.LeaveRequest>> getLeaveRequestsByUser(String userId) async {
     return await _getLeaveUseCase.executeByUserId(userId);
   }
 
-  Future<List<LeaveRequest>> getLeaveRequestsByStatus(String status) async {
+  Future<List<leave.LeaveRequest>> getLeaveRequestsByStatus(String status) async {
     return await _getLeaveUseCase.executeByStatus(status);
   }
 
-  Future<LeaveRequest> approveLeaveRequest(int id, String approvedBy) async {
+  Future<leave.LeaveRequest> approveLeaveRequest(int id, String approvedBy) async {
     return await _approveLeaveUseCase.execute(id, approvedBy);
   }
 
-  Future<LeaveRequest> rejectLeaveRequest(int id) async {
+  Future<leave.LeaveRequest> rejectLeaveRequest(int id) async {
     return await _rejectLeaveUseCase.execute(id);
   }
 
@@ -82,15 +86,15 @@ class HrService {
     await _deleteLeaveUseCase.execute(id);
   }
 
-  Future<PerformanceReview> createPerformanceReview(PerformanceReview review) async {
+  Future<review.PerformanceReview> createPerformanceReview(review.PerformanceReview review) async {
     return await _createReviewUseCase.execute(review);
   }
 
-  Future<PerformanceReview?> getPerformanceReview(int id) async {
+  Future<review.PerformanceReview?> getPerformanceReview(int id) async {
     return await _getReviewUseCase.execute(id);
   }
 
-  Future<List<PerformanceReview>> getPerformanceReviewsByUser(String userId) async {
+  Future<List<review.PerformanceReview>> getPerformanceReviewsByUser(String userId) async {
     return await _getReviewUseCase.executeByUserId(userId);
   }
 

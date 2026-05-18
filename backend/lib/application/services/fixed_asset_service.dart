@@ -1,28 +1,30 @@
 import '../../domain/entities/fixed_asset.dart';
+import '../../domain/entities/maintenance_contract.dart' as contract;
 import '../../domain/repositories/fixed_asset_repository.dart';
-import '../../application/usecases/fixed_asset_usecases.dart';
+import '../../domain/repositories/maintenance_contract_repository.dart';
+import '../../application/usecases/fixed_asset_usecases.dart' as fa;
 
 class FixedAssetService {
   final FixedAssetRepository _assetRepository;
   final MaintenanceContractRepository _contractRepository;
-  late final CreateFixedAssetUseCase _createAssetUseCase;
-  late final GetFixedAssetUseCase _getAssetUseCase;
-  late final UpdateFixedAssetUseCase _updateAssetUseCase;
-  late final DeleteFixedAssetUseCase _deleteAssetUseCase;
-  late final CreateMaintenanceContractUseCase _createContractUseCase;
-  late final GetMaintenanceContractUseCase _getContractUseCase;
-  late final UpdateMaintenanceContractUseCase _updateContractUseCase;
-  late final DeleteMaintenanceContractUseCase _deleteContractUseCase;
+  late final fa.CreateFixedAssetUseCase _createAssetUseCase;
+  late final fa.GetFixedAssetUseCase _getAssetUseCase;
+  late final fa.UpdateFixedAssetUseCase _updateAssetUseCase;
+  late final fa.DeleteFixedAssetUseCase _deleteAssetUseCase;
+  late final fa.CreateMaintenanceContractUseCase _createContractUseCase;
+  late final fa.GetMaintenanceContractUseCase _getContractUseCase;
+  late final fa.UpdateMaintenanceContractUseCase _updateContractUseCase;
+  late final fa.DeleteMaintenanceContractUseCase _deleteContractUseCase;
 
   FixedAssetService(this._assetRepository, this._contractRepository) {
-    _createAssetUseCase = CreateFixedAssetUseCase(_assetRepository);
-    _getAssetUseCase = GetFixedAssetUseCase(_assetRepository);
-    _updateAssetUseCase = UpdateFixedAssetUseCase(_assetRepository);
-    _deleteAssetUseCase = DeleteFixedAssetUseCase(_assetRepository);
-    _createContractUseCase = CreateMaintenanceContractUseCase(_contractRepository);
-    _getContractUseCase = GetMaintenanceContractUseCase(_contractRepository);
-    _updateContractUseCase = UpdateMaintenanceContractUseCase(_contractRepository);
-    _deleteContractUseCase = DeleteMaintenanceContractUseCase(_contractRepository);
+    _createAssetUseCase = fa.CreateFixedAssetUseCase(_assetRepository);
+    _getAssetUseCase = fa.GetFixedAssetUseCase(_assetRepository);
+    _updateAssetUseCase = fa.UpdateFixedAssetUseCase(_assetRepository);
+    _deleteAssetUseCase = fa.DeleteFixedAssetUseCase(_assetRepository);
+    _createContractUseCase = fa.CreateMaintenanceContractUseCase(_contractRepository);
+    _getContractUseCase = fa.GetMaintenanceContractUseCase(_contractRepository);
+    _updateContractUseCase = fa.UpdateMaintenanceContractUseCase(_contractRepository);
+    _deleteContractUseCase = fa.DeleteMaintenanceContractUseCase(_contractRepository);
   }
 
   Future<FixedAsset> createFixedAsset(FixedAsset asset) async {
@@ -49,27 +51,35 @@ class FixedAssetService {
     await _deleteAssetUseCase.execute(id);
   }
 
-  Future<MaintenanceContract> createMaintenanceContract(MaintenanceContract contract) async {
+  Future<contract.MaintenanceContract> createMaintenanceContract(contract.MaintenanceContract contract) async {
     return await _createContractUseCase.execute(contract);
   }
 
-  Future<MaintenanceContract?> getMaintenanceContract(int id) async {
+  Future<contract.MaintenanceContract?> getMaintenanceContract(int id) async {
     return await _getContractUseCase.execute(id);
   }
 
-  Future<List<MaintenanceContract>> getContractsByCustomer(String customerId) async {
+  Future<List<contract.MaintenanceContract>> getMaintenanceContractsByCustomerId(String customerId) async {
     return await _getContractUseCase.executeByCustomerId(customerId);
   }
 
-  Future<List<MaintenanceContract>> getContractsByVehicle(String vehicleId) async {
+  Future<List<contract.MaintenanceContract>> getMaintenanceContractsByVehicleId(String vehicleId) async {
     return await _getContractUseCase.executeByVehicleId(vehicleId);
   }
 
-  Future<List<MaintenanceContract>> getDueContracts() async {
+  Future<List<contract.MaintenanceContract>> getDueContracts() async {
     return await _getContractUseCase.executeDueContracts();
   }
 
-  Future<MaintenanceContract> updateMaintenanceContract(MaintenanceContract contract) async {
+  Future<List<contract.MaintenanceContract>> getContractsByCustomer(String customerId) async {
+    return await _getContractUseCase.executeByCustomerId(customerId);
+  }
+
+  Future<List<contract.MaintenanceContract>> getContractsByVehicle(String vehicleId) async {
+    return await _getContractUseCase.executeByVehicleId(vehicleId);
+  }
+
+  Future<contract.MaintenanceContract> updateMaintenanceContract(contract.MaintenanceContract contract) async {
     return await _updateContractUseCase.execute(contract);
   }
 

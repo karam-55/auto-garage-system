@@ -60,6 +60,43 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   }
 
   @override
+  Future<List<MaintenanceContract>> findByCustomerId(String customerId) async {
+    return await _db.runInTransaction((session) async {
+      final result = await session.execute(
+        '''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
+           FROM maintenance_contracts WHERE customer_id = @customerId ORDER BY start_date DESC''',
+        parameters: {'customerId': customerId},
+      );
+      return result.map(_mapRowToContract).toList();
+    });
+  }
+
+  @override
+  Future<List<MaintenanceContract>> findByVehicleId(String vehicleId) async {
+    return await _db.runInTransaction((session) async {
+      final result = await session.execute(
+        '''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
+           FROM maintenance_contracts WHERE vehicle_id = @vehicleId ORDER BY start_date DESC''',
+        parameters: {'vehicleId': vehicleId},
+      );
+      return result.map(_mapRowToContract).toList();
+    });
+  }
+
+  @override
+  Future<List<MaintenanceContract>> findDueContracts() async {
+    return await _db.runInTransaction((session) async {
+      final result = await session.execute(
+        '''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
+           FROM maintenance_contracts 
+           WHERE next_service_due <= CURRENT_DATE AND end_date >= CURRENT_DATE
+           ORDER BY next_service_due ASC''',
+      );
+      return result.map(_mapRowToContract).toList();
+    });
+  }
+
+  @override
   Future<List<MaintenanceContract>> findByStatus(String status) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(

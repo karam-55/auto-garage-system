@@ -1,5 +1,5 @@
 import '../../domain/entities/bill_of_materials.dart';
-import '../../domain/entities/manufacturing_order.dart';
+import '../../domain/entities/manufacturing_order.dart' as order;
 import '../../domain/repositories/bill_of_materials_repository.dart';
 import '../../domain/repositories/manufacturing_order_repository.dart';
 import '../../application/usecases/manufacturing_usecases.dart';
@@ -53,28 +53,28 @@ class ManufacturingService {
     await _deleteBomUseCase.execute(id);
   }
 
-  Future<ManufacturingOrder> createManufacturingOrder(ManufacturingOrder order) async {
+  Future<order.ManufacturingOrder> createManufacturingOrder(order.ManufacturingOrder order) async {
     return await _createOrderUseCase.execute(order);
   }
 
-  Future<ManufacturingOrder?> getManufacturingOrder(int id) async {
+  Future<order.ManufacturingOrder?> getManufacturingOrder(int id) async {
     return await _getOrderUseCase.execute(id);
   }
 
-  Future<List<ManufacturingOrder>> getAllManufacturingOrders() async {
+  Future<List<order.ManufacturingOrder>> getAllManufacturingOrders() async {
     return await _getOrderUseCase.executeAll();
   }
 
-  Future<List<ManufacturingOrder>> getManufacturingOrdersByStatus(String status) async {
+  Future<List<order.ManufacturingOrder>> getManufacturingOrdersByStatus(String status) async {
     return await _getOrderUseCase.executeByStatus(status);
   }
 
-  Future<ManufacturingOrder> updateManufacturingOrder(ManufacturingOrder order) async {
+  Future<order.ManufacturingOrder> updateManufacturingOrder(order.ManufacturingOrder order) async {
     return await _updateOrderUseCase.execute(order);
   }
 
-  Future<ManufacturingOrder> completeManufacturingOrder(int orderId) async {
-    return await _completeOrderUseCase.execute(orderId);
+  Future<order.ManufacturingOrder> completeManufacturingOrder(int id) async {
+    return await _completeOrderUseCase.execute(id);
   }
 
   Future<void> deleteManufacturingOrder(int id) async {

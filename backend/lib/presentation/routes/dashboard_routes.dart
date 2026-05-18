@@ -252,7 +252,7 @@ class DashboardRoutes {
 
   Future<Response> _getManufacturingStats(Request request) async {
     try {
-      final boms = await _billOfMaterialsRepository.findAll();
+      final boms = await _bomRepository.findAll();
       
       int totalBoms = boms.length;
       

@@ -1,0 +1,2192 @@
+{
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mcp.json": {
+    "mtime": 1778603671.0552545,
+    "ast_hash": "912b8b23807b431f6279402413a6a500",
+    "semantic_hash": "912b8b23807b431f6279402413a6a500"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\supabase-schema.sql": {
+    "mtime": 1778722131.9687364,
+    "ast_hash": "1128aea979bb4ff3878e3de54618539d",
+    "semantic_hash": "1128aea979bb4ff3878e3de54618539d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\package_config.json": {
+    "mtime": 1778794857.3746364,
+    "ast_hash": "227d0e963c33bd78ed2e184db5654a94",
+    "semantic_hash": "227d0e963c33bd78ed2e184db5654a94"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\package_graph.json": {
+    "mtime": 1778794857.3746364,
+    "ast_hash": "faa5be4cf8296cceb248919898b015b1",
+    "semantic_hash": "faa5be4cf8296cceb248919898b015b1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\dartpad\\web_plugin_registrant.dart": {
+    "mtime": 1778717338.949823,
+    "ast_hash": "f5aaa23ebebe52f188a96eb658770939",
+    "semantic_hash": "f5aaa23ebebe52f188a96eb658770939"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\dart_plugin_registrant.dart": {
+    "mtime": 1778794912.7301004,
+    "ast_hash": "30729d9141bfa329bd10e348a1fc7952",
+    "semantic_hash": "30729d9141bfa329bd10e348a1fc7952"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\20df916bc7feff424db55f3b73db5a25\\dart_build_result.json": {
+    "mtime": 1778794912.641736,
+    "ast_hash": "6edfe9ca744ada53ffaa9135b2eb81d5",
+    "semantic_hash": "6edfe9ca744ada53ffaa9135b2eb81d5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\20df916bc7feff424db55f3b73db5a25\\native_assets.json": {
+    "mtime": 1778794912.6538827,
+    "ast_hash": "f3a664e105b4f792c6c7fe4e4d22c398",
+    "semantic_hash": "f3a664e105b4f792c6c7fe4e4d22c398"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\20df916bc7feff424db55f3b73db5a25\\outputs.json": {
+    "mtime": 1778796111.9669156,
+    "ast_hash": "0d5d1b7b0678cfb5b3c795e61f186203",
+    "semantic_hash": "0d5d1b7b0678cfb5b3c795e61f186203"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\59664c53cd41400b134a42d9e44f7612\\dart_build_result.json": {
+    "mtime": 1778794858.691744,
+    "ast_hash": "dddf094c316251af018f380fde9b1515",
+    "semantic_hash": "dddf094c316251af018f380fde9b1515"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\59664c53cd41400b134a42d9e44f7612\\main.dart": {
+    "mtime": 1778717343.13315,
+    "ast_hash": "cad44020808c680e9c188beaa7ab21dc",
+    "semantic_hash": "cad44020808c680e9c188beaa7ab21dc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\59664c53cd41400b134a42d9e44f7612\\main.dart.js": {
+    "mtime": 1778869132.2671404,
+    "ast_hash": "3a0a63f27e722f399c54e0677f08dda2",
+    "semantic_hash": "3a0a63f27e722f399c54e0677f08dda2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\59664c53cd41400b134a42d9e44f7612\\outputs.json": {
+    "mtime": 1778869141.737034,
+    "ast_hash": "29a5e2c6b172da459219531db5d95e3b",
+    "semantic_hash": "29a5e2c6b172da459219531db5d95e3b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\59664c53cd41400b134a42d9e44f7612\\web_plugin_registrant.dart": {
+    "mtime": 1778717343.1321447,
+    "ast_hash": "f5aaa23ebebe52f188a96eb658770939",
+    "semantic_hash": "f5aaa23ebebe52f188a96eb658770939"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\c3d639594d4fce4b3baaba6c966d1021\\dart_build_result.json": {
+    "mtime": 1778774848.5715284,
+    "ast_hash": "4183816c78a638b4a54357a974274832",
+    "semantic_hash": "4183816c78a638b4a54357a974274832"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\c3d639594d4fce4b3baaba6c966d1021\\native_assets.json": {
+    "mtime": 1778774848.5807364,
+    "ast_hash": "f3a664e105b4f792c6c7fe4e4d22c398",
+    "semantic_hash": "f3a664e105b4f792c6c7fe4e4d22c398"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\c3d639594d4fce4b3baaba6c966d1021\\outputs.json": {
+    "mtime": 1778775174.2313638,
+    "ast_hash": "0d5d1b7b0678cfb5b3c795e61f186203",
+    "semantic_hash": "0d5d1b7b0678cfb5b3c795e61f186203"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\c7fc1a117617417fc6194d20042bed52\\dart_build_result.json": {
+    "mtime": 1778725061.9760482,
+    "ast_hash": "d489b37a51b7137242866519113df684",
+    "semantic_hash": "d489b37a51b7137242866519113df684"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\c7fc1a117617417fc6194d20042bed52\\native_assets.json": {
+    "mtime": 1778725061.9942486,
+    "ast_hash": "f3a664e105b4f792c6c7fe4e4d22c398",
+    "semantic_hash": "f3a664e105b4f792c6c7fe4e4d22c398"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\.dart_tool\\flutter_build\\c7fc1a117617417fc6194d20042bed52\\outputs.json": {
+    "mtime": 1778725483.513768,
+    "ast_hash": "427cc18f00187929fa87312c5af4840a",
+    "semantic_hash": "427cc18f00187929fa87312c5af4840a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\build.gradle.kts": {
+    "mtime": 1778638691.7833383,
+    "ast_hash": "803fe22651fbe96ed401eb0b66a492d1",
+    "semantic_hash": "803fe22651fbe96ed401eb0b66a492d1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\gradlew": {
+    "mtime": 1778638691.8477156,
+    "ast_hash": "7f1cd7eb3f75a1dc85cd37753972a6e2",
+    "semantic_hash": "7f1cd7eb3f75a1dc85cd37753972a6e2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\settings.gradle.kts": {
+    "mtime": 1778638691.8263586,
+    "ast_hash": "f276a44edd917afd836899357fdae60e",
+    "semantic_hash": "f276a44edd917afd836899357fdae60e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\app\\build.gradle.kts": {
+    "mtime": 1778638691.7800353,
+    "ast_hash": "48136fa3af765caaf88f2215e6efb8bc",
+    "semantic_hash": "48136fa3af765caaf88f2215e6efb8bc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\app\\src\\main\\java\\io\\flutter\\plugins\\GeneratedPluginRegistrant.java": {
+    "mtime": 1778794857.6046932,
+    "ast_hash": "51ddb34657b7e16e7cc4e7d964cb4925",
+    "semantic_hash": "51ddb34657b7e16e7cc4e7d964cb4925"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\app\\src\\main\\kotlin\\com\\example\\admin_frontend\\MainActivity.kt": {
+    "mtime": 1778638691.7823365,
+    "ast_hash": "1d7e7dc79616772acd78216324d85008",
+    "semantic_hash": "1d7e7dc79616772acd78216324d85008"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\main.dart": {
+    "mtime": 1778840407.1773155,
+    "ast_hash": "d9907cfd395b4d7e186d7d6c98349ca1",
+    "semantic_hash": "d9907cfd395b4d7e186d7d6c98349ca1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\env.dart": {
+    "mtime": 1778808350.369573,
+    "ast_hash": "8a9bca584e06c5908874d785db98f47e",
+    "semantic_hash": "8a9bca584e06c5908874d785db98f47e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\websocket_service.dart": {
+    "mtime": 1778794152.4704628,
+    "ast_hash": "99eda0df6f2aacd5c2b5d0458e9fc24d",
+    "semantic_hash": "99eda0df6f2aacd5c2b5d0458e9fc24d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\constants\\api_constants.dart": {
+    "mtime": 1778794152.4719763,
+    "ast_hash": "662fb939db74fd67b0016f03c1adf57d",
+    "semantic_hash": "662fb939db74fd67b0016f03c1adf57d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\services\\api_service.dart": {
+    "mtime": 1778840422.77404,
+    "ast_hash": "aed2d20c9d9df175ad65f0eac16d66fa",
+    "semantic_hash": "aed2d20c9d9df175ad65f0eac16d66fa"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\services\\auth_service.dart": {
+    "mtime": 1778840383.7854748,
+    "ast_hash": "ca87ee91bffcd8e7849edb71b911bc2d",
+    "semantic_hash": "ca87ee91bffcd8e7849edb71b911bc2d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\services\\websocket_service.dart": {
+    "mtime": 1778855039.1738658,
+    "ast_hash": "9e6de095aebee40db6e7791945022e24",
+    "semantic_hash": "9e6de095aebee40db6e7791945022e24"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\theme\\app_theme.dart": {
+    "mtime": 1778794377.1012428,
+    "ast_hash": "7bdd4b6191164c8eb4c901b2b13886fc",
+    "semantic_hash": "7bdd4b6191164c8eb4c901b2b13886fc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\utils\\error_handler.dart": {
+    "mtime": 1778794152.4821754,
+    "ast_hash": "3deb721cd2975d17edaab7f8db14c37d",
+    "semantic_hash": "3deb721cd2975d17edaab7f8db14c37d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\widgets\\animated_card.dart": {
+    "mtime": 1778794377.1012428,
+    "ast_hash": "1715efcac76d018f6e002dc5394f2072",
+    "semantic_hash": "1715efcac76d018f6e002dc5394f2072"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\widgets\\animated_sidebar.dart": {
+    "mtime": 1778805522.217968,
+    "ast_hash": "09161f1455100cd2fbb3c111d1ff81bc",
+    "semantic_hash": "09161f1455100cd2fbb3c111d1ff81bc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\widgets\\loading_screen.dart": {
+    "mtime": 1778794152.5021405,
+    "ast_hash": "855219acab2f9839f39a51ad03085a20",
+    "semantic_hash": "855219acab2f9839f39a51ad03085a20"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\core\\widgets\\professional_dialog.dart": {
+    "mtime": 1778794152.5036564,
+    "ast_hash": "fb6c1d6ee569965327c7f1291902e789",
+    "semantic_hash": "fb6c1d6ee569965327c7f1291902e789"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\l10n\\app_localizations.dart": {
+    "mtime": 1778794152.5046635,
+    "ast_hash": "b352115e778425c6ff2ffced40ba5f9f",
+    "semantic_hash": "b352115e778425c6ff2ffced40ba5f9f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\l10n\\app_localizations_ar.dart": {
+    "mtime": 1778794152.5046635,
+    "ast_hash": "c48213e8836c872b6f319678e15c9cd5",
+    "semantic_hash": "c48213e8836c872b6f319678e15c9cd5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\l10n\\app_localizations_en.dart": {
+    "mtime": 1778794152.5056639,
+    "ast_hash": "c32934585c001ad0451ffe18e2990646",
+    "semantic_hash": "c32934585c001ad0451ffe18e2990646"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\api_docs_screen.dart": {
+    "mtime": 1778794152.506663,
+    "ast_hash": "56cdeaec9a14076c7176573f092ec74f",
+    "semantic_hash": "56cdeaec9a14076c7176573f092ec74f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\bookings_screen.dart": {
+    "mtime": 1778861783.831498,
+    "ast_hash": "1ecdcda7937c1928e0db742fe615ac1b",
+    "semantic_hash": "1ecdcda7937c1928e0db742fe615ac1b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\change_password_screen.dart": {
+    "mtime": 1778794152.5081642,
+    "ast_hash": "6aa7b0dc31e06dada0ab1d628fddef39",
+    "semantic_hash": "6aa7b0dc31e06dada0ab1d628fddef39"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\company_settings_screen.dart": {
+    "mtime": 1778794377.1025405,
+    "ast_hash": "840032f054ee958d3fecfb5013356b53",
+    "semantic_hash": "840032f054ee958d3fecfb5013356b53"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\create_booking_screen.dart": {
+    "mtime": 1778854412.5755343,
+    "ast_hash": "bd078d044124a844c7cb94be9b828797",
+    "semantic_hash": "bd078d044124a844c7cb94be9b828797"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\customers_screen.dart": {
+    "mtime": 1778794152.5112495,
+    "ast_hash": "88496a70fd204f110823812ffc26cd9d",
+    "semantic_hash": "88496a70fd204f110823812ffc26cd9d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\employees_screen.dart": {
+    "mtime": 1778869070.4128149,
+    "ast_hash": "af3f705d5cc35bd20f2427535038fc06",
+    "semantic_hash": "af3f705d5cc35bd20f2427535038fc06"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\inventory_screen.dart": {
+    "mtime": 1778854352.9300227,
+    "ast_hash": "396ee51fcb806b8ea75aa01da8e2a029",
+    "semantic_hash": "396ee51fcb806b8ea75aa01da8e2a029"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\invoice_screen.dart": {
+    "mtime": 1778862150.8017836,
+    "ast_hash": "30392af3feb3d86304dbbb0b10827fc5",
+    "semantic_hash": "30392af3feb3d86304dbbb0b10827fc5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\overview_screen.dart": {
+    "mtime": 1778854290.750421,
+    "ast_hash": "3045d886873e81529df6b8e0d7b5404e",
+    "semantic_hash": "3045d886873e81529df6b8e0d7b5404e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\quick_booking_screen.dart": {
+    "mtime": 1778855163.4366415,
+    "ast_hash": "39614a8d2ddab0143650dbc59fc0ae88",
+    "semantic_hash": "39614a8d2ddab0143650dbc59fc0ae88"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\reports_screen.dart": {
+    "mtime": 1778854320.396456,
+    "ast_hash": "a50e7270790830ecc779b1cb9b880173",
+    "semantic_hash": "a50e7270790830ecc779b1cb9b880173"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\services_screen.dart": {
+    "mtime": 1778854299.3779511,
+    "ast_hash": "4ad776f0865879c7f42c6d465b408d25",
+    "semantic_hash": "4ad776f0865879c7f42c6d465b408d25"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\lib\\screens\\vehicles_screen.dart": {
+    "mtime": 1778794152.5193505,
+    "ast_hash": "13f329de3023905c9da335f355a8f6ba",
+    "semantic_hash": "13f329de3023905c9da335f355a8f6ba"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\test\\widget_test.dart": {
+    "mtime": 1778726247.8380744,
+    "ast_hash": "c1098adce72ce41e435101253e1cfd97",
+    "semantic_hash": "c1098adce72ce41e435101253e1cfd97"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\web\\manifest.json": {
+    "mtime": 1778539024.218275,
+    "ast_hash": "ae5524632427c7242f7ba0c186fc2dbc",
+    "semantic_hash": "ae5524632427c7242f7ba0c186fc2dbc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\generated_plugin_registrant.cc": {
+    "mtime": 1778693163.5437326,
+    "ast_hash": "41314b26786dcb2bbc7b34bea60e27af",
+    "semantic_hash": "41314b26786dcb2bbc7b34bea60e27af"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\generated_plugin_registrant.h": {
+    "mtime": 1778684763.2644217,
+    "ast_hash": "0ea33875f9f8e118f9c2ded03e2e2835",
+    "semantic_hash": "0ea33875f9f8e118f9c2ded03e2e2835"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\flutter_export.h": {
+    "mtime": 1778689599.3811805,
+    "ast_hash": "51d6ddd086e800d34c1d143004c474fd",
+    "semantic_hash": "51d6ddd086e800d34c1d143004c474fd"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\flutter_messenger.h": {
+    "mtime": 1778689599.3822114,
+    "ast_hash": "9c15531692496dbfcb820431343d92fa",
+    "semantic_hash": "9c15531692496dbfcb820431343d92fa"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\flutter_plugin_registrar.h": {
+    "mtime": 1778689599.3822114,
+    "ast_hash": "205b172dd4be89df08a835c5afcd2c1a",
+    "semantic_hash": "205b172dd4be89df08a835c5afcd2c1a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\flutter_texture_registrar.h": {
+    "mtime": 1778689599.3833134,
+    "ast_hash": "4ffbfcf8b88a9690e82543b1761e81d5",
+    "semantic_hash": "4ffbfcf8b88a9690e82543b1761e81d5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\flutter_windows.h": {
+    "mtime": 1778689599.3822114,
+    "ast_hash": "538863ede587e5ef3c7bb9b2bc9e6ea7",
+    "semantic_hash": "538863ede587e5ef3c7bb9b2bc9e6ea7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\binary_messenger_impl.h": {
+    "mtime": 1778689410.4261029,
+    "ast_hash": "286e55d651260380486c1ca7a2c44578",
+    "semantic_hash": "286e55d651260380486c1ca7a2c44578"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\byte_buffer_streams.h": {
+    "mtime": 1778689410.4261029,
+    "ast_hash": "0a33501e8af56a1390ab6f75e0f568d9",
+    "semantic_hash": "0a33501e8af56a1390ab6f75e0f568d9"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\core_implementations.cc": {
+    "mtime": 1778689410.4171364,
+    "ast_hash": "91cfe8e97858850acdbc8891453ce5bc",
+    "semantic_hash": "91cfe8e97858850acdbc8891453ce5bc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\engine_method_result.cc": {
+    "mtime": 1778689410.4181404,
+    "ast_hash": "6172a3effcf1f354d756ff757377a576",
+    "semantic_hash": "6172a3effcf1f354d756ff757377a576"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\flutter_engine.cc": {
+    "mtime": 1778689410.4191403,
+    "ast_hash": "14c8cef2644702b8be3330109e5756a6",
+    "semantic_hash": "14c8cef2644702b8be3330109e5756a6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\flutter_view_controller.cc": {
+    "mtime": 1778689410.4191403,
+    "ast_hash": "3c4959653a59ba03164e211059dc2652",
+    "semantic_hash": "3c4959653a59ba03164e211059dc2652"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\plugin_registrar.cc": {
+    "mtime": 1778689410.4181404,
+    "ast_hash": "3190b92da7033c643bf749e7f4266da8",
+    "semantic_hash": "3190b92da7033c643bf749e7f4266da8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\standard_codec.cc": {
+    "mtime": 1778689410.4191403,
+    "ast_hash": "035f8af9a9a084e129ceef3fa0396c47",
+    "semantic_hash": "035f8af9a9a084e129ceef3fa0396c47"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\texture_registrar_impl.h": {
+    "mtime": 1778689410.4261029,
+    "ast_hash": "7ec35caedbfe35b37bd7aa66dab7219b",
+    "semantic_hash": "7ec35caedbfe35b37bd7aa66dab7219b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\basic_message_channel.h": {
+    "mtime": 1778689410.4202192,
+    "ast_hash": "45dd070af12cc7ab125d6ead5267f36c",
+    "semantic_hash": "45dd070af12cc7ab125d6ead5267f36c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\binary_messenger.h": {
+    "mtime": 1778689410.4202192,
+    "ast_hash": "b313ec90af27dce06153c156a0cbb390",
+    "semantic_hash": "b313ec90af27dce06153c156a0cbb390"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\byte_streams.h": {
+    "mtime": 1778689410.4202192,
+    "ast_hash": "00010cc0042e98ea973f4037a29a3ca0",
+    "semantic_hash": "00010cc0042e98ea973f4037a29a3ca0"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\dart_project.h": {
+    "mtime": 1778689410.4276483,
+    "ast_hash": "925d737f94c0c079c56eedb812ed4b8f",
+    "semantic_hash": "925d737f94c0c079c56eedb812ed4b8f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\encodable_value.h": {
+    "mtime": 1778689410.4202192,
+    "ast_hash": "ca5bf7ecc86138a058d535de1dfa811a",
+    "semantic_hash": "ca5bf7ecc86138a058d535de1dfa811a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\engine_method_result.h": {
+    "mtime": 1778689410.421239,
+    "ast_hash": "55b4be5728dfb16220b1bda5bdace3fe",
+    "semantic_hash": "55b4be5728dfb16220b1bda5bdace3fe"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\event_channel.h": {
+    "mtime": 1778689410.421239,
+    "ast_hash": "143cf6f0acaa229d950d084c940cc77c",
+    "semantic_hash": "143cf6f0acaa229d950d084c940cc77c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\event_sink.h": {
+    "mtime": 1778689410.421239,
+    "ast_hash": "b1b98c1cf40abd6a3c308182c4822476",
+    "semantic_hash": "b1b98c1cf40abd6a3c308182c4822476"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\event_stream_handler.h": {
+    "mtime": 1778689410.4220898,
+    "ast_hash": "62be5ae665a6b931d6dc9ac4b27d6c93",
+    "semantic_hash": "62be5ae665a6b931d6dc9ac4b27d6c93"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\event_stream_handler_functions.h": {
+    "mtime": 1778689410.4220898,
+    "ast_hash": "248c4e48231edda0bc7ac80722f15b53",
+    "semantic_hash": "248c4e48231edda0bc7ac80722f15b53"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\flutter_engine.h": {
+    "mtime": 1778689410.4276483,
+    "ast_hash": "2b2405abfa2cc54351b6ee6ad02585c0",
+    "semantic_hash": "2b2405abfa2cc54351b6ee6ad02585c0"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\flutter_view.h": {
+    "mtime": 1778689410.428654,
+    "ast_hash": "33a6baf4984ec4c299c0b05cef6968ed",
+    "semantic_hash": "33a6baf4984ec4c299c0b05cef6968ed"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\flutter_view_controller.h": {
+    "mtime": 1778689410.428654,
+    "ast_hash": "815f4a5fbad9381269e2c216507285cd",
+    "semantic_hash": "815f4a5fbad9381269e2c216507285cd"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\message_codec.h": {
+    "mtime": 1778689410.4220898,
+    "ast_hash": "b5013c9553dc459d5f91b8ec2bda3d0a",
+    "semantic_hash": "b5013c9553dc459d5f91b8ec2bda3d0a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\method_call.h": {
+    "mtime": 1778689410.4231033,
+    "ast_hash": "a47afe801378afeffda4439e8cdb01ca",
+    "semantic_hash": "a47afe801378afeffda4439e8cdb01ca"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\method_channel.h": {
+    "mtime": 1778689410.4231033,
+    "ast_hash": "beeb4b0780233e226f899bddd220b682",
+    "semantic_hash": "beeb4b0780233e226f899bddd220b682"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\method_codec.h": {
+    "mtime": 1778689410.4231033,
+    "ast_hash": "1d712b93e2dd2e28cb67a55a8d484694",
+    "semantic_hash": "1d712b93e2dd2e28cb67a55a8d484694"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\method_result.h": {
+    "mtime": 1778689410.4241028,
+    "ast_hash": "e48c7b84b470630e810b6a0bc2d8e542",
+    "semantic_hash": "e48c7b84b470630e810b6a0bc2d8e542"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\method_result_functions.h": {
+    "mtime": 1778689410.4241028,
+    "ast_hash": "6bfbb61c519f63386a0fb55608dbea90",
+    "semantic_hash": "6bfbb61c519f63386a0fb55608dbea90"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\plugin_registrar.h": {
+    "mtime": 1778689410.4241028,
+    "ast_hash": "2b81addd18be801eda539f1de332ce4e",
+    "semantic_hash": "2b81addd18be801eda539f1de332ce4e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\plugin_registrar_windows.h": {
+    "mtime": 1778689410.428654,
+    "ast_hash": "0bbbe470228d787a92d567a95faa2b33",
+    "semantic_hash": "0bbbe470228d787a92d567a95faa2b33"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\plugin_registry.h": {
+    "mtime": 1778689410.4250944,
+    "ast_hash": "85c5071ca77f8687102dcae4f282388b",
+    "semantic_hash": "85c5071ca77f8687102dcae4f282388b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\standard_codec_serializer.h": {
+    "mtime": 1778689410.4250944,
+    "ast_hash": "09399c3c509a601a970f6efd340a2529",
+    "semantic_hash": "09399c3c509a601a970f6efd340a2529"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\standard_message_codec.h": {
+    "mtime": 1778689410.4255984,
+    "ast_hash": "81df344828c7c48155ae22824eb61e50",
+    "semantic_hash": "81df344828c7c48155ae22824eb61e50"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\standard_method_codec.h": {
+    "mtime": 1778689410.4261029,
+    "ast_hash": "4707587e759b2b655852fc0e989c9e70",
+    "semantic_hash": "4707587e759b2b655852fc0e989c9e70"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\ephemeral\\cpp_client_wrapper\\include\\flutter\\texture_registrar.h": {
+    "mtime": 1778689410.4261029,
+    "ast_hash": "ee739ab16ee0e2964edc9275a0379095",
+    "semantic_hash": "ee739ab16ee0e2964edc9275a0379095"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\flutter_window.cpp": {
+    "mtime": 1777532252.0,
+    "ast_hash": "2f463f9b7da67a2d692a012f9ea85e0c",
+    "semantic_hash": "2f463f9b7da67a2d692a012f9ea85e0c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\flutter_window.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "7defcc89d4a26d56e801241d624d48fb",
+    "semantic_hash": "7defcc89d4a26d56e801241d624d48fb"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\main.cpp": {
+    "mtime": 1778684748.9142272,
+    "ast_hash": "63d2233ce27391d96767b8c226202222",
+    "semantic_hash": "63d2233ce27391d96767b8c226202222"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\resource.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "1ade5dd15e613479a15e8832ed276f2b",
+    "semantic_hash": "1ade5dd15e613479a15e8832ed276f2b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\utils.cpp": {
+    "mtime": 1777532252.0,
+    "ast_hash": "432461b09d862a2f8dadf380ff0e34e5",
+    "semantic_hash": "432461b09d862a2f8dadf380ff0e34e5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\utils.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "fd81e143f5614eb6fd75efe539002853",
+    "semantic_hash": "fd81e143f5614eb6fd75efe539002853"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\win32_window.cpp": {
+    "mtime": 1777532252.0,
+    "ast_hash": "571eb8234dbc2661be03aa5f2a4d2fca",
+    "semantic_hash": "571eb8234dbc2661be03aa5f2a4d2fca"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\win32_window.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "7569387d58711ab975940f4df3b4bcda",
+    "semantic_hash": "7569387d58711ab975940f4df3b4bcda"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\.dart_tool\\package_config.json": {
+    "mtime": 1778771490.7111392,
+    "ast_hash": "a8be3324185f36a4da8e3226e013fd49",
+    "semantic_hash": "a8be3324185f36a4da8e3226e013fd49"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\.dart_tool\\package_graph.json": {
+    "mtime": 1778771490.7131379,
+    "ast_hash": "d0d25b53548435f92dfec9784e53070b",
+    "semantic_hash": "d0d25b53548435f92dfec9784e53070b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\bin\\migrate_database.dart": {
+    "mtime": 1778667344.5335314,
+    "ast_hash": "ba4aa33f6ba3b642ca7db63ac4695c40",
+    "semantic_hash": "ba4aa33f6ba3b642ca7db63ac4695c40"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\bin\\server.dart": {
+    "mtime": 1779008861.515766,
+    "ast_hash": "cda96ec028944f1b3ed3ab03ca95564b",
+    "semantic_hash": "cda96ec028944f1b3ed3ab03ca95564b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\bin\\type_test.dart": {
+    "mtime": 1778720425.9182773,
+    "ast_hash": "3c136b809bcbe116cd97b152cfb3b98a",
+    "semantic_hash": "3c136b809bcbe116cd97b152cfb3b98a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\application\\services\\auth_service.dart": {
+    "mtime": 1778603671.0355456,
+    "ast_hash": "48486c316aa75a1a3a7717a8c75b1fc9",
+    "semantic_hash": "48486c316aa75a1a3a7717a8c75b1fc9"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\application\\services\\notification_service.dart": {
+    "mtime": 1778533866.8162515,
+    "ast_hash": "3a2585fd3c86e12c55e01d0702bbff82",
+    "semantic_hash": "3a2585fd3c86e12c55e01d0702bbff82"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\application\\usecases\\assign_mechanic_usecase.dart": {
+    "mtime": 1778945050.709771,
+    "ast_hash": "936e7b502d9e630ee9232e47912ee38d",
+    "semantic_hash": "936e7b502d9e630ee9232e47912ee38d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\application\\usecases\\create_booking_usecase.dart": {
+    "mtime": 1778801025.9270427,
+    "ast_hash": "0cc083afa93d5b28bf4187b831907b3e",
+    "semantic_hash": "0cc083afa93d5b28bf4187b831907b3e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\application\\usecases\\create_part_suggestion_usecase.dart": {
+    "mtime": 1778537273.0266922,
+    "ast_hash": "d16c8086381d98f0f849f15f3cee3ac0",
+    "semantic_hash": "d16c8086381d98f0f849f15f3cee3ac0"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\application\\usecases\\update_booking_status_usecase.dart": {
+    "mtime": 1778533871.3164487,
+    "ast_hash": "ab1c1f7e98354eedd48fc7d03a45148f",
+    "semantic_hash": "ab1c1f7e98354eedd48fc7d03a45148f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\core\\errors\\exceptions.dart": {
+    "mtime": 1778533750.0621037,
+    "ast_hash": "5a979e7265d59017f1a78d374924477a",
+    "semantic_hash": "5a979e7265d59017f1a78d374924477a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\core\\errors\\failures.dart": {
+    "mtime": 1778533749.1116762,
+    "ast_hash": "c7c33de64ec6d9381fbb1e287712aee2",
+    "semantic_hash": "c7c33de64ec6d9381fbb1e287712aee2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\core\\utils\\app_constants.dart": {
+    "mtime": 1778603671.0355456,
+    "ast_hash": "17b791043703e1b16c1d8edeea0cf309",
+    "semantic_hash": "17b791043703e1b16c1d8edeea0cf309"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\core\\utils\\jwt_service.dart": {
+    "mtime": 1778840370.191324,
+    "ast_hash": "e8a8472a648188f5f7ab02f6d8c81578",
+    "semantic_hash": "e8a8472a648188f5f7ab02f6d8c81578"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\core\\utils\\pagination_result.dart": {
+    "mtime": 1778722761.952907,
+    "ast_hash": "d22a7b4a4c45e5fc29f4425f7189e363",
+    "semantic_hash": "d22a7b4a4c45e5fc29f4425f7189e363"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\alert.dart": {
+    "mtime": 1778772133.9873114,
+    "ast_hash": "a236c923a390f05d09dc2c643877d497",
+    "semantic_hash": "a236c923a390f05d09dc2c643877d497"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\booking.dart": {
+    "mtime": 1778796391.8840666,
+    "ast_hash": "977c4493ae18195b63f41ccd942367ad",
+    "semantic_hash": "977c4493ae18195b63f41ccd942367ad"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\booking_invoice_data.dart": {
+    "mtime": 1778796426.447576,
+    "ast_hash": "21b452d369e1ab752690c92daceb2b55",
+    "semantic_hash": "21b452d369e1ab752690c92daceb2b55"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\booking_service.dart": {
+    "mtime": 1778796407.7899964,
+    "ast_hash": "8ed14eca892ef3846cdb9376c6c98b13",
+    "semantic_hash": "8ed14eca892ef3846cdb9376c6c98b13"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\booking_status.dart": {
+    "mtime": 1778533763.5887709,
+    "ast_hash": "5ea536ffe74f56c4bd66e2ac28d2b49e",
+    "semantic_hash": "5ea536ffe74f56c4bd66e2ac28d2b49e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\company_settings.dart": {
+    "mtime": 1778722060.8508105,
+    "ast_hash": "cbf30d2837a43a8ccd2b889fa9cbf3ae",
+    "semantic_hash": "cbf30d2837a43a8ccd2b889fa9cbf3ae"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\customer.dart": {
+    "mtime": 1778537124.8304527,
+    "ast_hash": "7ad8da9b7d004afd16781db6e2adf85d",
+    "semantic_hash": "7ad8da9b7d004afd16781db6e2adf85d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\inventory_item.dart": {
+    "mtime": 1778772133.9878235,
+    "ast_hash": "5620611b05c1a84c1aebdc5041d7ed19",
+    "semantic_hash": "5620611b05c1a84c1aebdc5041d7ed19"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\inventory_transaction.dart": {
+    "mtime": 1778772133.9883382,
+    "ast_hash": "7f8fac0052107ff1b14dd89fd57d78ff",
+    "semantic_hash": "7f8fac0052107ff1b14dd89fd57d78ff"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\inventory_variant.dart": {
+    "mtime": 1778789480.7901354,
+    "ast_hash": "8d0f9b4dd7608c069c2a164a1f6f5abb",
+    "semantic_hash": "8d0f9b4dd7608c069c2a164a1f6f5abb"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\mechanic_assignment.dart": {
+    "mtime": 1778537120.907104,
+    "ast_hash": "af9da1b3962106661a01d55ae15e9ac6",
+    "semantic_hash": "af9da1b3962106661a01d55ae15e9ac6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\mechanic_assignment_status.dart": {
+    "mtime": 1778533766.3930876,
+    "ast_hash": "7f950b6f77c65cd9295f1682853a1f6b",
+    "semantic_hash": "7f950b6f77c65cd9295f1682853a1f6b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\part_suggestion.dart": {
+    "mtime": 1778537965.2781882,
+    "ast_hash": "1702d48642853f2f56265340cfcf5479",
+    "semantic_hash": "1702d48642853f2f56265340cfcf5479"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\part_suggestion_status.dart": {
+    "mtime": 1778533768.492549,
+    "ast_hash": "7d1ed2cfc1a2a0628aa06ac0036b8b96",
+    "semantic_hash": "7d1ed2cfc1a2a0628aa06ac0036b8b96"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\part_type.dart": {
+    "mtime": 1778533767.9429438,
+    "ast_hash": "d92cb7ac092fd0b0b92cc86c06c1ed72",
+    "semantic_hash": "d92cb7ac092fd0b0b92cc86c06c1ed72"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\role.dart": {
+    "mtime": 1778533754.4251368,
+    "ast_hash": "df2662ceb3eab07ee25ea723a04b6b14",
+    "semantic_hash": "df2662ceb3eab07ee25ea723a04b6b14"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\service.dart": {
+    "mtime": 1778795451.5314684,
+    "ast_hash": "1905958d9903a3682962522a5483035e",
+    "semantic_hash": "1905958d9903a3682962522a5483035e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\user.dart": {
+    "mtime": 1778537106.389267,
+    "ast_hash": "f04513c510f45c232989717bc9537b35",
+    "semantic_hash": "f04513c510f45c232989717bc9537b35"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\entities\\vehicle.dart": {
+    "mtime": 1778611782.0714488,
+    "ast_hash": "89d67b7c062ec7a6c216f7d9255ae83e",
+    "semantic_hash": "89d67b7c062ec7a6c216f7d9255ae83e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\alert_repository.dart": {
+    "mtime": 1778772133.989365,
+    "ast_hash": "0fcb68588320614fb964f192793dc9f2",
+    "semantic_hash": "0fcb68588320614fb964f192793dc9f2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\booking_invoice_data_repository.dart": {
+    "mtime": 1778772133.989365,
+    "ast_hash": "724c4b6d35e2c4c8414d5f878bbe67c4",
+    "semantic_hash": "724c4b6d35e2c4c8414d5f878bbe67c4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\booking_repository.dart": {
+    "mtime": 1778722824.2531033,
+    "ast_hash": "f1325364d948b3920779914c6d33fedd",
+    "semantic_hash": "f1325364d948b3920779914c6d33fedd"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\booking_service_repository.dart": {
+    "mtime": 1778603671.037545,
+    "ast_hash": "e5d11c2e72141e9facb9aeb5a32fc43c",
+    "semantic_hash": "e5d11c2e72141e9facb9aeb5a32fc43c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\company_settings_repository.dart": {
+    "mtime": 1778726247.8400745,
+    "ast_hash": "8a2b84687a7cb8d0acab27ff3c7c29a7",
+    "semantic_hash": "8a2b84687a7cb8d0acab27ff3c7c29a7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\customer_repository.dart": {
+    "mtime": 1778722766.5421016,
+    "ast_hash": "49e84aa9b629911eef5ef8956793bc18",
+    "semantic_hash": "49e84aa9b629911eef5ef8956793bc18"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\inventory_item_repository.dart": {
+    "mtime": 1778772133.9903705,
+    "ast_hash": "37d6e764909c3d2a85b8c4e9a527154e",
+    "semantic_hash": "37d6e764909c3d2a85b8c4e9a527154e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\inventory_transaction_repository.dart": {
+    "mtime": 1778772133.9903705,
+    "ast_hash": "252254dedd26dd96164a36d68a44cf21",
+    "semantic_hash": "252254dedd26dd96164a36d68a44cf21"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\inventory_variant_repository.dart": {
+    "mtime": 1778772133.9913716,
+    "ast_hash": "4eb5967613c33476ef527ce2960c77a4",
+    "semantic_hash": "4eb5967613c33476ef527ce2960c77a4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\mechanic_assignment_repository.dart": {
+    "mtime": 1778603671.038545,
+    "ast_hash": "ca024f3092eacb23f1a09a7ac84dac18",
+    "semantic_hash": "ca024f3092eacb23f1a09a7ac84dac18"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\part_suggestion_repository.dart": {
+    "mtime": 1778603671.038545,
+    "ast_hash": "f9a02d3e252ab8ed5ef112bb8a2fb746",
+    "semantic_hash": "f9a02d3e252ab8ed5ef112bb8a2fb746"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\service_repository.dart": {
+    "mtime": 1778603671.038545,
+    "ast_hash": "de03bf051bc039084e95990b1c9c693e",
+    "semantic_hash": "de03bf051bc039084e95990b1c9c693e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\user_repository.dart": {
+    "mtime": 1778603671.039545,
+    "ast_hash": "1a1d5319c3c13632d6526c0a8947931b",
+    "semantic_hash": "1a1d5319c3c13632d6526c0a8947931b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\repositories\\vehicle_repository.dart": {
+    "mtime": 1778722795.1433568,
+    "ast_hash": "3ef57e0e1787f7b911cf16d62ad8158b",
+    "semantic_hash": "3ef57e0e1787f7b911cf16d62ad8158b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\validators\\booking_validator.dart": {
+    "mtime": 1778794356.516147,
+    "ast_hash": "b0268b0109eb948b0bdce15a35927817",
+    "semantic_hash": "b0268b0109eb948b0bdce15a35927817"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\validators\\common_validators.dart": {
+    "mtime": 1778714939.1977522,
+    "ast_hash": "5bc05a2bff1c1372e26fcee0302accae",
+    "semantic_hash": "5bc05a2bff1c1372e26fcee0302accae"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\validators\\customer_validator.dart": {
+    "mtime": 1778715513.9566712,
+    "ast_hash": "edb9653e076cac235ac8c26e59908f92",
+    "semantic_hash": "edb9653e076cac235ac8c26e59908f92"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\validators\\service_validator.dart": {
+    "mtime": 1778715536.3599365,
+    "ast_hash": "a569f417c4c475ec1b120859d978239b",
+    "semantic_hash": "a569f417c4c475ec1b120859d978239b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\validators\\user_validator.dart": {
+    "mtime": 1778715544.5828414,
+    "ast_hash": "10ed71fd26c3ee90a628a641cfe418cd",
+    "semantic_hash": "10ed71fd26c3ee90a628a641cfe418cd"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\validators\\validation_result.dart": {
+    "mtime": 1778714929.0746262,
+    "ast_hash": "8488a5120d8418e4bbf0082d18169702",
+    "semantic_hash": "8488a5120d8418e4bbf0082d18169702"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\domain\\validators\\vehicle_validator.dart": {
+    "mtime": 1778715520.7988563,
+    "ast_hash": "c4e599908e24a9d3f89260b29d1cfa01",
+    "semantic_hash": "c4e599908e24a9d3f89260b29d1cfa01"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\database\\database_connection.dart": {
+    "mtime": 1778799353.4752834,
+    "ast_hash": "ca22f48e1840e5228803768a84b3a337",
+    "semantic_hash": "ca22f48e1840e5228803768a84b3a337"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\database\\schema.sql": {
+    "mtime": 1778795608.0491302,
+    "ast_hash": "f0d22415b91472434bd0c2d1fed59527",
+    "semantic_hash": "f0d22415b91472434bd0c2d1fed59527"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\alert_repository_impl.dart": {
+    "mtime": 1778772133.9929585,
+    "ast_hash": "0ea0851f8892685850cd6e411664666d",
+    "semantic_hash": "0ea0851f8892685850cd6e411664666d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\booking_invoice_data_repository_impl.dart": {
+    "mtime": 1778803046.1159213,
+    "ast_hash": "7ab31bb2ce68f4d0bcc805e80866d00e",
+    "semantic_hash": "7ab31bb2ce68f4d0bcc805e80866d00e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\booking_repository_impl.dart": {
+    "mtime": 1778796843.7591932,
+    "ast_hash": "882fe490d3dc066ac8cb5c4788572908",
+    "semantic_hash": "882fe490d3dc066ac8cb5c4788572908"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\booking_service_repository_impl.dart": {
+    "mtime": 1778796897.5791934,
+    "ast_hash": "3a8965053d5d238c5831b459e45b23c0",
+    "semantic_hash": "3a8965053d5d238c5831b459e45b23c0"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\company_settings_repository_impl.dart": {
+    "mtime": 1778792182.874679,
+    "ast_hash": "b769159d151509adb566233549ee42f0",
+    "semantic_hash": "b769159d151509adb566233549ee42f0"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\customer_repository_impl.dart": {
+    "mtime": 1778796975.443733,
+    "ast_hash": "62f01d92ff73720c116131cf8a4094fc",
+    "semantic_hash": "62f01d92ff73720c116131cf8a4094fc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\inventory_item_repository_impl.dart": {
+    "mtime": 1778788141.9628816,
+    "ast_hash": "8fb33f087f369adcc9c862c8ff566df7",
+    "semantic_hash": "8fb33f087f369adcc9c862c8ff566df7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\inventory_transaction_repository_impl.dart": {
+    "mtime": 1778796995.574643,
+    "ast_hash": "79230753bbbfc0e141cb9d4e5ad3eb56",
+    "semantic_hash": "79230753bbbfc0e141cb9d4e5ad3eb56"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\inventory_variant_repository_impl.dart": {
+    "mtime": 1778789450.8937163,
+    "ast_hash": "e2c1f1098047cd9fd6da4a783d35a6c4",
+    "semantic_hash": "e2c1f1098047cd9fd6da4a783d35a6c4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\mechanic_assignment_repository_impl.dart": {
+    "mtime": 1778796983.64832,
+    "ast_hash": "333f040959a8acf1a7cbac2aab21fe70",
+    "semantic_hash": "333f040959a8acf1a7cbac2aab21fe70"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\part_suggestion_repository_impl.dart": {
+    "mtime": 1778792161.0961041,
+    "ast_hash": "ba5a082c0990134c9eb2844b372b2abd",
+    "semantic_hash": "ba5a082c0990134c9eb2844b372b2abd"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\service_repository_impl.dart": {
+    "mtime": 1778792112.5519435,
+    "ast_hash": "4e4578659b2308f0cced695ba816b68d",
+    "semantic_hash": "4e4578659b2308f0cced695ba816b68d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\user_repository_impl.dart": {
+    "mtime": 1778792154.37064,
+    "ast_hash": "fe414d750fe7655373c969fc0a24c78e",
+    "semantic_hash": "fe414d750fe7655373c969fc0a24c78e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\infrastructure\\repositories\\vehicle_repository_impl.dart": {
+    "mtime": 1778796949.5823805,
+    "ast_hash": "2d1ed3f5b1ebe1699562c39585865d38",
+    "semantic_hash": "2d1ed3f5b1ebe1699562c39585865d38"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\middlewares\\auth_middleware.dart": {
+    "mtime": 1778945156.2454758,
+    "ast_hash": "337de32ba08d8e46367f42c1fa4f92bc",
+    "semantic_hash": "337de32ba08d8e46367f42c1fa4f92bc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\middlewares\\error_handler.dart": {
+    "mtime": 1778715508.6872444,
+    "ast_hash": "dec98ef889083ebce1351e0af452e7f7",
+    "semantic_hash": "dec98ef889083ebce1351e0af452e7f7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\middlewares\\error_middleware.dart": {
+    "mtime": 1778603671.0467303,
+    "ast_hash": "1552387a635feea40dc454d51834cf3b",
+    "semantic_hash": "1552387a635feea40dc454d51834cf3b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\middlewares\\json_middleware.dart": {
+    "mtime": 1778603671.0467303,
+    "ast_hash": "67552887fda5b99b8b82cef2b7ea97f1",
+    "semantic_hash": "67552887fda5b99b8b82cef2b7ea97f1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\middlewares\\logging_middleware.dart": {
+    "mtime": 1778533882.2203274,
+    "ast_hash": "56368b5fa33cee120ac1be4319b7fbf2",
+    "semantic_hash": "56368b5fa33cee120ac1be4319b7fbf2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\auth_routes.dart": {
+    "mtime": 1778871311.0951927,
+    "ast_hash": "85a078d9bd39f480cb19843c23059954",
+    "semantic_hash": "85a078d9bd39f480cb19843c23059954"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\booking_routes.dart": {
+    "mtime": 1778945093.5442238,
+    "ast_hash": "c1203e598f5455fb23ea87f6e7be95ea",
+    "semantic_hash": "c1203e598f5455fb23ea87f6e7be95ea"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\company_settings_routes.dart": {
+    "mtime": 1778794356.5181282,
+    "ast_hash": "4d4d99f7c8a0f5ac8b53f8f12b7f7c38",
+    "semantic_hash": "4d4d99f7c8a0f5ac8b53f8f12b7f7c38"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\customer_routes.dart": {
+    "mtime": 1778841012.8504822,
+    "ast_hash": "08e6e925e08f66aae73967379717a924",
+    "semantic_hash": "08e6e925e08f66aae73967379717a924"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\dashboard_routes.dart": {
+    "mtime": 1778603671.049242,
+    "ast_hash": "276368dab2f2f3ac06ff3f2327c13f67",
+    "semantic_hash": "276368dab2f2f3ac06ff3f2327c13f67"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\inventory_routes.dart": {
+    "mtime": 1778789462.4740472,
+    "ast_hash": "79d31b6ca26a82fc7dc3e35aa09f42dd",
+    "semantic_hash": "79d31b6ca26a82fc7dc3e35aa09f42dd"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\invoice_routes.dart": {
+    "mtime": 1778945067.0511808,
+    "ast_hash": "36bfec811db142705ad4ce5d7738c5c4",
+    "semantic_hash": "36bfec811db142705ad4ce5d7738c5c4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\mechanic_routes.dart": {
+    "mtime": 1778944286.9898977,
+    "ast_hash": "4705b9c392df6078c098c40163a80106",
+    "semantic_hash": "4705b9c392df6078c098c40163a80106"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\public_routes.dart": {
+    "mtime": 1778802745.9057453,
+    "ast_hash": "d3e990a841916052157b4c5bc55b22c2",
+    "semantic_hash": "d3e990a841916052157b4c5bc55b22c2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\service_routes.dart": {
+    "mtime": 1778794356.5232282,
+    "ast_hash": "6e0a134250b15392e94b8528eec66c00",
+    "semantic_hash": "6e0a134250b15392e94b8528eec66c00"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\routes\\vehicle_routes.dart": {
+    "mtime": 1778794356.5232282,
+    "ast_hash": "452dd01113131b5a8e49c07b1b52fa99",
+    "semantic_hash": "452dd01113131b5a8e49c07b1b52fa99"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\swagger\\openapi_spec.dart": {
+    "mtime": 1778726407.4629905,
+    "ast_hash": "ad9e6a4317395c56902069272909a4a5",
+    "semantic_hash": "ad9e6a4317395c56902069272909a4a5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\lib\\presentation\\websocket\\booking_websocket.dart": {
+    "mtime": 1778772133.9981508,
+    "ast_hash": "40d800bf4cb89c8d062bb029a5505feb",
+    "semantic_hash": "40d800bf4cb89c8d062bb029a5505feb"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\test\\auth_routes_test.dart": {
+    "mtime": 1778794356.524227,
+    "ast_hash": "cba14c2fcd9a23d4f269a7770bfecf39",
+    "semantic_hash": "cba14c2fcd9a23d4f269a7770bfecf39"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\test\\booking_repository_test.dart": {
+    "mtime": 1778794356.524227,
+    "ast_hash": "3f16a9d9fa0ca1fd31fb200e5583e55b",
+    "semantic_hash": "3f16a9d9fa0ca1fd31fb200e5583e55b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\test\\jwt_service_test.dart": {
+    "mtime": 1778794356.524227,
+    "ast_hash": "a9fdb656d696bc34792e58a77557803a",
+    "semantic_hash": "a9fdb656d696bc34792e58a77557803a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\test\\server_test.dart": {
+    "mtime": 1778533718.134668,
+    "ast_hash": "5fb18428f77cc35791487898ff8d4093",
+    "semantic_hash": "5fb18428f77cc35791487898ff8d4093"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\cloudflare-worker\\worker.js": {
+    "mtime": 1778630347.4727411,
+    "ast_hash": "f2a1374f65f8faaa095b3c0cba8a35c8",
+    "semantic_hash": "f2a1374f65f8faaa095b3c0cba8a35c8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\cloudflare-worker\\.wrangler\\cache\\wrangler-account.json": {
+    "mtime": 1778622099.58524,
+    "ast_hash": "ca8639ae640e3b3ac2ea7a16cb3c538f",
+    "semantic_hash": "ca8639ae640e3b3ac2ea7a16cb3c538f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mcp\\super\\index.js": {
+    "mtime": 1778603671.0578456,
+    "ast_hash": "a6508dcc02072cc653186977b983a039",
+    "semantic_hash": "a6508dcc02072cc653186977b983a039"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mcp\\super\\engines\\architecture.js": {
+    "mtime": 1778603671.0558407,
+    "ast_hash": "5138f43b3456d1f437b0d1c510ac5e64",
+    "semantic_hash": "5138f43b3456d1f437b0d1c510ac5e64"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mcp\\super\\engines\\auto_fix.js": {
+    "mtime": 1778603671.0558407,
+    "ast_hash": "87c29e1d373e2104923bb5e5a48c33ff",
+    "semantic_hash": "87c29e1d373e2104923bb5e5a48c33ff"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mcp\\super\\engines\\code_intel.js": {
+    "mtime": 1778603671.056852,
+    "ast_hash": "f55bddc6926007d5be1ced732758c707",
+    "semantic_hash": "f55bddc6926007d5be1ced732758c707"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mcp\\super\\engines\\db_analyzer.js": {
+    "mtime": 1778603671.056852,
+    "ast_hash": "e1da4b1fac217d7132b401ad5cbddbe6",
+    "semantic_hash": "e1da4b1fac217d7132b401ad5cbddbe6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mcp\\super\\engines\\generator.js": {
+    "mtime": 1778603671.056852,
+    "ast_hash": "333ae784914f340a8c0048e19fa1176c",
+    "semantic_hash": "333ae784914f340a8c0048e19fa1176c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mcp\\super\\engines\\security.js": {
+    "mtime": 1778603671.0578456,
+    "ast_hash": "eb38bbe9734c0b58ca2900030041c629",
+    "semantic_hash": "eb38bbe9734c0b58ca2900030041c629"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\package_config.json": {
+    "mtime": 1778969666.9926639,
+    "ast_hash": "1b8ec7343b975cc7ea7476ad5506cf34",
+    "semantic_hash": "1b8ec7343b975cc7ea7476ad5506cf34"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\package_graph.json": {
+    "mtime": 1778970547.1402287,
+    "ast_hash": "f811f53150e74e264f2d4e0d0bd41d09",
+    "semantic_hash": "f811f53150e74e264f2d4e0d0bd41d09"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\dartpad\\web_plugin_registrant.dart": {
+    "mtime": 1778771978.9665077,
+    "ast_hash": "9f53dad998d960e42c8defe8332fbce6",
+    "semantic_hash": "9f53dad998d960e42c8defe8332fbce6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\dart_plugin_registrant.dart": {
+    "mtime": 1778771992.1809173,
+    "ast_hash": "7930a58dd5afd70548d42e430871ce4b",
+    "semantic_hash": "7930a58dd5afd70548d42e430871ce4b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\0cab090471aa6c5ceb8731398b9768c9\\dart_build_result.json": {
+    "mtime": 1778969722.5664282,
+    "ast_hash": "e4a01772ff9f637bf3d9ff0417c2c2bd",
+    "semantic_hash": "e4a01772ff9f637bf3d9ff0417c2c2bd"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\0cab090471aa6c5ceb8731398b9768c9\\native_assets.json": {
+    "mtime": 1778969722.5750756,
+    "ast_hash": "f3a664e105b4f792c6c7fe4e4d22c398",
+    "semantic_hash": "f3a664e105b4f792c6c7fe4e4d22c398"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\0cab090471aa6c5ceb8731398b9768c9\\outputs.json": {
+    "mtime": 1779005918.5386531,
+    "ast_hash": "a353b378a76ca3b3aea73173e076277d",
+    "semantic_hash": "a353b378a76ca3b3aea73173e076277d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\6c83b484be4c64cf3449d0df0b26e866\\dart_build_result.json": {
+    "mtime": 1779006292.0160873,
+    "ast_hash": "45cefe1f81684eac134ba7cf62d3dca5",
+    "semantic_hash": "45cefe1f81684eac134ba7cf62d3dca5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\6c83b484be4c64cf3449d0df0b26e866\\main.dart": {
+    "mtime": 1779006290.7591908,
+    "ast_hash": "38f894cf1bbd84fae4eb6821909cce4d",
+    "semantic_hash": "38f894cf1bbd84fae4eb6821909cce4d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\6c83b484be4c64cf3449d0df0b26e866\\main.dart.js": {
+    "mtime": 1779027573.5830991,
+    "ast_hash": "e25f6d9db5ce7652bfb0034d9a8b1a98",
+    "semantic_hash": "e25f6d9db5ce7652bfb0034d9a8b1a98"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\6c83b484be4c64cf3449d0df0b26e866\\outputs.json": {
+    "mtime": 1779027589.411597,
+    "ast_hash": "089c2e11119b9cd640bdbc172d13899c",
+    "semantic_hash": "089c2e11119b9cd640bdbc172d13899c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\flutter_build\\6c83b484be4c64cf3449d0df0b26e866\\web_plugin_registrant.dart": {
+    "mtime": 1779006290.7581856,
+    "ast_hash": "9f53dad998d960e42c8defe8332fbce6",
+    "semantic_hash": "9f53dad998d960e42c8defe8332fbce6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\337ce265dc\\dependencies.dependencies_hash_file.json": {
+    "mtime": 1779006361.7693872,
+    "ast_hash": "2ab145864594dc28e27832c82d4a7751",
+    "semantic_hash": "2ab145864594dc28e27832c82d4a7751"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\337ce265dc\\hook.dependencies_hash_file.json": {
+    "mtime": 1779006361.634665,
+    "ast_hash": "6b3afff71318d62f1735f4f2a2e6dded",
+    "semantic_hash": "6b3afff71318d62f1735f4f2a2e6dded"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\337ce265dc\\input.json": {
+    "mtime": 1779006361.6361768,
+    "ast_hash": "b77e2bda996976317c9457398c676b35",
+    "semantic_hash": "b77e2bda996976317c9457398c676b35"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\337ce265dc\\output.json": {
+    "mtime": 1779006361.7370806,
+    "ast_hash": "6e0975854112da6b7d803eac6bb70a0a",
+    "semantic_hash": "6e0975854112da6b7d803eac6bb70a0a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\6782ff62a0\\dependencies.dependencies_hash_file.json": {
+    "mtime": 1779006292.0103967,
+    "ast_hash": "2ab145864594dc28e27832c82d4a7751",
+    "semantic_hash": "2ab145864594dc28e27832c82d4a7751"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\6782ff62a0\\hook.dependencies_hash_file.json": {
+    "mtime": 1779006291.806354,
+    "ast_hash": "6b3afff71318d62f1735f4f2a2e6dded",
+    "semantic_hash": "6b3afff71318d62f1735f4f2a2e6dded"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\6782ff62a0\\input.json": {
+    "mtime": 1779006291.8093524,
+    "ast_hash": "bd4714c1ebd940b43397b781eda8295d",
+    "semantic_hash": "bd4714c1ebd940b43397b781eda8295d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\6782ff62a0\\output.json": {
+    "mtime": 1779006291.9762964,
+    "ast_hash": "614c7f03502a84d0dc9993486b177310",
+    "semantic_hash": "614c7f03502a84d0dc9993486b177310"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\8ce9a62196\\dependencies.dependencies_hash_file.json": {
+    "mtime": 1778969720.3461666,
+    "ast_hash": "9313b6ab4f3beb56b81e62cfb0369f2a",
+    "semantic_hash": "9313b6ab4f3beb56b81e62cfb0369f2a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\8ce9a62196\\hook.dependencies_hash_file.json": {
+    "mtime": 1778969720.1251762,
+    "ast_hash": "6b3afff71318d62f1735f4f2a2e6dded",
+    "semantic_hash": "6b3afff71318d62f1735f4f2a2e6dded"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\8ce9a62196\\input.json": {
+    "mtime": 1778969720.1286936,
+    "ast_hash": "57853f7d2ae37ad1bd1e701bf94f57c4",
+    "semantic_hash": "57853f7d2ae37ad1bd1e701bf94f57c4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\8ce9a62196\\output.json": {
+    "mtime": 1778969720.3021743,
+    "ast_hash": "f3a87705ef734ba05d570c8152bae1ac",
+    "semantic_hash": "f3a87705ef734ba05d570c8152bae1ac"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\909243e578\\dependencies.dependencies_hash_file.json": {
+    "mtime": 1778969721.4607744,
+    "ast_hash": "9313b6ab4f3beb56b81e62cfb0369f2a",
+    "semantic_hash": "9313b6ab4f3beb56b81e62cfb0369f2a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\909243e578\\hook.dependencies_hash_file.json": {
+    "mtime": 1778969721.3092287,
+    "ast_hash": "6b3afff71318d62f1735f4f2a2e6dded",
+    "semantic_hash": "6b3afff71318d62f1735f4f2a2e6dded"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\909243e578\\input.json": {
+    "mtime": 1778969721.3107345,
+    "ast_hash": "18d778d9218f72b0822e1da2bb346e2c",
+    "semantic_hash": "18d778d9218f72b0822e1da2bb346e2c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\909243e578\\output.json": {
+    "mtime": 1778969721.4371178,
+    "ast_hash": "54c8481173208be39b47f995de7df6a8",
+    "semantic_hash": "54c8481173208be39b47f995de7df6a8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\e6327c65c3\\dependencies.dependencies_hash_file.json": {
+    "mtime": 1778969722.5652895,
+    "ast_hash": "9313b6ab4f3beb56b81e62cfb0369f2a",
+    "semantic_hash": "9313b6ab4f3beb56b81e62cfb0369f2a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\e6327c65c3\\hook.dependencies_hash_file.json": {
+    "mtime": 1778969722.4153075,
+    "ast_hash": "6b3afff71318d62f1735f4f2a2e6dded",
+    "semantic_hash": "6b3afff71318d62f1735f4f2a2e6dded"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\e6327c65c3\\input.json": {
+    "mtime": 1778969722.4168255,
+    "ast_hash": "30d128eda74beeda5c0578bfa880b5ff",
+    "semantic_hash": "30d128eda74beeda5c0578bfa880b5ff"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\e6327c65c3\\output.json": {
+    "mtime": 1778969722.5401027,
+    "ast_hash": "01187574ec78d2bec7ad4fd4a8b02022",
+    "semantic_hash": "01187574ec78d2bec7ad4fd4a8b02022"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\build.gradle.kts": {
+    "mtime": 1778635636.9949963,
+    "ast_hash": "803fe22651fbe96ed401eb0b66a492d1",
+    "semantic_hash": "803fe22651fbe96ed401eb0b66a492d1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\gradlew": {
+    "mtime": 1778635637.8289616,
+    "ast_hash": "7f1cd7eb3f75a1dc85cd37753972a6e2",
+    "semantic_hash": "7f1cd7eb3f75a1dc85cd37753972a6e2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\settings.gradle.kts": {
+    "mtime": 1778635637.1042092,
+    "ast_hash": "f276a44edd917afd836899357fdae60e",
+    "semantic_hash": "f276a44edd917afd836899357fdae60e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\app\\build.gradle.kts": {
+    "mtime": 1778635636.976026,
+    "ast_hash": "217e8ccdbad1ae2dfe47f4c450b1cf78",
+    "semantic_hash": "217e8ccdbad1ae2dfe47f4c450b1cf78"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\app\\src\\main\\java\\io\\flutter\\plugins\\GeneratedPluginRegistrant.java": {
+    "mtime": 1778673983.5747397,
+    "ast_hash": "47aeeb58ff33edfccba1001e880146a0",
+    "semantic_hash": "47aeeb58ff33edfccba1001e880146a0"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\app\\src\\main\\kotlin\\com\\example\\mechanic_app_new\\MainActivity.kt": {
+    "mtime": 1778635636.9863708,
+    "ast_hash": "665631585adf94e16e343ef5f42837af",
+    "semantic_hash": "665631585adf94e16e343ef5f42837af"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Flutter\\flutter_export_environment.sh": {
+    "mtime": 1778771978.912264,
+    "ast_hash": "af56ebbef2ad48bb769212af1b0c6081",
+    "semantic_hash": "af56ebbef2ad48bb769212af1b0c6081"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Flutter\\ephemeral\\flutter_lldb_helper.py": {
+    "mtime": 1778771978.908244,
+    "ast_hash": "98fc75412162af387e2e3461e4e58094",
+    "semantic_hash": "98fc75412162af387e2e3461e4e58094"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\AppDelegate.swift": {
+    "mtime": 1777532252.0,
+    "ast_hash": "9e1de9c329a3fe4931876063de95132b",
+    "semantic_hash": "9e1de9c329a3fe4931876063de95132b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\GeneratedPluginRegistrant.h": {
+    "mtime": 1778635641.1058855,
+    "ast_hash": "decb9041b5e91a07e66f4664e5dac408",
+    "semantic_hash": "decb9041b5e91a07e66f4664e5dac408"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\GeneratedPluginRegistrant.m": {
+    "mtime": 1778673983.5877004,
+    "ast_hash": "2310c436c8920fb030fc48f6d8941c60",
+    "semantic_hash": "2310c436c8920fb030fc48f6d8941c60"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Runner-Bridging-Header.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "7ad7b5cea096132de13ba526b2b9efbe",
+    "semantic_hash": "7ad7b5cea096132de13ba526b2b9efbe"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\SceneDelegate.swift": {
+    "mtime": 1777532252.0,
+    "ast_hash": "0c3e86af131f6a9e547c80b5ed058914",
+    "semantic_hash": "0c3e86af131f6a9e547c80b5ed058914"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Contents.json": {
+    "mtime": 1777532252.0,
+    "ast_hash": "31a08e429403e265cabfb31b3d65f049",
+    "semantic_hash": "31a08e429403e265cabfb31b3d65f049"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\Contents.json": {
+    "mtime": 1777532252.0,
+    "ast_hash": "b9e927ac17345f2d5f052fe68a3487f9",
+    "semantic_hash": "b9e927ac17345f2d5f052fe68a3487f9"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\RunnerTests\\RunnerTests.swift": {
+    "mtime": 1778635637.3234942,
+    "ast_hash": "24e5d095048eb86c30423f4e04b6e57b",
+    "semantic_hash": "24e5d095048eb86c30423f4e04b6e57b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\main.dart": {
+    "mtime": 1779009540.5631435,
+    "ast_hash": "715baa220ce1d377ff261d5865a69110",
+    "semantic_hash": "715baa220ce1d377ff261d5865a69110"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\core\\env.dart": {
+    "mtime": 1778794155.8512583,
+    "ast_hash": "cb5abbb3906515a857865fc52eef10c7",
+    "semantic_hash": "cb5abbb3906515a857865fc52eef10c7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\core\\logger.dart": {
+    "mtime": 1778794190.019006,
+    "ast_hash": "fe0921d4338a3bd60f7cb6760a52f144",
+    "semantic_hash": "fe0921d4338a3bd60f7cb6760a52f144"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\core\\constants\\backend_constants.dart": {
+    "mtime": 1778794155.8512583,
+    "ast_hash": "bfd91d078f76c9f9f4296e24a554d6b2",
+    "semantic_hash": "bfd91d078f76c9f9f4296e24a554d6b2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\core\\error\\exceptions.dart": {
+    "mtime": 1778969870.4476564,
+    "ast_hash": "b322438b58dc72f42bc20b233def74a3",
+    "semantic_hash": "b322438b58dc72f42bc20b233def74a3"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\core\\error\\failures.dart": {
+    "mtime": 1778969870.4481685,
+    "ast_hash": "9a099f891f5be80f257b65f43d7a264e",
+    "semantic_hash": "9a099f891f5be80f257b65f43d7a264e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\core\\network\\dio_client.dart": {
+    "mtime": 1778969870.4486804,
+    "ast_hash": "b91ed955b17628c1c4b1d0abfaac6031",
+    "semantic_hash": "b91ed955b17628c1c4b1d0abfaac6031"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\core\\utils\\error_handler.dart": {
+    "mtime": 1778794155.85231,
+    "ast_hash": "3deb721cd2975d17edaab7f8db14c37d",
+    "semantic_hash": "3deb721cd2975d17edaab7f8db14c37d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\datasources\\local\\cache_datasource.dart": {
+    "mtime": 1778969870.449193,
+    "ast_hash": "32b00f139423da398b760d7d10ab70ed",
+    "semantic_hash": "32b00f139423da398b760d7d10ab70ed"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\datasources\\remote\\auth_remote_datasource.dart": {
+    "mtime": 1779027524.7815828,
+    "ast_hash": "44c0c1483cc7733b6f4478d3c9c4a0fe",
+    "semantic_hash": "44c0c1483cc7733b6f4478d3c9c4a0fe"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\datasources\\remote\\booking_remote_datasource.dart": {
+    "mtime": 1778969870.4502542,
+    "ast_hash": "3193ea02d1bbfd82f53fd1fd22750c6f",
+    "semantic_hash": "3193ea02d1bbfd82f53fd1fd22750c6f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\datasources\\remote\\inventory_remote_datasource.dart": {
+    "mtime": 1778969870.4502542,
+    "ast_hash": "3e648d31be2c63785039f242e5bc444b",
+    "semantic_hash": "3e648d31be2c63785039f242e5bc444b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\models\\booking_model.dart": {
+    "mtime": 1778969870.4507678,
+    "ast_hash": "f102243e2265a46bab91de8b824acb7b",
+    "semantic_hash": "f102243e2265a46bab91de8b824acb7b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\models\\inventory_item_model.dart": {
+    "mtime": 1778969870.4512763,
+    "ast_hash": "d8622b8ad51f32dc1dc7fb63aa81dc32",
+    "semantic_hash": "d8622b8ad51f32dc1dc7fb63aa81dc32"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\models\\mechanic_assignment_model.dart": {
+    "mtime": 1778969870.4512763,
+    "ast_hash": "20ad0ad38ed3980613b85e2c12e52f0f",
+    "semantic_hash": "20ad0ad38ed3980613b85e2c12e52f0f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\models\\user_model.dart": {
+    "mtime": 1778969870.45179,
+    "ast_hash": "d1c64a25094bb756966c7c43a813644f",
+    "semantic_hash": "d1c64a25094bb756966c7c43a813644f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\repositories\\auth_repository_impl.dart": {
+    "mtime": 1778969870.452301,
+    "ast_hash": "81065428989184d9a833bac43ea26384",
+    "semantic_hash": "81065428989184d9a833bac43ea26384"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\repositories\\booking_repository_impl.dart": {
+    "mtime": 1778969870.452301,
+    "ast_hash": "12d002a873f19f841ada180cac0e0a38",
+    "semantic_hash": "12d002a873f19f841ada180cac0e0a38"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\data\\repositories\\inventory_repository_impl.dart": {
+    "mtime": 1778971240.2290654,
+    "ast_hash": "4d78791e688e90898057bb71c77f4c8b",
+    "semantic_hash": "4d78791e688e90898057bb71c77f4c8b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\entities\\booking.dart": {
+    "mtime": 1778969870.453333,
+    "ast_hash": "23416186248ef4c173859c9ab03ffe07",
+    "semantic_hash": "23416186248ef4c173859c9ab03ffe07"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\entities\\inventory_item.dart": {
+    "mtime": 1778969870.453333,
+    "ast_hash": "065acf8c4c2229def675b1aa3d6cbcd7",
+    "semantic_hash": "065acf8c4c2229def675b1aa3d6cbcd7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\entities\\mechanic_assignment.dart": {
+    "mtime": 1778969870.45384,
+    "ast_hash": "f81a408cef01c579f4f71758cfd0fbf6",
+    "semantic_hash": "f81a408cef01c579f4f71758cfd0fbf6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\entities\\part_suggestion.dart": {
+    "mtime": 1778969870.45384,
+    "ast_hash": "f03f39b3c8d604ef49cbe9d302429217",
+    "semantic_hash": "f03f39b3c8d604ef49cbe9d302429217"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\entities\\user.dart": {
+    "mtime": 1778969870.4543583,
+    "ast_hash": "7c722fe217dd3190c7ba43a995d01c9d",
+    "semantic_hash": "7c722fe217dd3190c7ba43a995d01c9d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\repositories\\auth_repository.dart": {
+    "mtime": 1778969870.4543583,
+    "ast_hash": "a81720ffe5ea66bfc230198d4b9644bc",
+    "semantic_hash": "a81720ffe5ea66bfc230198d4b9644bc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\repositories\\booking_repository.dart": {
+    "mtime": 1778969870.4548748,
+    "ast_hash": "e72b057f074d69ec1358856db2355549",
+    "semantic_hash": "e72b057f074d69ec1358856db2355549"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\repositories\\inventory_repository.dart": {
+    "mtime": 1778969870.4548748,
+    "ast_hash": "018eeafb9008834493ce5ae02585202c",
+    "semantic_hash": "018eeafb9008834493ce5ae02585202c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\repositories\\part_suggestion_repository.dart": {
+    "mtime": 1778969870.4553854,
+    "ast_hash": "039321b40bb65775d4efcdb749052552",
+    "semantic_hash": "039321b40bb65775d4efcdb749052552"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\usecases\\assign_booking_usecase.dart": {
+    "mtime": 1778969870.4558947,
+    "ast_hash": "fde0bcfabb75f8d9ced7778bb021c1ae",
+    "semantic_hash": "fde0bcfabb75f8d9ced7778bb021c1ae"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\usecases\\consume_part_usecase.dart": {
+    "mtime": 1778969870.4558947,
+    "ast_hash": "a9b51cc6805f7ac6b0348b7e50308345",
+    "semantic_hash": "a9b51cc6805f7ac6b0348b7e50308345"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\usecases\\get_available_bookings_usecase.dart": {
+    "mtime": 1778969870.4564056,
+    "ast_hash": "e87efc904c176955188b7b1f55357325",
+    "semantic_hash": "e87efc904c176955188b7b1f55357325"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\usecases\\get_inventory_usecase.dart": {
+    "mtime": 1778969870.4564056,
+    "ast_hash": "86f516544ad923f36ea696b91c8b59e9",
+    "semantic_hash": "86f516544ad923f36ea696b91c8b59e9"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\usecases\\get_my_assignments_usecase.dart": {
+    "mtime": 1778969870.4564056,
+    "ast_hash": "cc4ed14c0df817fd3c8caf24d572d2e0",
+    "semantic_hash": "cc4ed14c0df817fd3c8caf24d572d2e0"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\usecases\\login_usecase.dart": {
+    "mtime": 1778969870.4574106,
+    "ast_hash": "2f9fe40f6259417a3583e8cf6044a01f",
+    "semantic_hash": "2f9fe40f6259417a3583e8cf6044a01f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\domain\\usecases\\update_booking_status_usecase.dart": {
+    "mtime": 1778969870.4574106,
+    "ast_hash": "a053f8b7528c2cb96adb8d7c1fde97e8",
+    "semantic_hash": "a053f8b7528c2cb96adb8d7c1fde97e8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\l10n\\app_localizations.dart": {
+    "mtime": 1778794155.8538144,
+    "ast_hash": "5543153ca6f89f9b15d640c0c8d7b55d",
+    "semantic_hash": "5543153ca6f89f9b15d640c0c8d7b55d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\l10n\\app_localizations_ar.dart": {
+    "mtime": 1778794155.8548222,
+    "ast_hash": "05ef3d65f967f0b999c09aef022ff804",
+    "semantic_hash": "05ef3d65f967f0b999c09aef022ff804"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\l10n\\app_localizations_en.dart": {
+    "mtime": 1778794155.8548222,
+    "ast_hash": "c3f415532bffcb6b8fd1ccd01958abd6",
+    "semantic_hash": "c3f415532bffcb6b8fd1ccd01958abd6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\models\\booking.dart": {
+    "mtime": 1778944224.850587,
+    "ast_hash": "036b3b0e16bb3be53f21bd03bf0a09b2",
+    "semantic_hash": "036b3b0e16bb3be53f21bd03bf0a09b2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\models\\mechanic_assignment.dart": {
+    "mtime": 1778944211.0923686,
+    "ast_hash": "c04529f5b7848aa4eadde56d8d980d86",
+    "semantic_hash": "c04529f5b7848aa4eadde56d8d980d86"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\models\\part_suggestion.dart": {
+    "mtime": 1778944212.5856988,
+    "ast_hash": "85604ef990956208072954db1dadee05",
+    "semantic_hash": "85604ef990956208072954db1dadee05"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\models\\user.dart": {
+    "mtime": 1778794155.8598783,
+    "ast_hash": "244e1f0e65b337be42e4d632e2733157",
+    "semantic_hash": "244e1f0e65b337be42e4d632e2733157"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\presentation\\providers\\auth_provider.dart": {
+    "mtime": 1778969870.4584098,
+    "ast_hash": "b1bd90755ad30f007752eb0361ff174d",
+    "semantic_hash": "b1bd90755ad30f007752eb0361ff174d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\presentation\\providers\\booking_provider.dart": {
+    "mtime": 1778969870.4584098,
+    "ast_hash": "b48fd7b4eb3fd4d3646cfcdc8e1189e4",
+    "semantic_hash": "b48fd7b4eb3fd4d3646cfcdc8e1189e4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\presentation\\providers\\inventory_provider.dart": {
+    "mtime": 1778971210.8139071,
+    "ast_hash": "191c2eb647cfae8cefc0076bf1bb6bcf",
+    "semantic_hash": "191c2eb647cfae8cefc0076bf1bb6bcf"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\providers\\auth_provider.dart": {
+    "mtime": 1778840441.7372384,
+    "ast_hash": "eee3e0946169809a4940b2599817114d",
+    "semantic_hash": "eee3e0946169809a4940b2599817114d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\providers\\mechanic_provider.dart": {
+    "mtime": 1778945136.916227,
+    "ast_hash": "0d3222071f939dd9b0eec5baf063c4c4",
+    "semantic_hash": "0d3222071f939dd9b0eec5baf063c4c4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\screens\\available_bookings\\available_bookings_screen.dart": {
+    "mtime": 1778970456.1886826,
+    "ast_hash": "ed3d2d5fed4df496c6b0832e7bd9c5b4",
+    "semantic_hash": "ed3d2d5fed4df496c6b0832e7bd9c5b4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\screens\\consume_part\\consume_part_screen.dart": {
+    "mtime": 1778971224.7050147,
+    "ast_hash": "ff46b5f2acc5c28ae81eb1bce9f20b60",
+    "semantic_hash": "ff46b5f2acc5c28ae81eb1bce9f20b60"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\screens\\login\\login_screen.dart": {
+    "mtime": 1779008324.800105,
+    "ast_hash": "0ba8d87e212f5916d1ccad13a1a5c2ef",
+    "semantic_hash": "0ba8d87e212f5916d1ccad13a1a5c2ef"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\screens\\my_assignments\\my_assignments_screen.dart": {
+    "mtime": 1779010478.9728312,
+    "ast_hash": "656fbc58b6ad0d9b5d6f7c82d71eb855",
+    "semantic_hash": "656fbc58b6ad0d9b5d6f7c82d71eb855"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\screens\\update_maintenance_status\\update_maintenance_status_screen.dart": {
+    "mtime": 1778971077.8815362,
+    "ast_hash": "58f4feb5344302b20c539d63a7c87a65",
+    "semantic_hash": "58f4feb5344302b20c539d63a7c87a65"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\screens\\vehicle_detail\\vehicle_detail_screen.dart": {
+    "mtime": 1778971158.5018172,
+    "ast_hash": "f62713ed429ac123b3573b0d1317fd93",
+    "semantic_hash": "f62713ed429ac123b3573b0d1317fd93"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\services\\api_service.dart": {
+    "mtime": 1778968407.361609,
+    "ast_hash": "be556d7a9da4b42795b181cea855e192",
+    "semantic_hash": "be556d7a9da4b42795b181cea855e192"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\services\\company_settings_service.dart": {
+    "mtime": 1778794155.8682547,
+    "ast_hash": "111246cb34c5ffe0aa33be476450d1a0",
+    "semantic_hash": "111246cb34c5ffe0aa33be476450d1a0"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\lib\\services\\websocket_service.dart": {
+    "mtime": 1778888016.4955678,
+    "ast_hash": "7d10435d9b01f378b2cf06a25d52898a",
+    "semantic_hash": "7d10435d9b01f378b2cf06a25d52898a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\linux\\flutter\\generated_plugin_registrant.cc": {
+    "mtime": 1778673983.579007,
+    "ast_hash": "e51606128f6c2595af1393720bb05539",
+    "semantic_hash": "e51606128f6c2595af1393720bb05539"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\linux\\flutter\\generated_plugin_registrant.h": {
+    "mtime": 1778635641.0956938,
+    "ast_hash": "d295462c9da9f7fef22dc86c34492318",
+    "semantic_hash": "d295462c9da9f7fef22dc86c34492318"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\linux\\runner\\main.cc": {
+    "mtime": 1777532252.0,
+    "ast_hash": "539395bcd63dba20afed0838d136189f",
+    "semantic_hash": "539395bcd63dba20afed0838d136189f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\linux\\runner\\my_application.cc": {
+    "mtime": 1778635637.3874242,
+    "ast_hash": "1ac8c6560e3fb168379db34d0bfdcd4c",
+    "semantic_hash": "1ac8c6560e3fb168379db34d0bfdcd4c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\linux\\runner\\my_application.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "ffa1a7c0a2ad45a2c14a921596516ff8",
+    "semantic_hash": "ffa1a7c0a2ad45a2c14a921596516ff8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Flutter\\GeneratedPluginRegistrant.swift": {
+    "mtime": 1778673983.588699,
+    "ast_hash": "8ded3751286fd8776cbedc3e343203b1",
+    "semantic_hash": "8ded3751286fd8776cbedc3e343203b1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Flutter\\ephemeral\\flutter_export_environment.sh": {
+    "mtime": 1778771978.914274,
+    "ast_hash": "f8d06236c16f68e0cd19e7baf9c039be",
+    "semantic_hash": "f8d06236c16f68e0cd19e7baf9c039be"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\AppDelegate.swift": {
+    "mtime": 1777532252.0,
+    "ast_hash": "4b52e0b89ebfef9baf45b04548c463d6",
+    "semantic_hash": "4b52e0b89ebfef9baf45b04548c463d6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\MainFlutterWindow.swift": {
+    "mtime": 1777532252.0,
+    "ast_hash": "93c22dae2d93f3dc1402e121901f582b",
+    "semantic_hash": "93c22dae2d93f3dc1402e121901f582b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Contents.json": {
+    "mtime": 1777532252.0,
+    "ast_hash": "1d48e925145d4b573a3b5d7960a1c585",
+    "semantic_hash": "1d48e925145d4b573a3b5d7960a1c585"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\RunnerTests\\RunnerTests.swift": {
+    "mtime": 1778635637.5807745,
+    "ast_hash": "8059f5d27a19c556eeafb49b3f9b7bdd",
+    "semantic_hash": "8059f5d27a19c556eeafb49b3f9b7bdd"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\test\\widget_test.dart": {
+    "mtime": 1778726247.8520446,
+    "ast_hash": "a38baf8364ca5a72fe6014895aecabee",
+    "semantic_hash": "a38baf8364ca5a72fe6014895aecabee"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\web\\manifest.json": {
+    "mtime": 1778635637.6400928,
+    "ast_hash": "3f1278121825e98093a7bedea83a86b5",
+    "semantic_hash": "3f1278121825e98093a7bedea83a86b5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\flutter\\generated_plugin_registrant.cc": {
+    "mtime": 1778673983.5826821,
+    "ast_hash": "abf3006978595decef5de781845ed71e",
+    "semantic_hash": "abf3006978595decef5de781845ed71e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\flutter\\generated_plugin_registrant.h": {
+    "mtime": 1778635641.100366,
+    "ast_hash": "0ea33875f9f8e118f9c2ded03e2e2835",
+    "semantic_hash": "0ea33875f9f8e118f9c2ded03e2e2835"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\flutter_window.cpp": {
+    "mtime": 1777532252.0,
+    "ast_hash": "2f463f9b7da67a2d692a012f9ea85e0c",
+    "semantic_hash": "2f463f9b7da67a2d692a012f9ea85e0c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\flutter_window.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "7defcc89d4a26d56e801241d624d48fb",
+    "semantic_hash": "7defcc89d4a26d56e801241d624d48fb"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\main.cpp": {
+    "mtime": 1778635637.702834,
+    "ast_hash": "fc30783de65ae0ba664120502082be45",
+    "semantic_hash": "fc30783de65ae0ba664120502082be45"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\resource.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "1ade5dd15e613479a15e8832ed276f2b",
+    "semantic_hash": "1ade5dd15e613479a15e8832ed276f2b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\utils.cpp": {
+    "mtime": 1777532252.0,
+    "ast_hash": "432461b09d862a2f8dadf380ff0e34e5",
+    "semantic_hash": "432461b09d862a2f8dadf380ff0e34e5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\utils.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "fd81e143f5614eb6fd75efe539002853",
+    "semantic_hash": "fd81e143f5614eb6fd75efe539002853"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\win32_window.cpp": {
+    "mtime": 1777532252.0,
+    "ast_hash": "571eb8234dbc2661be03aa5f2a4d2fca",
+    "semantic_hash": "571eb8234dbc2661be03aa5f2a4d2fca"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\win32_window.h": {
+    "mtime": 1777532252.0,
+    "ast_hash": "7569387d58711ab975940f4df3b4bcda",
+    "semantic_hash": "7569387d58711ab975940f4df3b4bcda"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\curl-responses.json": {
+    "mtime": 1778603671.0591228,
+    "ast_hash": "caf0ab241f6ceb5b0917d9dd9d8b45e5",
+    "semantic_hash": "caf0ab241f6ceb5b0917d9dd9d8b45e5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\dart-test.json": {
+    "mtime": 1778603671.0606327,
+    "ast_hash": "e71303e9ab17c5505895af1870d91041",
+    "semantic_hash": "e71303e9ab17c5505895af1870d91041"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\k6-summary.json": {
+    "mtime": 1778603671.0616586,
+    "ast_hash": "5604d11eb093dcfe24dcf7eff57cbc81",
+    "semantic_hash": "5604d11eb093dcfe24dcf7eff57cbc81"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\semgrep-report.json": {
+    "mtime": 1778603671.0626652,
+    "ast_hash": "e4123b20526021adafc2344c360905a6",
+    "semantic_hash": "e4123b20526021adafc2344c360905a6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\AUDIT_REPORT.md": {
+    "mtime": 1778772133.9815373,
+    "ast_hash": "8b6571db22cf8dce9f6638dfe4481b1b",
+    "semantic_hash": "8b6571db22cf8dce9f6638dfe4481b1b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\DEPLOYMENT.md": {
+    "mtime": 1778535061.74322,
+    "ast_hash": "3722824d44c19658470def846d56e10f",
+    "semantic_hash": "3722824d44c19658470def846d56e10f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\docker-compose.yml": {
+    "mtime": 1778715868.1622972,
+    "ast_hash": "1deab01d9f6f6b7cfe2ab4b80fd57dd9",
+    "semantic_hash": "1deab01d9f6f6b7cfe2ab4b80fd57dd9"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\FIXES_REPORT.md": {
+    "mtime": 1778714990.9503078,
+    "ast_hash": "f5db3d53f80d2a2847e50b5bdedb7bf8",
+    "semantic_hash": "f5db3d53f80d2a2847e50b5bdedb7bf8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\MEGA_AUDIT_REPORT.md": {
+    "mtime": 1778793621.7297246,
+    "ast_hash": "6a3df4f16f02936ab8c1b80aaaa35359",
+    "semantic_hash": "6a3df4f16f02936ab8c1b80aaaa35359"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\PROJECT_AI_GUIDE.md": {
+    "mtime": 1778806114.3785448,
+    "ast_hash": "aba8f849040bb59d36a844cb573f220b",
+    "semantic_hash": "aba8f849040bb59d36a844cb573f220b"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\PROJECT_DOCUMENTATION.md": {
+    "mtime": 1778714312.9033277,
+    "ast_hash": "2b656c1f9bf11a52cb5f6e171cded390",
+    "semantic_hash": "2b656c1f9bf11a52cb5f6e171cded390"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\README.md": {
+    "mtime": 1778772133.9826183,
+    "ast_hash": "72285200035eb47944efed9f75b52e0a",
+    "semantic_hash": "72285200035eb47944efed9f75b52e0a"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\analysis_options.yaml": {
+    "mtime": 1778538763.5157077,
+    "ast_hash": "9f7ae5ec284428e165598013a97bd378",
+    "semantic_hash": "9f7ae5ec284428e165598013a97bd378"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\pubspec.yaml": {
+    "mtime": 1778794377.1035385,
+    "ast_hash": "5442d9e816ff5684effb406226e06897",
+    "semantic_hash": "5442d9e816ff5684effb406226e06897"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\README.md": {
+    "mtime": 1778538774.4443262,
+    "ast_hash": "1a4b612cca2086490420428ecf35928f",
+    "semantic_hash": "1a4b612cca2086490420428ecf35928f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\web\\index.html": {
+    "mtime": 1778539024.2112124,
+    "ast_hash": "41ce55906908e3529343d2aa3bb0e578",
+    "semantic_hash": "41ce55906908e3529343d2aa3bb0e578"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\CMakeLists.txt": {
+    "mtime": 1778684748.8251746,
+    "ast_hash": "b79b85c003c9e354605462c67f205537",
+    "semantic_hash": "b79b85c003c9e354605462c67f205537"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\flutter\\CMakeLists.txt": {
+    "mtime": 1777532252.0,
+    "ast_hash": "bbf66fed5180bd9ae8198b8d7c4a0001",
+    "semantic_hash": "bbf66fed5180bd9ae8198b8d7c4a0001"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\windows\\runner\\CMakeLists.txt": {
+    "mtime": 1777532252.0,
+    "ast_hash": "028602ab9754bffe716659ada7590d29",
+    "semantic_hash": "028602ab9754bffe716659ada7590d29"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\analysis_options.yaml": {
+    "mtime": 1778533718.1289773,
+    "ast_hash": "4b0d64ad067e016bc28e60dfadff5e39",
+    "semantic_hash": "4b0d64ad067e016bc28e60dfadff5e39"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\CHANGELOG.md": {
+    "mtime": 1778533718.1318266,
+    "ast_hash": "19d0dec99e75de01080e55f1dc6bb9d5",
+    "semantic_hash": "19d0dec99e75de01080e55f1dc6bb9d5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\pubspec.yaml": {
+    "mtime": 1778726247.8447018,
+    "ast_hash": "837a6f9b43f797bdb80cd2f6ae873871",
+    "semantic_hash": "837a6f9b43f797bdb80cd2f6ae873871"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\README.md": {
+    "mtime": 1778533718.1318266,
+    "ast_hash": "d63c2e4070d84e7e1b47e33625840d87",
+    "semantic_hash": "d63c2e4070d84e7e1b47e33625840d87"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\backend\\render.yaml": {
+    "mtime": 1778809036.7992158,
+    "ast_hash": "e17bda17b268e00f9b62b405e79bfe79",
+    "semantic_hash": "e17bda17b268e00f9b62b405e79bfe79"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\cloudflare-worker\\README.md": {
+    "mtime": 1778621747.9736178,
+    "ast_hash": "d6c04b7e33a07aebe9ca2e5fc854da83",
+    "semantic_hash": "d6c04b7e33a07aebe9ca2e5fc854da83"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\customer-frontend\\index.html": {
+    "mtime": 1778803689.6559308,
+    "ast_hash": "fab7d3f4b44eeaf9d24903f5004bad87",
+    "semantic_hash": "fab7d3f4b44eeaf9d24903f5004bad87"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\analysis_options.yaml": {
+    "mtime": 1778635636.9637983,
+    "ast_hash": "9e65f4b9beebb674c0dc252f70a5c177",
+    "semantic_hash": "9e65f4b9beebb674c0dc252f70a5c177"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\FINAL_MECHANIC_APP_STATUS.md": {
+    "mtime": 1778970871.36693,
+    "ast_hash": "9da549cf5c60b1a1448fd9160c17d01d",
+    "semantic_hash": "9da549cf5c60b1a1448fd9160c17d01d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\FINAL_TEST_REPORT.md": {
+    "mtime": 1778971332.4874883,
+    "ast_hash": "befb17b33d4390fd9e28a268c5e18aa6",
+    "semantic_hash": "befb17b33d4390fd9e28a268c5e18aa6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\MECHANIC_APP_AUDIT.md": {
+    "mtime": 1778969870.4471395,
+    "ast_hash": "ade6565a979809b743db3760050dca6f",
+    "semantic_hash": "ade6565a979809b743db3760050dca6f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\pubspec.yaml": {
+    "mtime": 1778969870.46041,
+    "ast_hash": "7c6325e1f2639f3aa0e429426161c0f6",
+    "semantic_hash": "7c6325e1f2639f3aa0e429426161c0f6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\README.md": {
+    "mtime": 1778635637.6104138,
+    "ast_hash": "c7e8ac4bff11d33bb167df7a1c43e537",
+    "semantic_hash": "c7e8ac4bff11d33bb167df7a1c43e537"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\337ce265dc\\stderr.txt": {
+    "mtime": 1779006361.6387682,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\337ce265dc\\stdout.txt": {
+    "mtime": 1779006361.6402721,
+    "ast_hash": "e3faf6038ceb85da4ad73c86c7f4a8e6",
+    "semantic_hash": "e3faf6038ceb85da4ad73c86c7f4a8e6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\6782ff62a0\\stderr.txt": {
+    "mtime": 1779006291.8123515,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\6782ff62a0\\stdout.txt": {
+    "mtime": 1779006291.8148632,
+    "ast_hash": "7bb129b5863e142bc97cd863e1f7dec7",
+    "semantic_hash": "7bb129b5863e142bc97cd863e1f7dec7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\8ce9a62196\\stderr.txt": {
+    "mtime": 1778969720.1307595,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\8ce9a62196\\stdout.txt": {
+    "mtime": 1778969720.1347473,
+    "ast_hash": "2bd7b0dca97990d057930704c297576d",
+    "semantic_hash": "2bd7b0dca97990d057930704c297576d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\909243e578\\stderr.txt": {
+    "mtime": 1778969721.3121445,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\909243e578\\stdout.txt": {
+    "mtime": 1778969721.3131363,
+    "ast_hash": "cf8d4ef9833e220f00a8de728d95fcf8",
+    "semantic_hash": "cf8d4ef9833e220f00a8de728d95fcf8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\e6327c65c3\\stderr.txt": {
+    "mtime": 1778969722.4191618,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\.dart_tool\\hooks_runner\\objective_c\\e6327c65c3\\stdout.txt": {
+    "mtime": 1778969722.4201686,
+    "ast_hash": "bc1dfe607b213f3bc4f1c06cb205a88c",
+    "semantic_hash": "bc1dfe607b213f3bc4f1c06cb205a88c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\README.md": {
+    "mtime": 1777532252.0,
+    "ast_hash": "f7ee1b402881509d197f34963e569927",
+    "semantic_hash": "f7ee1b402881509d197f34963e569927"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\linux\\CMakeLists.txt": {
+    "mtime": 1778635637.3523097,
+    "ast_hash": "3d45fb5a10064ba438bac6e17d4751c4",
+    "semantic_hash": "3d45fb5a10064ba438bac6e17d4751c4"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\linux\\flutter\\CMakeLists.txt": {
+    "mtime": 1777532252.0,
+    "ast_hash": "2195470ce31675d31db5a37590d011f6",
+    "semantic_hash": "2195470ce31675d31db5a37590d011f6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\linux\\runner\\CMakeLists.txt": {
+    "mtime": 1777532252.0,
+    "ast_hash": "30cc1614b16214b66c014af09ba699eb",
+    "semantic_hash": "30cc1614b16214b66c014af09ba699eb"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\web\\index.html": {
+    "mtime": 1778635637.6333518,
+    "ast_hash": "ea561b579e4bc3f78f40064d3e7f2a33",
+    "semantic_hash": "ea561b579e4bc3f78f40064d3e7f2a33"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\CMakeLists.txt": {
+    "mtime": 1778635637.658537,
+    "ast_hash": "d01ac89718f6932713c1ff0aaf84702c",
+    "semantic_hash": "d01ac89718f6932713c1ff0aaf84702c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\flutter\\CMakeLists.txt": {
+    "mtime": 1777532252.0,
+    "ast_hash": "bbf66fed5180bd9ae8198b8d7c4a0001",
+    "semantic_hash": "bbf66fed5180bd9ae8198b8d7c4a0001"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\windows\\runner\\CMakeLists.txt": {
+    "mtime": 1777532252.0,
+    "ast_hash": "028602ab9754bffe716659ada7590d29",
+    "semantic_hash": "028602ab9754bffe716659ada7590d29"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\AUDIT_SUMMARY.md": {
+    "mtime": 1778603671.0591228,
+    "ast_hash": "66d4ebc14c6fc7cded98ba4b4830efbe",
+    "semantic_hash": "66d4ebc14c6fc7cded98ba4b4830efbe"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\dart-analyze-backend.txt": {
+    "mtime": 1778603671.0606327,
+    "ast_hash": "bf0dbb4a9f99f2eeff388d12ebd02d18",
+    "semantic_hash": "bf0dbb4a9f99f2eeff388d12ebd02d18"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\flutter-analyze-admin.txt": {
+    "mtime": 1778603671.0611436,
+    "ast_hash": "14c9470d7ac78c32f231b71099f7f85e",
+    "semantic_hash": "14c9470d7ac78c32f231b71099f7f85e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\list-of-linter-warnings.txt": {
+    "mtime": 1778603671.0616586,
+    "ast_hash": "97db37a1e297c31ddef606d9b3ddf3ee",
+    "semantic_hash": "97db37a1e297c31ddef606d9b3ddf3ee"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\report\\list-of-sql-interpolations.txt": {
+    "mtime": 1778603671.0616586,
+    "ast_hash": "51a4f59ff468f104011b52dc5fa85fbc",
+    "semantic_hash": "51a4f59ff468f104011b52dc5fa85fbc"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\app\\src\\main\\res\\mipmap-hdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "13e9c72ec37fac220397aa819fa1ef2d",
+    "semantic_hash": "13e9c72ec37fac220397aa819fa1ef2d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\app\\src\\main\\res\\mipmap-mdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "6270344430679711b81476e29878caa7",
+    "semantic_hash": "6270344430679711b81476e29878caa7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\app\\src\\main\\res\\mipmap-xhdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "a0a8db5985280b3679d99a820ae2db79",
+    "semantic_hash": "a0a8db5985280b3679d99a820ae2db79"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\app\\src\\main\\res\\mipmap-xxhdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "afe1b655b9f32da22f9a4301bb8e6ba8",
+    "semantic_hash": "afe1b655b9f32da22f9a4301bb8e6ba8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "57838d52c318faff743130c3fcfae0c6",
+    "semantic_hash": "57838d52c318faff743130c3fcfae0c6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\web\\favicon.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "5dcef449791fa27946b3d35ad8803796",
+    "semantic_hash": "5dcef449791fa27946b3d35ad8803796"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\web\\icons\\Icon-192.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "ac9a721a12bbc803b44f645561ecb1e1",
+    "semantic_hash": "ac9a721a12bbc803b44f645561ecb1e1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\web\\icons\\Icon-512.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "96e752610906ba2a93c65f8abe1645f1",
+    "semantic_hash": "96e752610906ba2a93c65f8abe1645f1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\web\\icons\\Icon-maskable-192.png": {
+    "mtime": 1778190231.1825967,
+    "ast_hash": "c457ef57daa1d16f64b27b786ec2ea3c",
+    "semantic_hash": "c457ef57daa1d16f64b27b786ec2ea3c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\admin_frontend\\web\\icons\\Icon-maskable-512.png": {
+    "mtime": 1778190231.1825967,
+    "ast_hash": "301a7604d45b3e739efc881eb04896ea",
+    "semantic_hash": "301a7604d45b3e739efc881eb04896ea"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\app\\src\\main\\res\\mipmap-hdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "13e9c72ec37fac220397aa819fa1ef2d",
+    "semantic_hash": "13e9c72ec37fac220397aa819fa1ef2d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\app\\src\\main\\res\\mipmap-mdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "6270344430679711b81476e29878caa7",
+    "semantic_hash": "6270344430679711b81476e29878caa7"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\app\\src\\main\\res\\mipmap-xhdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "a0a8db5985280b3679d99a820ae2db79",
+    "semantic_hash": "a0a8db5985280b3679d99a820ae2db79"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\app\\src\\main\\res\\mipmap-xxhdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "afe1b655b9f32da22f9a4301bb8e6ba8",
+    "semantic_hash": "afe1b655b9f32da22f9a4301bb8e6ba8"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "57838d52c318faff743130c3fcfae0c6",
+    "semantic_hash": "57838d52c318faff743130c3fcfae0c6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-1024x1024@1x.png": {
+    "mtime": 1778190231.1471508,
+    "ast_hash": "c785f8932297af4acd5f5ccb7630f01c",
+    "semantic_hash": "c785f8932297af4acd5f5ccb7630f01c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@1x.png": {
+    "mtime": 1778190231.1471508,
+    "ast_hash": "a2f8558fb1d42514111fbbb19fb67314",
+    "semantic_hash": "a2f8558fb1d42514111fbbb19fb67314"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@2x.png": {
+    "mtime": 1778190231.1471508,
+    "ast_hash": "2247a840b6ee72b8a069208af170e5b1",
+    "semantic_hash": "2247a840b6ee72b8a069208af170e5b1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@3x.png": {
+    "mtime": 1778190231.1471508,
+    "ast_hash": "1b3b1538136316263c7092951e923e9d",
+    "semantic_hash": "1b3b1538136316263c7092951e923e9d"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@1x.png": {
+    "mtime": 1778190231.1523273,
+    "ast_hash": "be8887071dd7ec39cb754d236aa9584f",
+    "semantic_hash": "be8887071dd7ec39cb754d236aa9584f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@2x.png": {
+    "mtime": 1778190231.1431,
+    "ast_hash": "043119ef4faa026ff82bd03f241e5338",
+    "semantic_hash": "043119ef4faa026ff82bd03f241e5338"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@3x.png": {
+    "mtime": 1778190231.1471508,
+    "ast_hash": "2b1452c4c1bda6177b4fbbb832df217f",
+    "semantic_hash": "2b1452c4c1bda6177b4fbbb832df217f"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@1x.png": {
+    "mtime": 1778190231.1446037,
+    "ast_hash": "2247a840b6ee72b8a069208af170e5b1",
+    "semantic_hash": "2247a840b6ee72b8a069208af170e5b1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@2x.png": {
+    "mtime": 1778190231.1514122,
+    "ast_hash": "8245359312aea1b0d2412f79a07b0ca5",
+    "semantic_hash": "8245359312aea1b0d2412f79a07b0ca5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@3x.png": {
+    "mtime": 1778190231.1446037,
+    "ast_hash": "5b3c0902200ce596e9848f22e1f0fe0e",
+    "semantic_hash": "5b3c0902200ce596e9848f22e1f0fe0e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-60x60@2x.png": {
+    "mtime": 1778190231.1471508,
+    "ast_hash": "5b3c0902200ce596e9848f22e1f0fe0e",
+    "semantic_hash": "5b3c0902200ce596e9848f22e1f0fe0e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-60x60@3x.png": {
+    "mtime": 1778190231.1431,
+    "ast_hash": "e419d22a37bc40ba185aca1acb6d4ac6",
+    "semantic_hash": "e419d22a37bc40ba185aca1acb6d4ac6"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-76x76@1x.png": {
+    "mtime": 1778190231.1471508,
+    "ast_hash": "36c0d7a7132bdde18898ffdfcfcdc4d2",
+    "semantic_hash": "36c0d7a7132bdde18898ffdfcfcdc4d2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-76x76@2x.png": {
+    "mtime": 1778190231.1523273,
+    "ast_hash": "643842917530acf4c5159ae851b0baf2",
+    "semantic_hash": "643842917530acf4c5159ae851b0baf2"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-83.5x83.5@2x.png": {
+    "mtime": 1778190231.1471508,
+    "ast_hash": "665cb5e3c5729da6d639d26eff47a503",
+    "semantic_hash": "665cb5e3c5729da6d639d26eff47a503"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage.png": {
+    "mtime": 1778190231.1419096,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage@2x.png": {
+    "mtime": 1778190231.1419096,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage@3x.png": {
+    "mtime": 1778190231.1402366,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_1024.png": {
+    "mtime": 1778190231.1358995,
+    "ast_hash": "c9becc9105f8cabce934d20c7bfb6aac",
+    "semantic_hash": "c9becc9105f8cabce934d20c7bfb6aac"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_128.png": {
+    "mtime": 1778190231.1358995,
+    "ast_hash": "3ded30823804caaa5ccc944067c54a36",
+    "semantic_hash": "3ded30823804caaa5ccc944067c54a36"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_16.png": {
+    "mtime": 1778190231.1358995,
+    "ast_hash": "8bf511604bc6ed0a6aeb380c5113fdcf",
+    "semantic_hash": "8bf511604bc6ed0a6aeb380c5113fdcf"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_256.png": {
+    "mtime": 1778190231.1358995,
+    "ast_hash": "dfe2c93d1536ae02f085cc63faa3430e",
+    "semantic_hash": "dfe2c93d1536ae02f085cc63faa3430e"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_32.png": {
+    "mtime": 1778190231.1358995,
+    "ast_hash": "8e0ae58e362a6636bdfccbc04da2c58c",
+    "semantic_hash": "8e0ae58e362a6636bdfccbc04da2c58c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_512.png": {
+    "mtime": 1778190231.1358995,
+    "ast_hash": "0ad44039155424738917502c69667699",
+    "semantic_hash": "0ad44039155424738917502c69667699"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\macos\\Runner\\Assets.xcassets\\AppIcon.appiconset\\app_icon_64.png": {
+    "mtime": 1778190231.134179,
+    "ast_hash": "04e7b6ef05346c70b663ca1d97de3ad5",
+    "semantic_hash": "04e7b6ef05346c70b663ca1d97de3ad5"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\web\\favicon.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "5dcef449791fa27946b3d35ad8803796",
+    "semantic_hash": "5dcef449791fa27946b3d35ad8803796"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\web\\icons\\Icon-192.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "ac9a721a12bbc803b44f645561ecb1e1",
+    "semantic_hash": "ac9a721a12bbc803b44f645561ecb1e1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\web\\icons\\Icon-512.png": {
+    "mtime": 1777532252.0,
+    "ast_hash": "96e752610906ba2a93c65f8abe1645f1",
+    "semantic_hash": "96e752610906ba2a93c65f8abe1645f1"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\web\\icons\\Icon-maskable-192.png": {
+    "mtime": 1778190231.1825967,
+    "ast_hash": "c457ef57daa1d16f64b27b786ec2ea3c",
+    "semantic_hash": "c457ef57daa1d16f64b27b786ec2ea3c"
+  },
+  "C:\\Users\\FIX 11\\projects\\auto garrage\\mechanic_app_new\\web\\icons\\Icon-maskable-512.png": {
+    "mtime": 1778190231.1825967,
+    "ast_hash": "301a7604d45b3e739efc881eb04896ea",
+    "semantic_hash": "301a7604d45b3e739efc881eb04896ea"
+  }
+}

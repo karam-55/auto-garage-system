@@ -349,6 +349,12 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
         return Colors.orange;
       case 'IN_PROGRESS':
         return Colors.blue;
+      case 'WAITING_PARTS':
+        return Colors.amber;
+      case 'READY':
+        return Colors.lightGreen;
+      case 'DELIVERED':
+        return Colors.green;
       case 'COMPLETED':
         return Colors.green;
       case 'CANCELLED':
@@ -364,6 +370,12 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
         return Icons.assignment;
       case 'IN_PROGRESS':
         return Icons.build;
+      case 'WAITING_PARTS':
+        return Icons.hourglass_empty;
+      case 'READY':
+        return Icons.check_circle;
+      case 'DELIVERED':
+        return Icons.local_shipping;
       case 'COMPLETED':
         return Icons.check_circle;
       case 'CANCELLED':
@@ -379,6 +391,12 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
         return 'موكلة';
       case 'IN_PROGRESS':
         return 'قيد العمل';
+      case 'WAITING_PARTS':
+        return 'بانتظار القطع';
+      case 'READY':
+        return 'جاهز';
+      case 'DELIVERED':
+        return 'تم التسليم';
       case 'COMPLETED':
         return 'مكتملة';
       case 'CANCELLED':

@@ -1,5 +1,7 @@
 import '../../domain/entities/crm_lead.dart';
+import '../../domain/entities/crm_activity.dart';
 import '../../domain/repositories/crm_repository.dart';
+import '../../domain/repositories/crm_activity_repository.dart';
 import '../../application/usecases/crm_usecases.dart';
 
 class CrmService {

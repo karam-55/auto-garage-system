@@ -9,11 +9,3 @@ abstract class CrmLeadRepository {
   Future<CrmLead> update(CrmLead lead);
   Future<void> delete(int id);
 }
-
-abstract class CrmActivityRepository {
-  Future<CrmActivity> create(CrmActivity activity);
-  Future<CrmActivity?> findById(int id);
-  Future<List<CrmActivity>> findByLeadId(int leadId);
-  Future<List<CrmActivity>> findByCustomerId(String customerId);
-  Future<void> delete(int id);
-}

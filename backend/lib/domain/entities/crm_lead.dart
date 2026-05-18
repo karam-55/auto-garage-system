@@ -9,7 +9,6 @@ class CrmLead {
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final List<CrmActivity> activities;
 
   CrmLead({
     required this.id,
@@ -22,7 +21,6 @@ class CrmLead {
     this.notes,
     required this.createdAt,
     required this.updatedAt,
-    this.activities = const [],
   });
 
   Map<String, dynamic> toJson() {
@@ -37,7 +35,6 @@ class CrmLead {
       'notes': notes,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
-      'activities': activities.map((a) => a.toJson()).toList(),
     };
   }
 
@@ -52,7 +49,6 @@ class CrmLead {
     String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
-    List<CrmActivity>? activities,
   }) {
     return CrmLead(
       id: id ?? this.id,
@@ -65,64 +61,6 @@ class CrmLead {
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      activities: activities ?? this.activities,
-    );
-  }
-}
-
-class CrmActivity {
-  final int id;
-  final int? leadId;
-  final String? customerId;
-  final String activityType;
-  final DateTime activityDate;
-  final String? summary;
-  final String? createdBy;
-  final DateTime createdAt;
-
-  CrmActivity({
-    required this.id,
-    this.leadId,
-    this.customerId,
-    required this.activityType,
-    required this.activityDate,
-    this.summary,
-    this.createdBy,
-    required this.createdAt,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'lead_id': leadId,
-      'customer_id': customerId,
-      'activity_type': activityType,
-      'activity_date': activityDate.toIso8601String(),
-      'summary': summary,
-      'created_by': createdBy,
-      'created_at': createdAt.toIso8601String(),
-    };
-  }
-
-  CrmActivity copyWith({
-    int? id,
-    int? leadId,
-    String? customerId,
-    String? activityType,
-    DateTime? activityDate,
-    String? summary,
-    String? createdBy,
-    DateTime? createdAt,
-  }) {
-    return CrmActivity(
-      id: id ?? this.id,
-      leadId: leadId ?? this.leadId,
-      customerId: customerId ?? this.customerId,
-      activityType: activityType ?? this.activityType,
-      activityDate: activityDate ?? this.activityDate,
-      summary: summary ?? this.summary,
-      createdBy: createdBy ?? this.createdBy,
-      createdAt: createdAt ?? this.createdAt,
     );
   }
 }

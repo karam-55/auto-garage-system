@@ -11,15 +11,18 @@ import '../../infrastructure/repositories/bill_of_materials_repository_impl.dart
 import '../../infrastructure/repositories/crm_repository_impl.dart';
 import '../../infrastructure/repositories/hr_repository_impl.dart';
 import '../../infrastructure/repositories/fixed_asset_repository_impl.dart';
-import '../../infrastructure/repositories/crm_activity_repository_impl.dart';
-import '../../infrastructure/repositories/leave_request_repository_impl.dart';
-import '../../infrastructure/repositories/performance_review_repository_impl.dart';
-import '../../infrastructure/repositories/maintenance_contract_repository_impl.dart';
-import '../../infrastructure/repositories/manufacturing_order_repository_impl.dart';
+import '../../infrastructure/repositories/crm_activity_repository_impl.dart' as crm_activity_impl;
+import '../../infrastructure/repositories/leave_request_repository_impl.dart' as leave_request_impl;
+import '../../infrastructure/repositories/performance_review_repository_impl.dart' as performance_review_impl;
+import '../../infrastructure/repositories/maintenance_contract_repository_impl.dart' as maintenance_contract_impl;
+import '../../infrastructure/repositories/manufacturing_order_repository_impl.dart' as manufacturing_order_impl;
 import '../../infrastructure/repositories/journal_repository_impl.dart';
 import '../../infrastructure/repositories/account_repository_impl.dart';
 import '../../infrastructure/repositories/company_settings_repository_impl.dart';
 import '../../infrastructure/repositories/purchase_invoice_repository_impl.dart';
+import '../../domain/entities/crm_activity.dart';
+import '../../domain/entities/manufacturing_order.dart' as order;
+import '../../domain/entities/performance_review.dart' as review;
 import '../../application/services/purchase_order_service.dart';
 import '../../application/services/quotation_service.dart';
 import '../../application/services/warehouse_service.dart';
@@ -72,14 +75,14 @@ class ErpRoutes {
     final warehouseRepo = WarehouseRepositoryImpl(db);
     final inventoryRepo = InventoryVariantWarehouseRepositoryImpl(db);
     final bomRepo = BillOfMaterialsRepositoryImpl(db);
-    final orderRepo = ManufacturingOrderRepositoryImpl(db);
+    final orderRepo = manufacturing_order_impl.ManufacturingOrderRepositoryImpl(db);
     final leadRepo = CrmLeadRepositoryImpl(db);
-    final activityRepo = CrmActivityRepositoryImpl(db);
+    final activityRepo = crm_activity_impl.CrmActivityRepositoryImpl(db);
     final contractRepo = EmployeeContractRepositoryImpl(db);
-    final leaveRepo = LeaveRequestRepositoryImpl(db);
-    final reviewRepo = PerformanceReviewRepositoryImpl(db);
+    final leaveRepo = leave_request_impl.LeaveRequestRepositoryImpl(db);
+    final reviewRepo = performance_review_impl.PerformanceReviewRepositoryImpl(db);
     final assetRepo = FixedAssetRepositoryImpl(db);
-    final maintenanceRepo = MaintenanceContractRepositoryImpl(db);
+    final maintenanceRepo = maintenance_contract_impl.MaintenanceContractRepositoryImpl(db);
     final purchaseInvoiceRepo = PurchaseInvoiceRepositoryImpl(db);
     final journalRepo = JournalRepositoryImpl(db);
     final accountRepo = AccountRepositoryImpl(db);
@@ -87,7 +90,7 @@ class ErpRoutes {
 
     final purchaseOrderService = PurchaseOrderService(purchaseOrderRepo);
     final quotationService = QuotationService(quotationRepo);
-    final warehouseService = WarehouseService(warehouseRepo, inventoryRepo);
+    final warehouseService = WarehouseService(warehouseRepo);
     final manufacturingService = ManufacturingService(bomRepo, orderRepo);
     final crmService = CrmService(leadRepo, activityRepo);
     final hrService = HrService(contractRepo, leaveRepo, reviewRepo);
@@ -439,7 +442,7 @@ class ErpRoutes {
   Future<Response> _getManufacturingOrders(Request request) async {
     try {
       final orders = await _manufacturingService.getAllManufacturingOrders();
-      return Response.ok(jsonEncode(orders.map((o) => o.toJson()).toList()));
+      return Response.ok(jsonEncode(orders.map((o) => (o as order.ManufacturingOrder).toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch manufacturing orders: $e'}));
     }
@@ -572,7 +575,7 @@ class ErpRoutes {
       final leadId = request.url.queryParameters['lead_id'];
       if (leadId != null) {
         final activities = await _crmService.getActivitiesByLeadId(int.parse(leadId));
-        return Response.ok(jsonEncode(activities.map((a) => a.toJson()).toList()));
+        return Response.ok(jsonEncode(activities.map((a) => (a as CrmActivity).toJson()).toList()));
       }
       return Response.badRequest(body: jsonEncode({'error': 'lead_id parameter required'}));
     } catch (e) {
@@ -711,6 +714,16 @@ class ErpRoutes {
     }
   }
 
+  Future<Response> _deleteLeaveRequest(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      await _hrService.deleteLeaveRequest(id);
+      return Response.ok(jsonEncode({'message': 'Leave request deleted'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete leave request: $e'}));
+    }
+  }
+
   Future<Response> _approveLeaveRequest(Request request) async {
     try {
       final id = int.parse(request.params['id'] as String);
@@ -734,22 +747,12 @@ class ErpRoutes {
     }
   }
 
-  Future<Response> _deleteLeaveRequest(Request request) async {
-    try {
-      final id = int.parse(request.params['id'] as String);
-      await _hrService.deleteLeaveRequest(id);
-      return Response.ok(jsonEncode({'message': 'Leave request deleted'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete leave request: $e'}));
-    }
-  }
-
   Future<Response> _getPerformanceReviews(Request request) async {
     try {
       final userId = request.url.queryParameters['user_id'];
       if (userId != null) {
         final reviews = await _hrService.getPerformanceReviewsByUser(userId);
-        return Response.ok(jsonEncode(reviews.map((r) => r.toJson()).toList()));
+        return Response.ok(jsonEncode(reviews.map((r) => (r as review.PerformanceReview).toJson()).toList()));
       }
       return Response.badRequest(body: jsonEncode({'error': 'user_id parameter required'}));
     } catch (e) {
@@ -961,8 +964,10 @@ class ErpRoutes {
       final data = jsonDecode(body) as Map<String, dynamic>;
       
       await _createSalesInvoiceUseCase.execute(
-        bookingId: id,
-        amount: data['amount'] as double? ?? 0.0,
+        salesOrderId: id,
+        orderNumber: data['order_number'] as String? ?? 'SO-$id',
+        totalAmount: data['amount'] as double? ?? 0.0,
+        taxAmount: data['tax_amount'] as double? ?? 0.0,
         cogsAmount: data['cogs_amount'] as double? ?? 0.0,
         createdBy: data['created_by'] as String? ?? 'system',
       );

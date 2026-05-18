@@ -1,5 +1,5 @@
 import '../../domain/entities/fixed_asset.dart';
-import '../../domain/entities/maintenance_contract.dart';
+import '../../domain/entities/maintenance_contract.dart' as contract;
 import '../../domain/repositories/fixed_asset_repository.dart';
 import '../../domain/repositories/maintenance_contract_repository.dart';
 
@@ -29,6 +29,10 @@ class GetFixedAssetUseCase {
   Future<List<FixedAsset>> executeByCategory(String category) async {
     return await _repository.findByCategory(category);
   }
+
+  Future<List<FixedAsset>> executeByStatus(String status) async {
+    return await _repository.findByStatus(status);
+  }
 }
 
 class UpdateFixedAssetUseCase {
@@ -56,7 +60,7 @@ class CreateMaintenanceContractUseCase {
 
   CreateMaintenanceContractUseCase(this._repository);
 
-  Future<MaintenanceContract> execute(MaintenanceContract contract) async {
+  Future<contract.MaintenanceContract> execute(contract.MaintenanceContract contract) async {
     return await _repository.create(contract);
   }
 }
@@ -66,16 +70,20 @@ class GetMaintenanceContractUseCase {
 
   GetMaintenanceContractUseCase(this._repository);
 
-  Future<MaintenanceContract?> execute(int id) async {
+  Future<contract.MaintenanceContract?> execute(int id) async {
     return await _repository.findById(id);
   }
 
-  Future<List<MaintenanceContract>> executeByAssetId(int assetId) async {
-    return await _repository.findByAssetId(assetId);
+  Future<List<contract.MaintenanceContract>> executeByCustomerId(String customerId) async {
+    return await _repository.findByCustomerId(customerId);
   }
 
-  Future<List<MaintenanceContract>> executeByStatus(String status) async {
-    return await _repository.findByStatus(status);
+  Future<List<contract.MaintenanceContract>> executeByVehicleId(String vehicleId) async {
+    return await _repository.findByVehicleId(vehicleId);
+  }
+
+  Future<List<contract.MaintenanceContract>> executeDueContracts() async {
+    return await _repository.findDueContracts();
   }
 }
 
@@ -84,7 +92,7 @@ class UpdateMaintenanceContractUseCase {
 
   UpdateMaintenanceContractUseCase(this._repository);
 
-  Future<MaintenanceContract> execute(MaintenanceContract contract) async {
+  Future<contract.MaintenanceContract> execute(contract.MaintenanceContract contract) async {
     return await _repository.update(contract);
   }
 }

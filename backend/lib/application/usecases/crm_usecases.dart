@@ -29,6 +29,10 @@ class GetCrmLeadUseCase {
   Future<List<CrmLead>> executeByCustomerId(String customerId) async {
     return await _repository.findByCustomerId(customerId);
   }
+
+  Future<List<CrmLead>> executeByAssignedTo(String assignedTo) async {
+    return await _repository.findByAssignedTo(assignedTo);
+  }
 }
 
 class UpdateCrmLeadUseCase {
@@ -48,6 +52,23 @@ class DeleteCrmLeadUseCase {
 
   Future<void> execute(int id) async {
     await _repository.delete(id);
+  }
+}
+
+class ConvertLeadToCustomerUseCase {
+  final CrmLeadRepository _repository;
+
+  ConvertLeadToCustomerUseCase(this._repository);
+
+  Future<CrmLead> execute(int leadId) async {
+    final lead = await _repository.findById(leadId);
+    if (lead == null) {
+      throw Exception('Lead not found');
+    }
+    final updatedLead = lead.copyWith(
+      status: 'converted',
+    );
+    return await _repository.update(updatedLead);
   }
 }
 

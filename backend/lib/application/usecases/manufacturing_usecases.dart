@@ -1,5 +1,5 @@
 import '../../domain/entities/bill_of_materials.dart';
-import '../../domain/entities/manufacturing_order.dart';
+import '../../domain/entities/manufacturing_order.dart' as order;
 import '../../domain/repositories/bill_of_materials_repository.dart';
 import '../../domain/repositories/manufacturing_order_repository.dart';
 
@@ -56,7 +56,7 @@ class CreateManufacturingOrderUseCase {
 
   CreateManufacturingOrderUseCase(this._repository);
 
-  Future<ManufacturingOrder> execute(ManufacturingOrder order) async {
+  Future<order.ManufacturingOrder> execute(order.ManufacturingOrder order) async {
     return await _repository.create(order);
   }
 }
@@ -66,15 +66,15 @@ class GetManufacturingOrderUseCase {
 
   GetManufacturingOrderUseCase(this._repository);
 
-  Future<ManufacturingOrder?> execute(int id) async {
+  Future<order.ManufacturingOrder?> execute(int id) async {
     return await _repository.findById(id);
   }
 
-  Future<List<ManufacturingOrder>> executeAll() async {
+  Future<List<order.ManufacturingOrder>> executeAll() async {
     return await _repository.findAll();
   }
 
-  Future<List<ManufacturingOrder>> executeByStatus(String status) async {
+  Future<List<order.ManufacturingOrder>> executeByStatus(String status) async {
     return await _repository.findByStatus(status);
   }
 }
@@ -84,7 +84,7 @@ class UpdateManufacturingOrderUseCase {
 
   UpdateManufacturingOrderUseCase(this._repository);
 
-  Future<ManufacturingOrder> execute(ManufacturingOrder order) async {
+  Future<order.ManufacturingOrder> execute(order.ManufacturingOrder order) async {
     return await _repository.update(order);
   }
 }
@@ -94,17 +94,15 @@ class CompleteManufacturingOrderUseCase {
 
   CompleteManufacturingOrderUseCase(this._repository);
 
-  Future<ManufacturingOrder> execute(int orderId) async {
-    final order = await _repository.findById(orderId);
+  Future<order.ManufacturingOrder> execute(int id) async {
+    final order = await _repository.findById(id);
     if (order == null) {
       throw Exception('Manufacturing order not found');
     }
-    return await _repository.update(
-      order.copyWith(
-        status: 'completed',
-        actualCompletionDate: DateTime.now(),
-      ),
+    final updatedOrder = order.copyWith(
+      status: 'completed',
     );
+    return await _repository.update(updatedOrder);
   }
 }
 

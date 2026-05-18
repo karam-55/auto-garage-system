@@ -46,7 +46,7 @@ class MechanicRoutes {
     router.post('/api/mechanics/assign', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MECHANIC)(_assignBooking)));
 
     // PATCH /api/mechanics/assignments/:id/status
-    router.patch('/api/mechanics/assignments/<id>/status', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateAssignmentStatus)));
+    router.patch('/api/mechanics/assignments/<id>/status', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.MECHANIC, Role.RECEPTIONIST, Role.MANAGER, Role.OWNER])(_updateAssignmentStatus)));
 
     // POST /api/mechanics/bookings/:id/part-suggestions
     router.post('/api/mechanics/bookings/<bookingId>/part-suggestions', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MECHANIC)(_createPartSuggestion)));

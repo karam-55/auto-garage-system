@@ -74,6 +74,7 @@ class ErpRoutes {
     final reviewRepo = PerformanceReviewRepositoryImpl(db);
     final assetRepo = FixedAssetRepositoryImpl(db);
     final maintenanceRepo = MaintenanceContractRepositoryImpl(db);
+    final purchaseInvoiceRepo = PurchaseInvoiceRepositoryImpl(db);
     final journalRepo = JournalRepositoryImpl(db);
     final accountRepo = AccountRepositoryImpl(db);
     final settingsRepo = CompanySettingsRepositoryImpl(db);
@@ -89,7 +90,7 @@ class ErpRoutes {
     final accountingSettingsService = AccountingSettingsService(settingsRepo, accountRepo);
 
     final receivePurchaseOrderUseCase = ReceivePurchaseOrderUseCase(purchaseOrderRepo, journalService, accountingSettingsService);
-    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(journalService, accountingSettingsService);
+    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepo, journalService);
     final createSalesInvoiceUseCase = CreateSalesInvoiceUseCase(journalService, accountingSettingsService);
     final completeManufacturingOrderUseCase = CompleteManufacturingOrderUseCase(journalService, accountingSettingsService);
     final runDepreciationUseCase = RunDepreciationUseCase(journalService, accountingSettingsService);
@@ -471,16 +472,6 @@ class ErpRoutes {
       return Response.ok(jsonEncode({'message': 'Manufacturing order updated'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update manufacturing order: $e'}));
-    }
-  }
-
-  Future<Response> _completeManufacturingOrder(Request request) async {
-    try {
-      final id = int.parse(request.params['id'] as String);
-      await _manufacturingService.completeManufacturingOrder(id);
-      return Response.ok(jsonEncode({'message': 'Manufacturing order completed'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Failed to complete manufacturing order: $e'}));
     }
   }
 

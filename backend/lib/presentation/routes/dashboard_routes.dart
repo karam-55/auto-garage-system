@@ -11,7 +11,7 @@ import '../../infrastructure/repositories/purchase_order_repository_impl.dart';
 import '../../infrastructure/repositories/quotation_repository_impl.dart';
 import '../../infrastructure/repositories/warehouse_repository_impl.dart';
 import '../../infrastructure/repositories/bill_of_materials_repository_impl.dart';
-import '../../infrastructure/repositories/manufacturing_order_repository_impl.dart';
+import '../../infrastructure/repositories/inventory_item_repository_impl.dart';
 import '../../infrastructure/repositories/hr_repository_impl.dart';
 import '../../infrastructure/repositories/fixed_asset_repository_impl.dart';
 import '../middlewares/auth_middleware.dart';
@@ -25,7 +25,7 @@ class DashboardRoutes {
   final QuotationRepositoryImpl _quotationRepository;
   final WarehouseRepositoryImpl _warehouseRepository;
   final BillOfMaterialsRepositoryImpl _bomRepository;
-  final ManufacturingOrderRepositoryImpl _manufacturingOrderRepository;
+  final InventoryItemRepositoryImpl _inventoryItemRepository;
   final HrRepositoryImpl _hrRepository;
   final FixedAssetRepositoryImpl _fixedAssetRepository;
   final AuthMiddleware _authMiddleware;
@@ -39,7 +39,7 @@ class DashboardRoutes {
     this._quotationRepository,
     this._warehouseRepository,
     this._bomRepository,
-    this._manufacturingOrderRepository,
+    this._inventoryItemRepository,
     this._hrRepository,
     this._fixedAssetRepository,
     this._authMiddleware,
@@ -220,7 +220,7 @@ class DashboardRoutes {
 
   Future<Response> _getInventoryStats(Request request) async {
     try {
-      final inventory = await _warehouseRepository.findAll();
+      final inventory = await _inventoryItemRepository.findAll();
       
       double totalValue = 0;
       int lowStockItems = 0;

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../presentation/providers/booking_provider.dart';
@@ -16,7 +15,6 @@ class MyAssignmentsScreen extends ConsumerStatefulWidget {
 }
 
 class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
-  Timer? _refreshTimer;
   final CompanySettingsService _companySettingsService = CompanySettingsService();
   String _companyName = 'تطبيق الميكانيكي';
   String? _companyLogoUrl;
@@ -28,7 +26,6 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
     Future.microtask(() {
       ref.read(bookingStateProvider.notifier).fetchMyAssignments();
     });
-    _startAutoRefresh();
   }
 
   Future<void> _loadCompanySettings() async {
@@ -43,20 +40,6 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
     } catch (e) {
       // Keep default values on error
     }
-  }
-
-  @override
-  void dispose() {
-    _refreshTimer?.cancel();
-    super.dispose();
-  }
-
-  void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (mounted) {
-        ref.read(bookingStateProvider.notifier).fetchMyAssignments();
-      }
-    });
   }
 
   @override
@@ -87,6 +70,13 @@ class _MyAssignmentsScreenState extends ConsumerState<MyAssignmentsScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              ref.read(bookingStateProvider.notifier).fetchMyAssignments();
+            },
+            tooltip: 'تحديث',
+          ),
           IconButton(
             icon: const Icon(Icons.directions_car),
             onPressed: () {

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../presentation/providers/booking_provider.dart';
@@ -15,7 +14,6 @@ class AvailableBookingsScreen extends ConsumerStatefulWidget {
 }
 
 class _AvailableBookingsScreenState extends ConsumerState<AvailableBookingsScreen> {
-  Timer? _refreshTimer;
   final CompanySettingsService _companySettingsService = CompanySettingsService();
   String _companyName = 'تطبيق الميكانيكي';
   String? _companyLogoUrl;
@@ -27,7 +25,6 @@ class _AvailableBookingsScreenState extends ConsumerState<AvailableBookingsScree
     Future.microtask(() {
       ref.read(bookingStateProvider.notifier).fetchAvailableBookings();
     });
-    _startAutoRefresh();
   }
 
   Future<void> _loadCompanySettings() async {
@@ -42,20 +39,6 @@ class _AvailableBookingsScreenState extends ConsumerState<AvailableBookingsScree
     } catch (e) {
       // Keep default values on error
     }
-  }
-
-  @override
-  void dispose() {
-    _refreshTimer?.cancel();
-    super.dispose();
-  }
-
-  void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (mounted) {
-        ref.read(bookingStateProvider.notifier).fetchAvailableBookings();
-      }
-    });
   }
 
   @override
@@ -80,6 +63,13 @@ class _AvailableBookingsScreenState extends ConsumerState<AvailableBookingsScree
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              ref.read(bookingStateProvider.notifier).fetchAvailableBookings();
+            },
+            tooltip: 'تحديث',
+          ),
           IconButton(
             icon: const Icon(Icons.assignment),
             onPressed: () {

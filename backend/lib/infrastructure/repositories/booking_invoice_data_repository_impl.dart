@@ -69,6 +69,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
           : DateTime.parse(data['invoice_created_at'] as String),
       publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
       qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
+      journalEntryId: data['journal_entry_id'] as int?,
     );
     
     print('DEBUG findByBookingId returning invoice: total=${invoice.totalPrice}, publicToken=${invoice.publicToken}, qrCodeUrl=${invoice.qrCodeUrl}');
@@ -82,8 +83,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
         Sql.named('''
-          INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at, public_token, qr_code_url)
-          VALUES (@id, @bookingId, @servicesSnapshot, @partsSnapshot, @totalPrice, @invoiceCreatedAt, @publicToken, @qrCodeUrl)
+          INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at, public_token, qr_code_url, journal_entry_id)
+          VALUES (@id, @bookingId, @servicesSnapshot, @partsSnapshot, @totalPrice, @invoiceCreatedAt, @publicToken, @qrCodeUrl, @journalEntryId)
           RETURNING *
         '''),
         parameters: {
@@ -99,6 +100,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
           'invoiceCreatedAt': invoiceData.invoiceCreatedAt,
           'publicToken': invoiceData.publicToken,
           'qrCodeUrl': invoiceData.qrCodeUrl,
+          'journalEntryId': invoiceData.journalEntryId,
         },
       );
 
@@ -136,6 +138,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
             : DateTime.parse(data['invoice_created_at'] as String),
         publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
         qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
+        journalEntryId: data['journal_entry_id'] as int?,
       );
     });
   }
@@ -149,7 +152,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
             parts_snapshot = @partsSnapshot,
             total_price = @totalPrice,
             public_token = @publicToken,
-            qr_code_url = @qrCodeUrl
+            qr_code_url = @qrCodeUrl,
+            journal_entry_id = @journalEntryId
         WHERE booking_id = @bookingId
         RETURNING *
       '''),
@@ -164,6 +168,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         'totalPrice': invoiceData.totalPrice,
         'publicToken': invoiceData.publicToken,
         'qrCodeUrl': invoiceData.qrCodeUrl,
+        'journalEntryId': invoiceData.journalEntryId,
       },
     );
 
@@ -172,23 +177,33 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     // Handle services_snapshot - it might be Map or String
     Map<String, dynamic>? servicesSnapshot;
     if (data['services_snapshot'] != null) {
-      if (data['services_snapshot'] is Map) {
+      if (data['services_snapshot'] is String) {
+        try {
+          servicesSnapshot = jsonDecode(data['services_snapshot'] as String) as Map<String, dynamic>;
+        } catch (e) {
+          print('DEBUG update: Failed to parse services_snapshot as JSON: $e');
+          servicesSnapshot = null;
+        }
+      } else {
         servicesSnapshot = data['services_snapshot'] as Map<String, dynamic>;
-      } else if (data['services_snapshot'] is String) {
-        servicesSnapshot = jsonDecode(data['services_snapshot'] as String) as Map<String, dynamic>;
       }
     }
     
     // Handle parts_snapshot - it might be Map or String
     Map<String, dynamic>? partsSnapshot;
     if (data['parts_snapshot'] != null) {
-      if (data['parts_snapshot'] is Map) {
+      if (data['parts_snapshot'] is String) {
+        try {
+          partsSnapshot = jsonDecode(data['parts_snapshot'] as String) as Map<String, dynamic>;
+        } catch (e) {
+          print('DEBUG update: Failed to parse parts_snapshot as JSON: $e');
+          partsSnapshot = null;
+        }
+      } else {
         partsSnapshot = data['parts_snapshot'] as Map<String, dynamic>;
-      } else if (data['parts_snapshot'] is String) {
-        partsSnapshot = jsonDecode(data['parts_snapshot'] as String) as Map<String, dynamic>;
       }
     }
-    
+
     return BookingInvoiceData(
       id: data['id'] as String,
       bookingId: data['booking_id'] as String,
@@ -200,6 +215,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
           : DateTime.parse(data['invoice_created_at'] as String),
       publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
       qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
+      journalEntryId: data['journal_entry_id'] as int?,
     );
   }
 

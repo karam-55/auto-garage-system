@@ -29,13 +29,14 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
     try {
       final result = await _db.execute(
         Sql.named('''
-          INSERT INTO company_settings (company_name, company_logo_url)
-          VALUES (@companyName, @companyLogoUrl)
+          INSERT INTO company_settings (company_name, company_logo_url, accounting_settings)
+          VALUES (@companyName, @companyLogoUrl, @accountingSettings)
           RETURNING *
         '''),
         parameters: {
           'companyName': settings.companyName,
           'companyLogoUrl': settings.companyLogoUrl,
+          'accountingSettings': settings.accountingSettings,
         },
       );
 
@@ -54,6 +55,7 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
           UPDATE company_settings
           SET company_name = @companyName,
               company_logo_url = @companyLogoUrl,
+              accounting_settings = @accountingSettings,
               updated_at = CURRENT_TIMESTAMP
           WHERE id = @id
           RETURNING *
@@ -62,6 +64,7 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
           'id': settings.id,
           'companyName': settings.companyName,
           'companyLogoUrl': settings.companyLogoUrl,
+          'accountingSettings': settings.accountingSettings,
         },
       );
 
@@ -79,6 +82,7 @@ class CompanySettingsRepositoryImpl implements CompanySettingsRepository {
       companyLogoUrl: row['company_logo_url'] as String?,
       createdAt: row['created_at'] is DateTime ? row['created_at'] as DateTime : DateTime.parse(row['created_at'] as String),
       updatedAt: row['updated_at'] != null ? (row['updated_at'] is DateTime ? row['updated_at'] as DateTime : DateTime.parse(row['updated_at'] as String)) : null,
+      accountingSettings: row['accounting_settings'] as Map<String, dynamic>?,
     );
   }
 }

@@ -683,11 +683,11 @@ class ErpRoutes {
   Future<Response> _getLeaveRequest(Request request) async {
     try {
       final id = int.parse(request.params['id'] as String);
-      final request = await _hrService.getLeaveRequest(id);
-      if (request == null) {
+      final leaveRequest = await _hrService.getLeaveRequest(id);
+      if (leaveRequest == null) {
         return Response.notFound(jsonEncode({'error': 'Leave request not found'}));
       }
-      return Response.ok(jsonEncode(request.toJson()));
+      return Response.ok(jsonEncode(leaveRequest.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch leave request: $e'}));
     }
@@ -935,10 +935,10 @@ class ErpRoutes {
       final data = jsonDecode(body) as Map<String, dynamic>;
       
       await _payPurchaseInvoiceUseCase.execute(
-        purchaseOrderId: id,
-        amount: data['amount'] as double,
-        paymentMethod: data['payment_method'] as String,
-        createdBy: data['created_by'] as String? ?? 'system',
+        id,
+        data['amount'] as double,
+        DateTime.now(),
+        data['created_by'] as String? ?? 'system',
       );
       
       return Response.ok(jsonEncode({'message': 'Purchase invoice paid'}));

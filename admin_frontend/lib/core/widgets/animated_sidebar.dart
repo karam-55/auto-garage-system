@@ -641,7 +641,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
             isExpanded: widget.isExpanded,
             expandAnimation: _expandAnimation,
             onTap: () {
-              Navigator.of(context).pushReplacementNamed('/');
+              widget.onDestinationSelected(-1);
             },
             isDanger: true,
           ),

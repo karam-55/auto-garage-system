@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -540,7 +541,7 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     super.dispose();
   }
 
-  void _onDestinationSelected(int index) {
+  void _onDestinationSelected(int index) async {
     if (index == -1) {
       // Disconnect WebSocket before logout
       webSocketService.disconnect();
@@ -549,21 +550,14 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       ProviderScope.containerOf(context).read(authProvider.notifier).clearUser();
       
       // Clear tokens from AuthService
-      _authService.logout();
+      await _authService.logout();
       
       // Clear token from API service
       _apiService.clearToken();
       _apiService.clearRefreshToken();
       
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(onThemeToggle: widget.onThemeToggle, themeMode: widget.themeMode),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      // Reload the page to clear all state
+      html.window.location.reload();
       return;
     }
     setState(() => _selectedIndex = index);

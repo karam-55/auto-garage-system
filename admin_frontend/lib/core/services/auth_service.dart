@@ -141,6 +141,7 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('access_token');
     await prefs.remove('refresh_token');
+    await prefs.remove('user');
   }
 
   // Check if authenticated

@@ -511,6 +511,7 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _destinations = [
+    const _NavItem(icon: Icons.dashboard_rounded, label: 'لوحة القيادة'),
     const _NavItem(icon: Icons.dashboard_rounded, label: 'نظرة عامة'),
     const _NavItem(icon: Icons.calendar_today_rounded, label: 'الحجوزات'),
     const _NavItem(icon: Icons.flash_on_rounded, label: 'حجز لعميل مسجل مسبقا'),

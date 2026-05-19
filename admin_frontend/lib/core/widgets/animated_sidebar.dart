@@ -380,31 +380,31 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
           _SidebarDestination(
             icon: Icons.payments_rounded,
             label: 'الماليات',
-            index: 24,
+            index: 23,
             requiredRoles: [Role.owner, Role.manager, Role.accountant],
             children: [
               _SidebarDestination(
                 icon: Icons.people_rounded,
                 label: 'الموردين',
-                index: 25,
+                index: 23,
                 requiredRoles: [Role.owner, Role.manager, Role.accountant],
               ),
               _SidebarDestination(
                 icon: Icons.receipt_long_rounded,
                 label: 'فواتير الشراء',
-                index: 26,
+                index: 24,
                 requiredRoles: [Role.owner, Role.manager, Role.accountant],
               ),
               _SidebarDestination(
                 icon: Icons.account_balance_wallet_rounded,
                 label: 'المصاريف',
-                index: 27,
+                index: 25,
                 requiredRoles: [Role.owner, Role.manager, Role.accountant],
               ),
               _SidebarDestination(
                 icon: Icons.account_balance_rounded,
                 label: 'الحسابات البنكية',
-                index: 28,
+                index: 26,
                 requiredRoles: [Role.owner, Role.manager, Role.accountant],
               ),
             ],

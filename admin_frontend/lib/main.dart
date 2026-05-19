@@ -547,6 +547,9 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       // Clear user data from SharedPreferences
       SharedPreferences.getInstance().then((prefs) {
         prefs.remove('user');
+        // Clear token from API service
+        _apiService.clearToken();
+        _apiService.clearRefreshToken();
       });
       
       Navigator.pushReplacement(

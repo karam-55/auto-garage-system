@@ -30,6 +30,16 @@ class ApiService {
     _refreshToken = refreshToken;
   }
 
+  // Clear token
+  void clearToken() {
+    _token = null;
+  }
+
+  // Clear refresh token
+  void clearRefreshToken() {
+    _refreshToken = null;
+  }
+
   // Refresh access token
   Future<bool> _refreshAccessToken() async {
     if (_refreshToken == null) return false;

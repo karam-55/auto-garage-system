@@ -519,6 +519,76 @@ CREATE TABLE IF NOT EXISTS purchase_order_items (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Warehouses table
+CREATE TABLE IF NOT EXISTS warehouses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    manager_id UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bill of Materials (BOM) table
+CREATE TABLE IF NOT EXISTS bill_of_materials (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- BOM Items table
+CREATE TABLE IF NOT EXISTS bom_items (
+    id SERIAL PRIMARY KEY,
+    bom_id INTEGER NOT NULL REFERENCES bill_of_materials(id) ON DELETE CASCADE,
+    inventory_item_id UUID NOT NULL REFERENCES inventory_items(id),
+    quantity DECIMAL(15,2) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Manufacturing Orders table
+CREATE TABLE IF NOT EXISTS manufacturing_orders (
+    id SERIAL PRIMARY KEY,
+    bom_id INTEGER REFERENCES bill_of_materials(id) ON DELETE SET NULL,
+    order_number VARCHAR(50) NOT NULL UNIQUE,
+    order_date DATE NOT NULL,
+    quantity DECIMAL(15,2) NOT NULL DEFAULT 1,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
+    notes TEXT,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CRM Leads table
+CREATE TABLE IF NOT EXISTS crm_leads (
+    id SERIAL PRIMARY KEY,
+    customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
+    source VARCHAR(50),
+    status VARCHAR(50) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'qualified', 'converted', 'lost')),
+    estimated_value DECIMAL(15,2),
+    closing_date DATE,
+    assigned_to UUID REFERENCES users(id),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CRM Activities table
+CREATE TABLE IF NOT EXISTS crm_activities (
+    id SERIAL PRIMARY KEY,
+    lead_id INTEGER REFERENCES crm_leads(id) ON DELETE SET NULL,
+    customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
+    activity_type VARCHAR(50) NOT NULL CHECK (activity_type IN ('call', 'email', 'meeting', 'visit', 'other')),
+    activity_date DATE NOT NULL,
+    summary TEXT,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Employee Contracts table
 CREATE TABLE IF NOT EXISTS employee_contracts (
     id SERIAL PRIMARY KEY,
@@ -581,3 +651,19 @@ CREATE INDEX IF NOT EXISTS idx_employee_contracts_status ON employee_contracts(s
 CREATE INDEX IF NOT EXISTS idx_leave_requests_user_id ON leave_requests(user_id);
 CREATE INDEX IF NOT EXISTS idx_leave_requests_status ON leave_requests(status);
 CREATE INDEX IF NOT EXISTS idx_performance_reviews_user_id ON performance_reviews(user_id);
+
+-- Indexes for newly added tables
+CREATE INDEX IF NOT EXISTS idx_warehouses_manager_id ON warehouses(manager_id);
+CREATE INDEX IF NOT EXISTS idx_bill_of_materials_created_by ON bill_of_materials(created_by);
+CREATE INDEX IF NOT EXISTS idx_bom_items_bom_id ON bom_items(bom_id);
+CREATE INDEX IF NOT EXISTS idx_bom_items_inventory_item_id ON bom_items(inventory_item_id);
+CREATE INDEX IF NOT EXISTS idx_manufacturing_orders_bom_id ON manufacturing_orders(bom_id);
+CREATE INDEX IF NOT EXISTS idx_manufacturing_orders_status ON manufacturing_orders(status);
+CREATE INDEX IF NOT EXISTS idx_manufacturing_orders_created_by ON manufacturing_orders(created_by);
+CREATE INDEX IF NOT EXISTS idx_crm_leads_customer_id ON crm_leads(customer_id);
+CREATE INDEX IF NOT EXISTS idx_crm_leads_assigned_to ON crm_leads(assigned_to);
+CREATE INDEX IF NOT EXISTS idx_crm_leads_status ON crm_leads(status);
+CREATE INDEX IF NOT EXISTS idx_crm_activities_lead_id ON crm_activities(lead_id);
+CREATE INDEX IF NOT EXISTS idx_crm_activities_customer_id ON crm_activities(customer_id);
+CREATE INDEX IF NOT EXISTS idx_crm_activities_created_by ON crm_activities(created_by);
+CREATE INDEX IF NOT EXISTS idx_crm_activities_activity_date ON crm_activities(activity_date);

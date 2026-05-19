@@ -67,11 +67,12 @@ void main() async {
   
   final prefs = await SharedPreferences.getInstance();
   final isDarkMode = prefs.getBool('isDarkMode') ?? false;
-  final localeCode = prefs.getString('locale') ?? 'ar';
+  // Force Arabic locale to ensure RTL
+  final locale = const Locale('ar');
   
   runApp(MyApp(
     initialThemeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-    initialLocale: Locale(localeCode),
+    initialLocale: locale,
   ));
 }
 

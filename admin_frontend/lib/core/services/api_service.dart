@@ -6,11 +6,30 @@ import '../constants/api_constants.dart';
 import 'auth_service.dart';
 
 class ApiService {
+  static ApiService? _instance;
   final http.Client _client;
   String? _token;
   String? _refreshToken;
 
-  ApiService({http.Client? client}) : _client = client ?? http.Client() {
+  factory ApiService({http.Client? client}) {
+    _instance ??= ApiService._internal(client ?? http.Client());
+    return _instance!;
+  }
+
+  ApiService._internal(this._client) {
+    _loadTokensSync();
+  }
+
+  static ApiService get instance => _instance ?? ApiService();
+
+  void _loadTokensSync() {
+    // Try to load from SharedPreferences synchronously
+    // Since SharedPreferences is async, we'll initialize with empty tokens
+    // and load them asynchronously later
+    _token = null;
+    _refreshToken = null;
+    
+    // Load asynchronously in background
     _loadTokens();
   }
 

@@ -566,6 +566,13 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     }
   }
 
+  void _onLocaleToggle() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentLocale = prefs.getString('locale') ?? 'ar';
+    final newLocale = currentLocale == 'ar' ? 'en' : 'ar';
+    await prefs.setString('locale', newLocale);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.sizeOf(context).width >= 1200;
@@ -612,11 +619,19 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
               centerTitle: true,
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.logout_rounded, color: Colors.red),
-                  onPressed: () => _onDestinationSelected(-1),
-                  tooltip: 'تسجيل الخروج',
+                  onPressed: widget.onThemeToggle,
+                  icon: Icon(
+                    widget.themeMode == ThemeMode.dark
+                        ? Icons.light_mode
+                        : Icons.dark_mode,
+                  ),
+                  tooltip: 'تبديل السمة',
                 ),
-                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: _onLocaleToggle,
+                  icon: const Icon(Icons.language),
+                  tooltip: 'تغيير اللغة',
+                ),
               ],
             )
           : null,
@@ -626,19 +641,12 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
             AnimatedSidebar(
               selectedIndex: _selectedIndex,
               onDestinationSelected: _onDestinationSelected,
-              isExpanded: true,
+              isExpanded: isDesktop,
+              onToggle: () {},
               onThemeToggle: widget.onThemeToggle,
+              onLocaleToggle: _onLocaleToggle,
               themeMode: widget.themeMode,
             ),
-          if (isTablet)
-            AnimatedSidebar(
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: _onDestinationSelected,
-              isExpanded: false,
-              onThemeToggle: widget.onThemeToggle,
-              themeMode: widget.themeMode,
-            ),
-          if (isDesktop || isTablet) const VerticalDivider(thickness: 1, width: 1),
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 350),
@@ -662,7 +670,7 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
                   alignment: Alignment.topLeft,
                   children: <Widget>[
                     ...previousChildren,
-                    ?currentChild,
+                    if (currentChild != null) currentChild,
                   ],
                 );
               },

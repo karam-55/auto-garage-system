@@ -23,15 +23,67 @@
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
+        
+        /* Dark mode styles */
+        .dark body {
+            background: linear-gradient(to bottom right, #1e1b4b, #312e81);
+        }
+        .dark .bg-white {
+            background-color: #1f2937 !important;
+        }
+        .dark .bg-gradient-to-br.from-gray-50.to-gray-100 {
+            background: linear-gradient(to bottom right, #374151, #4b5563) !important;
+        }
+        .dark .text-gray-800 {
+            color: #f3f4f6 !important;
+        }
+        .dark .text-gray-600 {
+            color: #9ca3af !important;
+        }
+        .dark .text-gray-700 {
+            color: #e5e7eb !important;
+        }
+        .dark .border-gray-200 {
+            border-color: #4b5563 !important;
+        }
+        .dark .bg-gray-50 {
+            background-color: #374151 !important;
+        }
+        .dark .bg-gradient-to-r.from-blue-50.to-indigo-50 {
+            background: linear-gradient(to right, #1e3a8a, #312e81) !important;
+        }
+        .dark .bg-gradient-to-r.from-yellow-50.to-orange-50 {
+            background: linear-gradient(to right, #78350f, #9a3412) !important;
+        }
+        .dark .bg-gradient-to-r.from-purple-50.to-indigo-50 {
+            background: linear-gradient(to right, #581c87, #312e81) !important;
+        }
+        .dark .bg-gradient-to-br.from-blue-600.to-indigo-700 {
+            background: linear-gradient(to bottom right, #1d4ed8, #4338ca) !important;
+        }
+        .dark .bg-gradient-to-br.from-green-500.to-emerald-600 {
+            background: linear-gradient(to bottom right, #059669, #047857) !important;
+        }
+        .dark .bg-gradient-to-br.from-yellow-500.to-orange-600 {
+            background: linear-gradient(to bottom right, #d97706, #ea580c) !important;
+        }
+        .dark .bg-gradient-to-br.from-purple-500.to-indigo-600 {
+            background: linear-gradient(to bottom right, #7c3aed, #4f46e5) !important;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div id="app" class="container mx-auto px-4 py-8">
-        <!-- Language Toggle Button -->
-        <div class="fixed top-4 right-4 z-50">
-            <button onclick="toggleLanguage()" class="bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Language & Theme Toggle Buttons -->
+        <div class="fixed top-4 right-4 z-50 flex gap-2">
+            <button onclick="toggleLanguage()" class="bg-white dark:bg-gray-800 rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                </svg>
+            </button>
+            <button onclick="toggleDarkMode()" class="bg-white dark:bg-gray-800 rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow">
+                <svg id="themeIcon" class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                 </svg>
             </button>
         </div>
@@ -127,6 +179,58 @@
                     </div>
                     <span id="statusBadge" class="px-4 py-2 rounded-full text-sm font-bold"></span>
                 </div>
+
+                <!-- Status Timeline -->
+                <div id="timelineSection" class="mt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-1"></div>
+                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-1"></div>
+                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-1"></div>
+                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-1"></div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col items-center">
+                            <div id="timelineStep0" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">قيد الانتظار</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div id="timelineStep1" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">جاري العمل</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div id="timelineStep2" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">بانتظار القطع</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div id="timelineStep3" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">جاهز</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div id="timelineStep4" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">تم التسليم</p>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
@@ -217,6 +321,22 @@
                 </div>
             </div>
 
+            <!-- Action Buttons -->
+            <div class="flex gap-3 mb-6">
+                <button onclick="printInvoice()" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    طباعة الفاتورة
+                </button>
+                <button onclick="shareLink()" class="flex-1 bg-gradient-to-r from-green-600 to-emerald-700 text-white py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-800 transition-all flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                    </svg>
+                    مشاركة الرابط
+                </button>
+            </div>
+
             <!-- Auto Refresh Notice -->
             <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-4 text-center shadow-lg">
                 <div class="flex items-center justify-center gap-2 text-white">
@@ -234,6 +354,27 @@
         let pollingInterval = null;
         let currentToken = null;
         let currentLanguage = localStorage.getItem('language') || 'ar';
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Apply dark mode on load
+        function applyDarkMode() {
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIcon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+            }
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode.toString());
+            applyDarkMode();
+        }
+
+        // Apply dark mode immediately
+        applyDarkMode();
 
         // Translations
         const translations = {
@@ -416,7 +557,7 @@
             document.getElementById('vehicleYear').textContent = data.vehicle.year;
             document.getElementById('customerName').textContent = data.customer.fullName;
 
-            // Status
+            // Status & Timeline
             if (data.booking) {
                 const statusBadge = document.getElementById('statusBadge');
                 const status = data.booking.status;
@@ -441,6 +582,9 @@
 
                 statusBadge.className = `px-3 py-1 rounded-full text-sm font-semibold ${statusColors[status] || 'bg-gray-100 text-gray-800'}`;
                 statusBadge.textContent = statusTexts[status] || status;
+
+                // Update timeline based on status
+                updateTimeline(status);
 
                 // Services
                 if (data.services && data.services.length > 0) {
@@ -508,6 +652,66 @@
             } else {
                 document.getElementById('error').classList.add('hidden');
                 loadBookingData();
+            }
+        }
+
+        function updateTimeline(status) {
+            const statusSteps = {
+                'PENDING': 0,
+                'IN_PROGRESS': 1,
+                'WAITING_PARTS': 2,
+                'READY': 3,
+                'DELIVERED': 4,
+                'CANCELLED': -1
+            };
+
+            const currentStep = statusSteps[status] || 0;
+
+            // Reset all steps
+            for (let i = 0; i <= 4; i++) {
+                const step = document.getElementById(`timelineStep${i}`);
+                if (step) {
+                    step.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500';
+                }
+            }
+
+            // Update completed steps
+            if (currentStep >= 0) {
+                for (let i = 0; i <= currentStep; i++) {
+                    const step = document.getElementById(`timelineStep${i}`);
+                    if (step) {
+                        step.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-green-500 text-white';
+                    }
+                }
+            } else if (status === 'CANCELLED') {
+                // Show all steps as cancelled
+                for (let i = 0; i <= 4; i++) {
+                    const step = document.getElementById(`timelineStep${i}`);
+                    if (step) {
+                        step.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-red-500 text-white';
+                    }
+                }
+            }
+        }
+
+        function printInvoice() {
+            window.print();
+        }
+
+        function shareLink() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'تتبع حالة السيارة',
+                    url: url
+                }).catch(console.error);
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('تم نسخ الرابط إلى الحافظة');
+                }).catch(() => {
+                    prompt('انسخ الرابط:', url);
+                });
             }
         }
 

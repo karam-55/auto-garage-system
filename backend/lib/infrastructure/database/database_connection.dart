@@ -536,18 +536,11 @@ CREATE INDEX IF NOT EXISTS idx_alerts_type ON alerts(type);
 CREATE INDEX IF NOT EXISTS idx_alerts_is_read ON alerts(is_read);
 
 -- Add missing columns to existing tables
-ALTER TABLE inventory_variants ADD COLUMN cost_price DECIMAL(12, 2) DEFAULT 0;
-ALTER TABLE inventory_variants ADD COLUMN selling_price DECIMAL(12, 2) DEFAULT 0;
 ALTER TABLE company_settings ADD COLUMN accounting_settings JSONB DEFAULT '{}'::jsonb;
-ALTER TABLE booking_invoice_data ADD COLUMN journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL;
 
 -- Add salary-related columns to users table
 ALTER TABLE users ADD COLUMN base_salary DECIMAL(15,2) DEFAULT 0;
 ALTER TABLE users ADD COLUMN hire_date DATE;
-
--- Add journal_entry_id to purchase_invoices and expenses
-ALTER TABLE purchase_invoices ADD COLUMN journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL;
-ALTER TABLE expenses ADD COLUMN journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL;
 
 -- Add foreign key constraint to purchase_invoice_items after inventory_variants is created
 ALTER TABLE purchase_invoice_items ADD CONSTRAINT fk_purchase_invoice_items_inventory_variant 

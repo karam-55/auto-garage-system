@@ -190,19 +190,14 @@ CREATE TABLE IF NOT EXISTS fiscal_periods (
 );
 
 -- 1.1.2 Chart of Accounts
-DO $$ BEGIN
-    CREATE TYPE account_type_enum AS ENUM ('asset', 'liability', 'equity', 'revenue', 'expense', 'cogs');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
+-- Note: account_type_enum is created in migrations
 CREATE TABLE IF NOT EXISTS accounts (
     id SERIAL PRIMARY KEY,
     code VARCHAR(20) NOT NULL UNIQUE,
     name_ar VARCHAR(255) NOT NULL,
     name_en VARCHAR(255) NOT NULL,
     parent_id INT REFERENCES accounts(id) ON DELETE CASCADE,
-    account_type account_type_enum NOT NULL,
+    account_type VARCHAR(20) NOT NULL CHECK (account_type IN ('asset', 'liability', 'equity', 'revenue', 'expense', 'cogs')),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

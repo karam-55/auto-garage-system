@@ -83,7 +83,19 @@ class DatabaseConnection {
       final statements = schema.split(';').where((s) => s.trim().isNotEmpty);
 
       for (final statement in statements) {
-        await _pool.execute(statement.trim());
+        try {
+          await _pool.execute(statement.trim());
+        } catch (e) {
+          // Ignore errors for columns/constraints that already exist
+          final errorStr = e.toString();
+          if (errorStr.contains('already exists') || 
+              errorStr.contains('duplicate_column') ||
+              errorStr.contains('duplicate_constraint')) {
+            _logger.w('Skipping existing column/constraint: $e');
+          } else {
+            rethrow;
+          }
+        }
       }
 
       _logger.i('Database schema executed successfully');

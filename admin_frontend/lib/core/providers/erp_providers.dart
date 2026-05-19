@@ -8,7 +8,6 @@ import '../../screens/warehouse/models/inventory_transfer.dart';
 import '../../screens/manufacturing/models/bill_of_materials.dart';
 import '../../screens/manufacturing/models/manufacturing_order.dart';
 import '../../screens/crm/models/crm_lead.dart';
-import '../../screens/crm/models/crm_activity.dart';
 import '../../screens/hr/models/employee_contract.dart';
 import '../../screens/hr/models/leave_request.dart';
 import '../../screens/hr/models/performance_review.dart';

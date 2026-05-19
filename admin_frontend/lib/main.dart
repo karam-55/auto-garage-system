@@ -22,6 +22,24 @@ import 'screens/change_password_screen.dart';
 import 'screens/company_settings_screen.dart';
 import 'screens/quick_booking_screen.dart';
 import 'screens/inventory_screen.dart';
+// Accounting Screens
+import 'screens/accounting/chart_of_accounts_screen.dart';
+import 'screens/accounting/journal_entries_screen.dart';
+import 'screens/accounting/accounting_screen.dart';
+import 'screens/accounting/trial_balance_screen.dart';
+import 'screens/accounting/profit_loss_screen.dart';
+import 'screens/accounting/balance_sheet_screen.dart';
+import 'screens/accounting/general_ledger_screen.dart';
+import 'screens/accounting/cash_flow_screen.dart';
+import 'screens/accounting/break_even_screen.dart';
+import 'screens/accounting/trading_account_screen.dart';
+import 'screens/accounting/payroll_settings_screen.dart';
+import 'screens/accounting/payroll_screen.dart';
+import 'screens/accounting/payroll_report_screen.dart';
+import 'screens/accounting/vendors_screen.dart';
+import 'screens/accounting/purchase_invoices_screen.dart';
+import 'screens/accounting/expenses_screen.dart';
+import 'screens/accounting/bank_accounts_screen.dart';
 // ERP Screens
 import 'screens/purchasing/purchase_orders_screen.dart';
 import 'screens/sales/quotations_screen.dart';
@@ -589,6 +607,23 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       EmployeesScreen(apiService: _apiService),
       ReportsScreen(apiService: _apiService),
       InventoryScreen(apiService: _apiService),
+      ChartOfAccountsScreen(apiService: _apiService),
+      JournalEntriesScreen(apiService: _apiService),
+      const AccountingScreen(),
+      TrialBalanceScreen(apiService: _apiService),
+      ProfitLossScreen(apiService: _apiService),
+      BalanceSheetScreen(apiService: _apiService),
+      GeneralLedgerScreen(apiService: _apiService),
+      const CashFlowScreen(),
+      const BreakEvenScreen(),
+      const TradingAccountScreen(),
+      PayrollSettingsScreen(apiService: _apiService),
+      PayrollScreen(apiService: _apiService),
+      PayrollReportScreen(apiService: _apiService),
+      VendorsScreen(apiService: _apiService),
+      PurchaseInvoicesScreen(apiService: _apiService),
+      ExpensesScreen(apiService: _apiService),
+      BankAccountsScreen(apiService: _apiService),
       CompanySettingsScreen(apiService: _apiService),
       ChangePasswordScreen(apiService: _apiService),
       // ERP Screens

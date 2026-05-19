@@ -53,12 +53,19 @@ class _ChartOfAccountsScreenState extends ConsumerState<ChartOfAccountsScreen> {
       }
     }
 
-    for (final account in accounts) {
-      if (childrenMap.containsKey(account.id)) {
-        account.children = childrenMap[account.id]!;
-        _buildAccountTree(account.children!);
+    // Build tree recursively
+    void buildChildren(List<Account> accountsToProcess) {
+      for (int i = 0; i < accountsToProcess.length; i++) {
+        final account = accountsToProcess[i];
+        if (childrenMap.containsKey(account.id)) {
+          final children = childrenMap[account.id]!;
+          buildChildren(children);
+          accountsToProcess[i] = account.copyWith(children: children);
+        }
       }
     }
+
+    buildChildren(accounts);
 
     return rootAccounts;
   }

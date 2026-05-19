@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/payroll_providers.dart';
-import '../../core/providers/user_providers.dart';
 import '../../core/services/api_service.dart';
 
 class PayrollScreen extends ConsumerStatefulWidget {
@@ -125,14 +124,13 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                   ),
                 ),
                 DataCell(
-                  if (!payment['is_paid'])
-                    IconButton(
-                      icon: const Icon(Icons.payment),
-                      onPressed: () => _paySalary(payment['id'] as int),
-                      tooltip: 'صرف الراتب',
-                    )
-                  else
-                    const Icon(Icons.check_circle, color: Colors.green),
+                  payment['is_paid']
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : IconButton(
+                        icon: const Icon(Icons.payment),
+                        onPressed: () => _paySalary(payment['id'] as int),
+                        tooltip: 'صرف الراتب',
+                      ),
                 ),
               ]);
             }).toList(),
@@ -180,7 +178,7 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
       // Get employees with base_salary > 0
       final employees = await widget.apiService.get('/users');
       final employeesWithSalary = (employees as List)
-          .where((e) => (e['base_salary'] as num?)?.toDouble() ?? 0 > 0)
+          .where((e) => ((e['base_salary'] as num?)?.toDouble() ?? 0) > 0)
           .toList();
 
       if (employeesWithSalary.isEmpty) {

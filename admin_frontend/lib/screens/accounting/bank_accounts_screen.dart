@@ -63,7 +63,7 @@ class _BankAccountsScreenState extends ConsumerState<BankAccountsScreen> {
                 ),
                 DataCell(
                   IconButton(
-                    icon: const Icon(Icons.reconcile),
+                    icon: const Icon(Icons.sync),
                     onPressed: () => _reconcileAccount(account['id'] as int),
                     tooltip: 'تسوية',
                   ),

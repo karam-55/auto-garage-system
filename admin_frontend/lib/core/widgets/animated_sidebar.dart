@@ -290,15 +290,135 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
             requiredRoles: null, // للجميع
           ),
           _SidebarDestination(
+            icon: Icons.account_balance_rounded,
+            label: 'دليل الحسابات',
+            index: 10,
+            requiredRoles: [Role.owner, Role.manager, Role.accountant],
+          ),
+          _SidebarDestination(
+            icon: Icons.receipt_long_rounded,
+            label: 'القيود اليومية',
+            index: 11,
+            requiredRoles: [Role.owner, Role.manager, Role.accountant],
+          ),
+          _SidebarDestination(
+            icon: Icons.assessment_rounded,
+            label: 'التقارير المالية',
+            index: 12,
+            requiredRoles: [Role.owner, Role.manager, Role.accountant],
+            children: [
+              _SidebarDestination(
+                icon: Icons.balance_rounded,
+                label: 'ميزان المراجعة',
+                index: 13,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.trending_up_rounded,
+                label: 'قائمة الدخل',
+                index: 14,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.account_balance_wallet_rounded,
+                label: 'الميزانية العمومية',
+                index: 15,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.menu_book_rounded,
+                label: 'دفتر الأستاذ العام',
+                index: 16,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.account_balance_rounded,
+                label: 'التدفقات النقدية',
+                index: 17,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.show_chart_rounded,
+                label: 'نقطة التعادل',
+                index: 18,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.trending_up_rounded,
+                label: 'تقرير المتجارة',
+                index: 19,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+            ],
+          ),
+          _SidebarDestination(
+            icon: Icons.payments_rounded,
+            label: 'الرواتب',
+            index: 20,
+            requiredRoles: [Role.owner, Role.manager, Role.hrManager, Role.accountant],
+            children: [
+              _SidebarDestination(
+                icon: Icons.settings_rounded,
+                label: 'إعدادات الرواتب',
+                index: 21,
+                requiredRoles: [Role.owner, Role.manager, Role.hrManager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.receipt_long_rounded,
+                label: 'كشوف الرواتب',
+                index: 22,
+                requiredRoles: [Role.owner, Role.manager, Role.hrManager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.description_rounded,
+                label: 'تقرير الرواتب',
+                index: 23,
+                requiredRoles: [Role.owner, Role.manager, Role.hrManager, Role.accountant],
+              ),
+            ],
+          ),
+          _SidebarDestination(
+            icon: Icons.payments_rounded,
+            label: 'الماليات',
+            index: 24,
+            requiredRoles: [Role.owner, Role.manager, Role.accountant],
+            children: [
+              _SidebarDestination(
+                icon: Icons.people_rounded,
+                label: 'الموردين',
+                index: 25,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.receipt_long_rounded,
+                label: 'فواتير الشراء',
+                index: 26,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.account_balance_wallet_rounded,
+                label: 'المصاريف',
+                index: 27,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+              _SidebarDestination(
+                icon: Icons.account_balance_rounded,
+                label: 'الحسابات البنكية',
+                index: 28,
+                requiredRoles: [Role.owner, Role.manager, Role.accountant],
+              ),
+            ],
+          ),
+          _SidebarDestination(
             icon: Icons.settings_rounded,
             label: 'إعدادات النظام',
-            index: 10,
+            index: 27,
             requiredRoles: [Role.owner],
           ),
           _SidebarDestination(
             icon: Icons.lock_rounded,
             label: 'كلمة المرور',
-            index: 11,
+            index: 28,
             requiredRoles: null, // للجميع
           ),
         ];

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/financial_providers.dart';
-import '../../core/providers/account_providers.dart';
+import '../../core/providers/accounting_providers.dart';
 import '../../core/services/api_service.dart';
 
 class ExpensesScreen extends ConsumerStatefulWidget {

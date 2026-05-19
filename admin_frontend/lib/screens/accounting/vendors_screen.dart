@@ -207,15 +207,12 @@ class _VendorsScreenState extends ConsumerState<VendorsScreen> {
 
     try {
       if (isEditing) {
-        await ref.read(updateVendorProvider({
-          'id': vendor!['id'],
-          'data': {
-            'name': nameController.text,
-            'phone': phoneController.text,
-            'address': addressController.text,
-            'tax_number': taxNumberController.text,
-          },
-        }).future);
+        await widget.apiService.put('/vendors/${vendor!['id']}', {
+          'name': nameController.text,
+          'phone': phoneController.text,
+          'address': addressController.text,
+          'tax_number': taxNumberController.text,
+        });
       } else {
         await ref.read(createVendorProvider({
           'name': nameController.text,

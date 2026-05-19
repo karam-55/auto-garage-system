@@ -16,7 +16,7 @@ final accountsProvider = FutureProvider.autoDispose<List<Account>>((ref) async {
 
 final createAccountProvider = FutureProvider.autoDispose.family<Account, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/api/accounts', body: data);
+  final response = await api.post('/api/accounts', data);
   return Account.fromJson(response);
 });
 
@@ -24,7 +24,7 @@ final updateAccountProvider = FutureProvider.autoDispose.family<Account, Map<Str
   final api = ref.read(apiServiceProvider);
   final id = data['id'];
   final updateData = Map<String, dynamic>.from(data)..remove('id');
-  final response = await api.put('/api/accounts/$id', body: updateData);
+  final response = await api.put('/api/accounts/$id', updateData);
   return Account.fromJson(response);
 });
 
@@ -41,7 +41,7 @@ final accountByIdProvider = FutureProvider.autoDispose.family<Account, int>((ref
 
 final journalEntriesProvider = FutureProvider.autoDispose.family<List<JournalEntry>, Map<String, dynamic>>((ref, filters) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/api/journal-entries', queryParams: filters);
+  final response = await api.get('/api/journal-entries');
   return (response as List).map((j) => JournalEntry.fromJson(j as Map<String, dynamic>)).toList();
 });
 
@@ -53,7 +53,7 @@ final journalEntryDetailsProvider = FutureProvider.autoDispose.family<JournalEnt
 
 final createJournalEntryProvider = FutureProvider.autoDispose.family<JournalEntry, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/api/journal-entries', body: data);
+  final response = await api.post('/api/journal-entries', data);
   return JournalEntry.fromJson(response);
 });
 
@@ -61,7 +61,7 @@ final updateJournalEntryProvider = FutureProvider.autoDispose.family<JournalEntr
   final api = ref.read(apiServiceProvider);
   final id = data['id'];
   final updateData = Map<String, dynamic>.from(data)..remove('id');
-  final response = await api.put('/api/journal-entries/$id', body: updateData);
+  final response = await api.put('/api/journal-entries/$id', updateData);
   return JournalEntry.fromJson(response);
 });
 

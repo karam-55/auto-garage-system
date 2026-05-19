@@ -27,7 +27,7 @@ class _JournalEntryDetailsScreenState extends ConsumerState<JournalEntryDetailsS
   Future<void> _loadEntry() async {
     setState(() => _isLoading = true);
     try {
-      final entry = await ref.read(journalEntryDetailsProvider(entryId).future);
+      final entry = await ref.read(journalEntryDetailsProvider(widget.entryId).future);
       setState(() {
         _entry = entry;
         _isLoading = false;

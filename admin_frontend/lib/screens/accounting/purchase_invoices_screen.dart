@@ -68,14 +68,13 @@ class _PurchaseInvoicesScreenState extends ConsumerState<PurchaseInvoicesScreen>
                   ),
                 ),
                 DataCell(
-                  if (!isPaid)
-                    IconButton(
-                      icon: const Icon(Icons.payment),
-                      onPressed: () => _payInvoice(invoice),
-                      tooltip: 'دفع',
-                    )
-                  else
-                    const Icon(Icons.check_circle, color: Colors.green),
+                  isPaid
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : IconButton(
+                        icon: const Icon(Icons.payment),
+                        onPressed: () => _payInvoice(invoice),
+                        tooltip: 'دفع',
+                      ),
                 ),
               ]);
             }).toList(),

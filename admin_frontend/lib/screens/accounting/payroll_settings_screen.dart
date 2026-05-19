@@ -145,7 +145,7 @@ class _PayrollSettingsScreenState extends ConsumerState<PayrollSettingsScreen> {
     });
 
     try {
-      await widget.apiService.put('/payroll/settings', data: {
+      await widget.apiService.put('/payroll/settings', {
         'monthly_work_days': int.parse(_monthlyWorkDaysController.text),
         'salary_payment_day': int.parse(_salaryPaymentDayController.text),
       });

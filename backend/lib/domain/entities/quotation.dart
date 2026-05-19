@@ -1,6 +1,7 @@
 class Quotation {
   final int id;
   final String customerId;
+  final String vehicleId;
   final String quotationNumber;
   final DateTime date;
   final DateTime? validUntil;
@@ -15,6 +16,7 @@ class Quotation {
   Quotation({
     required this.id,
     required this.customerId,
+    required this.vehicleId,
     required this.quotationNumber,
     required this.date,
     this.validUntil,
@@ -31,6 +33,7 @@ class Quotation {
     return {
       'id': id,
       'customer_id': customerId,
+      'vehicle_id': vehicleId,
       'quotation_number': quotationNumber,
       'date': date.toIso8601String(),
       'valid_until': validUntil?.toIso8601String(),
@@ -47,6 +50,7 @@ class Quotation {
   Quotation copyWith({
     int? id,
     String? customerId,
+    String? vehicleId,
     String? quotationNumber,
     DateTime? date,
     DateTime? validUntil,
@@ -61,6 +65,7 @@ class Quotation {
     return Quotation(
       id: id ?? this.id,
       customerId: customerId ?? this.customerId,
+      vehicleId: vehicleId ?? this.vehicleId,
       quotationNumber: quotationNumber ?? this.quotationNumber,
       date: date ?? this.date,
       validUntil: validUntil ?? this.validUntil,

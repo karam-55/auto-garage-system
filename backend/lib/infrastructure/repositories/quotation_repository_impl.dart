@@ -11,14 +11,15 @@ class QuotationRepositoryImpl implements QuotationRepository {
   Future<Quotation> create(Quotation quotation) async {
     final result = await _db.pool.execute('''
       INSERT INTO quotations (
-        customer_id, quotation_number, date, valid_until, 
+        customer_id, vehicle_id, quotation_number, quotation_date, valid_until, 
         status, total_amount, notes, created_by
-      ) VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8)
+      ) VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9)
       RETURNING id, created_at, updated_at
     ''', parameters: {
       'customer_id': quotation.customerId,
+      'vehicle_id': quotation.vehicleId,
       'quotation_number': quotation.quotationNumber,
-      'date': quotation.date,
+      'quotation_date': quotation.date,
       'valid_until': quotation.validUntil,
       'status': quotation.status,
       'total_amount': quotation.totalAmount,
@@ -53,7 +54,7 @@ class QuotationRepositoryImpl implements QuotationRepository {
   @override
   Future<List<Quotation>> findAll() async {
     final result = await _db.pool.execute('''
-      SELECT * FROM quotations ORDER BY date DESC
+      SELECT * FROM quotations ORDER BY quotation_date DESC
     ''');
 
     return result.map((row) => _mapRowToQuotation(row)).toList();
@@ -62,7 +63,7 @@ class QuotationRepositoryImpl implements QuotationRepository {
   @override
   Future<List<Quotation>> findByCustomerId(String customerId) async {
     final result = await _db.pool.execute('''
-      SELECT * FROM quotations WHERE customer_id = \$1 ORDER BY date DESC
+      SELECT * FROM quotations WHERE customer_id = \$1 ORDER BY quotation_date DESC
     ''', parameters: {'customer_id': customerId});
 
     return result.map((row) => _mapRowToQuotation(row)).toList();
@@ -98,15 +99,17 @@ class QuotationRepositoryImpl implements QuotationRepository {
     return Quotation(
       id: row[0] as int,
       customerId: row[1] as String,
-      quotationNumber: row[2] as String,
-      date: row[3] as DateTime,
-      validUntil: row[4] as DateTime?,
-      status: row[5] as String,
+      vehicleId: row[2] as String,
+      quotationNumber: row[3] as String,
+      date: row[4] as DateTime,
+      validUntil: row[5] as DateTime?,
+      status: row[10] as String,
       totalAmount: row[6] as double,
-      notes: row[7] as String?,
-      createdBy: row[8] as String?,
-      createdAt: row[9] as DateTime,
-      updatedAt: row[10] as DateTime,
+      notes: row[9] as String?,
+      createdBy: row[11] as String?,
+      createdAt: row[12] as DateTime,
+      updatedAt: row[13] as DateTime,
+      lines: [],
     );
   }
 }

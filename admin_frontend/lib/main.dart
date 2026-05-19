@@ -544,10 +544,8 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       // Disconnect WebSocket before logout
       webSocketService.disconnect();
       
-      // Clear user data from SharedPreferences
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.remove('user');
-      });
+      // Clear user data using authProvider
+      ref.read(authProvider.notifier).clearUser();
       
       Navigator.pushReplacement(
         context,

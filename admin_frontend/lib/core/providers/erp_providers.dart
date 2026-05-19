@@ -254,7 +254,7 @@ final updateManufacturingOrderProvider = FutureProvider.family<ManufacturingOrde
 
 final completeManufacturingOrderProvider = FutureProvider.family<ManufacturingOrder, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/manufacturing/orders/$id/complete', {});
+  final res = await api.post('/manufacturing/orders/$id/complete', {});
   return ManufacturingOrder.fromJson(res);
 });
 

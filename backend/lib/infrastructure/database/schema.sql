@@ -429,3 +429,155 @@ CREATE INDEX IF NOT EXISTS idx_depreciation_entries_period ON depreciation_entri
 CREATE INDEX IF NOT EXISTS idx_maintenance_contracts_customer_id ON maintenance_contracts(customer_id);
 CREATE INDEX IF NOT EXISTS idx_maintenance_contracts_vehicle_id ON maintenance_contracts(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_maintenance_contracts_next_service_due ON maintenance_contracts(next_service_due);
+
+-- Quotations table
+CREATE TABLE IF NOT EXISTS quotations (
+    id SERIAL PRIMARY KEY,
+    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    quotation_number VARCHAR(50) NOT NULL UNIQUE,
+    quotation_date DATE NOT NULL,
+    valid_until DATE,
+    total_amount DECIMAL(15,2) NOT NULL DEFAULT 0,
+    discount_amount DECIMAL(15,2) DEFAULT 0,
+    tax_amount DECIMAL(15,2) DEFAULT 0,
+    notes TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'accepted', 'rejected', 'expired', 'converted_to_order')),
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Quotation Items table
+CREATE TABLE IF NOT EXISTS quotation_items (
+    id SERIAL PRIMARY KEY,
+    quotation_id INTEGER NOT NULL REFERENCES quotations(id) ON DELETE CASCADE,
+    service_id UUID REFERENCES services(id) ON DELETE SET NULL,
+    description TEXT,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    unit_price DECIMAL(15,2) NOT NULL,
+    discount_percent DECIMAL(5,2) DEFAULT 0,
+    total_price DECIMAL(15,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Sales Orders table
+CREATE TABLE IF NOT EXISTS sales_orders (
+    id SERIAL PRIMARY KEY,
+    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    order_number VARCHAR(50) NOT NULL UNIQUE,
+    order_date DATE NOT NULL,
+    quotation_id INTEGER REFERENCES quotations(id) ON DELETE SET NULL,
+    total_amount DECIMAL(15,2) NOT NULL DEFAULT 0,
+    discount_amount DECIMAL(15,2) DEFAULT 0,
+    tax_amount DECIMAL(15,2) DEFAULT 0,
+    notes TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'in_progress', 'completed', 'cancelled')),
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Sales Order Items table
+CREATE TABLE IF NOT EXISTS sales_order_items (
+    id SERIAL PRIMARY KEY,
+    sales_order_id INTEGER NOT NULL REFERENCES sales_orders(id) ON DELETE CASCADE,
+    service_id UUID REFERENCES services(id) ON DELETE SET NULL,
+    description TEXT,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    unit_price DECIMAL(15,2) NOT NULL,
+    discount_percent DECIMAL(5,2) DEFAULT 0,
+    total_price DECIMAL(15,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Purchase Orders table
+CREATE TABLE IF NOT EXISTS purchase_orders (
+    id SERIAL PRIMARY KEY,
+    vendor_id INTEGER REFERENCES vendors(id) ON DELETE SET NULL,
+    order_number VARCHAR(50) NOT NULL UNIQUE,
+    order_date DATE NOT NULL,
+    expected_delivery_date DATE,
+    total_amount DECIMAL(15,2) NOT NULL DEFAULT 0,
+    notes TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'received', 'cancelled')),
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Purchase Order Items table
+CREATE TABLE IF NOT EXISTS purchase_order_items (
+    id SERIAL PRIMARY KEY,
+    purchase_order_id INTEGER NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
+    item_name VARCHAR(255) NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    unit_price DECIMAL(15,2) NOT NULL,
+    total_price DECIMAL(15,2) NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Employee Contracts table
+CREATE TABLE IF NOT EXISTS employee_contracts (
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    contract_number VARCHAR(50) NOT NULL UNIQUE,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    contract_type VARCHAR(50) NOT NULL DEFAULT 'full_time' CHECK (contract_type IN ('full_time', 'part_time', 'contract')),
+    base_salary DECIMAL(15,2) NOT NULL,
+    position VARCHAR(255),
+    department VARCHAR(255),
+    status VARCHAR(50) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'terminated', 'expired')),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Leave Requests table
+CREATE TABLE IF NOT EXISTS leave_requests (
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    leave_type VARCHAR(50) NOT NULL CHECK (leave_type IN ('annual', 'sick', 'unpaid', 'other')),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    total_days INTEGER NOT NULL,
+    reason TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled')),
+    approved_by UUID REFERENCES users(id),
+    approved_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Performance Reviews table
+CREATE TABLE IF NOT EXISTS performance_reviews (
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reviewer_id UUID NOT NULL REFERENCES users(id),
+    review_period VARCHAR(50) NOT NULL,
+    rating DECIMAL(3,2) CHECK (rating >= 0 AND rating <= 5),
+    strengths TEXT,
+    areas_for_improvement TEXT,
+    goals TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'reviewed')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for Sales and Purchase tables
+CREATE INDEX IF NOT EXISTS idx_quotations_customer_id ON quotations(customer_id);
+CREATE INDEX IF NOT EXISTS idx_quotations_status ON quotations(status);
+CREATE INDEX IF NOT EXISTS idx_quotations_date ON quotations(quotation_date);
+CREATE INDEX IF NOT EXISTS idx_sales_orders_customer_id ON sales_orders(customer_id);
+CREATE INDEX IF NOT EXISTS idx_sales_orders_status ON sales_orders(status);
+CREATE INDEX IF NOT EXISTS idx_sales_orders_date ON sales_orders(order_date);
+CREATE INDEX IF NOT EXISTS idx_purchase_orders_vendor_id ON purchase_orders(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_purchase_orders_status ON purchase_orders(status);
+CREATE INDEX IF NOT EXISTS idx_employee_contracts_user_id ON employee_contracts(user_id);
+CREATE INDEX IF NOT EXISTS idx_employee_contracts_status ON employee_contracts(status);
+CREATE INDEX IF NOT EXISTS idx_leave_requests_user_id ON leave_requests(user_id);
+CREATE INDEX IF NOT EXISTS idx_leave_requests_status ON leave_requests(status);
+CREATE INDEX IF NOT EXISTS idx_performance_reviews_user_id ON performance_reviews(user_id);

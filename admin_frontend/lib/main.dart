@@ -488,6 +488,7 @@ class GarageDashboardScreen extends StatefulWidget {
 class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
   int _selectedIndex = 0;
   late ApiService _apiService;
+  final AuthService _authService = AuthService();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _destinations = [
@@ -546,6 +547,9 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       
       // Clear user data from auth provider
       ProviderScope.containerOf(context).read(authProvider.notifier).clearUser();
+      
+      // Clear tokens from AuthService
+      _authService.logout();
       
       // Clear token from API service
       _apiService.clearToken();

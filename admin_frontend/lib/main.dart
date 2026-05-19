@@ -541,6 +541,19 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     const _NavItem(icon: Icons.account_balance_rounded, label: 'الحسابات البنكية'),
     const _NavItem(icon: Icons.settings_rounded, label: 'إعدادات النظام'),
     const _NavItem(icon: Icons.lock_rounded, label: 'كلمة المرور'),
+    // ERP Screens
+    const _NavItem(icon: Icons.shopping_cart_rounded, label: 'أوامر الشراء'),
+    const _NavItem(icon: Icons.description_rounded, label: 'عروض الأسعار'),
+    const _NavItem(icon: Icons.receipt_long_rounded, label: 'أوامر البيع'),
+    const _NavItem(icon: Icons.warehouse_rounded, label: 'المستودعات'),
+    const _NavItem(icon: Icons.swap_horiz_rounded, label: 'نقل المخزون'),
+    const _NavItem(icon: Icons.list_alt_rounded, label: 'قوائم المواد'),
+    const _NavItem(icon: Icons.build_circle_rounded, label: 'أوامر الإنتاج'),
+    const _NavItem(icon: Icons.people_outline_rounded, label: 'العملاء المحتملين'),
+    const _NavItem(icon: Icons.description_rounded, label: 'عقود الموظفين'),
+    const _NavItem(icon: Icons.event_busy_rounded, label: 'طلبات الإجازة'),
+    const _NavItem(icon: Icons.account_balance_rounded, label: 'الأصول الثابتة'),
+    const _NavItem(icon: Icons.build_rounded, label: 'عقود الصيانة'),
   ];
 
   @override

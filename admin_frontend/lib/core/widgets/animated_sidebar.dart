@@ -410,43 +410,30 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
         // إضافة وحدات ERP بناءً على صلاحيات الدور
         final erpDestinations = <_SidebarDestination>[];
         
-        if (userRole == Role.owner || userRole == Role.accountant || userRole == Role.manager) {
+        if (userRole == Role.owner || userRole == Role.manager || userRole == Role.managerSales || userRole == Role.accountant) {
           erpDestinations.add(_SidebarDestination(
             icon: Icons.shopping_cart_rounded,
-            label: 'المشتريات',
-            index: 31,
-            requiredRoles: [Role.owner, Role.accountant, Role.manager],
-            children: [
-              _SidebarDestination(
-                icon: Icons.receipt_long_rounded,
-                label: 'أوامر الشراء',
-                index: 32,
-                requiredRoles: [Role.owner, Role.accountant, Role.manager],
-              ),
-            ],
+            label: 'أوامر الشراء',
+            index: 29,
+            requiredRoles: [Role.owner, Role.manager, Role.managerSales, Role.accountant],
           ));
         }
         
         if (userRole == Role.owner || userRole == Role.manager || userRole == Role.managerSales || userRole == Role.accountant) {
           erpDestinations.add(_SidebarDestination(
-            icon: Icons.point_of_sale_rounded,
-            label: 'المبيعات',
-            index: 33,
+            icon: Icons.description_rounded,
+            label: 'عروض الأسعار',
+            index: 30,
             requiredRoles: [Role.owner, Role.manager, Role.managerSales, Role.accountant],
-            children: [
-              _SidebarDestination(
-                icon: Icons.description_rounded,
-                label: 'عروض الأسعار',
-                index: 34,
-                requiredRoles: [Role.owner, Role.manager, Role.managerSales, Role.accountant],
-              ),
-              _SidebarDestination(
-                icon: Icons.receipt_long_rounded,
-                label: 'أوامر البيع',
-                index: 35,
-                requiredRoles: [Role.owner, Role.manager, Role.managerSales, Role.accountant],
-              ),
-            ],
+          ));
+        }
+        
+        if (userRole == Role.owner || userRole == Role.manager || userRole == Role.managerSales || userRole == Role.accountant) {
+          erpDestinations.add(_SidebarDestination(
+            icon: Icons.receipt_long_rounded,
+            label: 'أوامر البيع',
+            index: 31,
+            requiredRoles: [Role.owner, Role.manager, Role.managerSales, Role.accountant],
           ));
         }
         
@@ -454,85 +441,62 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
           erpDestinations.add(_SidebarDestination(
             icon: Icons.warehouse_rounded,
             label: 'المستودعات',
-            index: 36,
+            index: 32,
             requiredRoles: [Role.owner, Role.manager, Role.managerWarehouse, Role.accountant],
-            children: [
-              _SidebarDestination(
-                icon: Icons.store_rounded,
-                label: 'المستودعات',
-                index: 37,
-                requiredRoles: [Role.owner, Role.manager, Role.managerWarehouse, Role.accountant],
-              ),
-              _SidebarDestination(
-                icon: Icons.swap_horiz_rounded,
-                label: 'نقل المخزون',
-                index: 38,
-                requiredRoles: [Role.owner, Role.manager, Role.managerWarehouse, Role.accountant],
-              ),
-            ],
           ));
         }
         
         if (userRole == Role.owner || userRole == Role.manager || userRole == Role.managerWarehouse || userRole == Role.accountant) {
           erpDestinations.add(_SidebarDestination(
-            icon: Icons.precision_manufacturing_rounded,
-            label: 'الإنتاج',
-            index: 39,
+            icon: Icons.swap_horiz_rounded,
+            label: 'نقل المخزون',
+            index: 33,
             requiredRoles: [Role.owner, Role.manager, Role.managerWarehouse, Role.accountant],
-            children: [
-              _SidebarDestination(
-                icon: Icons.list_alt_rounded,
-                label: 'قوائم المواد',
-                index: 40,
-                requiredRoles: [Role.owner, Role.manager, Role.managerWarehouse, Role.accountant],
-              ),
-              _SidebarDestination(
-                icon: Icons.build_circle_rounded,
-                label: 'أوامر الإنتاج',
-                index: 41,
-                requiredRoles: [Role.owner, Role.manager, Role.managerWarehouse, Role.accountant],
-              ),
-            ],
+          ));
+        }
+        
+        if (userRole == Role.owner || userRole == Role.manager || userRole == Role.managerWarehouse || userRole == Role.accountant) {
+          erpDestinations.add(_SidebarDestination(
+            icon: Icons.list_alt_rounded,
+            label: 'قوائم المواد',
+            index: 34,
+            requiredRoles: [Role.owner, Role.manager, Role.managerWarehouse, Role.accountant],
+          ));
+        }
+        
+        if (userRole == Role.owner || userRole == Role.manager || userRole == Role.managerWarehouse || userRole == Role.accountant) {
+          erpDestinations.add(_SidebarDestination(
+            icon: Icons.build_circle_rounded,
+            label: 'أوامر الإنتاج',
+            index: 35,
+            requiredRoles: [Role.owner, Role.manager, Role.managerWarehouse, Role.accountant],
           ));
         }
         
         if (userRole == Role.owner || userRole == Role.manager || userRole == Role.managerSales || userRole == Role.accountant) {
           erpDestinations.add(_SidebarDestination(
-            icon: Icons.groups_rounded,
-            label: 'CRM',
-            index: 42,
+            icon: Icons.people_outline_rounded,
+            label: 'العملاء المحتملين',
+            index: 36,
             requiredRoles: [Role.owner, Role.manager, Role.managerSales, Role.accountant],
-            children: [
-              _SidebarDestination(
-                icon: Icons.people_outline_rounded,
-                label: 'العملاء المحتملين',
-                index: 43,
-                requiredRoles: [Role.owner, Role.manager, Role.managerSales, Role.accountant],
-              ),
-            ],
           ));
         }
         
         if (userRole == Role.owner || userRole == Role.manager || userRole == Role.hrManager || userRole == Role.accountant) {
           erpDestinations.add(_SidebarDestination(
-            icon: Icons.people_rounded,
-            label: 'الموارد البشرية',
-            index: 44,
+            icon: Icons.description_rounded,
+            label: 'عقود الموظفين',
+            index: 37,
             requiredRoles: [Role.owner, Role.manager, Role.hrManager, Role.accountant],
-            children: [
-              _SidebarDestination(
-                icon: Icons.description_rounded,
-                label: 'عقود الموظفين',
-                index: 45,
-                requiredRoles: [Role.owner, Role.manager, Role.hrManager, Role.accountant],
-              ),
-              _SidebarDestination(
-                icon: Icons.event_busy_rounded,
-                label: 'طلبات الإجازة',
-                index: 46,
-                requiredRoles: [Role.owner, Role.manager, Role.hrManager, Role.accountant],
-              ),
-            ],
+          ));
+        }
+        
+        if (userRole == Role.owner || userRole == Role.manager || userRole == Role.hrManager || userRole == Role.accountant) {
+          erpDestinations.add(_SidebarDestination(
+            icon: Icons.event_busy_rounded,
+            label: 'طلبات الإجازة',
+            index: 38,
+            requiredRoles: [Role.owner, Role.manager, Role.hrManager, Role.accountant],
           ));
         }
         
@@ -540,7 +504,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
           erpDestinations.add(_SidebarDestination(
             icon: Icons.account_balance_rounded,
             label: 'الأصول الثابتة',
-            index: 47,
+            index: 39,
             requiredRoles: [Role.owner, Role.accountant],
           ));
         }
@@ -549,7 +513,7 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
           erpDestinations.add(_SidebarDestination(
             icon: Icons.build_rounded,
             label: 'عقود الصيانة',
-            index: 48,
+            index: 40,
             requiredRoles: [Role.owner, Role.manager, Role.managerSales, Role.accountant],
           ));
         }

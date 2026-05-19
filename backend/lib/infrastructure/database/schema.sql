@@ -372,3 +372,60 @@ ALTER TABLE expenses ADD COLUMN IF NOT EXISTS journal_entry_id INTEGER REFERENCE
 -- Add foreign key constraint to purchase_invoice_items after inventory_variants is created
 ALTER TABLE purchase_invoice_items ADD CONSTRAINT fk_purchase_invoice_items_inventory_variant 
 FOREIGN KEY (inventory_variant_id) REFERENCES inventory_variants(id) ON DELETE SET NULL;
+
+-- ========================================
+-- ERP Tables
+-- ========================================
+
+-- Fixed Assets table
+CREATE TABLE IF NOT EXISTS fixed_assets (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    acquisition_date DATE NOT NULL,
+    acquisition_cost DECIMAL(15,2) NOT NULL,
+    salvage_value DECIMAL(15,2) DEFAULT 0,
+    useful_life_years INTEGER NOT NULL,
+    depreciation_method VARCHAR(50) NOT NULL DEFAULT 'straight_line',
+    current_net_book_value DECIMAL(15,2),
+    location VARCHAR(255),
+    status VARCHAR(50) NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Depreciation Entries table
+CREATE TABLE IF NOT EXISTS depreciation_entries (
+    id SERIAL PRIMARY KEY,
+    asset_id INTEGER NOT NULL REFERENCES fixed_assets(id) ON DELETE CASCADE,
+    period DATE NOT NULL,
+    depreciation_amount DECIMAL(15,2) NOT NULL,
+    journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Maintenance Contracts table
+CREATE TABLE IF NOT EXISTS maintenance_contracts (
+    id SERIAL PRIMARY KEY,
+    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    contract_number VARCHAR(50),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    service_interval_km INTEGER,
+    service_interval_days INTEGER,
+    last_service_km INTEGER,
+    next_service_due DATE,
+    notes TEXT,
+    created_by VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for ERP tables
+CREATE INDEX IF NOT EXISTS idx_fixed_assets_status ON fixed_assets(status);
+CREATE INDEX IF NOT EXISTS idx_fixed_assets_acquisition_date ON fixed_assets(acquisition_date);
+CREATE INDEX IF NOT EXISTS idx_depreciation_entries_asset_id ON depreciation_entries(asset_id);
+CREATE INDEX IF NOT EXISTS idx_depreciation_entries_period ON depreciation_entries(period);
+CREATE INDEX IF NOT EXISTS idx_maintenance_contracts_customer_id ON maintenance_contracts(customer_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_contracts_vehicle_id ON maintenance_contracts(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_contracts_next_service_due ON maintenance_contracts(next_service_due);

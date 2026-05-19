@@ -119,7 +119,7 @@ class _MyAppState extends State<MyApp> {
           final isRTL = _locale.languageCode == 'ar';
           return Directionality(
             textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-            child: child!,
+            child: child ?? const SizedBox(),
           );
         },
         home: SplashScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),

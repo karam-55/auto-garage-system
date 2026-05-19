@@ -3,6 +3,11 @@ import '../services/api_service.dart';
 import '../models/account.dart';
 import '../models/journal_entry.dart';
 
+// API Service Provider
+final apiServiceProvider = Provider<ApiService>((ref) {
+  return ApiService();
+});
+
 final accountsProvider = FutureProvider.autoDispose<List<Account>>((ref) async {
   final api = ref.read(apiServiceProvider);
   final response = await api.get('/accounts');

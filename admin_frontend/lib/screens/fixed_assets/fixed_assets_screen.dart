@@ -50,7 +50,9 @@ class _FixedAssetsScreenState extends ConsumerState<FixedAssetsScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(fixedAssetsProvider),
+            onRefresh: () async {
+              await ref.refresh(fixedAssetsProvider.future);
+            },
             child: ListView.builder(
               itemCount: assets.length,
               itemBuilder: (context, index) {

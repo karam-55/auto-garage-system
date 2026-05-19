@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
@@ -95,31 +97,33 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Auto Garage System',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: _themeMode,
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ar'),
-        Locale('en'),
-      ],
-      locale: _locale,
-      builder: (context, child) {
-        final isRTL = _locale.languageCode == 'ar';
-        return Directionality(
-          textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-          child: child!,
-        );
-      },
-      home: SplashScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),
+    return ProviderScope(
+      child: MaterialApp(
+        title: 'Auto Garage System',
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: _themeMode,
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('ar'),
+          Locale('en'),
+        ],
+        locale: _locale,
+        builder: (context, child) {
+          final isRTL = _locale.languageCode == 'ar';
+          return Directionality(
+            textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+            child: child!,
+          );
+        },
+        home: SplashScreen(onThemeToggle: _toggleTheme, themeMode: _themeMode),
+      ),
     );
   }
 }
@@ -160,7 +164,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => DashboardScreen(
+            builder: (context) => GarageDashboardScreen(
               apiService: apiService,
               onThemeToggle: widget.onThemeToggle,
               themeMode: widget.themeMode,
@@ -306,7 +310,7 @@ class _LoginScreenState extends State<LoginScreen>
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => DashboardScreen(
+              pageBuilder: (context, animation, secondaryAnimation) => GarageDashboardScreen(
                 apiService: apiService,
                 onThemeToggle: widget.onThemeToggle,
                 themeMode: widget.themeMode,
@@ -470,18 +474,18 @@ class _LoginScreenState extends State<LoginScreen>
   }
 }
 
-class DashboardScreen extends StatefulWidget {
+class GarageDashboardScreen extends StatefulWidget {
   final ApiService apiService;
   final VoidCallback? onThemeToggle;
   final ThemeMode themeMode;
   
-  const DashboardScreen({super.key, required this.apiService, this.onThemeToggle, required this.themeMode});
+  const GarageDashboardScreen({super.key, required this.apiService, this.onThemeToggle, required this.themeMode});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<GarageDashboardScreen> createState() => _GarageDashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
   int _selectedIndex = 0;
   late ApiService _apiService;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -568,7 +572,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isTablet = MediaQuery.sizeOf(context).width >= 800 && MediaQuery.sizeOf(context).width < 1200;
 
     final screens = [
-      const ProviderScope(child: DashboardScreen()),
+      const DashboardScreen(),
       OverviewScreen(apiService: _apiService),
       BookingsScreen(apiService: _apiService),
       QuickBookingScreen(apiService: _apiService),
@@ -581,18 +585,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       CompanySettingsScreen(apiService: _apiService),
       ChangePasswordScreen(apiService: _apiService),
       // ERP Screens
-      ProviderScope(child: const PurchaseOrdersScreen()),
-      ProviderScope(child: const QuotationsScreen()),
-      ProviderScope(child: const SalesOrdersScreen()),
-      ProviderScope(child: const WarehousesScreen()),
-      ProviderScope(child: const InventoryTransfersScreen()),
-      ProviderScope(child: const BomsScreen()),
-      ProviderScope(child: const ManufacturingOrdersScreen()),
-      ProviderScope(child: const LeadsScreen()),
-      ProviderScope(child: const EmployeeContractsScreen()),
-      ProviderScope(child: const LeaveRequestsScreen()),
-      ProviderScope(child: const FixedAssetsScreen()),
-      ProviderScope(child: const MaintenanceContractsScreen()),
+      const PurchaseOrdersScreen(),
+      const QuotationsScreen(),
+      const SalesOrdersScreen(),
+      const WarehousesScreen(),
+      InventoryTransfersScreen(),
+      const BomsScreen(),
+      const ManufacturingOrdersScreen(),
+      const LeadsScreen(),
+      const EmployeeContractsScreen(),
+      const LeaveRequestsScreen(),
+      const FixedAssetsScreen(),
+      const MaintenanceContractsScreen(),
     ];
 
     return Scaffold(

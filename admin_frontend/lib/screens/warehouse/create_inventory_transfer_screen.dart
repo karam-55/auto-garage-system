@@ -93,8 +93,8 @@ class _CreateInventoryTransferScreenState extends ConsumerState<CreateInventoryT
                   ),
                   items: variants.map<DropdownMenuItem<String>>((variant) {
                     return DropdownMenuItem<String>(
-                      value: variant['id'].toString(),
-                      child: Text(variant['name'] ?? 'بدون اسم'),
+                      value: variant['id']?.toString(),
+                      child: Text(variant['name']?.toString() ?? 'بدون اسم'),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -118,8 +118,8 @@ class _CreateInventoryTransferScreenState extends ConsumerState<CreateInventoryT
                   ),
                   items: warehouses.map<DropdownMenuItem<String>>((warehouse) {
                     return DropdownMenuItem<String>(
-                      value: warehouse['id'].toString(),
-                      child: Text(warehouse['name'] ?? 'بدون اسم'),
+                      value: warehouse.id.toString(),
+                      child: Text(warehouse.name ?? 'بدون اسم'),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -143,8 +143,8 @@ class _CreateInventoryTransferScreenState extends ConsumerState<CreateInventoryT
                   ),
                   items: warehouses.map<DropdownMenuItem<String>>((warehouse) {
                     return DropdownMenuItem<String>(
-                      value: warehouse['id'].toString(),
-                      child: Text(warehouse['name'] ?? 'بدون اسم'),
+                      value: warehouse.id.toString(),
+                      child: Text(warehouse.name ?? 'بدون اسم'),
                     );
                   }).toList(),
                   onChanged: (value) {

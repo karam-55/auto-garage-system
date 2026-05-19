@@ -76,6 +76,7 @@ class SalesOrderLine {
   final int quantity;
   final double unitPrice;
   final double totalPrice;
+  final double lineTotal; // Alias for totalPrice
   final DateTime createdAt;
 
   SalesOrderLine({
@@ -88,7 +89,7 @@ class SalesOrderLine {
     required this.unitPrice,
     required this.totalPrice,
     required this.createdAt,
-  });
+  }) : lineTotal = totalPrice;
 
   factory SalesOrderLine.fromJson(Map<String, dynamic> json) {
     return SalesOrderLine(

@@ -50,7 +50,9 @@ class _LeaveRequestsScreenState extends ConsumerState<LeaveRequestsScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(leaveRequestsProvider),
+            onRefresh: () async {
+              await ref.refresh(leaveRequestsProvider.future);
+            },
             child: ListView.builder(
               itemCount: requests.length,
               itemBuilder: (context, index) {
@@ -157,7 +159,7 @@ class _LeaveRequestsScreenState extends ConsumerState<LeaveRequestsScreen> {
                   onPressed: () async {
                     final approvedBy = 'المستخدم الحالي'; // TODO: Get from auth
                     try {
-                      await ref.read(approveLeaveRequestProvider((id: request.id, approvedBy: approvedBy)).future);
+                      await ref.read(approveLeaveRequestProvider(ApproveArgs(request.id, approvedBy)).future);
                       if (context.mounted) {
                         Navigator.pop(context);
                         ref.refresh(leaveRequestsProvider);
@@ -180,7 +182,7 @@ class _LeaveRequestsScreenState extends ConsumerState<LeaveRequestsScreen> {
                 TextButton.icon(
                   onPressed: () async {
                     try {
-                      await ref.read(rejectLeaveRequestProvider(request.id).future);
+                      await ref.read(rejectLeaveRequestProvider(ApproveArgs(request.id, 'المستخدم الحالي')).future);
                       if (context.mounted) {
                         Navigator.pop(context);
                         ref.refresh(leaveRequestsProvider);

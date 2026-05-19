@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
+import 'erp_providers.dart' show apiServiceProvider;
 
 // Vendors
 final vendorsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
@@ -10,7 +11,7 @@ final vendorsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
 
 final createVendorProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/vendors', data: data);
+  final response = await api.post('/vendors', data);
   return response;
 });
 
@@ -18,7 +19,7 @@ final updateVendorProvider = FutureProvider.autoDispose.family<Map<String, dynam
   final api = ref.read(apiServiceProvider);
   final id = params['id'] as int;
   final data = params['data'] as Map<String, dynamic>;
-  final response = await api.put('/vendors/$id', data: data);
+  final response = await api.put('/vendors/$id', data);
   return response;
 });
 
@@ -36,7 +37,7 @@ final purchaseInvoicesProvider = FutureProvider.autoDispose<List<dynamic>>((ref)
 
 final createPurchaseInvoiceProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/purchase-invoices', data: data);
+  final response = await api.post('/purchase-invoices', data);
   return response;
 });
 
@@ -44,7 +45,7 @@ final payPurchaseInvoiceProvider = FutureProvider.autoDispose.family<Map<String,
   final api = ref.read(apiServiceProvider);
   final id = params['id'] as int;
   final data = params['data'] as Map<String, dynamic>;
-  final response = await api.put('/purchase-invoices/$id/pay', data: data);
+  final response = await api.put('/purchase-invoices/$id/pay', data);
   return response;
 });
 
@@ -57,7 +58,7 @@ final expensesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
 
 final createExpenseProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/expenses', data: data);
+  final response = await api.post('/expenses', data);
   return response;
 });
 
@@ -75,7 +76,7 @@ final bankAccountsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) asy
 
 final createBankAccountProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/bank-accounts', data: data);
+  final response = await api.post('/bank-accounts', data);
   return response;
 });
 
@@ -89,6 +90,6 @@ final reconcileBankAccountProvider = FutureProvider.autoDispose.family<Map<Strin
   final api = ref.read(apiServiceProvider);
   final id = params['id'] as int;
   final data = params['data'] as Map<String, dynamic>;
-  final response = await api.post('/bank-accounts/$id/reconcile', data: data);
+  final response = await api.post('/bank-accounts/$id/reconcile', data);
   return response;
 });

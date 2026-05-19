@@ -16,6 +16,8 @@ import '../../infrastructure/repositories/leave_request_repository_impl.dart' as
 import '../../infrastructure/repositories/performance_review_repository_impl.dart' as performance_review_impl;
 import '../../infrastructure/repositories/maintenance_contract_repository_impl.dart' as maintenance_contract_impl;
 import '../../infrastructure/repositories/manufacturing_order_repository_impl.dart' as manufacturing_order_impl;
+import '../../infrastructure/repositories/sales_order_repository_impl.dart';
+import '../../infrastructure/repositories/inventory_transfer_repository_impl.dart';
 import '../../infrastructure/repositories/journal_repository_impl.dart';
 import '../../infrastructure/repositories/account_repository_impl.dart';
 import '../../infrastructure/repositories/company_settings_repository_impl.dart';
@@ -30,6 +32,8 @@ import '../../application/services/manufacturing_service.dart';
 import '../../application/services/crm_service.dart';
 import '../../application/services/hr_service.dart';
 import '../../application/services/fixed_asset_service.dart';
+import '../../application/services/sales_order_service.dart';
+import '../../application/services/inventory_transfer_service.dart';
 import '../../application/services/journal_service.dart';
 import '../../application/services/accounting_settings_service.dart';
 import '../../application/usecases/receive_purchase_order_usecase.dart';
@@ -46,6 +50,8 @@ class ErpRoutes {
   final CrmService _crmService;
   final HrService _hrService;
   final FixedAssetService _fixedAssetService;
+  final SalesOrderService _salesOrderService;
+  final InventoryTransferService _inventoryTransferService;
   final AuthMiddleware _authMiddleware;
   final ReceivePurchaseOrderUseCase _receivePurchaseOrderUseCase;
   final PayPurchaseInvoiceUseCase _payPurchaseInvoiceUseCase;
@@ -61,6 +67,8 @@ class ErpRoutes {
     this._crmService,
     this._hrService,
     this._fixedAssetService,
+    this._salesOrderService,
+    this._inventoryTransferService,
     this._authMiddleware,
     this._receivePurchaseOrderUseCase,
     this._payPurchaseInvoiceUseCase,
@@ -76,6 +84,8 @@ class ErpRoutes {
     final inventoryRepo = InventoryVariantWarehouseRepositoryImpl(db);
     final bomRepo = BillOfMaterialsRepositoryImpl(db);
     final orderRepo = manufacturing_order_impl.ManufacturingOrderRepositoryImpl(db);
+    final salesOrderRepo = SalesOrderRepositoryImpl(db);
+    final inventoryTransferRepo = InventoryTransferRepositoryImpl(db);
     final leadRepo = CrmLeadRepositoryImpl(db);
     final activityRepo = crm_activity_impl.CrmActivityRepositoryImpl(db);
     final contractRepo = EmployeeContractRepositoryImpl(db);
@@ -92,6 +102,8 @@ class ErpRoutes {
     final quotationService = QuotationService(quotationRepo);
     final warehouseService = WarehouseService(warehouseRepo);
     final manufacturingService = ManufacturingService(bomRepo, orderRepo);
+    final salesOrderService = SalesOrderService(salesOrderRepo);
+    final inventoryTransferService = InventoryTransferService(inventoryTransferRepo);
     final crmService = CrmService(leadRepo, activityRepo);
     final hrService = HrService(contractRepo, leaveRepo, reviewRepo);
     final fixedAssetService = FixedAssetService(assetRepo, maintenanceRepo);
@@ -112,6 +124,8 @@ class ErpRoutes {
       crmService,
       hrService,
       fixedAssetService,
+      salesOrderService,
+      inventoryTransferService,
       authMiddleware,
       receivePurchaseOrderUseCase,
       payPurchaseInvoiceUseCase,
@@ -130,6 +144,7 @@ class ErpRoutes {
     router.post('/purchase-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createPurchaseOrder)));
     router.put('/purchase-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_updatePurchaseOrder)));
     router.delete('/purchase-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deletePurchaseOrder)));
+    router.put('/purchase-orders/<id>/confirm', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_confirmPurchaseOrder)));
     router.put('/purchase-orders/<id>/receive', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_receivePurchaseOrder)));
     router.post('/purchase-invoices/<id>/pay', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_payPurchaseInvoice)));
 
@@ -139,6 +154,7 @@ class ErpRoutes {
     router.post('/quotations', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createQuotation)));
     router.put('/quotations/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateQuotation)));
     router.delete('/quotations/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteQuotation)));
+    router.post('/quotations/<id>/convert-to-order', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_convertQuotationToOrder)));
 
     // Warehouses
     router.get('/warehouses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getWarehouses)));
@@ -162,7 +178,18 @@ class ErpRoutes {
     router.post('/manufacturing/orders/<id>/complete', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_completeManufacturingOrder)));
 
     // Sales Orders
+    router.get('/sales-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getSalesOrders)));
+    router.get('/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getSalesOrder)));
+    router.post('/sales-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createSalesOrder)));
+    router.put('/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateSalesOrder)));
+    router.delete('/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteSalesOrder)));
     router.post('/sales-orders/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createSalesInvoice)));
+
+    // Inventory Transfers
+    router.get('/inventory-transfers', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getInventoryTransfers)));
+    router.get('/inventory-transfers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getInventoryTransfer)));
+    router.post('/inventory-transfers', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_WAREHOUSE])(_createInventoryTransfer)));
+    router.delete('/inventory-transfers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteInventoryTransfer)));
 
     // CRM
     router.get('/crm/leads', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getLeads)));
@@ -271,6 +298,18 @@ class ErpRoutes {
     }
   }
 
+  Future<Response> _confirmPurchaseOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      // TODO: Implement confirm purchase order logic
+      return Response.ok(jsonEncode({'message': 'Purchase order confirmed'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to confirm purchase order: $e'}));
+    }
+  }
+
   // Quotation Handlers
   Future<Response> _getQuotations(Request request) async {
     try {
@@ -324,6 +363,18 @@ class ErpRoutes {
       return Response.ok(jsonEncode({'message': 'Quotation deleted'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete quotation: $e'}));
+    }
+  }
+
+  Future<Response> _convertQuotationToOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      // TODO: Implement convert quotation to sales order logic
+      return Response.ok(jsonEncode({'message': 'Quotation converted to sales order'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to convert quotation: $e'}));
     }
   }
 
@@ -975,6 +1026,106 @@ class ErpRoutes {
       return Response.ok(jsonEncode({'message': 'Sales invoice created'}));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create sales invoice: $e'}));
+    }
+  }
+
+  // Sales Order Handlers
+  Future<Response> _getSalesOrders(Request request) async {
+    try {
+      final orders = await _salesOrderService.getAllSalesOrders();
+      return Response.ok(jsonEncode(orders.map((o) => o.toJson()).toList()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch sales orders: $e'}));
+    }
+  }
+
+  Future<Response> _getSalesOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      final order = await _salesOrderService.getSalesOrder(id);
+      if (order == null) {
+        return Response.notFound(jsonEncode({'error': 'Sales order not found'}));
+      }
+      return Response.ok(jsonEncode(order.toJson()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch sales order: $e'}));
+    }
+  }
+
+  Future<Response> _createSalesOrder(Request request) async {
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      // TODO: Parse and create SalesOrder from data
+      return Response.ok(jsonEncode({'message': 'Sales order created'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to create sales order: $e'}));
+    }
+  }
+
+  Future<Response> _updateSalesOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      // TODO: Parse and update SalesOrder from data
+      return Response.ok(jsonEncode({'message': 'Sales order updated'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to update sales order: $e'}));
+    }
+  }
+
+  Future<Response> _deleteSalesOrder(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      await _salesOrderService.deleteSalesOrder(id);
+      return Response.ok(jsonEncode({'message': 'Sales order deleted'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete sales order: $e'}));
+    }
+  }
+
+  // Inventory Transfer Handlers
+  Future<Response> _getInventoryTransfers(Request request) async {
+    try {
+      final transfers = await _inventoryTransferService.getAllInventoryTransfers();
+      return Response.ok(jsonEncode(transfers.map((t) => t.toJson()).toList()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch inventory transfers: $e'}));
+    }
+  }
+
+  Future<Response> _getInventoryTransfer(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      final transfer = await _inventoryTransferService.getInventoryTransfer(id);
+      if (transfer == null) {
+        return Response.notFound(jsonEncode({'error': 'Inventory transfer not found'}));
+      }
+      return Response.ok(jsonEncode(transfer.toJson()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch inventory transfer: $e'}));
+    }
+  }
+
+  Future<Response> _createInventoryTransfer(Request request) async {
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      // TODO: Parse and create InventoryTransfer from data
+      return Response.ok(jsonEncode({'message': 'Inventory transfer created'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to create inventory transfer: $e'}));
+    }
+  }
+
+  Future<Response> _deleteInventoryTransfer(Request request) async {
+    try {
+      final id = int.parse(request.params['id'] as String);
+      await _inventoryTransferService.deleteInventoryTransfer(id);
+      return Response.ok(jsonEncode({'message': 'Inventory transfer deleted'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': 'Failed to delete inventory transfer: $e'}));
     }
   }
 

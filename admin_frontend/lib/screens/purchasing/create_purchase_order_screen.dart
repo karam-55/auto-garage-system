@@ -259,8 +259,8 @@ class _CreatePurchaseOrderScreenState extends ConsumerState<CreatePurchaseOrderS
                             ),
                             items: variants.map<DropdownMenuItem<String>>((variant) {
                               return DropdownMenuItem<String>(
-                                value: variant['id'].toString(),
-                                child: Text(variant['name'] ?? 'بدون اسم'),
+                                value: variant['id']?.toString(),
+                                child: Text(variant['name']?.toString() ?? 'بدون اسم'),
                               );
                             }).toList(),
                             onChanged: (value) {

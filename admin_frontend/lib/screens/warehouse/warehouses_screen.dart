@@ -50,7 +50,9 @@ class _WarehousesScreenState extends ConsumerState<WarehousesScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(warehousesProvider),
+            onRefresh: () async {
+              await ref.refresh(warehousesProvider.future);
+            },
             child: ListView.builder(
               itemCount: warehouses.length,
               itemBuilder: (context, index) {

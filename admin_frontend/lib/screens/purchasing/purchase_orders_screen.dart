@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../core/utils/app_localizations.dart';
 import '../../core/providers/erp_providers.dart';
 import 'models/purchase_order.dart';
 import 'create_purchase_order_screen.dart';
@@ -53,7 +53,9 @@ class _PurchaseOrdersScreenState extends ConsumerState<PurchaseOrdersScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(purchaseOrdersProvider),
+            onRefresh: () async {
+              await ref.refresh(purchaseOrdersProvider.future);
+            },
             child: ListView.builder(
               itemCount: orders.length,
               itemBuilder: (context, index) {
@@ -212,10 +214,7 @@ class _PurchaseOrdersScreenState extends ConsumerState<PurchaseOrdersScreen> {
                               }
                             }
                             
-                            await ref.read(receivePurchaseOrderProvider({
-                              'id': order.id,
-                              'data': {'items': receivedItems},
-                            }).future);
+                            await ref.read(receivePurchaseOrderProvider(UpdateArgs(order.id, {'items': receivedItems})).future);
                             
                             if (context.mounted) {
                               Navigator.pop(context);

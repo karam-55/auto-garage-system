@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../core/utils/app_localizations.dart';
 import '../../core/providers/erp_providers.dart';
 import 'models/quotation.dart';
 import 'create_quotation_screen.dart';
@@ -52,7 +52,9 @@ class _QuotationsScreenState extends ConsumerState<QuotationsScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(quotationsProvider),
+            onRefresh: () async {
+              await ref.refresh(quotationsProvider.future);
+            },
             child: ListView.builder(
               itemCount: quotations.length,
               itemBuilder: (context, index) {

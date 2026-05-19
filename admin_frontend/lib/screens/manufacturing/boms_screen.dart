@@ -50,7 +50,9 @@ class _BomsScreenState extends ConsumerState<BomsScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(bomsProvider),
+            onRefresh: () async {
+              await ref.refresh(bomsProvider.future);
+            },
             child: ListView.builder(
               itemCount: boms.length,
               itemBuilder: (context, index) {

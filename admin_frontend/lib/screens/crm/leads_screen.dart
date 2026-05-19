@@ -50,7 +50,9 @@ class _LeadsScreenState extends ConsumerState<LeadsScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(crmLeadsProvider),
+            onRefresh: () async {
+              await ref.refresh(crmLeadsProvider.future);
+            },
             child: ListView.builder(
               itemCount: leads.length,
               itemBuilder: (context, index) {
@@ -112,7 +114,7 @@ class _LeadsScreenState extends ConsumerState<LeadsScreen> {
   Widget _buildStatusIcon(String status) {
     switch (status) {
       case 'new':
-        return const Icon(Icons.fiber_new_record, color: Colors.blue);
+        return const Icon(Icons.add_circle, color: Colors.blue);
       case 'contacted':
         return const Icon(Icons.phone, color: Colors.orange);
       case 'qualified':

@@ -50,7 +50,9 @@ class _EmployeeContractsScreenState extends ConsumerState<EmployeeContractsScree
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(employeeContractsProvider),
+            onRefresh: () async {
+              await ref.refresh(employeeContractsProvider.future);
+            },
             child: ListView.builder(
               itemCount: contracts.length,
               itemBuilder: (context, index) {

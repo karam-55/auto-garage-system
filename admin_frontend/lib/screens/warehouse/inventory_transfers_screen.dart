@@ -50,7 +50,9 @@ class _InventoryTransfersScreenState extends ConsumerState<InventoryTransfersScr
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(inventoryTransfersProvider),
+            onRefresh: () async {
+              await ref.refresh(inventoryTransfersProvider.future);
+            },
             child: ListView.builder(
               itemCount: transfers.length,
               itemBuilder: (context, index) {

@@ -47,7 +47,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
         description: null,
         quantity: 1,
         unitPrice: 0.0,
-        lineTotal: 0.0,
+        totalPrice: 0.0,
         createdAt: DateTime.now(),
       ));
     });
@@ -71,7 +71,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
             description: value,
             quantity: _lines[index].quantity,
             unitPrice: _lines[index].unitPrice,
-            lineTotal: _lines[index].quantity * _lines[index].unitPrice,
+            totalPrice: _lines[index].quantity * _lines[index].unitPrice,
             createdAt: _lines[index].createdAt,
           );
           break;
@@ -85,7 +85,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
             description: _lines[index].description,
             quantity: qty,
             unitPrice: _lines[index].unitPrice,
-            lineTotal: qty * _lines[index].unitPrice,
+            totalPrice: qty * _lines[index].unitPrice,
             createdAt: _lines[index].createdAt,
           );
           break;
@@ -99,7 +99,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
             description: _lines[index].description,
             quantity: _lines[index].quantity,
             unitPrice: price,
-            lineTotal: _lines[index].quantity * price,
+            totalPrice: _lines[index].quantity * price,
             createdAt: _lines[index].createdAt,
           );
           break;

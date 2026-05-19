@@ -50,7 +50,9 @@ class _SalesOrdersScreenState extends ConsumerState<SalesOrdersScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(salesOrdersProvider),
+            onRefresh: () async {
+              await ref.refresh(salesOrdersProvider.future);
+            },
             child: ListView.builder(
               itemCount: orders.length,
               itemBuilder: (context, index) {

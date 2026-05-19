@@ -76,6 +76,7 @@ class QuotationLine {
   final int quantity;
   final double unitPrice;
   final double totalPrice;
+  final double lineTotal; // Alias for totalPrice
   final DateTime createdAt;
 
   QuotationLine({
@@ -88,7 +89,7 @@ class QuotationLine {
     required this.unitPrice,
     required this.totalPrice,
     required this.createdAt,
-  });
+  }) : lineTotal = totalPrice;
 
   factory QuotationLine.fromJson(Map<String, dynamic> json) {
     return QuotationLine(

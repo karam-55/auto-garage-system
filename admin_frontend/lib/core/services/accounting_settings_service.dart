@@ -14,7 +14,7 @@ class AccountingSettingsService {
   Future<void> updateSettings(AccountingSettings settings) async {
     await _apiService.put(
       '/api/accounting-settings',
-      body: settings.toJson(),
+      settings.toJson(),
     );
   }
 }

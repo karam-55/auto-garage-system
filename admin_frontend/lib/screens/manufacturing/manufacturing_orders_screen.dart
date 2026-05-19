@@ -50,7 +50,9 @@ class _ManufacturingOrdersScreenState extends ConsumerState<ManufacturingOrdersS
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.refresh(manufacturingOrdersProvider),
+            onRefresh: () async {
+              await ref.refresh(manufacturingOrdersProvider.future);
+            },
             child: ListView.builder(
               itemCount: orders.length,
               itemBuilder: (context, index) {

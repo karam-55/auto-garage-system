@@ -8,8 +8,10 @@ import '../../screens/warehouse/models/inventory_transfer.dart';
 import '../../screens/manufacturing/models/bill_of_materials.dart';
 import '../../screens/manufacturing/models/manufacturing_order.dart';
 import '../../screens/crm/models/crm_lead.dart';
+import '../../screens/crm/models/crm_activity.dart';
 import '../../screens/hr/models/employee_contract.dart';
 import '../../screens/hr/models/leave_request.dart';
+import '../../screens/hr/models/performance_review.dart';
 import '../../screens/fixed_assets/models/fixed_asset.dart';
 import '../../screens/maintenance/models/maintenance_contract.dart';
 
@@ -151,6 +153,12 @@ final deleteSalesOrderProvider = FutureProvider.family<void, int>((ref, id) asyn
   await api.delete('/sales-orders/$id');
 });
 
+final createSalesInvoiceProvider = FutureProvider.family<SalesOrder, int>((ref, id) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.post('/sales-orders/$id/invoice', {});
+  return SalesOrder.fromJson(res);
+});
+
 // ========== المستودعات ==========
 final warehousesProvider = FutureProvider<List<Warehouse>>((ref) async {
   final api = ref.read(apiServiceProvider);
@@ -185,6 +193,12 @@ final inventoryTransfersProvider = FutureProvider<List<InventoryTransfer>>((ref)
   final api = ref.read(apiServiceProvider);
   final res = await api.get('/inventory-transfers');
   return (res as List).map((j) => InventoryTransfer.fromJson(j)).toList();
+});
+
+final inventoryTransferProvider = FutureProvider.family<InventoryTransfer, int>((ref, id) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.get('/inventory-transfers/$id');
+  return InventoryTransfer.fromJson(res);
 });
 
 final createInventoryTransferProvider = FutureProvider.family<InventoryTransfer, Map<String, dynamic>>((ref, data) async {
@@ -299,6 +313,30 @@ final deleteCrmLeadProvider = FutureProvider.family<void, int>((ref, id) async {
   await api.delete('/crm/leads/$id');
 });
 
+// ========== CRM Activities ==========
+final crmActivitiesProvider = FutureProvider.family<List<CrmActivity>, int>((ref, leadId) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.get('/crm/activities?lead_id=$leadId');
+  return (res as List).map((j) => CrmActivity.fromJson(j)).toList();
+});
+
+final crmActivityProvider = FutureProvider.family<CrmActivity, int>((ref, id) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.get('/crm/activities/$id');
+  return CrmActivity.fromJson(res);
+});
+
+final createCrmActivityProvider = FutureProvider.family<CrmActivity, Map<String, dynamic>>((ref, data) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.post('/crm/activities', data);
+  return CrmActivity.fromJson(res);
+});
+
+final deleteCrmActivityProvider = FutureProvider.family<void, int>((ref, id) async {
+  final api = ref.read(apiServiceProvider);
+  await api.delete('/crm/activities/$id');
+});
+
 // ========== الموارد البشرية ==========
 final employeeContractsProvider = FutureProvider<List<EmployeeContract>>((ref) async {
   final api = ref.read(apiServiceProvider);
@@ -364,6 +402,30 @@ final deleteLeaveRequestProvider = FutureProvider.family<void, int>((ref, id) as
   await api.delete('/hr/leave-requests/$id');
 });
 
+// ========== Performance Reviews ==========
+final performanceReviewsProvider = FutureProvider<List<PerformanceReview>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.get('/hr/performance-reviews');
+  return (res as List).map((j) => PerformanceReview.fromJson(j)).toList();
+});
+
+final performanceReviewProvider = FutureProvider.family<PerformanceReview, int>((ref, id) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.get('/hr/performance-reviews/$id');
+  return PerformanceReview.fromJson(res);
+});
+
+final createPerformanceReviewProvider = FutureProvider.family<PerformanceReview, Map<String, dynamic>>((ref, data) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.post('/hr/performance-reviews', data);
+  return PerformanceReview.fromJson(res);
+});
+
+final deletePerformanceReviewProvider = FutureProvider.family<void, int>((ref, id) async {
+  final api = ref.read(apiServiceProvider);
+  await api.delete('/hr/performance-reviews/$id');
+});
+
 // ========== الأصول الثابتة ==========
 final fixedAssetsProvider = FutureProvider<List<FixedAsset>>((ref) async {
   final api = ref.read(apiServiceProvider);
@@ -394,6 +456,12 @@ final deleteFixedAssetProvider = FutureProvider.family<void, int>((ref, id) asyn
   await api.delete('/assets/$id');
 });
 
+final depreciateFixedAssetProvider = FutureProvider.family<FixedAsset, int>((ref, id) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.post('/assets/depreciate', {'asset_id': id});
+  return FixedAsset.fromJson(res);
+});
+
 // ========== عقود الصيانة ==========
 final maintenanceContractsProvider = FutureProvider<List<MaintenanceContract>>((ref) async {
   final api = ref.read(apiServiceProvider);
@@ -422,4 +490,10 @@ final updateMaintenanceContractProvider = FutureProvider.family<MaintenanceContr
 final deleteMaintenanceContractProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
   await api.delete('/maintenance/contracts/$id');
+});
+
+final dueMaintenanceContractsProvider = FutureProvider<List<MaintenanceContract>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.get('/maintenance/contracts/due');
+  return (res as List).map((j) => MaintenanceContract.fromJson(j)).toList();
 });

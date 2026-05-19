@@ -70,6 +70,24 @@
         .dark .bg-gradient-to-br.from-purple-500.to-indigo-600 {
             background: linear-gradient(to bottom right, #7c3aed, #4f46e5) !important;
         }
+
+        /* Timeline styles */
+        .timeline-progress {
+            transition: width 0.5s ease-in-out;
+        }
+        .timeline-step {
+            transition: all 0.3s ease-in-out;
+        }
+        .timeline-step.active {
+            transform: scale(1.1);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .timeline-step.active {
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
@@ -182,52 +200,53 @@
 
                 <!-- Status Timeline -->
                 <div id="timelineSection" class="mt-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-1"></div>
-                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-1"></div>
-                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-1"></div>
-                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-1"></div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col items-center">
-                            <div id="timelineStep0" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">قيد الانتظار</p>
+                    <div class="relative">
+                        <!-- Progress Line -->
+                        <div class="absolute top-5 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                            <div id="timelineProgress" class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full timeline-progress" style="width: 0%"></div>
                         </div>
-                        <div class="flex flex-col items-center">
-                            <div id="timelineStep1" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                                </svg>
+                        <!-- Steps -->
+                        <div class="flex items-center justify-between relative">
+                            <div class="flex flex-col items-center z-10">
+                                <div id="timelineStep0" class="timeline-step w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-xs mt-3 text-gray-600 dark:text-gray-400 text-center font-medium">قيد الانتظار</p>
                             </div>
-                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">جاري العمل</p>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div id="timelineStep2" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                                </svg>
+                            <div class="flex flex-col items-center z-10">
+                                <div id="timelineStep1" class="timeline-step w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-xs mt-3 text-gray-600 dark:text-gray-400 text-center font-medium">جاري العمل</p>
                             </div>
-                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">بانتظار القطع</p>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div id="timelineStep3" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
+                            <div class="flex flex-col items-center z-10">
+                                <div id="timelineStep2" class="timeline-step w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-xs mt-3 text-gray-600 dark:text-gray-400 text-center font-medium">بانتظار القطع</p>
                             </div>
-                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">جاهز</p>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div id="timelineStep4" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
+                            <div class="flex flex-col items-center z-10">
+                                <div id="timelineStep3" class="timeline-step w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-xs mt-3 text-gray-600 dark:text-gray-400 text-center font-medium">جاهز</p>
                             </div>
-                            <p class="text-xs mt-2 text-gray-600 dark:text-gray-400 text-center">تم التسليم</p>
+                            <div class="flex flex-col items-center z-10">
+                                <div id="timelineStep4" class="timeline-step w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-xs mt-3 text-gray-600 dark:text-gray-400 text-center font-medium">تم التسليم</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -343,7 +362,7 @@
                     <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
-                    <p class="text-sm font-semibold">يتم تحديث البيانات تلقائياً كل 30 ثانية</p>
+                    <p class="text-sm font-semibold">يتم تحديث البيانات تلقائياً كل دقيقتين</p>
                 </div>
             </div>
         </div>
@@ -530,10 +549,10 @@
                 clearInterval(pollingInterval);
             }
             
-            // Poll every 10 seconds
+            // Poll every 2 minutes (120000ms)
             pollingInterval = setInterval(() => {
                 loadBookingData();
-            }, 10000);
+            }, 120000);
         }
 
         function stopPolling() {
@@ -667,11 +686,24 @@
 
             const currentStep = statusSteps[status] || 0;
 
+            // Update progress line
+            const progressLine = document.getElementById('timelineProgress');
+            if (progressLine) {
+                const progressPercentage = currentStep >= 0 ? (currentStep / 4) * 100 : 0;
+                progressLine.style.width = `${progressPercentage}%`;
+                
+                if (status === 'CANCELLED') {
+                    progressLine.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
+                } else {
+                    progressLine.style.background = 'linear-gradient(to right, #3b82f6, #4f46e5)';
+                }
+            }
+
             // Reset all steps
             for (let i = 0; i <= 4; i++) {
                 const step = document.getElementById(`timelineStep${i}`);
                 if (step) {
-                    step.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500';
+                    step.className = 'timeline-step w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 shadow-md';
                 }
             }
 
@@ -680,7 +712,7 @@
                 for (let i = 0; i <= currentStep; i++) {
                     const step = document.getElementById(`timelineStep${i}`);
                     if (step) {
-                        step.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-green-500 text-white';
+                        step.className = 'timeline-step active w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg';
                     }
                 }
             } else if (status === 'CANCELLED') {
@@ -688,7 +720,7 @@
                 for (let i = 0; i <= 4; i++) {
                     const step = document.getElementById(`timelineStep${i}`);
                     if (step) {
-                        step.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-red-500 text-white';
+                        step.className = 'timeline-step w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg';
                     }
                 }
             }

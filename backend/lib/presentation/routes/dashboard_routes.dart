@@ -168,14 +168,14 @@ class DashboardRoutes {
       final monthStart = DateTime(now.year, now.month, 1);
       
       final quotations = await _quotationRepository.findAll();
-      final monthQuotations = quotations.where((q) => q.createdAt.isAfter(monthStart)).toList();
+      final monthQuotations = quotations.where((q) => q.createdAt != null && q.createdAt!.isAfter(monthStart)).toList();
       
       double totalSales = 0;
       int totalInvoices = 0;
       final topServices = <String, double>{};
       
       for (final quote in monthQuotations) {
-        totalSales += quote.totalAmount;
+        totalSales += quote.totalAmount ?? 0;
         totalInvoices++;
       }
 

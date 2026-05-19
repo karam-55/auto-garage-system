@@ -82,7 +82,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: _KPICard(
             title: 'إجمالي المبيعات',
             value: salesStats.when(
-              data: (data) => '${(data['totalSales'] as num).toStringAsFixed(0)} ل.س',
+              data: (data) {
+                final totalSales = data['totalSales'];
+                if (totalSales == null) return '...';
+                return '${(totalSales as num).toStringAsFixed(0)} ل.س';
+              },
               loading: () => '...',
               error: (_, __) => 'خطأ',
             ),
@@ -95,7 +99,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: _KPICard(
             title: 'إجمالي المشتريات',
             value: purchaseStats.when(
-              data: (data) => '${(data['totalPurchases'] as num).toStringAsFixed(0)} ل.س',
+              data: (data) {
+                final totalPurchases = data['totalPurchases'];
+                if (totalPurchases == null) return '...';
+                return '${(totalPurchases as num).toStringAsFixed(0)} ل.س';
+              },
               loading: () => '...',
               error: (_, __) => 'خطأ',
             ),
@@ -110,7 +118,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             value: salesStats.when(
               data: (salesData) => purchaseStats.when(
                 data: (purchaseData) {
-                  final profit = (salesData['totalSales'] as num) - (purchaseData['totalPurchases'] as num);
+                  final totalSales = salesData['totalSales'];
+                  final totalPurchases = purchaseData['totalPurchases'];
+                  if (totalSales == null || totalPurchases == null) return '...';
+                  final profit = (totalSales as num) - (totalPurchases as num);
                   return '${profit.toStringAsFixed(0)} ل.س';
                 },
                 loading: () => '...',
@@ -128,7 +139,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: _KPICard(
             title: 'قيمة المخزون',
             value: inventoryStats.when(
-              data: (data) => '${(data['totalValue'] as num).toStringAsFixed(0)} ل.س',
+              data: (data) {
+                final totalValue = data['totalValue'];
+                if (totalValue == null) return '...';
+                return '${(totalValue as num).toStringAsFixed(0)} ل.س';
+              },
               loading: () => '...',
               error: (_, __) => 'خطأ',
             ),
@@ -525,9 +540,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               data: (data) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _StatRow('إجمالي المبيعات', '${(data['totalSales'] as num).toStringAsFixed(2)} ل.س'),
-                  _StatRow('عدد الفواتير', '${data['totalInvoices']}'),
-                  _StatRow('متوسط قيمة الفاتورة', '${(data['averageInvoiceValue'] as num).toStringAsFixed(2)} ل.س'),
+                  _StatRow('إجمالي المبيعات', data['totalSales'] != null ? '${(data['totalSales'] as num).toStringAsFixed(2)} ل.س' : '...'),
+                  _StatRow('عدد الفواتير', '${data['totalInvoices'] ?? 0}'),
+                  _StatRow('متوسط قيمة الفاتورة', data['averageInvoiceValue'] != null ? '${(data['averageInvoiceValue'] as num).toStringAsFixed(2)} ل.س' : '...'),
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -556,9 +571,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               data: (data) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _StatRow('إجمالي المشتريات', '${(data['totalPurchases'] as num).toStringAsFixed(2)} ل.س'),
-                  _StatRow('عدد أوامر الشراء', '${data['totalOrders']}'),
-                  _StatRow('متوسط قيمة الأمر', '${(data['averageOrderValue'] as num).toStringAsFixed(2)} ل.س'),
+                  _StatRow('إجمالي المشتريات', data['totalPurchases'] != null ? '${(data['totalPurchases'] as num).toStringAsFixed(2)} ل.س' : '...'),
+                  _StatRow('عدد أوامر الشراء', '${data['totalOrders'] ?? 0}'),
+                  _StatRow('متوسط قيمة الأمر', data['averageOrderValue'] != null ? '${(data['averageOrderValue'] as num).toStringAsFixed(2)} ل.س' : '...'),
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -587,9 +602,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               data: (data) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _StatRow('إجمالي القيمة', '${(data['totalValue'] as num).toStringAsFixed(2)} ل.س'),
-                  _StatRow('عدد الأصناف', '${data['totalItems']}'),
-                  _StatRow('أصناف منخفضة المخزون', '${data['lowStockItems']}'),
+                  _StatRow('إجمالي القيمة', data['totalValue'] != null ? '${(data['totalValue'] as num).toStringAsFixed(2)} ل.س' : '...'),
+                  _StatRow('عدد الأصناف', '${data['totalItems'] ?? 0}'),
+                  _StatRow('أصناف منخفضة المخزون', '${data['lowStockItems'] ?? 0}'),
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -618,10 +633,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               data: (data) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _StatRow('إجمالي أوامر الإنتاج', '${data['totalOrders']}'),
-                  _StatRow('الأوامر المنجزة', '${data['completedOrders']}'),
-                  _StatRow('الأوامر قيد التنفيذ', '${data['inProgressOrders']}'),
-                  _StatRow('نسبة الإنجاز', '${(data['completionRate'] as num).toStringAsFixed(1)}%'),
+                  _StatRow('إجمالي أوامر الإنتاج', '${data['totalOrders'] ?? 0}'),
+                  _StatRow('الأوامر المنجزة', '${data['completedOrders'] ?? 0}'),
+                  _StatRow('الأوامر قيد التنفيذ', '${data['inProgressOrders'] ?? 0}'),
+                  _StatRow('نسبة الإنجاز', data['completionRate'] != null ? '${(data['completionRate'] as num).toStringAsFixed(1)}%' : '...'),
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -650,8 +665,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               data: (data) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _StatRow('عدد الموظفين', '${data['totalEmployees']}'),
-                  _StatRow('إجمالي الرواتب', '${(data['totalSalaries'] as num).toStringAsFixed(2)} ل.س'),
+                  _StatRow('عدد الموظفين', '${data['totalEmployees'] ?? 0}'),
+                  _StatRow('إجمالي الرواتب', data['totalSalaries'] != null ? '${(data['totalSalaries'] as num).toStringAsFixed(2)} ل.س' : '...'),
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -680,10 +695,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               data: (data) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _StatRow('عدد الأصول', '${data['totalAssets']}'),
-                  _StatRow('إجمالي التكلفة', '${(data['totalCost'] as num).toStringAsFixed(2)} ل.س'),
-                  _StatRow('الإهلاك المتراكم', '${(data['accumulatedDepreciation'] as num).toStringAsFixed(2)} ل.س'),
-                  _StatRow('صافي القيمة الدفترية', '${(data['netBookValue'] as num).toStringAsFixed(2)} ل.س'),
+                  _StatRow('عدد الأصول', '${data['totalAssets'] ?? 0}'),
+                  _StatRow('إجمالي التكلفة', data['totalCost'] != null ? '${(data['totalCost'] as num).toStringAsFixed(2)} ل.س' : '...'),
+                  _StatRow('الإهلاك المتراكم', data['accumulatedDepreciation'] != null ? '${(data['accumulatedDepreciation'] as num).toStringAsFixed(2)} ل.س' : '...'),
+                  _StatRow('صافي القيمة الدفترية', data['netBookValue'] != null ? '${(data['netBookValue'] as num).toStringAsFixed(2)} ل.س' : '...'),
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),

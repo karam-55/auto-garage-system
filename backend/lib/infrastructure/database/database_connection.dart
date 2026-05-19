@@ -174,7 +174,7 @@ class DatabaseConnection {
   Future<String> _readSchemaFile() async {
     // Inline schema for production compatibility
     // Note: Supabase uses pgcrypto with gen_random_uuid() instead of uuid-ossp
-    return '''
+    return r'''
 -- ========================================
 -- Accounting System Tables
 -- ========================================
@@ -190,11 +190,11 @@ CREATE TABLE IF NOT EXISTS fiscal_periods (
 );
 
 -- 1.1.2 Chart of Accounts
-DO \$\$ BEGIN
+DO $$ BEGIN
     CREATE TYPE account_type_enum AS ENUM ('asset', 'liability', 'equity', 'revenue', 'expense', 'cogs');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END \$\$;
+END $$;
 
 CREATE TABLE IF NOT EXISTS accounts (
     id SERIAL PRIMARY KEY,

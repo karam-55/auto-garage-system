@@ -79,12 +79,20 @@ class _CashFlowScreenState extends ConsumerState<CashFlowScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            ref.watch(cashFlowProvider({'from': _fromDate, 'to': _toDate})).when(
-              data: (data) {
+            FutureBuilder<Map<String, dynamic>>(
+              future: ref.read(cashFlowProvider({'from': _fromDate, 'to': _toDate}).future),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('خطأ: ${snapshot.error}'));
+                }
+                final data = snapshot.data ?? {};
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSummaryCard('صافي الربح', data['netProfit'] as double, Colors.blue),
+                    _buildSummaryCard('صافي الربح', data['netProfit'] as double? ?? 0, Colors.blue),
                     const SizedBox(height: 16),
                     Card(
                       child: Padding(
@@ -97,22 +105,18 @@ class _CashFlowScreenState extends ConsumerState<CashFlowScreen> {
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 16),
-                            _buildAdjustmentRow('التغير في الذمم المدينة', data['adjustments']['changeInReceivables'] as double),
-                            _buildAdjustmentRow('التغير في المخزون', data['adjustments']['changeInInventory'] as double),
-                            _buildAdjustmentRow('التغير في الموردين', data['adjustments']['changeInPayables'] as double),
+                            _buildAdjustmentRow('التغير في الذمم المدينة', data['adjustments']?['changeInReceivables'] as double? ?? 0),
+                            _buildAdjustmentRow('التغير في المخزون', data['adjustments']?['changeInInventory'] as double? ?? 0),
+                            _buildAdjustmentRow('التغير في الموردين', data['adjustments']?['changeInPayables'] as double? ?? 0),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildSummaryCard('التدفق النقدي من العمليات التشغيلية', data['cashFlowFromOperations'] as double, Colors.green),
+                    _buildSummaryCard('التدفق النقدي من العمليات التشغيلية', data['cashFlowFromOperations'] as double? ?? 0, Colors.green),
                   ],
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Text('خطأ: $error'),
-              ),
             ),
           ],
         ),

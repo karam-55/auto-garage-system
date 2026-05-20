@@ -79,20 +79,28 @@ class _BreakEvenScreenState extends ConsumerState<BreakEvenScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            ref.watch(breakEvenProvider({'from': _fromDate, 'to': _toDate})).when(
-              data: (data) {
+            FutureBuilder<Map<String, dynamic>>(
+              future: ref.read(breakEvenProvider({'from': _fromDate, 'to': _toDate}).future),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('خطأ: ${snapshot.error}'));
+                }
+                final data = snapshot.data ?? {};
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSummaryCard('إجمالي الإيرادات', data['totalRevenue'] as double, Colors.blue),
+                    _buildSummaryCard('إجمالي الإيرادات', data['totalRevenue'] as double? ?? 0, Colors.blue),
                     const SizedBox(height: 16),
-                    _buildSummaryCard('إجمالي التكاليف المتغيرة', data['totalVariableCosts'] as double, Colors.orange),
+                    _buildSummaryCard('إجمالي التكاليف المتغيرة', data['totalVariableCosts'] as double? ?? 0, Colors.orange),
                     const SizedBox(height: 16),
-                    _buildSummaryCard('إجمالي التكاليف الثابتة', data['totalFixedCosts'] as double, Colors.red),
+                    _buildSummaryCard('إجمالي التكاليف الثابتة', data['totalFixedCosts'] as double? ?? 0, Colors.red),
                     const SizedBox(height: 16),
-                    _buildSummaryCard('هامش المساهمة', data['contributionMargin'] as double, Colors.purple),
+                    _buildSummaryCard('هامش المساهمة', data['contributionMargin'] as double? ?? 0, Colors.purple),
                     const SizedBox(height: 16),
-                    _buildSummaryCard('نسبة هامش المساهمة', (data['contributionMarginRatio'] as double) * 100, Colors.purple, isPercentage: true),
+                    _buildSummaryCard('نسبة هامش المساهمة', (data['contributionMarginRatio'] as double? ?? 0) * 100, Colors.purple, isPercentage: true),
                     const SizedBox(height: 16),
                     Card(
                       color: Colors.green.withOpacity(0.1),
@@ -109,7 +117,7 @@ class _BreakEvenScreenState extends ConsumerState<BreakEvenScreen> {
                                   ),
                             ),
                             Text(
-                              (data['breakEvenRevenue'] as double).toStringAsFixed(2),
+                              (data['breakEvenRevenue'] as double? ?? 0).toStringAsFixed(2),
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     color: Colors.green,
                                     fontWeight: FontWeight.bold,
@@ -122,10 +130,6 @@ class _BreakEvenScreenState extends ConsumerState<BreakEvenScreen> {
                   ],
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Text('خطأ: $error'),
-              ),
             ),
           ],
         ),

@@ -99,8 +99,27 @@ class _GeneralLedgerScreenContentState extends ConsumerState<_GeneralLedgerScree
       params['accountId'] = _selectedAccountId;
     }
 
-    return ref.watch(generalLedgerProvider(params)).when(
-      data: (data) {
+    // استخدام FutureBuilder بدلاً من ref.watch لتجنب إعادة التحميل المستمر
+    return FutureBuilder<Map<String, dynamic>>(
+      future: ref.read(generalLedgerProvider(params).future),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('خطأ في تحميل البيانات: ${snapshot.error}'),
+              ],
+            ),
+          );
+        }
+        
+        final data = snapshot.data;
         if (data == null || data.isEmpty) {
           return const Center(
             child: Column(
@@ -206,17 +225,6 @@ class _GeneralLedgerScreenContentState extends ConsumerState<_GeneralLedgerScree
           ],
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('خطأ في تحميل البيانات: $error'),
-          ],
-        ),
-      ),
     );
   }
 

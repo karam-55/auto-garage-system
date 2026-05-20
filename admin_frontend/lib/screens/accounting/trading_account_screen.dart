@@ -79,14 +79,22 @@ class _TradingAccountScreenState extends ConsumerState<TradingAccountScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            ref.watch(tradingAccountProvider({'from': _fromDate, 'to': _toDate})).when(
-              data: (data) {
+            FutureBuilder<Map<String, dynamic>>(
+              future: ref.read(tradingAccountProvider({'from': _fromDate, 'to': _toDate}).future),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('خطأ: ${snapshot.error}'));
+                }
+                final data = snapshot.data ?? {};
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSummaryCard('إجمالي الإيرادات', data['totalRevenue'] as double, Colors.blue),
+                    _buildSummaryCard('إجمالي الإيرادات', data['totalRevenue'] as double? ?? 0, Colors.blue),
                     const SizedBox(height: 16),
-                    _buildSummaryCard('إجمالي تكلفة البضاعة المباعة', data['totalCogs'] as double, Colors.red),
+                    _buildSummaryCard('إجمالي تكلفة البضاعة المباعة', data['totalCogs'] as double? ?? 0, Colors.red),
                     const SizedBox(height: 16),
                     Card(
                       color: Colors.green.withOpacity(0.1),
@@ -103,7 +111,7 @@ class _TradingAccountScreenState extends ConsumerState<TradingAccountScreen> {
                                   ),
                             ),
                             Text(
-                              (data['grossProfit'] as double).toStringAsFixed(2),
+                              (data['grossProfit'] as double? ?? 0).toStringAsFixed(2),
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     color: Colors.green,
                                     fontWeight: FontWeight.bold,
@@ -116,10 +124,6 @@ class _TradingAccountScreenState extends ConsumerState<TradingAccountScreen> {
                   ],
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Text('خطأ: $error'),
-              ),
             ),
           ],
         ),

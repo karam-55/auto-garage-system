@@ -14,10 +14,10 @@ class PublicRoutes {
     final router = Router();
 
     // Public endpoint for customers to view their car booking
-    router.get('/car/<publicCarId>', _getCarByPublicId);
+    router.get('/public/car/<publicCarId>', _getCarByPublicId);
     
     // Endpoint to seed sample data (temporary for development)
-    router.post('/seed-data', _seedSampleData);
+    router.post('/public/seed-data', _seedSampleData);
 
     return router;
   }

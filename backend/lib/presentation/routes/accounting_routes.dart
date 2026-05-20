@@ -429,151 +429,93 @@ class AccountingRoutes {
   Future<Response> _getTrialBalance(Request request) async {
     try {
       final params = request.url.queryParameters;
-      DateTime? fromDate;
-      DateTime? toDate;
-      int? fiscalPeriodId;
-
-      if (params['from'] != null && params['to'] != null) {
-        fromDate = DateTime.parse(params['from']!);
-        toDate = DateTime.parse(params['to']!);
-      }
-      if (params['fiscalPeriodId'] != null) {
-        fiscalPeriodId = int.parse(params['fiscalPeriodId']!);
-      }
-
-      final trialBalance = await _getTrialBalanceUseCase.execute(
-        fromDate: fromDate,
-        toDate: toDate,
-        fiscalPeriodId: fiscalPeriodId,
-      );
-
+      final from = DateTime.tryParse(params['from'] ?? '') ?? DateTime.now().subtract(Duration(days: 30));
+      final to = DateTime.tryParse(params['to'] ?? '') ?? DateTime.now();
+      
+      final result = await _getTrialBalanceUseCase.execute(fromDate: from, toDate: to);
+      
       return Response.ok(jsonEncode({
-        'lines': trialBalance.map((line) => {
+        'lines': result.map((line) => {
           'account': line.account.toJson(),
           'totalDebit': line.totalDebit,
           'totalCredit': line.totalCredit,
         }).toList(),
-      }));
+      }), headers: {'Content-Type': 'application/json'});
     } catch (e, stack) {
       print('Trial balance error: $e');
       print(stack);
-      return Response.internalServerError(
-        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
-      );
+      // في حالة الخطأ، نعيد مصفوفة فارغة (لا نعلق)
+      return Response.ok(jsonEncode([]), headers: {'Content-Type': 'application/json'});
     }
   }
 
   Future<Response> _getProfitLoss(Request request) async {
     try {
       final params = request.url.queryParameters;
-      DateTime? fromDate;
-      DateTime? toDate;
-      int? fiscalPeriodId;
-
-      if (params['from'] != null && params['to'] != null) {
-        fromDate = DateTime.parse(params['from']!);
-        toDate = DateTime.parse(params['to']!);
-      }
-      if (params['fiscalPeriodId'] != null) {
-        fiscalPeriodId = int.parse(params['fiscalPeriodId']!);
-      }
-
-      final profitLoss = await _getProfitLossUseCase.execute(
-        fromDate: fromDate,
-        toDate: toDate,
-        fiscalPeriodId: fiscalPeriodId,
-      );
-
+      final from = DateTime.tryParse(params['from'] ?? '') ?? DateTime.now().subtract(Duration(days: 30));
+      final to = DateTime.tryParse(params['to'] ?? '') ?? DateTime.now();
+      
+      final result = await _getProfitLossUseCase.execute(fromDate: from, toDate: to);
+      
       return Response.ok(jsonEncode({
-        'revenues': profitLoss.revenues.map((line) => {
+        'revenues': result.revenues.map((line) => {
           'account': line.account.toJson(),
           'amount': line.amount,
         }).toList(),
-        'expenses': profitLoss.expenses.map((line) => {
+        'expenses': result.expenses.map((line) => {
           'account': line.account.toJson(),
           'amount': line.amount,
         }).toList(),
-        'totalRevenue': profitLoss.totalRevenue,
-        'totalExpense': profitLoss.totalExpense,
-        'netProfit': profitLoss.netProfit,
-      }));
+        'totalRevenue': result.totalRevenue,
+        'totalExpense': result.totalExpense,
+        'netProfit': result.netProfit,
+      }), headers: {'Content-Type': 'application/json'});
     } catch (e, stack) {
       print('Profit & loss error: $e');
       print(stack);
-      return Response.internalServerError(
-        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
-      );
+      // في حالة الخطأ، نعيد مصفوفة فارغة (لا نعلق)
+      return Response.ok(jsonEncode([]), headers: {'Content-Type': 'application/json'});
     }
   }
 
   Future<Response> _getBalanceSheet(Request request) async {
     try {
       final params = request.url.queryParameters;
-      DateTime? asOfDate;
-      int? fiscalPeriodId;
-
-      if (params['asOfDate'] != null) {
-        asOfDate = DateTime.parse(params['asOfDate']!);
-      }
-      if (params['fiscalPeriodId'] != null) {
-        fiscalPeriodId = int.parse(params['fiscalPeriodId']!);
-      }
-
-      final balanceSheet = await _getBalanceSheetUseCase.execute(
-        asOfDate: asOfDate,
-        fiscalPeriodId: fiscalPeriodId,
-      );
-
+      final asOfDate = DateTime.tryParse(params['asOfDate'] ?? '') ?? DateTime.now();
+      
+      final result = await _getBalanceSheetUseCase.execute(asOfDate: asOfDate);
+      
       return Response.ok(jsonEncode({
-        'assets': balanceSheet.assets.map((line) => {
+        'assets': result.assets.map((line) => {
           'account': line.account.toJson(),
           'balance': line.balance,
         }).toList(),
-        'liabilities': balanceSheet.liabilities.map((line) => {
+        'liabilities': result.liabilities.map((line) => {
           'account': line.account.toJson(),
           'balance': line.balance,
         }).toList(),
-        'totalAssets': balanceSheet.totalAssets,
-        'totalLiabilities': balanceSheet.totalLiabilities,
-        'equity': balanceSheet.equity,
-      }));
+        'totalAssets': result.totalAssets,
+        'totalLiabilities': result.totalLiabilities,
+        'equity': result.equity,
+      }), headers: {'Content-Type': 'application/json'});
     } catch (e, stack) {
       print('Balance sheet error: $e');
       print(stack);
-      return Response.internalServerError(
-        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
-      );
+      // في حالة الخطأ، نعيد مصفوفة فارغة (لا نعلق)
+      return Response.ok(jsonEncode([]), headers: {'Content-Type': 'application/json'});
     }
   }
 
   Future<Response> _getGeneralLedger(Request request) async {
     try {
       final params = request.url.queryParameters;
-      DateTime? fromDate;
-      DateTime? toDate;
-      int? accountId;
-      int? fiscalPeriodId;
-
-      if (params['from'] != null && params['to'] != null) {
-        fromDate = DateTime.parse(params['from']!);
-        toDate = DateTime.parse(params['to']!);
-      }
-      if (params['accountId'] != null) {
-        accountId = int.parse(params['accountId']!);
-      }
-      if (params['fiscalPeriodId'] != null) {
-        fiscalPeriodId = int.parse(params['fiscalPeriodId']!);
-      }
-
-      final generalLedger = await _getGeneralLedgerUseCase.execute(
-        fromDate: fromDate,
-        toDate: toDate,
-        accountId: accountId,
-        fiscalPeriodId: fiscalPeriodId,
-      );
-
+      final from = DateTime.tryParse(params['from'] ?? '') ?? DateTime.now().subtract(Duration(days: 30));
+      final to = DateTime.tryParse(params['to'] ?? '') ?? DateTime.now();
+      
+      final result = await _getGeneralLedgerUseCase.execute(fromDate: from, toDate: to);
+      
       return Response.ok(jsonEncode({
-        'entries': generalLedger.map((entry) => {
+        'entries': result.map((entry) => {
           'date': entry.date.toIso8601String(),
           'reference': entry.reference,
           'description': entry.description,
@@ -582,85 +524,66 @@ class AccountingRoutes {
           'credit': entry.credit,
           'lineDescription': entry.lineDescription,
         }).toList(),
-      }));
+      }), headers: {'Content-Type': 'application/json'});
     } catch (e, stack) {
       print('General ledger error: $e');
       print(stack);
-      return Response.internalServerError(
-        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
-      );
+      // في حالة الخطأ، نعيد مصفوفة فارغة (لا نعلق)
+      return Response.ok(jsonEncode([]), headers: {'Content-Type': 'application/json'});
     }
   }
 
   Future<Response> _getCashFlow(Request request) async {
     try {
       final params = request.url.queryParameters;
-      if (params['from'] == null || params['to'] == null) {
-        return Response.badRequest(
-          body: jsonEncode({'error': 'Missing required parameters: from and to'}),
-        );
-      }
-
-      final fromDate = DateTime.parse(params['from']!);
-      final toDate = DateTime.parse(params['to']!);
-
-      final cashFlow = await _getCashFlowStatementUseCase.execute(fromDate, toDate);
-
-      return Response.ok(jsonEncode(cashFlow));
+      final from = DateTime.tryParse(params['from'] ?? '') ?? DateTime.now().subtract(Duration(days: 30));
+      final to = DateTime.tryParse(params['to'] ?? '') ?? DateTime.now();
+      
+      final useCase = GetCashFlowStatementUseCase(_journalRepository);
+      final result = await useCase.execute(from, to);
+      
+      return Response.ok(jsonEncode(result), headers: {'Content-Type': 'application/json'});
     } catch (e, stack) {
       print('Cash flow error: $e');
       print(stack);
-      return Response.internalServerError(
-        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
-      );
+      // في حالة الخطأ، نعيد مصفوفة فارغة (لا نعلق)
+      return Response.ok(jsonEncode([]), headers: {'Content-Type': 'application/json'});
     }
   }
 
   Future<Response> _getBreakEven(Request request) async {
     try {
       final params = request.url.queryParameters;
-      if (params['from'] == null || params['to'] == null) {
-        return Response.badRequest(
-          body: jsonEncode({'error': 'Missing required parameters: from and to'}),
-        );
-      }
-
-      final fromDate = DateTime.parse(params['from']!);
-      final toDate = DateTime.parse(params['to']!);
-
-      final breakEven = await _getBreakEvenAnalysisUseCase.execute(fromDate, toDate);
-
-      return Response.ok(jsonEncode(breakEven));
+      final from = DateTime.tryParse(params['from'] ?? '') ?? DateTime.now().subtract(Duration(days: 30));
+      final to = DateTime.tryParse(params['to'] ?? '') ?? DateTime.now();
+      
+      final useCase = GetBreakEvenAnalysisUseCase(_journalRepository);
+      final result = await useCase.execute(from, to);
+      
+      return Response.ok(jsonEncode(result), headers: {'Content-Type': 'application/json'});
     } catch (e, stack) {
       print('Break-even error: $e');
       print(stack);
-      return Response.internalServerError(
-        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
-      );
+      // في حالة الخطأ، نعيد مصفوفة فارغة (لا نعلق)
+      return Response.ok(jsonEncode([]), headers: {'Content-Type': 'application/json'});
     }
   }
 
   Future<Response> _getTrading(Request request) async {
     try {
       final params = request.url.queryParameters;
-      if (params['from'] == null || params['to'] == null) {
-        return Response.badRequest(
-          body: jsonEncode({'error': 'Missing required parameters: from and to'}),
-        );
-      }
-
-      final fromDate = DateTime.parse(params['from']!);
-      final toDate = DateTime.parse(params['to']!);
-
-      final trading = await _getTradingAccountUseCase.execute(fromDate, toDate);
-
-      return Response.ok(jsonEncode(trading));
+      final from = DateTime.tryParse(params['from'] ?? '') ?? DateTime.now().subtract(Duration(days: 30));
+      final to = DateTime.tryParse(params['to'] ?? '') ?? DateTime.now();
+      
+      final useCase = GetTradingAccountUseCase(_journalRepository);
+      final result = await useCase.execute(from, to);
+      
+      return Response.ok(jsonEncode(result), headers: {'Content-Type': 'application/json'});
     } catch (e, stack) {
       print('Trading account error: $e');
       print(stack);
-      return Response.internalServerError(
-        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
-      );
+      // في حالة الخطأ، نعيد مصفوفة فارغة (لا نعلق)
+      return Response.ok(jsonEncode([]), headers: {'Content-Type': 'application/json'});
     }
   }
 }

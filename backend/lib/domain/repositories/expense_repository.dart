@@ -8,4 +8,10 @@ abstract class ExpenseRepository {
   Future<List<Expense>> findByAccountId(int accountId);
   Future<Expense> update(Expense expense);
   Future<void> delete(int id);
+  
+  // Transactional operations
+  Future<Expense> createWithJournal(
+    Expense expense,
+    String createdBy,
+  );
 }

@@ -2,6 +2,18 @@ import '../services/journal_service.dart';
 import '../services/accounting_settings_service.dart';
 import '../../domain/entities/manufacturing_order.dart';
 
+/// Use case to complete manufacturing order
+/// 
+/// Auto-Journaling:
+/// When manufacturing order is completed, creates two journal entries:
+/// 1. Raw materials consumption:
+///    - Debit: Work In Progress (wipAccountId)
+///    - Credit: Inventory (inventoryAccountId)
+///    - Source: manufacturing_materials, sourceId: orderId
+/// 2. Finished goods transfer:
+///    - Debit: Inventory (inventoryAccountId)
+///    - Credit: Work In Progress (wipAccountId)
+///    - Source: manufacturing_finished, sourceId: orderId
 class CompleteManufacturingOrderUseCase {
   final JournalService _journalService;
   final AccountingSettingsService _accountingSettingsService;

@@ -1,6 +1,5 @@
 import '../../domain/entities/account.dart';
 import '../../domain/entities/journal_entry.dart';
-import '../../domain/entities/journal_line.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../../domain/repositories/account_repository.dart';
 

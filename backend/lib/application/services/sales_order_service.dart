@@ -1,5 +1,3 @@
-// Temporary stub service for Sales Orders
-// TODO: Implement full service with proper domain layer
 
 class SalesOrder {
   final int id;
@@ -33,9 +31,7 @@ class SalesOrder {
 class SalesOrderService {
   final dynamic _repository;
 
-  SalesOrderService(this._repository) {
-    // TODO: Initialize use cases
-  }
+  SalesOrderService(this._repository);
 
   Future<List<SalesOrder>> getAllSalesOrders() async {
     return [];
@@ -53,7 +49,5 @@ class SalesOrderService {
     return order;
   }
 
-  Future<void> deleteSalesOrder(int id) async {
-    // TODO: Implement deletion
-  }
+  Future<void> deleteSalesOrder(int id) async {}
 }

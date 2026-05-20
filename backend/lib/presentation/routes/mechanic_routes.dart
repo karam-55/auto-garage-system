@@ -230,22 +230,20 @@ class MechanicRoutes {
       final result = await _mechanicAssignmentRepository.update(updatedAssignment);
 
       // Also update the booking status to keep them in sync
-      if (existingAssignment.bookingId != null) {
-        try {
-          final booking = await _bookingRepository.findById(existingAssignment.bookingId!);
-          if (booking != null) {
-            // Map assignment status to booking status
-            final bookingStatus = _mapAssignmentStatusToBookingStatus(MechanicAssignmentStatus.fromString(statusStr));
-            final updatedBooking = booking.copyWith(
-              status: bookingStatus,
-              updatedAt: DateTime.now().toUtc(),
-            );
-            await _bookingRepository.update(updatedBooking);
-          }
-        } catch (e) {
-          // Log error but don't fail the request
-          print('Failed to update booking status: $e');
+      try {
+        final booking = await _bookingRepository.findById(existingAssignment.bookingId);
+        if (booking != null) {
+          // Map assignment status to booking status
+          final bookingStatus = _mapAssignmentStatusToBookingStatus(MechanicAssignmentStatus.fromString(statusStr));
+          final updatedBooking = booking.copyWith(
+            status: bookingStatus,
+            updatedAt: DateTime.now().toUtc(),
+          );
+          await _bookingRepository.update(updatedBooking);
         }
+      } catch (e) {
+        // Log error but don't fail the request
+        print('Failed to update booking status: $e');
       }
 
       return Response.ok(jsonEncode(result.toJson()));

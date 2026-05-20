@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../domain/entities/fixed_asset.dart';
 import '../../domain/repositories/fixed_asset_repository.dart';
 import '../database/database_connection.dart';
@@ -106,6 +107,94 @@ class FixedAssetRepositoryImpl implements FixedAssetRepository {
     await _db.pool.execute('''
       DELETE FROM fixed_assets WHERE id = \$1
     ''', parameters: {'id': id});
+  }
+
+  @override
+  Future<void> runDepreciationWithJournal(
+    List<FixedAsset> assets,
+    String createdBy,
+  ) async {
+    await _db.runInTransaction((session) async {
+      // Calculate total depreciation for all assets
+      double totalDepreciation = 0;
+      final assetEntries = <Map<String, dynamic>>[];
+
+      for (final asset in assets) {
+        // Skip if asset is fully depreciated
+        if (asset.currentNetBookValue != null && asset.currentNetBookValue! <= asset.salvageValue) {
+          continue;
+        }
+
+        // Calculate monthly depreciation
+        double monthlyDepreciation;
+        if (asset.depreciationMethod == 'straight_line') {
+          monthlyDepreciation = (asset.acquisitionCost - asset.salvageValue) / (asset.usefulLifeYears * 12);
+        } else if (asset.depreciationMethod == 'declining_balance') {
+          monthlyDepreciation = (asset.currentNetBookValue ?? asset.acquisitionCost) * 2 / (asset.usefulLifeYears * 12);
+        } else {
+          monthlyDepreciation = (asset.acquisitionCost - asset.salvageValue) / (asset.usefulLifeYears * 12);
+        }
+
+        // Update asset's net book value
+        final newNetBookValue = (asset.currentNetBookValue ?? asset.acquisitionCost) - monthlyDepreciation;
+        await session.execute(
+          Sql.named('''
+            UPDATE fixed_assets
+            SET current_net_book_value = @newNetBookValue,
+                updated_at = @updatedAt
+            WHERE id = @id
+          '''),
+          parameters: {
+            'newNetBookValue': newNetBookValue,
+            'updatedAt': DateTime.now().toUtc(),
+            'id': asset.id,
+          },
+        );
+
+        totalDepreciation += monthlyDepreciation;
+        assetEntries.add({
+          'assetId': asset.id,
+          'depreciation': monthlyDepreciation,
+        });
+      }
+
+      if (totalDepreciation > 0) {
+        // Create journal entry
+        final journalEntryResult = await session.execute(
+          Sql.named('''
+            INSERT INTO journal_entries (entry_date, reference, description, created_by, created_at)
+            VALUES (@entryDate, @reference, @description, @createdBy, @createdAt)
+            RETURNING id
+          '''),
+          parameters: {
+            'entryDate': DateTime.now(),
+            'reference': 'DEPR-${DateTime.now().millisecondsSinceEpoch}',
+            'description': 'إهلاك شهري للأصول الثابتة',
+            'createdBy': createdBy,
+            'createdAt': DateTime.now().toUtc(),
+          },
+        );
+        final journalEntryId = journalEntryResult.first[0] as int;
+
+        // Create journal lines for each asset
+        for (final entry in assetEntries) {
+          await session.execute(
+            Sql.named('''
+              INSERT INTO journal_lines (entry_id, account_id, debit, credit, description, source_id)
+              VALUES (@entryId, @accountId, @debit, @credit, @description, @sourceId)
+            '''),
+            parameters: {
+              'entryId': journalEntryId,
+              'accountId': 1, // Would need to get from settings
+              'debit': entry['depreciation'],
+              'credit': 0,
+              'description': 'إهلاك الأصل ${entry['assetId']}',
+              'sourceId': entry['assetId'].toString(),
+            },
+          );
+        }
+      }
+    });
   }
 
   FixedAsset _mapRowToAsset(List<dynamic> row) {

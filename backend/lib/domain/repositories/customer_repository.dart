@@ -5,8 +5,8 @@ abstract class CustomerRepository {
   Future<Customer> create(Customer customer);
   Future<Customer?> findById(String id);
   Future<Customer?> findByPhone(String phone);
-  Future<List<Customer>> findAll();
-  Future<List<Customer>> search(String query);
+  Future<List<Customer>> findAll({int limit = 100, int offset = 0});
+  Future<List<Customer>> search(String query, {int limit = 100, int offset = 0});
   Future<PaginationResult<Customer>> findAllPaginated({
     String? search,
     int page = 1,

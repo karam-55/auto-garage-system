@@ -1,6 +1,7 @@
 import 'package:postgres/postgres.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/booking.dart';
+import '../../domain/entities/booking_service.dart';
 import '../../domain/entities/booking_status.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../../core/errors/exceptions.dart';
@@ -41,6 +42,60 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
+  Future<Booking> createWithServices(Booking booking, List<BookingService> services) async {
+    try {
+      return await _db.runInTransaction((session) async {
+        // Create booking within transaction
+        final publicToken = booking.publicToken.isEmpty
+            ? _generatePublicToken()
+            : booking.publicToken;
+        final bookingId = booking.id.isEmpty ? _uuid.v4() : booking.id;
+
+        final bookingResult = await session.execute(
+          Sql.named('''
+            INSERT INTO bookings (id, customer_id, vehicle_id, status, public_token, notes, estimated_completion_date, created_at)
+            VALUES (@id, @customerId, @vehicleId, @status, @publicToken, @notes, @estimatedCompletionDate, @createdAt)
+            RETURNING *
+          '''),
+          parameters: {
+            'id': bookingId,
+            'customerId': booking.customerId,
+            'vehicleId': booking.vehicleId,
+            'status': booking.status.value,
+            'publicToken': publicToken,
+            'notes': booking.notes,
+            'estimatedCompletionDate': booking.estimatedCompletionDate,
+            'createdAt': booking.createdAt,
+          },
+        );
+
+        final createdBooking = _mapRowToBooking(bookingResult.first);
+
+        // Create booking services within same transaction
+        for (final service in services) {
+          await session.execute(
+            Sql.named('''
+              INSERT INTO booking_services (id, booking_id, service_id, price_syp, notes)
+              VALUES (@id, @bookingId, @serviceId, @priceSyp, @notes)
+            '''),
+            parameters: {
+              'id': _uuid.v4(),
+              'bookingId': createdBooking.id,
+              'serviceId': service.serviceId,
+              'priceSyp': service.priceSYP,
+              'notes': service.notes,
+            },
+          );
+        }
+
+        return createdBooking;
+      });
+    } catch (e) {
+      throw DatabaseException('Failed to create booking with services: $e');
+    }
+  }
+
+  @override
   Future<Booking?> findById(String id) async {
     try {
       final result = await _db.execute(
@@ -71,11 +126,17 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<List<Booking>> findByCustomerId(String customerId) async {
+  Future<List<Booking>> findByCustomerId(String customerId, {int? limit, int? offset}) async {
     try {
+      final limitClause = limit != null ? 'LIMIT @limit' : '';
+      final offsetClause = offset != null ? 'OFFSET @offset' : '';
       final result = await _db.execute(
-        Sql.named('SELECT * FROM bookings WHERE customer_id = @customerId ORDER BY created_at DESC'),
-        parameters: {'customerId': customerId},
+        Sql.named('SELECT * FROM bookings WHERE customer_id = @customerId ORDER BY created_at DESC $limitClause $offsetClause'),
+        parameters: {
+          'customerId': customerId,
+          'limit': ?limit,
+          'offset': ?offset,
+        },
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -84,11 +145,17 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<List<Booking>> findByVehicleId(String vehicleId) async {
+  Future<List<Booking>> findByVehicleId(String vehicleId, {int? limit, int? offset}) async {
     try {
+      final limitClause = limit != null ? 'LIMIT @limit' : '';
+      final offsetClause = offset != null ? 'OFFSET @offset' : '';
       final result = await _db.execute(
-        Sql.named('SELECT * FROM bookings WHERE vehicle_id = @vehicleId ORDER BY created_at DESC'),
-        parameters: {'vehicleId': vehicleId},
+        Sql.named('SELECT * FROM bookings WHERE vehicle_id = @vehicleId ORDER BY created_at DESC $limitClause $offsetClause'),
+        parameters: {
+          'vehicleId': vehicleId,
+          'limit': ?limit,
+          'offset': ?offset,
+        },
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -97,9 +164,17 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<List<Booking>> findAll() async {
+  Future<List<Booking>> findAll({int? limit, int? offset}) async {
     try {
-      final result = await _db.execute('SELECT * FROM bookings ORDER BY created_at DESC');
+      final limitClause = limit != null ? 'LIMIT @limit' : '';
+      final offsetClause = offset != null ? 'OFFSET @offset' : '';
+      final result = await _db.execute(
+        Sql.named('SELECT * FROM bookings ORDER BY created_at DESC $limitClause $offsetClause'),
+        parameters: {
+          'limit': ?limit,
+          'offset': ?offset,
+        },
+      );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
       throw DatabaseException('Failed to find all bookings: $e');
@@ -189,11 +264,17 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<List<Booking>> findByStatus(String status) async {
+  Future<List<Booking>> findByStatus(String status, {int? limit, int? offset}) async {
     try {
+      final limitClause = limit != null ? 'LIMIT @limit' : '';
+      final offsetClause = offset != null ? 'OFFSET @offset' : '';
       final result = await _db.execute(
-        Sql.named('SELECT * FROM bookings WHERE status = @status ORDER BY created_at DESC'),
-        parameters: {'status': status},
+        Sql.named('SELECT * FROM bookings WHERE status = @status ORDER BY created_at DESC $limitClause $offsetClause'),
+        parameters: {
+          'status': status,
+          'limit': ?limit,
+          'offset': ?offset,
+        },
       );
       return result.map(_mapRowToBooking).toList();
     } catch (e) {
@@ -202,17 +283,22 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<List<Booking>> findByDateRange(DateTime from, DateTime to) async {
+  Future<List<Booking>> findByDateRange(DateTime from, DateTime to, {int? limit, int? offset}) async {
     try {
+      final limitClause = limit != null ? 'LIMIT @limit' : '';
+      final offsetClause = offset != null ? 'OFFSET @offset' : '';
       final result = await _db.execute(
         Sql.named('''
           SELECT * FROM bookings 
           WHERE created_at >= @from AND created_at <= @to
           ORDER BY created_at DESC
+          $limitClause $offsetClause
         '''),
         parameters: {
           'from': from.toUtc(),
           'to': to.toUtc(),
+          'limit': ?limit,
+          'offset': ?offset,
         },
       );
       return result.map(_mapRowToBooking).toList();
@@ -222,14 +308,17 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<List<Booking>> findAvailableForMechanic() async {
+  Future<List<Booking>> findAvailableForMechanic({int? limit, int? offset}) async {
     try {
+      final limitClause = limit != null ? 'LIMIT @limit' : '';
+      final offsetClause = offset != null ? 'OFFSET @offset' : '';
       final result = await _db.execute('''
         SELECT b.id, b.customer_id, b.vehicle_id, b.status, b.public_token, b.notes, b.estimated_completion_date, b.created_at, b.updated_at
         FROM bookings b
         LEFT JOIN mechanic_assignments ma ON b.id = ma.booking_id
         WHERE ma.id IS NULL AND b.status != 'DELIVERED' AND b.status != 'CANCELLED'
         ORDER BY b.created_at DESC
+        $limitClause $offsetClause
       ''');
       return result.map(_mapRowToBooking).toList();
     } catch (e) {

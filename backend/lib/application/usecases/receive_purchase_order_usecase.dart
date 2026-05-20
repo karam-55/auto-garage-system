@@ -3,6 +3,13 @@ import '../../domain/repositories/purchase_order_repository.dart';
 import '../services/journal_service.dart';
 import '../services/accounting_settings_service.dart';
 
+/// Use case to receive purchase order
+/// 
+/// Auto-Journaling:
+/// When purchase order is received, creates a journal entry:
+/// - Debit: Inventory (inventoryAccountId)
+/// - Credit: Accounts Payable (payableAccountId)
+/// - Source: purchase_receipt, sourceId: purchaseOrderId
 class ReceivePurchaseOrderUseCase {
   final PurchaseOrderRepository _repository;
   final JournalService _journalService;

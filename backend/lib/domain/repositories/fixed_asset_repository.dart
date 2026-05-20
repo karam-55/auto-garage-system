@@ -8,4 +8,10 @@ abstract class FixedAssetRepository {
   Future<List<FixedAsset>> findByStatus(String status);
   Future<FixedAsset> update(FixedAsset asset);
   Future<void> delete(int id);
+  
+  // Transactional operations
+  Future<void> runDepreciationWithJournal(
+    List<FixedAsset> assets,
+    String createdBy,
+  );
 }

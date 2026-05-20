@@ -331,7 +331,7 @@ class BookingRoutes {
         );
       }).toList();
 
-      final useCase = CreateBookingUseCase(_db);
+      final useCase = CreateBookingUseCase(_bookingRepository);
       final createdBooking = await useCase.execute(booking, services);
 
       // Generate invoice for the new booking

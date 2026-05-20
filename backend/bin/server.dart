@@ -58,7 +58,6 @@ import 'package:backend/presentation/middlewares/auth_middleware.dart';
 import 'package:backend/presentation/middlewares/error_middleware.dart';
 import 'package:backend/presentation/middlewares/json_middleware.dart';
 import 'package:backend/presentation/middlewares/logging_middleware.dart';
-import 'package:backend/presentation/websocket/booking_websocket.dart';
 import 'package:backend/application/services/auth_service.dart';
 import 'package:backend/application/services/journal_service.dart';
 import 'package:backend/application/services/accounting_settings_service.dart';
@@ -204,7 +203,6 @@ void main(List<String> args) async {
     accountRepository,
     accountingSettingsService,
   );
-  final webSocket = BookingWebSocket(alertRepository);
   final inventoryRoutes = InventoryRoutes(
     inventoryItemRepository,
     inventoryVariantRepository,
@@ -212,7 +210,6 @@ void main(List<String> args) async {
     bookingInvoiceDataRepository,
     alertRepository,
     authMiddleware,
-    webSocket,
     accountRepository,
     journalRepository,
     journalService,
@@ -262,7 +259,6 @@ void main(List<String> args) async {
       .add(erpRoutes.router.call)
       .add(hrRoutes.router.call)
       .add(crmRoutes.router.call)
-      .add(webSocket.handler)
       .add((Request request) {
         return Response.notFound('Not Found');
       })

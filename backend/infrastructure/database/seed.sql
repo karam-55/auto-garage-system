@@ -57,19 +57,23 @@ VALUES (
 );
 
 -- Default Users
--- Note: Passwords should be hashed with bcrypt in production
+-- WARNING: These are bcrypt hashes for TESTING ONLY.
+-- In PRODUCTION, you MUST generate new secure hashes using bcrypt.
+-- To generate new hashes, use: dart -c "import 'package:bcrypt/bcrypt.dart'; void main() { print(BCrypt.hashpw('your_password', BCrypt.gensalt())); }"
+--
+-- Default passwords (for testing):
 -- admin123 for owner
--- acc123 for accountant
+-- accountant123 for accountant
 -- manager123 for manager
--- mech123 for mechanic
--- recep123 for receptionist
+-- mechanic123 for mechanic
+-- receptionist123 for receptionist
 
 INSERT INTO users (username, password_hash, full_name, phone, role, is_active, created_at, updated_at) VALUES
-('admin', '\$2a\$10\$xLrNqK7qNqNqNqNqNqNqNu', 'المدير العام', '+966500000001', 'OWNER', true, NOW(), NOW()),
-('accountant', '\$2a\$10\$xLrNqK7qNqNqNqNqNqNqNu', 'المحاسب', '+966500000002', 'ACCOUNTANT', true, NOW(), NOW()),
-('manager', '\$2a\$10\$xLrNqK7qNqNqNqNqNqNqNu', 'مدير العمليات', '+966500000003', 'MANAGER', true, NOW(), NOW()),
-('mechanic', '\$2a\$10\$xLrNqK7qNqNqNqNqNqNqNu', 'فني ميكانيكي', '+966500000004', 'MECHANIC', true, NOW(), NOW()),
-('receptionist', '\$2a\$10\$xLrNqK7qNqNqNqNqNqNqNu', 'موظف استقبال', '+966500000005', 'RECEPTIONIST', true, NOW(), NOW());
+('admin', '\$2a\$10\$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'المدير العام', '+966500000001', 'OWNER', true, NOW(), NOW()),
+('accountant', '\$2a\$10\$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'المحاسب', '+966500000002', 'ACCOUNTANT', true, NOW(), NOW()),
+('manager', '\$2a\$10\$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'مدير العمليات', '+966500000003', 'MANAGER', true, NOW(), NOW()),
+('mechanic', '\$2a\$10\$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'فني ميكانيكي', '+966500000004', 'MECHANIC', true, NOW(), NOW()),
+('receptionist', '\$2a\$10\$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'موظف استقبال', '+966500000005', 'RECEPTIONIST', true, NOW(), NOW());
 
 -- Default Service Categories
 INSERT INTO service_categories (name_ar, name_en, base_price, duration_minutes, is_active, created_at) VALUES

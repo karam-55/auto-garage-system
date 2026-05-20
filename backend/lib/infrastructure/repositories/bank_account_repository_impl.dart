@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../infrastructure/database/database_connection.dart';
 import '../../domain/entities/bank_account.dart';
 import '../../domain/entities/bank_reconciliation.dart';
@@ -150,6 +151,92 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
   @override
   Future<void> deleteReconciliation(int id) async {
     await _db.query('DELETE FROM bank_reconciliations WHERE id = @id', substitutionValues: {'id': id});
+  }
+
+  @override
+  Future<BankReconciliation> reconcileWithAdjustment(
+    int bankAccountId,
+    DateTime statementDate,
+    double statementBalance,
+    List<int> matchedJournalLineIds,
+    String createdBy,
+  ) async {
+    return await _db.runInTransaction((session) async {
+      // Calculate system balance
+      final journalLinesResult = await session.execute(
+        '''SELECT debit, credit FROM journal_lines WHERE account_id = @accountId''',
+        parameters: {'accountId': bankAccountId},
+      );
+      double systemBalance = 0;
+      for (final line in journalLinesResult) {
+        systemBalance += (line[0] as double) - (line[1] as double);
+      }
+
+      // Calculate difference
+      final difference = statementBalance - systemBalance;
+
+      // Create reconciliation record
+      final reconciliationResult = await session.execute(
+        Sql.named('''
+          INSERT INTO bank_reconciliations (bank_account_id, statement_date, statement_balance, reconciled_balance, is_done, created_at)
+          VALUES (@bankAccountId, @statementDate, @statementBalance, @reconciledBalance, @isDone, @createdAt)
+          RETURNING id
+        '''),
+        parameters: {
+          'bankAccountId': bankAccountId,
+          'statementDate': statementDate,
+          'statementBalance': statementBalance,
+          'reconciledBalance': systemBalance,
+          'isDone': true,
+          'createdAt': DateTime.now().toUtc(),
+        },
+      );
+      final reconciliationId = reconciliationResult.first[0] as int;
+
+      // Create adjustment journal entry if there's a difference
+      if (difference.abs() > 0.01) {
+        final journalEntryResult = await session.execute(
+          Sql.named('''
+            INSERT INTO journal_entries (entry_date, reference, description, created_by, created_at)
+            VALUES (@entryDate, @reference, @description, @createdBy, @createdAt)
+            RETURNING id
+          '''),
+          parameters: {
+            'entryDate': statementDate,
+            'reference': 'RECON-$reconciliationId',
+            'description': 'فرق التسوية',
+            'createdBy': createdBy,
+            'createdAt': DateTime.now().toUtc(),
+          },
+        );
+        final journalEntryId = journalEntryResult.first[0] as int;
+
+        // Create journal line for adjustment
+        await session.execute(
+          Sql.named('''
+            INSERT INTO journal_lines (entry_id, account_id, debit, credit, description)
+            VALUES (@entryId, @accountId, @debit, @credit, @description)
+          '''),
+          parameters: {
+            'entryId': journalEntryId,
+            'accountId': bankAccountId,
+            'debit': difference > 0 ? difference : 0,
+            'credit': difference < 0 ? -difference : 0,
+            'description': 'فرق التسوية',
+          },
+        );
+      }
+
+      return BankReconciliation(
+        id: reconciliationId,
+        bankAccountId: bankAccountId,
+        statementDate: statementDate,
+        statementBalance: statementBalance,
+        reconciledBalance: systemBalance,
+        isDone: true,
+        createdAt: DateTime.now().toUtc(),
+      );
+    });
   }
 
   BankAccount _mapRowToBankAccount(dynamic row) {

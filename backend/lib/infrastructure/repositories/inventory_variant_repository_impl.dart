@@ -53,6 +53,30 @@ class InventoryVariantRepositoryImpl implements InventoryVariantRepository {
   }
 
   @override
+  Future<List<InventoryVariant>> findByIds(List<String> ids) async {
+    if (ids.isEmpty) return [];
+
+    final result = await _db.execute(
+      Sql.named('SELECT * FROM inventory_variants WHERE id = ANY(@ids)'),
+      parameters: {'ids': ids},
+    );
+
+    return result.map((row) {
+      final data = row.toColumnMap();
+      return InventoryVariant(
+        id: data['id'] as String,
+        itemId: data['item_id'] as String,
+        variantType: VariantType.fromString(data['variant_type'] as String),
+        quantity: data['quantity'] as int? ?? 0,
+        costPrice: (data['cost_price'] is num ? data['cost_price'] as num : double.tryParse(data['cost_price'] as String? ?? '0'))?.toDouble() ?? 0,
+        sellingPrice: (data['selling_price'] is num ? data['selling_price'] as num : double.tryParse(data['selling_price'] as String? ?? '0'))?.toDouble() ?? 0,
+        supplier: data['supplier'] as String?,
+        createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
+      );
+    }).toList();
+  }
+
+  @override
   Future<List<InventoryVariant>> findByItemId(String itemId) async {
     final result = await _db.execute(
       Sql.named('SELECT * FROM inventory_variants WHERE item_id = @itemId ORDER BY created_at DESC'),

@@ -8,6 +8,14 @@ import '../../core/errors/failures.dart';
 import '../services/journal_service.dart';
 import '../services/accounting_settings_service.dart';
 
+/// Use case to update booking status
+/// 
+/// Auto-Journaling:
+/// When status changes to DELIVERED, creates a revenue journal entry:
+/// - Debit: Accounts Receivable (receivableAccountId)
+/// - Credit: Service Revenue (revenueServiceAccountId)
+/// - Credit: Spare Parts Revenue (revenuePartsAccountId)
+/// - Source: booking, sourceId: bookingId
 class UpdateBookingStatusUseCase {
   final BookingRepository _bookingRepository;
   final BookingInvoiceDataRepository _invoiceDataRepository;
@@ -69,7 +77,7 @@ class UpdateBookingStatusUseCase {
             if (totalAmount > 0) {
               final journalEntry = await _journalService.createJournalEntry(
                 date: DateTime.now(),
-                reference: 'INV-${booking.publicToken?.substring(0, 6) ?? bookingId.substring(0, 6)}',
+                reference: 'INV-${booking.publicToken.substring(0, 6) ?? bookingId.substring(0, 6)}',
                 description: 'فاتورة حجز رقم $bookingId',
                 lines: [
                   JournalLineInput(

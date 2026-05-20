@@ -1,29 +1,11 @@
-import 'package:postgres/postgres.dart';
-import '../../infrastructure/database/database_connection.dart';
+import '../../domain/repositories/journal_repository.dart';
 
 class GetRetainedEarningsUseCase {
-  final DatabaseConnection _databaseConnection;
+  final JournalRepository _journalRepository;
 
-  GetRetainedEarningsUseCase(this._databaseConnection);
+  GetRetainedEarningsUseCase(this._journalRepository);
 
   Future<double> execute(DateTime asOfDate) async {
-    final result = await _databaseConnection.execute('''
-      SELECT 
-        COALESCE(SUM(CASE 
-          WHEN a.account_type IN ('revenue', 'expense', 'cogs') 
-          THEN jl.debit - jl.credit 
-          ELSE 0 
-        END), 0) as total_net_profit
-      FROM journal_lines jl
-      JOIN journal_entries je ON jl.entry_id = je.id
-      JOIN accounts a ON jl.account_id = a.id
-      WHERE je.entry_date <= @asOfDate
-    ''', parameters: {'asOfDate': asOfDate});
-
-    final totalNetProfit = result.first[0] as num;
-
-    // حالياً لا يوجد جدول dividends، لذا سنرجع صافي الربح التراكمي
-    // يمكن إضافة جدول dividends لاحقاً وطرح التوزيعات من هنا
-    return totalNetProfit.toDouble();
+    return await _journalRepository.getRetainedEarnings(asOfDate);
   }
 }

@@ -6,12 +6,23 @@
 -- ========================================
 -- 1. Users (Employees)
 -- ========================================
+-- WARNING: These are bcrypt hashes for TESTING ONLY.
+-- In PRODUCTION, you MUST generate new secure hashes using bcrypt.
+-- To generate new hashes, use: dart -c "import 'package:bcrypt/bcrypt.dart'; void main() { print(BCrypt.hashpw('your_password', BCrypt.gensalt())); }"
+--
+-- Default passwords (for testing):
+-- ahmed123 for owner
+-- khaled123 for manager
+-- mohammed123 for mechanic
+-- omar123 for mechanic
+-- fatima123 for receptionist
+
 INSERT INTO users (id, full_name, username, password_hash, role, base_salary, hire_date) VALUES
-('550e8400-e29b-41d4-a716-446655440001', 'أحمد محمد', 'ahmed', '$2b$10$abcdefghijklmnopqrstuvwxyz1234567890', 'OWNER', 500000, '2024-01-01'),
-('550e8400-e29b-41d4-a716-446655440002', 'خالد علي', 'khaled', '$2b$10$abcdefghijklmnopqrstuvwxyz1234567890', 'MANAGER', 300000, '2024-02-15'),
-('550e8400-e29b-41d4-a716-446655440003', 'محمد حسن', 'mohammed', '$2b$10$abcdefghijklmnopqrstuvwxyz1234567890', 'MECHANIC', 250000, '2024-03-01'),
-('550e8400-e29b-41d4-a716-446655440004', 'عمر سعيد', 'omar', '$2b$10$abcdefghijklmnopqrstuvwxyz1234567890', 'MECHANIC', 250000, '2024-03-15'),
-('550e8400-e29b-41d4-a716-446655440005', 'فاطمة أحمد', 'fatima', '$2b$10$abcdefghijklmnopqrstuvwxyz1234567890', 'RECEPTIONIST', 200000, '2024-04-01')
+('550e8400-e29b-41d4-a716-446655440001', 'أحمد محمد', 'ahmed', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'OWNER', 500000, '2024-01-01'),
+('550e8400-e29b-41d4-a716-446655440002', 'خالد علي', 'khaled', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'MANAGER', 300000, '2024-02-15'),
+('550e8400-e29b-41d4-a716-446655440003', 'محمد حسن', 'mohammed', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'MECHANIC', 250000, '2024-03-01'),
+('550e8400-e29b-41d4-a716-446655440004', 'عمر سعيد', 'omar', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'MECHANIC', 250000, '2024-03-15'),
+('550e8400-e29b-41d4-a716-446655440005', 'فاطمة أحمد', 'fatima', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'RECEPTIONIST', 200000, '2024-04-01')
 ON CONFLICT (username) DO NOTHING;
 
 -- ========================================

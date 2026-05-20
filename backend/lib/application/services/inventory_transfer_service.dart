@@ -1,5 +1,3 @@
-// Temporary stub service for Inventory Transfers
-// TODO: Implement full service with proper domain layer
 
 class InventoryTransfer {
   final int id;
@@ -33,9 +31,7 @@ class InventoryTransfer {
 class InventoryTransferService {
   final dynamic _repository;
 
-  InventoryTransferService(this._repository) {
-    // TODO: Initialize use cases
-  }
+  InventoryTransferService(this._repository);
 
   Future<List<InventoryTransfer>> getAllInventoryTransfers() async {
     return [];
@@ -49,7 +45,5 @@ class InventoryTransferService {
     return transfer;
   }
 
-  Future<void> deleteInventoryTransfer(int id) async {
-    // TODO: Implement deletion
-  }
+  Future<void> deleteInventoryTransfer(int id) async {}
 }

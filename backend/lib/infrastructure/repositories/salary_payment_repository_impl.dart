@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../infrastructure/database/database_connection.dart';
 import '../../domain/entities/salary_payment.dart';
 import '../../domain/repositories/salary_payment_repository.dart';
@@ -122,6 +123,74 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
       },
     );
     return findPaymentById(id);
+  }
+
+  @override
+  Future<SalaryPayment> payWithJournal(
+    int salaryPaymentId,
+    DateTime paymentDate,
+    String createdBy,
+  ) async {
+    return await _db.runInTransaction((session) async {
+      // Get salary payment
+      final paymentResult = await session.execute(
+        '''SELECT id, user_id, month_year, base_salary, working_days, bonuses, deductions, net_salary
+           FROM salary_payments WHERE id = @id''',
+        parameters: {'id': salaryPaymentId},
+      );
+      if (paymentResult.isEmpty) {
+        throw Exception('Salary payment not found');
+      }
+      final paymentRow = paymentResult.first;
+      final netSalary = paymentRow[7] as double;
+
+      // Create journal entry
+      final journalEntryResult = await session.execute(
+        Sql.named('''
+          INSERT INTO journal_entries (entry_date, reference, description, created_by, created_at)
+          VALUES (@entryDate, @reference, @description, @createdBy, @createdAt)
+          RETURNING id
+        '''),
+        parameters: {
+          'entryDate': paymentDate,
+          'reference': 'SAL-$salaryPaymentId',
+          'description': 'دفع راتب',
+          'createdBy': createdBy,
+          'createdAt': DateTime.now().toUtc(),
+        },
+      );
+      final journalEntryId = journalEntryResult.first[0] as int;
+
+      // Update salary payment
+      await session.execute(
+        Sql.named('''
+          UPDATE salary_payments
+          SET payment_date = @paymentDate,
+              is_paid = true,
+              journal_entry_id = @journalEntryId
+          WHERE id = @id
+        '''),
+        parameters: {
+          'paymentDate': paymentDate,
+          'journalEntryId': journalEntryId,
+          'id': salaryPaymentId,
+        },
+      );
+
+      return SalaryPayment(
+        id: paymentRow[0] as int,
+        userId: paymentRow[1] as String,
+        monthYear: paymentRow[2] as DateTime,
+        baseSalary: paymentRow[3] as double,
+        workingDays: paymentRow[4] as int,
+        bonuses: (paymentRow[5] as num?)?.toDouble() ?? 0,
+        deductions: (paymentRow[6] as num?)?.toDouble() ?? 0,
+        netSalary: netSalary,
+        paymentDate: paymentDate,
+        isPaid: true,
+        journalEntryId: journalEntryId,
+      );
+    });
   }
 
   SalaryPayment _mapRowToSalaryPayment(dynamic row) {

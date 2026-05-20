@@ -1,7 +1,6 @@
 import '../../domain/entities/salary_payment.dart';
 import '../../domain/repositories/salary_payment_repository.dart';
 import '../../domain/repositories/payroll_settings_repository.dart';
-import '../../domain/entities/payroll_settings.dart';
 
 class GenerateMonthlySalaryPaymentsUseCase {
   final SalaryPaymentRepository _salaryRepository;

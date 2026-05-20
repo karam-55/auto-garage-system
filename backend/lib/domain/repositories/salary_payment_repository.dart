@@ -9,5 +9,12 @@ abstract class SalaryPaymentRepository {
   Future<SalaryPayment> updatePayment(SalaryPayment payment);
   Future<void> deletePayment(int id);
   Future<SalaryPayment?> markAsPaid(int id, DateTime paymentDate, int journalEntryId);
+  
+  // Transactional operations
+  Future<SalaryPayment> payWithJournal(
+    int salaryPaymentId,
+    DateTime paymentDate,
+    String createdBy,
+  );
 }
 

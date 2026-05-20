@@ -1,6 +1,10 @@
+// ignore: constant_identifier_names
 enum PartType {
+  // ignore: constant_identifier_names
   ORIGINAL('ORIGINAL'),
+  // ignore: constant_identifier_names
   COMMERCIAL('COMMERCIAL'),
+  // ignore: constant_identifier_names
   USED('USED');
 
   final String value;

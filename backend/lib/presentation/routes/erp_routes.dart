@@ -48,7 +48,6 @@ import '../../application/services/accounting_settings_service.dart';
 import '../../application/usecases/receive_purchase_order_usecase.dart';
 import '../../application/usecases/pay_purchase_invoice_usecase.dart';
 import '../../application/usecases/create_sales_invoice_usecase.dart';
-import '../../application/usecases/complete_manufacturing_order_usecase.dart';
 import '../../application/usecases/run_depreciation_usecase.dart';
 
 class ErpRoutes {
@@ -65,7 +64,6 @@ class ErpRoutes {
   final ReceivePurchaseOrderUseCase _receivePurchaseOrderUseCase;
   final PayPurchaseInvoiceUseCase _payPurchaseInvoiceUseCase;
   final CreateSalesInvoiceUseCase _createSalesInvoiceUseCase;
-  final CompleteManufacturingOrderUseCase _completeManufacturingOrderUseCase;
   final RunDepreciationUseCase _runDepreciationUseCase;
 
   ErpRoutes(
@@ -82,7 +80,6 @@ class ErpRoutes {
     this._receivePurchaseOrderUseCase,
     this._payPurchaseInvoiceUseCase,
     this._createSalesInvoiceUseCase,
-    this._completeManufacturingOrderUseCase,
     this._runDepreciationUseCase,
   );
 
@@ -120,10 +117,9 @@ class ErpRoutes {
     final accountingSettingsService = AccountingSettingsService(settingsRepo, accountRepo);
 
     final receivePurchaseOrderUseCase = ReceivePurchaseOrderUseCase(purchaseOrderRepo, journalService, accountingSettingsService);
-    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepo, journalService, accountingSettingsService);
+    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepo);
     final createSalesInvoiceUseCase = CreateSalesInvoiceUseCase(journalService, accountingSettingsService);
-    final completeManufacturingOrderUseCase = CompleteManufacturingOrderUseCase(journalService, accountingSettingsService);
-    final runDepreciationUseCase = RunDepreciationUseCase(journalService, accountingSettingsService);
+    final runDepreciationUseCase = RunDepreciationUseCase(assetRepo);
 
     return ErpRoutes(
       purchaseOrderService,
@@ -139,7 +135,6 @@ class ErpRoutes {
       receivePurchaseOrderUseCase,
       payPurchaseInvoiceUseCase,
       createSalesInvoiceUseCase,
-      completeManufacturingOrderUseCase,
       runDepreciationUseCase,
     );
   }
@@ -735,7 +730,7 @@ class ErpRoutes {
   Future<Response> _getManufacturingOrders(Request request) async {
     try {
       final orders = await _manufacturingService.getAllManufacturingOrders();
-      return Response.ok(jsonEncode(orders.map((o) => (o as order.ManufacturingOrder).toJson()).toList()));
+      return Response.ok(jsonEncode(orders.map((o) => (o).toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch manufacturing orders: $e'}));
     }
@@ -931,7 +926,7 @@ class ErpRoutes {
       final leadId = request.url.queryParameters['lead_id'];
       if (leadId != null) {
         final activities = await _crmService.getActivitiesByLeadId(int.parse(leadId));
-        return Response.ok(jsonEncode(activities.map((a) => (a as CrmActivity).toJson()).toList()));
+        return Response.ok(jsonEncode(activities.map((a) => (a).toJson()).toList()));
       }
       return Response.badRequest(body: jsonEncode({'error': 'lead_id parameter required'}));
     } catch (e) {
@@ -1167,7 +1162,7 @@ class ErpRoutes {
       final userId = request.url.queryParameters['user_id'];
       if (userId != null) {
         final reviews = await _hrService.getPerformanceReviewsByUser(userId);
-        return Response.ok(jsonEncode(reviews.map((r) => (r as review.PerformanceReview).toJson()).toList()));
+        return Response.ok(jsonEncode(reviews.map((r) => (r).toJson()).toList()));
       }
       return Response.badRequest(body: jsonEncode({'error': 'user_id parameter required'}));
     } catch (e) {

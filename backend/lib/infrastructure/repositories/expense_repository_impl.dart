@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../infrastructure/database/database_connection.dart';
 import '../../domain/entities/expense.dart';
 import '../../domain/repositories/expense_repository.dart';
@@ -98,6 +99,67 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   @override
   Future<void> delete(int id) async {
     await _db.query('DELETE FROM expenses WHERE id = @id', substitutionValues: {'id': id});
+  }
+
+  @override
+  Future<Expense> createWithJournal(
+    Expense expense,
+    String createdBy,
+  ) async {
+    return await _db.runInTransaction((session) async {
+      // Create expense
+      final expenseResult = await session.execute(
+        '''INSERT INTO expenses (expense_date, account_id, amount, description, payment_method, attachment_url, created_by)
+           VALUES (@expenseDate, @accountId, @amount, @description, @paymentMethod, @attachmentUrl, @createdBy)
+           RETURNING id, created_at''',
+        parameters: {
+          'expenseDate': expense.expenseDate,
+          'accountId': expense.accountId,
+          'amount': expense.amount,
+          'description': expense.description,
+          'paymentMethod': expense.paymentMethod,
+          'attachmentUrl': expense.attachmentUrl,
+          'createdBy': expense.createdBy,
+        },
+      );
+      final expenseRow = expenseResult.first;
+      final createdExpense = expense.copyWith(
+        id: expenseRow[0] as int,
+        createdAt: expenseRow[1] as DateTime,
+      );
+
+      // Create journal entry
+      final journalEntryResult = await session.execute(
+        Sql.named('''
+          INSERT INTO journal_entries (entry_date, reference, description, created_by, created_at)
+          VALUES (@entryDate, @reference, @description, @createdBy, @createdAt)
+          RETURNING id
+        '''),
+        parameters: {
+          'entryDate': expense.expenseDate,
+          'reference': 'EXP-${createdExpense.id}',
+          'description': expense.description ?? 'مصروف',
+          'createdBy': createdBy,
+          'createdAt': DateTime.now().toUtc(),
+        },
+      );
+      final journalEntryId = journalEntryResult.first[0] as int;
+
+      // Update expense with journal entry ID
+      await session.execute(
+        Sql.named('''
+          UPDATE expenses
+          SET journal_entry_id = @journalEntryId
+          WHERE id = @id
+        '''),
+        parameters: {
+          'journalEntryId': journalEntryId,
+          'id': createdExpense.id,
+        },
+      );
+
+      return createdExpense.copyWith(journalEntryId: journalEntryId);
+    });
   }
 
   Expense _mapRowToExpense(dynamic row) {

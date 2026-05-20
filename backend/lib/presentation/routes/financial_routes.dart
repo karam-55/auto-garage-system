@@ -78,10 +78,10 @@ class FinancialRoutes {
     final updateVendorUseCase = UpdateVendorUseCase(vendorRepository);
     final deleteVendorUseCase = DeleteVendorUseCase(vendorRepository);
     final getAllVendorsUseCase = GetAllVendorsUseCase(vendorRepository);
-    final createPurchaseInvoiceUseCase = CreatePurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService, inventoryVariantRepository, accountingSettingsService);
-    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService, accountingSettingsService);
-    final createExpenseUseCase = CreateExpenseUseCase(expenseRepository, journalService, accountingSettingsService);
-    final reconcileBankAccountUseCase = ReconcileBankAccountUseCase(bankAccountRepository, journalRepository, journalService, accountingSettingsService);
+    final createPurchaseInvoiceUseCase = CreatePurchaseInvoiceUseCase(purchaseInvoiceRepository);
+    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepository);
+    final createExpenseUseCase = CreateExpenseUseCase(expenseRepository);
+    final reconcileBankAccountUseCase = ReconcileBankAccountUseCase(bankAccountRepository);
     
     return FinancialRoutes(
       vendorRepository,

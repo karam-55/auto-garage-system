@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../domain/entities/account.dart';
-import '../../domain/entities/journal_entry.dart';
-import '../../domain/entities/journal_line.dart';
 import '../../domain/repositories/account_repository.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../../infrastructure/repositories/account_repository_impl.dart';
@@ -55,9 +53,9 @@ class AccountingRoutes {
     final getProfitLossUseCase = GetProfitLossUseCase(journalRepository, accountRepository);
     final getBalanceSheetUseCase = GetBalanceSheetUseCase(journalRepository, accountRepository);
     final getGeneralLedgerUseCase = GetGeneralLedgerUseCase(journalRepository, accountRepository);
-    final getCashFlowStatementUseCase = GetCashFlowStatementUseCase(db);
-    final getBreakEvenAnalysisUseCase = GetBreakEvenAnalysisUseCase(db);
-    final getTradingAccountUseCase = GetTradingAccountUseCase(db);
+    final getCashFlowStatementUseCase = GetCashFlowStatementUseCase(journalRepository);
+    final getBreakEvenAnalysisUseCase = GetBreakEvenAnalysisUseCase(journalRepository);
+    final getTradingAccountUseCase = GetTradingAccountUseCase(journalRepository);
     
     return AccountingRoutes(
       accountRepository,
@@ -214,6 +212,31 @@ class AccountingRoutes {
   Future<Response> _deleteAccount(Request request) async {
     try {
       final id = int.parse(request.params['id'] as String);
+      
+      // Check if account exists
+      final existing = await _accountRepository.findById(id);
+      if (existing == null) {
+        return Response.notFound(jsonEncode({'error': 'Account not found'}));
+      }
+
+      // Check if account has child accounts
+      final allAccounts = await _accountRepository.findAll();
+      final hasChildren = allAccounts.any((a) => a.parentId == id);
+      if (hasChildren) {
+        return Response.badRequest(
+          body: jsonEncode({'error': 'Cannot delete account with child accounts'}),
+        );
+      }
+
+      // Check if account is used in journal lines
+      final journalLines = await _journalRepository.findAllLines();
+      final isUsedInJournal = journalLines.any((l) => l.accountId == id);
+      if (isUsedInJournal) {
+        return Response.badRequest(
+          body: jsonEncode({'error': 'Cannot delete account used in journal entries'}),
+        );
+      }
+
       await _accountRepository.delete(id);
       return Response.ok(jsonEncode({'message': 'Account deleted successfully'}));
     } catch (e) {
@@ -309,10 +332,50 @@ class AccountingRoutes {
         return Response.notFound(jsonEncode({'error': 'Journal entry not found'}));
       }
 
-      // For now, we don't allow updating journal entries
-      return Response.badRequest(
-        body: jsonEncode({'error': 'Updating journal entries is not supported yet'}),
+      // Check if entry is approved
+      if (existing.approvedBy != null) {
+        return Response.badRequest(
+          body: jsonEncode({'error': 'Cannot update approved journal entry'}),
+        );
+      }
+
+      // Check if entry is linked to a source
+      if (existing.isReversing || existing.reversingDate != null) {
+        return Response.badRequest(
+          body: jsonEncode({'error': 'Cannot update reversing journal entry'}),
+        );
+      }
+
+      // Get existing lines
+      final existingLines = await _journalRepository.findLinesByEntryId(id);
+
+      // Check if any line is linked to a source
+      for (final line in existingLines) {
+        if (line.sourceType != null && line.sourceId != null) {
+          return Response.badRequest(
+            body: jsonEncode({'error': 'Cannot update journal entry linked to a source'}),
+          );
+        }
+      }
+
+      // Update entry
+      final linesData = data['lines'] as List;
+      final lines = linesData.map((l) => JournalLineInput(
+        accountId: l['account_id'] as int,
+        debit: (l['debit'] as num).toDouble(),
+        credit: (l['credit'] as num).toDouble(),
+        description: l['description'] as String?,
+      )).toList();
+
+      final updated = await _journalService.updateJournalEntry(
+        id: id,
+        date: data['entry_date'] != null ? DateTime.parse(data['entry_date'] as String) : existing.entryDate,
+        reference: data['reference'] as String? ?? existing.reference ?? '',
+        description: data['description'] as String? ?? existing.description ?? '',
+        lines: lines,
       );
+
+      return Response.ok(jsonEncode(updated.toJson()));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to update journal entry: $e'}),
@@ -328,10 +391,34 @@ class AccountingRoutes {
         return Response.notFound(jsonEncode({'error': 'Journal entry not found'}));
       }
 
-      // For now, we don't allow deleting journal entries
-      return Response.badRequest(
-        body: jsonEncode({'error': 'Deleting journal entries is not supported yet'}),
-      );
+      // Check if entry is approved
+      if (existing.approvedBy != null) {
+        return Response.badRequest(
+          body: jsonEncode({'error': 'Cannot delete approved journal entry'}),
+        );
+      }
+
+      // Check if entry is linked to a source
+      if (existing.isReversing || existing.reversingDate != null) {
+        return Response.badRequest(
+          body: jsonEncode({'error': 'Cannot delete reversing journal entry'}),
+        );
+      }
+
+      // Get existing lines
+      final existingLines = await _journalRepository.findLinesByEntryId(id);
+
+      // Check if any line is linked to a source
+      for (final line in existingLines) {
+        if (line.sourceType != null && line.sourceId != null) {
+          return Response.badRequest(
+            body: jsonEncode({'error': 'Cannot delete journal entry linked to a source'}),
+          );
+        }
+      }
+
+      await _journalRepository.deleteEntry(id);
+      return Response.ok(jsonEncode({'message': 'Journal entry deleted successfully'}));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to delete journal entry: $e'}),

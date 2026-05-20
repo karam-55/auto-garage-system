@@ -101,26 +101,21 @@ class VehicleRepositoryImpl implements VehicleRepository {
   }
 
   @override
-  Future<List<Vehicle>> findByCustomerId(String customerId) async {
-    try {
-      final result = await _db.execute(
-        Sql.named('SELECT * FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC'),
-        parameters: {'customerId': customerId},
-      );
-      return result.map(_mapRowToVehicle).toList();
-    } catch (e) {
-      throw DatabaseException('Failed to find vehicles by customer id: $e');
-    }
+  Future<List<Vehicle>> findByCustomerId(String customerId, {int limit = 100, int offset = 0}) async {
+    final result = await _db.query(
+      'SELECT id, customer_id, make, model, year, license_plate, color, vin, mileage, created_at FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC LIMIT @limit OFFSET @offset',
+      substitutionValues: {'customerId': customerId, 'limit': limit, 'offset': offset},
+    );
+    return result.map(_mapRowToVehicle).toList();
   }
 
   @override
-  Future<List<Vehicle>> findAll() async {
-    try {
-      final result = await _db.execute('SELECT * FROM vehicles ORDER BY created_at DESC');
-      return result.map(_mapRowToVehicle).toList();
-    } catch (e) {
-      throw DatabaseException('Failed to find all vehicles: $e');
-    }
+  Future<List<Vehicle>> findAll({int limit = 100, int offset = 0}) async {
+    final result = await _db.query(
+      'SELECT id, customer_id, make, model, year, license_plate, color, vin, mileage, created_at FROM vehicles ORDER BY created_at DESC LIMIT @limit OFFSET @offset',
+      substitutionValues: {'limit': limit, 'offset': offset},
+    );
+    return result.map(_mapRowToVehicle).toList();
   }
 
   @override

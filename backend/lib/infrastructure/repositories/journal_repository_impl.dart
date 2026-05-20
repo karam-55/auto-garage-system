@@ -3,6 +3,7 @@ import '../../domain/entities/journal_entry.dart';
 import '../../domain/entities/journal_line.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../database/database_connection.dart';
+import '../../core/errors/exceptions.dart';
 
 class JournalRepositoryImpl implements JournalRepository {
   final DatabaseConnection _db;
@@ -47,11 +48,17 @@ class JournalRepositoryImpl implements JournalRepository {
   }
 
   @override
-  Future<List<JournalEntry>> findAllEntries() async {
+  Future<List<JournalEntry>> findAllEntries({int? limit, int? offset}) async {
+    final limitClause = limit != null ? 'LIMIT @limit' : '';
+    final offsetClause = offset != null ? 'OFFSET @offset' : '';
     final result = await _db.execute(
       Sql.named('''SELECT id, entry_date, reference, description, is_reversing, reversing_date, is_reversed,
              created_by, created_at, approved_by, approved_at, fiscal_period_id
-      FROM journal_entries ORDER BY entry_date DESC, id DESC'''),
+      FROM journal_entries ORDER BY entry_date DESC, id DESC $limitClause $offsetClause'''),
+      parameters: {
+        'limit': ?limit,
+        'offset': ?offset,
+      },
     );
     return result.map(_mapRowToJournalEntry).toList();
   }
@@ -144,11 +151,33 @@ class JournalRepositoryImpl implements JournalRepository {
 
   @override
   Future<List<JournalLine>> findLinesByEntryId(int entryId) async {
-    final result = await _db.execute(
-      Sql.named('SELECT id, entry_id, account_id, debit, credit, description, source_type, source_id FROM journal_lines WHERE entry_id = @entryId'),
-      parameters: {'entryId': entryId},
-    );
-    return result.map(_mapRowToJournalLine).toList();
+    try {
+      final result = await _db.execute(
+        Sql.named('SELECT * FROM journal_lines WHERE entry_id = @entryId'),
+        parameters: {'entryId': entryId},
+      );
+      return result.map((row) => _mapRowToJournalLine(row)).toList();
+    } catch (e) {
+      throw DatabaseException('Failed to find lines by entry id: $e');
+    }
+  }
+
+  @override
+  Future<List<JournalLine>> findAllLines({int? limit, int? offset}) async {
+    try {
+      final limitClause = limit != null ? 'LIMIT @limit' : '';
+      final offsetClause = offset != null ? 'OFFSET @offset' : '';
+      final result = await _db.execute(
+        Sql.named('SELECT * FROM journal_lines $limitClause $offsetClause'),
+        parameters: {
+          'limit': ?limit,
+          'offset': ?offset,
+        },
+      );
+      return result.map((row) => _mapRowToJournalLine(row)).toList();
+    } catch (e) {
+      throw DatabaseException('Failed to find all journal lines: $e');
+    }
   }
 
   @override
@@ -181,6 +210,250 @@ class JournalRepositoryImpl implements JournalRepository {
       Sql.named('DELETE FROM journal_lines WHERE id = @id'),
       parameters: {'id': id},
     );
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTradingAccount(DateTime fromDate, DateTime toDate) async {
+    return await _db.runInTransaction((session) async {
+      // 1. إجمالي الإيرادات (من حسابات الإيرادات)
+      final revenueResult = await session.execute(
+        Sql.named('''
+        SELECT 
+          COALESCE(SUM(jl.credit - jl.debit), 0) as total_revenue
+        FROM journal_lines jl
+        JOIN journal_entries je ON jl.entry_id = je.id
+        JOIN accounts a ON jl.account_id = a.id
+        WHERE je.entry_date BETWEEN @fromDate AND @toDate
+        AND a.account_type = 'revenue'
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
+
+      final revenueData = revenueResult.first.toColumnMap();
+      final totalRevenue = double.tryParse(revenueData['total_revenue'].toString()) ?? 0.0;
+
+      // 2. إجمالي تكلفة البضاعة المباعة (COGS)
+      final cogsResult = await session.execute(
+        Sql.named('''
+        SELECT 
+          COALESCE(SUM(jl.debit - jl.credit), 0) as total_cogs
+        FROM journal_lines jl
+        JOIN journal_entries je ON jl.entry_id = je.id
+        JOIN accounts a ON jl.account_id = a.id
+        WHERE je.entry_date BETWEEN @fromDate AND @toDate
+        AND a.account_type = 'cogs'
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
+
+      final cogsData = cogsResult.first.toColumnMap();
+      final totalCogs = double.tryParse(cogsData['total_cogs'].toString()) ?? 0.0;
+
+      // 3. إجمالي الربح
+      final grossProfit = totalRevenue - totalCogs;
+
+      return {
+        'totalRevenue': totalRevenue,
+        'totalCogs': totalCogs,
+        'grossProfit': grossProfit,
+      };
+    });
+  }
+
+  @override
+  Future<double> getRetainedEarnings(DateTime asOfDate) async {
+    final result = await _db.execute('''
+      SELECT 
+        COALESCE(SUM(CASE 
+          WHEN a.account_type IN ('revenue', 'expense', 'cogs') 
+          THEN jl.debit - jl.credit 
+          ELSE 0 
+        END), 0) as total_net_profit
+      FROM journal_lines jl
+      JOIN journal_entries je ON jl.entry_id = je.id
+      JOIN accounts a ON jl.account_id = a.id
+      WHERE je.entry_date <= @asOfDate
+    ''', parameters: {'asOfDate': asOfDate});
+
+    final totalNetProfit = result.first[0] as num;
+
+    // حالياً لا يوجد جدول dividends، لذا سنرجع صافي الربح التراكمي
+    // يمكن إضافة جدول dividends لاحقاً وطرح التوزيعات من هنا
+    return totalNetProfit.toDouble();
+  }
+
+  @override
+  Future<Map<String, dynamic>> getCashFlowStatement(DateTime startDate, DateTime endDate) async {
+    return await _db.runInTransaction((session) async {
+      // 1. صافي الربح من قائمة الدخل
+      // سنستخدم حسابات الإيرادات والمصروفات
+      final profitLossResult = await session.execute(
+        Sql.named('''
+        SELECT 
+          COALESCE(SUM(CASE WHEN jl.debit > 0 THEN jl.debit ELSE 0 END) - 
+                  SUM(CASE WHEN jl.credit > 0 THEN jl.credit ELSE 0 END), 0) as net_profit
+        FROM journal_lines jl
+        JOIN journal_entries je ON jl.entry_id = je.id
+        JOIN accounts a ON jl.account_id = a.id
+        WHERE je.entry_date BETWEEN @startDate AND @endDate
+        AND a.account_type IN ('revenue', 'expense', 'cogs')
+      '''),
+        parameters: {
+          'startDate': startDate,
+          'endDate': endDate,
+        },
+      );
+
+      final profitLossData = profitLossResult.first.toColumnMap();
+      final netProfit = double.tryParse(profitLossData['net_profit'].toString()) ?? 0.0;
+
+      // 2. التغير في الذمم المدينة (العملاء)
+      final receivablesStart = await _getBalanceAtDate(session, 'receivable', startDate.subtract(const Duration(days: 1)));
+      final receivablesEnd = await _getBalanceAtDate(session, 'receivable', endDate);
+      final changeReceivables = receivablesEnd - receivablesStart;
+
+      // 3. التغير في المخزون
+      final inventoryStart = await _getBalanceAtDate(session, 'inventory', startDate.subtract(const Duration(days: 1)));
+      final inventoryEnd = await _getBalanceAtDate(session, 'inventory', endDate);
+      final changeInventory = inventoryEnd - inventoryStart;
+
+      // 4. التغير في الموردين (ذمم دائنة)
+      final payablesStart = await _getBalanceAtDate(session, 'payable', startDate.subtract(const Duration(days: 1)));
+      final payablesEnd = await _getBalanceAtDate(session, 'payable', endDate);
+      final changePayables = payablesEnd - payablesStart;
+
+      // حساب التدفق النقدي من العمليات التشغيلية
+      final cashFlowFromOperations = netProfit.toDouble() - changeReceivables - changeInventory + changePayables;
+
+      return {
+        'netProfit': netProfit.toDouble(),
+        'adjustments': {
+          'changeInReceivables': -changeReceivables,
+          'changeInInventory': -changeInventory,
+          'changeInPayables': changePayables,
+        },
+        'cashFlowFromOperations': cashFlowFromOperations,
+      };
+    });
+  }
+
+  @override
+  Future<Map<String, dynamic>> getBreakEvenAnalysis(DateTime fromDate, DateTime toDate) async {
+    return await _db.runInTransaction((session) async {
+      // 1. إجمالي الإيرادات (من حسابات الإيرادات)
+      final revenueResult = await session.execute(
+        Sql.named('''
+        SELECT 
+          COALESCE(SUM(jl.credit - jl.debit), 0) as total_revenue
+        FROM journal_lines jl
+        JOIN journal_entries je ON jl.entry_id = je.id
+        JOIN accounts a ON jl.account_id = a.id
+        WHERE je.entry_date BETWEEN @fromDate AND @toDate
+        AND a.account_type = 'revenue'
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
+
+      final revenueData = revenueResult.first.toColumnMap();
+      final totalRevenue = double.tryParse(revenueData['total_revenue'].toString()) ?? 0.0;
+
+      // 2. إجمالي التكاليف المتغيرة (COGS + أي مصروفات متغيرة)
+      // حالياً سنعتبر COGS فقط كتكاليف متغيرة
+      // يمكن إضافة عمود expense_behavior لاحقاً للتمييز بين الثابت والمتغير
+      final variableCostsResult = await session.execute(
+        Sql.named('''
+        SELECT 
+          COALESCE(SUM(jl.debit - jl.credit), 0) as total_variable_costs
+        FROM journal_lines jl
+        JOIN journal_entries je ON jl.entry_id = je.id
+        JOIN accounts a ON jl.account_id = a.id
+        WHERE je.entry_date BETWEEN @fromDate AND @toDate
+        AND a.account_type = 'cogs'
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
+
+      final variableCostsData = variableCostsResult.first.toColumnMap();
+      final totalVariableCosts = double.tryParse(variableCostsData['total_variable_costs'].toString()) ?? 0.0;
+
+      // 3. إجمالي التكاليف الثابتة (المصروفات التشغيلية - الإيجار، الرواتب الإدارية، إلخ)
+      // سنعتبر جميع حسابات المصروفات (باستثناء COGS) كتكاليف ثابتة
+      final fixedCostsResult = await session.execute(
+        Sql.named('''
+        SELECT 
+          COALESCE(SUM(jl.debit - jl.credit), 0) as total_fixed_costs
+        FROM journal_lines jl
+        JOIN journal_entries je ON jl.entry_id = je.id
+        JOIN accounts a ON jl.account_id = a.id
+        WHERE je.entry_date BETWEEN @fromDate AND @toDate
+        AND a.account_type = 'expense'
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
+
+      final fixedCostsData = fixedCostsResult.first.toColumnMap();
+      final totalFixedCosts = double.tryParse(fixedCostsData['total_fixed_costs'].toString()) ?? 0.0;
+
+      // حسابات نقطة التعادل
+      final contributionMargin = totalRevenue - totalVariableCosts;
+      final contributionMarginRatio = totalRevenue > 0 ? contributionMargin / totalRevenue : 0.0;
+      final breakEvenRevenue = contributionMarginRatio > 0 ? totalFixedCosts / contributionMarginRatio : 0.0;
+
+      return {
+        'totalRevenue': totalRevenue,
+        'totalVariableCosts': totalVariableCosts,
+        'totalFixedCosts': totalFixedCosts,
+        'contributionMargin': contributionMargin,
+        'contributionMarginRatio': contributionMarginRatio,
+        'breakEvenRevenue': breakEvenRevenue,
+      };
+    });
+  }
+
+  Future<double> _getBalanceAtDate(Session session, String accountType, DateTime asOfDate) async {
+    // حساب رصيد حساب معين حتى تاريخ معين
+    // سنبحث عن حسابات بناءً على النوع (receivable, inventory, payable)
+    String accountTypeFilter = '';
+    if (accountType == 'receivable') {
+      accountTypeFilter = "AND a.account_type = 'asset' AND (a.name_ar LIKE '%عميل%' OR a.name_ar LIKE '%ذمم%')";
+    } else if (accountType == 'inventory') {
+      accountTypeFilter = "AND a.account_type = 'asset' AND (a.name_ar LIKE '%مخزون%' OR a.name_ar LIKE '%بضاعة%')";
+    } else if (accountType == 'payable') {
+      accountTypeFilter = "AND a.account_type = 'liability' AND (a.name_ar LIKE '%مورد%' OR a.name_ar LIKE '%ذمم%')";
+    }
+
+    final result = await session.execute(
+      Sql.named('''
+      SELECT 
+        COALESCE(SUM(jl.debit - jl.credit), 0) as balance
+      FROM journal_lines jl
+      JOIN journal_entries je ON jl.entry_id = je.id
+      JOIN accounts a ON jl.account_id = a.id
+      WHERE je.entry_date <= @asOfDate
+      $accountTypeFilter
+    '''),
+      parameters: {
+        'asOfDate': asOfDate,
+      },
+    );
+
+    final resultData = result.first.toColumnMap();
+    return double.tryParse(resultData['balance'].toString()) ?? 0.0;
   }
 
   JournalEntry _mapRowToJournalEntry(ResultRow row) {

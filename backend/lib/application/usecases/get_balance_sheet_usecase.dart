@@ -46,7 +46,7 @@ class GetBalanceSheetUseCase {
     // Filter by date or fiscal period
     List<JournalEntry> filteredEntries = entries;
     if (asOfDate != null) {
-      filteredEntries = entries.where((e) => e.entryDate.isBefore(asOfDate!) || e.entryDate.isAtSameMomentAs(asOfDate!)).toList();
+      filteredEntries = entries.where((e) => e.entryDate.isBefore(asOfDate) || e.entryDate.isAtSameMomentAs(asOfDate)).toList();
     } else if (fiscalPeriodId != null) {
       filteredEntries = await _journalRepository.findByFiscalPeriod(fiscalPeriodId);
     }

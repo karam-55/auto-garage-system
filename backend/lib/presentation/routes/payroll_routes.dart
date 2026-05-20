@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import '../../domain/entities/payroll_settings.dart';
 import '../../domain/entities/salary_payment.dart';
 import '../../domain/repositories/payroll_settings_repository.dart';
 import '../../domain/repositories/salary_payment_repository.dart';
@@ -54,7 +53,7 @@ class PayrollRoutes {
     final getSettingsUseCase = GetPayrollSettingsUseCase(settingsRepository);
     final updateSettingsUseCase = UpdatePayrollSettingsUseCase(settingsRepository);
     final generatePaymentsUseCase = GenerateMonthlySalaryPaymentsUseCase(salaryRepository, settingsRepository);
-    final paySalaryUseCase = PaySalaryUseCase(salaryRepository, journalService, accountingSettingsService);
+    final paySalaryUseCase = PaySalaryUseCase(salaryRepository);
     final getReportUseCase = GetMonthlyPayrollReportUseCase(salaryRepository);
     
     return PayrollRoutes(

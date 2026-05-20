@@ -25,7 +25,6 @@ class InventoryRoutes {
   final BookingInvoiceDataRepository _invoiceDataRepository;
   final AlertRepository _alertRepository;
   final AuthMiddleware _authMiddleware;
-  final dynamic _webSocket; // BookingWebSocket instance
   final AccountRepository _accountRepository;
   final JournalRepository _journalRepository;
   final JournalService _journalService;
@@ -38,7 +37,6 @@ class InventoryRoutes {
     this._invoiceDataRepository,
     this._alertRepository,
     this._authMiddleware,
-    this._webSocket,
     this._accountRepository,
     this._journalRepository,
     this._journalService,
@@ -471,18 +469,7 @@ class InventoryRoutes {
             ),
           );
           
-          // Broadcast via WebSocket if available
-          if (_webSocket != null) {
-            try {
-              await _webSocket.broadcastLowStockAlert(
-                item.id,
-                item.name,
-                variant.variantType.toStringValue(),
-                updatedVariant.quantity,
-              );
-            } catch (e) {
-            }
-          }
+          // Note: WebSocket broadcast removed due to removal of WebSocket support
         } catch (e) {
           // Don't fail the request if alert creation fails
         }

@@ -67,31 +67,27 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
-  Future<List<Customer>> findAll() async {
-    try {
-      final result = await _db.execute('SELECT * FROM customers ORDER BY created_at DESC');
-      return result.map(_mapRowToCustomer).toList();
-    } catch (e) {
-      throw DatabaseException('Failed to find all customers: $e');
-    }
+  Future<List<Customer>> findAll({int limit = 100, int offset = 0}) async {
+    final result = await _db.query(
+      'SELECT id, full_name, phone, address, created_at FROM customers ORDER BY created_at DESC LIMIT @limit OFFSET @offset',
+      substitutionValues: {'limit': limit, 'offset': offset},
+    );
+    return result.map(_mapRowToCustomer).toList();
   }
 
   @override
-  Future<List<Customer>> search(String query) async {
-    try {
-      final searchPattern = '%$query%';
-      final result = await _db.execute(
-        Sql.named('''
-          SELECT * FROM customers
-          WHERE full_name ILIKE @search OR phone ILIKE @search
-          ORDER BY created_at DESC
-        '''),
-        parameters: {'search': searchPattern},
-      );
-      return result.map(_mapRowToCustomer).toList();
-    } catch (e) {
-      throw DatabaseException('Failed to search customers: $e');
-    }
+  Future<List<Customer>> search(String query, {int limit = 100, int offset = 0}) async {
+    final result = await _db.query(
+      '''SELECT id, full_name, phone, address, created_at FROM customers 
+         WHERE full_name ILIKE @query OR phone ILIKE @query OR address ILIKE @query
+         ORDER BY created_at DESC LIMIT @limit OFFSET @offset''',
+      substitutionValues: {
+        'query': '%$query%',
+        'limit': limit,
+        'offset': offset,
+      },
+    );
+    return result.map(_mapRowToCustomer).toList();
   }
 
   @override

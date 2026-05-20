@@ -166,6 +166,17 @@ class DatabaseConnection {
         CHECK (role IN ('OWNER', 'MANAGER', 'MANAGER_SALES', 'MANAGER_WAREHOUSE', 'RECEPTIONIST', 'MECHANIC', 'ACCOUNTANT', 'HR_MANAGER'))
       ''');
 
+      // Add CHECK constraint to journal_lines
+      await _pool.execute('''
+        ALTER TABLE journal_lines
+        DROP CONSTRAINT IF EXISTS check_debit_or_credit
+      ''');
+
+      await _pool.execute('''
+        ALTER TABLE journal_lines
+        ADD CONSTRAINT check_debit_or_credit CHECK (debit = 0 OR credit = 0)
+      ''');
+
       // Add public_car_id column if it doesn't exist
       await _pool.execute('''
         ALTER TABLE vehicles 
@@ -397,7 +408,8 @@ CREATE TABLE IF NOT EXISTS journal_lines (
     credit DECIMAL(15,2) DEFAULT 0,
     description TEXT,
     source_type VARCHAR(50),
-    source_id VARCHAR(100)
+    source_id VARCHAR(100),
+    CONSTRAINT check_debit_or_credit CHECK (debit = 0 OR credit = 0)
 );
 
 -- 1.1.5 Bank Accounts and Cash

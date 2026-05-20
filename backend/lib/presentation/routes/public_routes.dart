@@ -89,7 +89,7 @@ class PublicRoutes {
           return {
             'serviceName': data['service_name'],
             'serviceDescription': data['service_description'],
-            'priceSYP': priceSYP is num ? (priceSYP as num).toDouble() : double.tryParse(priceSYP?.toString() ?? '0') ?? 0,
+            'priceSYP': priceSYP is num ? (priceSYP).toDouble() : double.tryParse(priceSYP?.toString() ?? '0') ?? 0,
             'notes': data['notes'],
           };
         }).toList();

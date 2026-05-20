@@ -14,4 +14,13 @@ abstract class BankAccountRepository {
   Future<List<BankReconciliation>> findReconciliationsByBankAccountId(int bankAccountId);
   Future<BankReconciliation> updateReconciliation(BankReconciliation reconciliation);
   Future<void> deleteReconciliation(int id);
+  
+  // Transactional operations
+  Future<BankReconciliation> reconcileWithAdjustment(
+    int bankAccountId,
+    DateTime statementDate,
+    double statementBalance,
+    List<int> matchedJournalLineIds,
+    String createdBy,
+  );
 }

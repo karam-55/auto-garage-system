@@ -1,6 +1,5 @@
 import '../../domain/entities/mechanic_assignment.dart';
 import '../../domain/entities/mechanic_assignment_status.dart';
-import '../../domain/entities/booking.dart';
 import '../../domain/entities/booking_status.dart';
 import '../../domain/repositories/mechanic_assignment_repository.dart';
 import '../../domain/repositories/booking_repository.dart';

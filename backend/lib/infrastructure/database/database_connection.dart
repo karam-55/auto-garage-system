@@ -63,6 +63,11 @@ class DatabaseConnection {
     return await _pool.execute(sql.toString());
   }
 
+  /// Execute a query and return results (for SELECT queries)
+  Future<Result> query(String sql, {Map<String, dynamic>? substitutionValues}) async {
+    return await _pool.execute(sql, parameters: substitutionValues);
+  }
+
   /// Run a block of code inside a database transaction.
   /// If any operation fails, the entire transaction is rolled back.
   Future<T> runInTransaction<T>(Future<T> Function(Session session) operation) async {

@@ -50,7 +50,7 @@ class PaySalaryUseCase {
       ],
       sourceType: 'salary',
       sourceId: salaryPaymentId.toString(),
-      createdBy: paidByUserId,
+      createdBy: paidByUserId.toString(),
     );
 
     // Update salary payment

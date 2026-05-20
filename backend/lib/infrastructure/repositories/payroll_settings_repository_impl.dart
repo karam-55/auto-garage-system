@@ -38,9 +38,13 @@ class PayrollSettingsRepositoryImpl implements PayrollSettingsRepository {
 
   @override
   Future<PayrollSettings> updateSettings(PayrollSettings settings) async {
-    await _db.execute(
-      'UPDATE payroll_settings SET monthly_work_days = \$1, salary_payment_day = \$2 WHERE id = \$3',
-      [settings.monthlyWorkDays, settings.salaryPaymentDay, settings.id],
+    await _db.query(
+      'UPDATE payroll_settings SET monthly_work_days = @monthlyWorkDays, salary_payment_day = @salaryPaymentDay WHERE id = @id',
+      substitutionValues: {
+        'monthlyWorkDays': settings.monthlyWorkDays,
+        'salaryPaymentDay': settings.salaryPaymentDay,
+        'id': settings.id,
+      },
     );
     return settings;
   }

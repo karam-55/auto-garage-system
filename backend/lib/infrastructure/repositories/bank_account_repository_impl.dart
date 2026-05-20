@@ -1,16 +1,16 @@
-import 'package:postgres/postgres.dart';
+import '../../infrastructure/database/database_connection.dart';
 import '../../domain/entities/bank_account.dart';
 import '../../domain/entities/bank_reconciliation.dart';
 import '../../domain/repositories/bank_account_repository.dart';
 
 class BankAccountRepositoryImpl implements BankAccountRepository {
-  final Pool _pool;
+  final DatabaseConnection _db;
 
-  BankAccountRepositoryImpl(this._pool);
+  BankAccountRepositoryImpl(this._db);
 
   @override
   Future<BankAccount> create(BankAccount account) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''INSERT INTO bank_accounts (account_name, account_number, bank_name, initial_balance, current_balance, is_active, account_id)
          VALUES (@accountName, @accountNumber, @bankName, @initialBalance, @currentBalance, @isActive, @accountId)
          RETURNING id''',
@@ -30,7 +30,7 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<BankAccount?> findById(int id) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, account_name, account_number, bank_name, initial_balance, current_balance, is_active, account_id FROM bank_accounts WHERE id = @id',
       substitutionValues: {'id': id},
     );
@@ -40,7 +40,7 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<List<BankAccount>> findAll() async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, account_name, account_number, bank_name, initial_balance, current_balance, is_active, account_id FROM bank_accounts ORDER BY account_name',
     );
     return result.map(_mapRowToBankAccount).toList();
@@ -48,7 +48,7 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<List<BankAccount>> findActive() async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, account_name, account_number, bank_name, initial_balance, current_balance, is_active, account_id FROM bank_accounts WHERE is_active = true ORDER BY account_name',
     );
     return result.map(_mapRowToBankAccount).toList();
@@ -56,7 +56,7 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<BankAccount> update(BankAccount account) async {
-    await _pool.query(
+    await _db.query(
       '''UPDATE bank_accounts SET
          account_name = @accountName,
          account_number = @accountNumber,
@@ -82,12 +82,12 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<void> delete(int id) async {
-    await _pool.query('DELETE FROM bank_accounts WHERE id = @id', substitutionValues: {'id': id});
+    await _db.query('DELETE FROM bank_accounts WHERE id = @id', substitutionValues: {'id': id});
   }
 
   @override
   Future<BankReconciliation> createReconciliation(BankReconciliation reconciliation) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''INSERT INTO bank_reconciliations (bank_account_id, statement_date, statement_balance, reconciled_balance, is_done)
          VALUES (@bankAccountId, @statementDate, @statementBalance, @reconciledBalance, @isDone)
          RETURNING id, created_at''',
@@ -108,7 +108,7 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<BankReconciliation?> findReconciliationById(int id) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, bank_account_id, statement_date, statement_balance, reconciled_balance, is_done, created_at FROM bank_reconciliations WHERE id = @id',
       substitutionValues: {'id': id},
     );
@@ -118,7 +118,7 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<List<BankReconciliation>> findReconciliationsByBankAccountId(int bankAccountId) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, bank_account_id, statement_date, statement_balance, reconciled_balance, is_done, created_at FROM bank_reconciliations WHERE bank_account_id = @bankAccountId ORDER BY statement_date DESC',
       substitutionValues: {'bankAccountId': bankAccountId},
     );
@@ -127,7 +127,7 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<BankReconciliation> updateReconciliation(BankReconciliation reconciliation) async {
-    await _pool.query(
+    await _db.query(
       '''UPDATE bank_reconciliations SET
          bank_account_id = @bankAccountId,
          statement_date = @statementDate,
@@ -149,10 +149,10 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
 
   @override
   Future<void> deleteReconciliation(int id) async {
-    await _pool.query('DELETE FROM bank_reconciliations WHERE id = @id', substitutionValues: {'id': id});
+    await _db.query('DELETE FROM bank_reconciliations WHERE id = @id', substitutionValues: {'id': id});
   }
 
-  BankAccount _mapRowToBankAccount(Row row) {
+  BankAccount _mapRowToBankAccount(dynamic row) {
     return BankAccount(
       id: row[0] as int,
       accountName: row[1] as String,
@@ -165,7 +165,7 @@ class BankAccountRepositoryImpl implements BankAccountRepository {
     );
   }
 
-  BankReconciliation _mapRowToBankReconciliation(Row row) {
+  BankReconciliation _mapRowToBankReconciliation(dynamic row) {
     return BankReconciliation(
       id: row[0] as int,
       bankAccountId: row[1] as int,

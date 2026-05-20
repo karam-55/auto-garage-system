@@ -1,15 +1,15 @@
-import 'package:postgres/postgres.dart';
+import '../../infrastructure/database/database_connection.dart';
 import '../../domain/entities/vendor.dart';
 import '../../domain/repositories/vendor_repository.dart';
 
 class VendorRepositoryImpl implements VendorRepository {
-  final PostgreSQLConnection _pool;
+  final DatabaseConnection _db;
 
-  VendorRepositoryImpl(this._pool);
+  VendorRepositoryImpl(this._db);
 
   @override
   Future<Vendor> create(Vendor vendor) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''INSERT INTO vendors (name, phone, address, tax_number)
          VALUES (@name, @phone, @address, @taxNumber)
          RETURNING id, created_at''',
@@ -29,7 +29,7 @@ class VendorRepositoryImpl implements VendorRepository {
 
   @override
   Future<Vendor?> findById(int id) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, name, phone, address, tax_number, created_at FROM vendors WHERE id = @id',
       substitutionValues: {'id': id},
     );
@@ -39,7 +39,7 @@ class VendorRepositoryImpl implements VendorRepository {
 
   @override
   Future<List<Vendor>> findAll() async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, name, phone, address, tax_number, created_at FROM vendors ORDER BY name',
     );
     return result.map(_mapRowToVendor).toList();
@@ -47,7 +47,7 @@ class VendorRepositoryImpl implements VendorRepository {
 
   @override
   Future<Vendor> update(Vendor vendor) async {
-    await _pool.query(
+    await _db.query(
       '''UPDATE vendors SET
          name = @name,
          phone = @phone,
@@ -67,10 +67,10 @@ class VendorRepositoryImpl implements VendorRepository {
 
   @override
   Future<void> delete(int id) async {
-    await _pool.query('DELETE FROM vendors WHERE id = @id', substitutionValues: {'id': id});
+    await _db.query('DELETE FROM vendors WHERE id = @id', substitutionValues: {'id': id});
   }
 
-  Vendor _mapRowToVendor(Row row) {
+  Vendor _mapRowToVendor(dynamic row) {
     return Vendor(
       id: row[0] as int,
       name: row[1] as String,

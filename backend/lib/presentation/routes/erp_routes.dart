@@ -25,15 +25,13 @@ import '../../infrastructure/repositories/purchase_invoice_repository_impl.dart'
 import '../../domain/entities/crm_activity.dart';
 import '../../domain/entities/manufacturing_order.dart' as order;
 import '../../domain/entities/performance_review.dart' as review;
-import '../../domain/entities/sales_order.dart' as sales_order_entity;
 import '../../domain/entities/purchase_order.dart';
 import '../../domain/entities/quotation.dart';
 import '../../domain/entities/warehouse.dart';
 import '../../domain/entities/bill_of_materials.dart';
-import '../../domain/entities/inventory_transfer.dart' as inventory_transfer_entity;
 import '../../domain/entities/crm_lead.dart';
 import '../../domain/entities/fixed_asset.dart';
-import '../../domain/entities/maintenance_contract.dart';
+import '../../domain/entities/maintenance_contract.dart' as maintenance_contract_entity;
 import '../../domain/entities/employee_contract.dart';
 import '../../domain/entities/leave_request.dart' as leave_request_entity;
 import '../../application/services/purchase_order_service.dart';
@@ -761,7 +759,7 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final order = order.ManufacturingOrder(
+      final manufacturingOrder = order.ManufacturingOrder(
         id: data['id'],
         orderNumber: data['order_number'] ?? 'MO-${DateTime.now().millisecondsSinceEpoch}',
         bomId: data['bom_id'],
@@ -775,8 +773,8 @@ class ErpRoutes {
         updatedAt: DateTime.now(),
       );
       
-      await _manufacturingService.createManufacturingOrder(order);
-      return Response.ok(jsonEncode(order.toJson()));
+      await _manufacturingService.createManufacturingOrder(manufacturingOrder);
+      return Response.ok(jsonEncode(manufacturingOrder.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create manufacturing order: $e'}));
     }
@@ -1195,7 +1193,7 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final review = review.PerformanceReview(
+      final performanceReview = review.PerformanceReview(
         id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
         userId: data['user_id'],
         reviewerId: data['reviewer_id'],
@@ -1206,8 +1204,8 @@ class ErpRoutes {
         updatedAt: DateTime.now(),
       );
       
-      await _hrService.createPerformanceReview(review);
-      return Response.ok(jsonEncode(review.toJson()));
+      await _hrService.createPerformanceReview(performanceReview);
+      return Response.ok(jsonEncode(performanceReview.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create performance review: $e'}));
     }
@@ -1359,7 +1357,7 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final contract = MaintenanceContract(
+      final contract = maintenance_contract_entity.MaintenanceContract(
         id: data['id'],
         assetId: data['asset_id'],
         contractNumber: data['contract_number'],
@@ -1503,20 +1501,13 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final order = sales_order_entity.SalesOrder(
+      final order = SalesOrder(
         id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
-        customerId: data['customer_id'],
-        vehicleId: data['vehicle_id'],
         orderNumber: data['order_number'] ?? 'SO-${DateTime.now().millisecondsSinceEpoch}',
+        customerId: data['customer_id'],
         orderDate: data['order_date'] != null ? DateTime.parse(data['order_date']) : DateTime.now(),
-        expectedDate: data['expected_date'] != null ? DateTime.parse(data['expected_date']) : null,
-        status: data['status'] ?? 'pending',
         totalAmount: (data['total_amount'] as num).toDouble(),
-        taxAmount: (data['tax_amount'] as num).toDouble(),
-        notes: data['notes'],
-        createdBy: data['created_by'],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        status: data['status'] ?? 'pending',
       );
       
       await _salesOrderService.createSalesOrder(order);
@@ -1537,17 +1528,13 @@ class ErpRoutes {
         return Response.notFound(jsonEncode({'error': 'Sales order not found'}));
       }
       
-      final order = existingOrder.copyWith(
-        customerId: data['customer_id'] ?? existingOrder.customerId,
-        vehicleId: data['vehicle_id'] ?? existingOrder.vehicleId,
+      final order = SalesOrder(
+        id: existingOrder.id,
         orderNumber: data['order_number'] ?? existingOrder.orderNumber,
+        customerId: data['customer_id'] ?? existingOrder.customerId,
         orderDate: data['order_date'] != null ? DateTime.parse(data['order_date']) : existingOrder.orderDate,
-        expectedDate: data['expected_date'] != null ? DateTime.parse(data['expected_date']) : existingOrder.expectedDate,
-        status: data['status'] ?? existingOrder.status,
         totalAmount: data['total_amount'] != null ? (data['total_amount'] as num).toDouble() : existingOrder.totalAmount,
-        taxAmount: data['tax_amount'] != null ? (data['tax_amount'] as num).toDouble() : existingOrder.taxAmount,
-        notes: data['notes'] ?? existingOrder.notes,
-        updatedAt: DateTime.now(),
+        status: data['status'] ?? existingOrder.status,
       );
       
       await _salesOrderService.updateSalesOrder(order);
@@ -1595,17 +1582,13 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final transfer = inventory_transfer_entity.InventoryTransfer(
+      final transfer = InventoryTransfer(
         id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        transferNumber: data['transfer_number'] ?? 'IT-${DateTime.now().millisecondsSinceEpoch}',
         fromWarehouseId: data['from_warehouse_id'],
         toWarehouseId: data['to_warehouse_id'],
-        inventoryVariantId: data['inventory_variant_id'],
-        quantity: data['quantity'],
+        transferDate: data['transfer_date'] != null ? DateTime.parse(data['transfer_date']) : DateTime.now(),
         status: data['status'] ?? 'pending',
-        notes: data['notes'],
-        createdBy: data['created_by'],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
       );
       
       await _inventoryTransferService.createInventoryTransfer(transfer);

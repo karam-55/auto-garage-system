@@ -7,10 +7,7 @@ class GetRetainedEarningsUseCase {
   GetRetainedEarningsUseCase(this._databaseConnection);
 
   Future<double> execute(DateTime asOfDate) async {
-    final connection = await _databaseConnection.connection;
-
-    // احسب إجمالي صافي الربح من بداية النشاط حتى asOfDate
-    final result = await connection.query('''
+    final result = await _databaseConnection.execute('''
       SELECT 
         COALESCE(SUM(CASE 
           WHEN a.account_type IN ('revenue', 'expense', 'cogs') 
@@ -20,8 +17,8 @@ class GetRetainedEarningsUseCase {
       FROM journal_lines jl
       JOIN journal_entries je ON jl.entry_id = je.id
       JOIN accounts a ON jl.account_id = a.id
-      WHERE je.entry_date <= $1
-    ''', [asOfDate]);
+      WHERE je.entry_date <= @asOfDate
+    ''', parameters: {'asOfDate': asOfDate});
 
     final totalNetProfit = result.first[0] as num;
 

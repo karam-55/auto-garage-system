@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../domain/entities/role.dart';
+import '../../domain/entities/employee_contract.dart' as contract_entity;
 import '../../domain/entities/leave_request.dart';
 import '../../domain/entities/performance_review.dart' as review_entity;
 import '../../domain/repositories/hr_repository.dart';
@@ -87,7 +88,7 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final contract = EmployeeContract(
+      final contract = contract_entity.EmployeeContract(
         id: body['id'] ?? DateTime.now().millisecondsSinceEpoch,
         userId: body['userId'],
         contractType: body['contractType'] ?? 'full-time',
@@ -117,7 +118,7 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final contract = EmployeeContract(
+      final contract = contract_entity.EmployeeContract(
         id: id,
         userId: body['userId'],
         contractType: body['contractType'] ?? 'full-time',

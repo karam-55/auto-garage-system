@@ -3,7 +3,7 @@ import 'package:shelf/shelf.dart';
 
 /// Middleware موحد لمعالجة الأخطاء في جميع الـ handlers
 class ErrorHandler {
-  /// تطق Middleware على handler معين
+  /// تطبيق Middleware على handler معين
   static Middleware apply() {
     return (Handler innerHandler) {
       return (Request request) async {
@@ -25,7 +25,7 @@ class ErrorHandler {
           );
         }
       };
-    }
+    };
   }
 
   /// إنشاء استجابة خطأ موحدة

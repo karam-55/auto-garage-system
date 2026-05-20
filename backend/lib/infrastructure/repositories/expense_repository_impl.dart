@@ -1,15 +1,15 @@
-import 'package:postgres/postgres.dart';
+import '../../infrastructure/database/database_connection.dart';
 import '../../domain/entities/expense.dart';
 import '../../domain/repositories/expense_repository.dart';
 
 class ExpenseRepositoryImpl implements ExpenseRepository {
-  final Pool _pool;
+  final DatabaseConnection _db;
 
-  ExpenseRepositoryImpl(this._pool);
+  ExpenseRepositoryImpl(this._db);
 
   @override
   Future<Expense> create(Expense expense) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''INSERT INTO expenses (expense_date, account_id, amount, description, payment_method, attachment_url, created_by)
          VALUES (@expenseDate, @accountId, @amount, @description, @paymentMethod, @attachmentUrl, @createdBy)
          RETURNING id, created_at''',
@@ -32,7 +32,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<Expense?> findById(int id) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, expense_date, account_id, amount, description, payment_method, attachment_url, created_by, created_at FROM expenses WHERE id = @id',
       substitutionValues: {'id': id},
     );
@@ -42,7 +42,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<List<Expense>> findAll() async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, expense_date, account_id, amount, description, payment_method, attachment_url, created_by, created_at FROM expenses ORDER BY expense_date DESC',
     );
     return result.map(_mapRowToExpense).toList();
@@ -50,7 +50,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<List<Expense>> findByDateRange(DateTime startDate, DateTime endDate) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''SELECT id, expense_date, account_id, amount, description, payment_method, attachment_url, created_by, created_at 
       FROM expenses WHERE expense_date >= @startDate AND expense_date <= @endDate 
       ORDER BY expense_date DESC''',
@@ -64,7 +64,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<List<Expense>> findByAccountId(int accountId) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       'SELECT id, expense_date, account_id, amount, description, payment_method, attachment_url, created_by, created_at FROM expenses WHERE account_id = @accountId ORDER BY expense_date DESC',
       substitutionValues: {'accountId': accountId},
     );
@@ -73,7 +73,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<Expense> update(Expense expense) async {
-    await _pool.query(
+    await _db.query(
       '''UPDATE expenses SET
          expense_date = @expenseDate,
          account_id = @accountId,
@@ -97,10 +97,10 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<void> delete(int id) async {
-    await _pool.query('DELETE FROM expenses WHERE id = @id', substitutionValues: {'id': id});
+    await _db.query('DELETE FROM expenses WHERE id = @id', substitutionValues: {'id': id});
   }
 
-  Expense _mapRowToExpense(Row row) {
+  Expense _mapRowToExpense(dynamic row) {
     return Expense(
       id: row[0] as int,
       expenseDate: row[1] as DateTime,

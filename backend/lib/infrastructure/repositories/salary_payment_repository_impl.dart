@@ -47,7 +47,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
       '''SELECT id, user_id, month_year, base_salary, working_days, bonuses, deductions, net_salary, payment_date, is_paid, journal_entry_id 
       FROM salary_payments ORDER BY month_year DESC''',
     );
-    return result.map(_mapRowToSalaryPayment).toList();
+    return result.map((row) => _mapRowToSalaryPayment(row)).toList();
   }
 
   @override
@@ -57,7 +57,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
       FROM salary_payments WHERE user_id = @userId ORDER BY month_year DESC''',
       substitutionValues: {'userId': userId},
     );
-    return result.map(_mapRowToSalaryPayment).toList();
+    return result.map((row) => _mapRowToSalaryPayment(row)).toList();
   }
 
   @override
@@ -67,7 +67,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
       FROM salary_payments WHERE month_year = @monthYear ORDER BY month_year DESC''',
       substitutionValues: {'monthYear': monthYear},
     );
-    return result.map(_mapRowToSalaryPayment).toList();
+    return result.map((row) => _mapRowToSalaryPayment(row)).toList();
   }
 
   @override
@@ -124,7 +124,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
     return findPaymentById(id);
   }
 
-  SalaryPayment _mapRowToSalaryPayment(Row row) {
+  SalaryPayment _mapRowToSalaryPayment(dynamic row) {
     return SalaryPayment(
       id: row[0] as int,
       userId: row[1] as String,

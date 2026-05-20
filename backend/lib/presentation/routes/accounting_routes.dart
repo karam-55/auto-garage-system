@@ -454,9 +454,11 @@ class AccountingRoutes {
           'totalCredit': line.totalCredit,
         }).toList(),
       }));
-    } catch (e) {
+    } catch (e, stack) {
+      print('Trial balance error: $e');
+      print(stack);
       return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch trial balance: $e'}),
+        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
       );
     }
   }
@@ -495,9 +497,11 @@ class AccountingRoutes {
         'totalExpense': profitLoss.totalExpense,
         'netProfit': profitLoss.netProfit,
       }));
-    } catch (e) {
+    } catch (e, stack) {
+      print('Profit & loss error: $e');
+      print(stack);
       return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch profit & loss: $e'}),
+        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
       );
     }
   }
@@ -533,9 +537,11 @@ class AccountingRoutes {
         'totalLiabilities': balanceSheet.totalLiabilities,
         'equity': balanceSheet.equity,
       }));
-    } catch (e) {
+    } catch (e, stack) {
+      print('Balance sheet error: $e');
+      print(stack);
       return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch balance sheet: $e'}),
+        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
       );
     }
   }
@@ -577,9 +583,11 @@ class AccountingRoutes {
           'lineDescription': entry.lineDescription,
         }).toList(),
       }));
-    } catch (e) {
+    } catch (e, stack) {
+      print('General ledger error: $e');
+      print(stack);
       return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch general ledger: $e'}),
+        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
       );
     }
   }
@@ -599,9 +607,11 @@ class AccountingRoutes {
       final cashFlow = await _getCashFlowStatementUseCase.execute(fromDate, toDate);
 
       return Response.ok(jsonEncode(cashFlow));
-    } catch (e) {
+    } catch (e, stack) {
+      print('Cash flow error: $e');
+      print(stack);
       return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch cash flow statement: $e'}),
+        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
       );
     }
   }
@@ -621,9 +631,11 @@ class AccountingRoutes {
       final breakEven = await _getBreakEvenAnalysisUseCase.execute(fromDate, toDate);
 
       return Response.ok(jsonEncode(breakEven));
-    } catch (e) {
+    } catch (e, stack) {
+      print('Break-even error: $e');
+      print(stack);
       return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch break-even analysis: $e'}),
+        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
       );
     }
   }
@@ -643,9 +655,11 @@ class AccountingRoutes {
       final trading = await _getTradingAccountUseCase.execute(fromDate, toDate);
 
       return Response.ok(jsonEncode(trading));
-    } catch (e) {
+    } catch (e, stack) {
+      print('Trading account error: $e');
+      print(stack);
       return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch trading account: $e'}),
+        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
       );
     }
   }

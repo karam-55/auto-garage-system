@@ -95,9 +95,11 @@ class DashboardRoutes {
       };
 
       return Response.ok(jsonEncode(stats));
-    } catch (e) {
+    } catch (e, stack) {
+      print('Dashboard stats error: $e');
+      print(stack);
       return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to get dashboard stats: $e'}),
+        body: jsonEncode({'error': '$e', 'stack': '$stack'}),
       );
     }
   }

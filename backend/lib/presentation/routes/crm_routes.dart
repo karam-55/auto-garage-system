@@ -78,14 +78,13 @@ class CrmRoutes {
     try {
       final lead = CrmLead(
         id: body['id'] ?? DateTime.now().millisecondsSinceEpoch,
-        name: body['name'],
-        phone: body['phone'],
-        company: body['company'],
+        customerId: body['customerId'],
         status: body['status'] ?? 'new',
         assignedTo: body['assignedTo'],
         estimatedValue: (body['estimatedValue'] as num?)?.toDouble(),
         source: body['source'],
-        customerId: body['customerId'],
+        notes: body['notes'],
+        closingDate: body['closingDate'] != null ? DateTime.parse(body['closingDate']) : null,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -110,14 +109,13 @@ class CrmRoutes {
     try {
       final lead = CrmLead(
         id: id,
-        name: body['name'],
-        phone: body['phone'],
-        company: body['company'],
+        customerId: body['customerId'],
         status: body['status'] ?? 'new',
         assignedTo: body['assignedTo'],
         estimatedValue: (body['estimatedValue'] as num?)?.toDouble(),
         source: body['source'],
-        customerId: body['customerId'],
+        notes: body['notes'],
+        closingDate: body['closingDate'] != null ? DateTime.parse(body['closingDate']) : null,
         createdAt: DateTime.parse(body['createdAt']),
         updatedAt: DateTime.now(),
       );
@@ -196,11 +194,13 @@ class CrmRoutes {
         id: body['id'] ?? DateTime.now().millisecondsSinceEpoch,
         leadId: body['leadId'],
         customerId: body['customerId'],
-        type: body['type'],
+        activityType: body['activityType'],
         description: body['description'],
-        date: body['date'] != null ? DateTime.parse(body['date']) : DateTime.now(),
+        dueDate: body['dueDate'] != null ? DateTime.parse(body['dueDate']) : null,
+        isCompleted: body['isCompleted'] ?? false,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        createdBy: body['createdBy'],
       );
       
       final useCase = CreateCrmActivityUseCase(_activityRepository);
@@ -225,11 +225,13 @@ class CrmRoutes {
         id: id,
         leadId: body['leadId'],
         customerId: body['customerId'],
-        type: body['type'],
+        activityType: body['activityType'],
         description: body['description'],
-        date: body['date'] != null ? DateTime.parse(body['date']) : DateTime.now(),
+        dueDate: body['dueDate'] != null ? DateTime.parse(body['dueDate']) : null,
+        isCompleted: body['isCompleted'] ?? false,
         createdAt: DateTime.parse(body['createdAt']),
         updatedAt: DateTime.now(),
+        createdBy: body['createdBy'],
       );
       
       final useCase = UpdateCrmActivityUseCase(_activityRepository);

@@ -25,7 +25,14 @@ import '../../infrastructure/repositories/purchase_invoice_repository_impl.dart'
 import '../../domain/entities/crm_activity.dart';
 import '../../domain/entities/manufacturing_order.dart' as order;
 import '../../domain/entities/performance_review.dart' as review;
-import '../../domain/entities/sales_order.dart';
+import '../../domain/entities/sales_order.dart' as sales_order_entity;
+import '../../domain/entities/purchase_order.dart';
+import '../../domain/entities/quotation.dart';
+import '../../domain/entities/warehouse.dart';
+import '../../domain/entities/bill_of_materials.dart';
+import '../../domain/entities/inventory_transfer.dart';
+import '../../domain/entities/employee_contract.dart';
+import '../../domain/entities/leave_request.dart';
 import '../../application/services/purchase_order_service.dart';
 import '../../application/services/quotation_service.dart';
 import '../../application/services/warehouse_service.dart';
@@ -112,7 +119,7 @@ class ErpRoutes {
     final accountingSettingsService = AccountingSettingsService(settingsRepo, accountRepo);
 
     final receivePurchaseOrderUseCase = ReceivePurchaseOrderUseCase(purchaseOrderRepo, journalService, accountingSettingsService);
-    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepo, journalService);
+    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepo, journalService, accountingSettingsService);
     final createSalesInvoiceUseCase = CreateSalesInvoiceUseCase(journalService, accountingSettingsService);
     final completeManufacturingOrderUseCase = CompleteManufacturingOrderUseCase(journalService, accountingSettingsService);
     final runDepreciationUseCase = RunDepreciationUseCase(journalService, accountingSettingsService);
@@ -271,7 +278,8 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+      final linesData = data['lines'] as List<dynamic>?;
+      final lines = linesData?.map((lineData) {
         return PurchaseOrderLine(
           id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
           purchaseOrderId: 0, // Will be set after creation
@@ -316,7 +324,8 @@ class ErpRoutes {
         return Response.notFound(jsonEncode({'error': 'Purchase order not found'}));
       }
       
-      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+      final linesData = data['lines'] as List<dynamic>?;
+      final lines = linesData?.map((lineData) {
         return PurchaseOrderLine(
           id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
           purchaseOrderId: id,
@@ -409,7 +418,8 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+      final linesData = data['lines'] as List<dynamic>?;
+      final lines = linesData?.map((lineData) {
         return QuotationLine(
           id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
           quotationId: 0, // Will be set after creation
@@ -457,7 +467,8 @@ class ErpRoutes {
         return Response.notFound(jsonEncode({'error': 'Quotation not found'}));
       }
       
-      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+      final linesData = data['lines'] as List<dynamic>?;
+      final lines = linesData?.map((lineData) {
         return QuotationLine(
           id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
           quotationId: id,
@@ -639,7 +650,8 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+      final linesData = data['lines'] as List<dynamic>?;
+      final lines = linesData?.map((lineData) {
         return BomLine(
           id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
           bomId: 0, // Will be set after creation
@@ -680,7 +692,8 @@ class ErpRoutes {
         return Response.notFound(jsonEncode({'error': 'BOM not found'}));
       }
       
-      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+      final linesData = data['lines'] as List<dynamic>?;
+      final lines = linesData?.map((lineData) {
         return BomLine(
           id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
           bomId: id,
@@ -746,14 +759,14 @@ class ErpRoutes {
       final data = jsonDecode(body) as Map<String, dynamic>;
       
       final order = order.ManufacturingOrder(
-        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        id: data['id'],
+        orderNumber: data['order_number'] ?? 'MO-${DateTime.now().millisecondsSinceEpoch}',
         bomId: data['bom_id'],
-        quantityToProduce: data['quantity_to_produce'],
-        producedQuantity: data['produced_quantity'] ?? 0,
+        quantity: data['quantity'] ?? 1,
         startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : null,
-        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : null,
+        expectedCompletionDate: data['expected_completion_date'] != null ? DateTime.parse(data['expected_completion_date']) : null,
+        actualCompletionDate: data['actual_completion_date'] != null ? DateTime.parse(data['actual_completion_date']) : null,
         status: data['status'] ?? 'pending',
-        createdBy: data['created_by'],
         notes: data['notes'],
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -779,10 +792,10 @@ class ErpRoutes {
       
       final order = existingOrder.copyWith(
         bomId: data['bom_id'] ?? existingOrder.bomId,
-        quantityToProduce: data['quantity_to_produce'] ?? existingOrder.quantityToProduce,
-        producedQuantity: data['produced_quantity'] ?? existingOrder.producedQuantity,
+        quantity: data['quantity'] ?? existingOrder.quantity,
         startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : existingOrder.startDate,
-        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : existingOrder.endDate,
+        expectedCompletionDate: data['expected_completion_date'] != null ? DateTime.parse(data['expected_completion_date']) : existingOrder.expectedCompletionDate,
+        actualCompletionDate: data['actual_completion_date'] != null ? DateTime.parse(data['actual_completion_date']) : existingOrder.actualCompletionDate,
         status: data['status'] ?? existingOrder.status,
         notes: data['notes'] ?? existingOrder.notes,
         updatedAt: DateTime.now(),
@@ -845,14 +858,13 @@ class ErpRoutes {
       
       final lead = CrmLead(
         id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
-        name: data['name'],
-        phone: data['phone'],
-        company: data['company'],
+        customerId: data['customer_id'],
         status: data['status'] ?? 'new',
         assignedTo: data['assigned_to'],
         estimatedValue: data['estimated_value'] != null ? (data['estimated_value'] as num).toDouble() : null,
         source: data['source'],
-        customerId: data['customer_id'],
+        notes: data['notes'],
+        closingDate: data['closing_date'] != null ? DateTime.parse(data['closing_date']) : null,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -876,14 +888,13 @@ class ErpRoutes {
       }
       
       final lead = existingLead.copyWith(
-        name: data['name'] ?? existingLead.name,
-        phone: data['phone'] ?? existingLead.phone,
-        company: data['company'] ?? existingLead.company,
+        customerId: data['customer_id'] ?? existingLead.customerId,
         status: data['status'] ?? existingLead.status,
         assignedTo: data['assigned_to'] ?? existingLead.assignedTo,
         estimatedValue: data['estimated_value'] != null ? (data['estimated_value'] as num).toDouble() : existingLead.estimatedValue,
         source: data['source'] ?? existingLead.source,
-        customerId: data['customer_id'] ?? existingLead.customerId,
+        notes: data['notes'] ?? existingLead.notes,
+        closingDate: data['closing_date'] != null ? DateTime.parse(data['closing_date']) : existingLead.closingDate,
         updatedAt: DateTime.now(),
       );
       
@@ -949,11 +960,13 @@ class ErpRoutes {
         id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
         leadId: data['lead_id'],
         customerId: data['customer_id'],
-        type: data['type'],
+        activityType: data['activity_type'],
         description: data['description'],
-        date: data['date'] != null ? DateTime.parse(data['date']) : DateTime.now(),
+        dueDate: data['due_date'] != null ? DateTime.parse(data['due_date']) : null,
+        isCompleted: data['is_completed'] ?? false,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        createdBy: data['created_by'],
       );
       
       await _crmService.createActivity(activity);
@@ -1344,18 +1357,15 @@ class ErpRoutes {
       final data = jsonDecode(body) as Map<String, dynamic>;
       
       final contract = MaintenanceContract(
-        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
-        customerId: data['customer_id'],
-        vehicleId: data['vehicle_id'],
+        id: data['id'],
+        assetId: data['asset_id'],
         contractNumber: data['contract_number'],
         startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : DateTime.now(),
         endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : DateTime.now(),
-        serviceIntervalKm: data['service_interval_km'],
-        serviceIntervalDays: data['service_interval_days'],
-        lastServiceKm: data['last_service_km'],
-        nextServiceDue: data['next_service_due'] != null ? DateTime.parse(data['next_service_due']) : null,
-        notes: data['notes'],
-        createdBy: data['created_by'],
+        provider: data['provider'],
+        cost: data['cost'] != null ? (data['cost'] as num).toDouble() : null,
+        terms: data['terms'],
+        status: data['status'] ?? 'active',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -1379,16 +1389,14 @@ class ErpRoutes {
       }
       
       final contract = existingContract.copyWith(
-        customerId: data['customer_id'] ?? existingContract.customerId,
-        vehicleId: data['vehicle_id'] ?? existingContract.vehicleId,
+        assetId: data['asset_id'] ?? existingContract.assetId,
         contractNumber: data['contract_number'] ?? existingContract.contractNumber,
         startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : existingContract.startDate,
         endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : existingContract.endDate,
-        serviceIntervalKm: data['service_interval_km'] ?? existingContract.serviceIntervalKm,
-        serviceIntervalDays: data['service_interval_days'] ?? existingContract.serviceIntervalDays,
-        lastServiceKm: data['last_service_km'] ?? existingContract.lastServiceKm,
-        nextServiceDue: data['next_service_due'] != null ? DateTime.parse(data['next_service_due']) : existingContract.nextServiceDue,
-        notes: data['notes'] ?? existingContract.notes,
+        provider: data['provider'] ?? existingContract.provider,
+        cost: data['cost'] != null ? (data['cost'] as num).toDouble() : existingContract.cost,
+        terms: data['terms'] ?? existingContract.terms,
+        status: data['status'] ?? existingContract.status,
         updatedAt: DateTime.now(),
       );
       
@@ -1492,7 +1500,7 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final order = SalesOrder(
+      final order = sales_order_entity.SalesOrder(
         id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
         customerId: data['customer_id'],
         vehicleId: data['vehicle_id'],

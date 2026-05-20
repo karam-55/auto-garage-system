@@ -3,8 +3,6 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/entities/employee_contract.dart';
-import '../../domain/entities/leave_request.dart';
-import '../../domain/entities/performance_review.dart';
 import '../../domain/repositories/hr_repository.dart';
 import '../../domain/repositories/leave_request_repository.dart';
 import '../../domain/repositories/performance_review_repository.dart';
@@ -91,11 +89,11 @@ class HrRoutes {
       final contract = EmployeeContract(
         id: body['id'] ?? DateTime.now().millisecondsSinceEpoch,
         userId: body['userId'],
+        contractType: body['contractType'] ?? 'full-time',
         startDate: DateTime.parse(body['startDate']),
         endDate: body['endDate'] != null ? DateTime.parse(body['endDate']) : null,
         baseSalary: (body['baseSalary'] as num?)?.toDouble() ?? 0.0,
-        position: body['position'],
-        status: body['status'] ?? 'active',
+        benefits: body['benefits'],
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -121,11 +119,11 @@ class HrRoutes {
       final contract = EmployeeContract(
         id: id,
         userId: body['userId'],
+        contractType: body['contractType'] ?? 'full-time',
         startDate: DateTime.parse(body['startDate']),
         endDate: body['endDate'] != null ? DateTime.parse(body['endDate']) : null,
         baseSalary: (body['baseSalary'] as num?)?.toDouble() ?? 0.0,
-        position: body['position'],
-        status: body['status'] ?? 'active',
+        benefits: body['benefits'],
         createdAt: DateTime.parse(body['createdAt']),
         updatedAt: DateTime.now(),
       );
@@ -186,9 +184,10 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final leaveRequest = LeaveRequest(
+      final leaveRequest = EmployeeContract.LeaveRequest(
         id: body['id'] ?? DateTime.now().millisecondsSinceEpoch,
         userId: body['userId'],
+        leaveType: body['leaveType'] ?? 'annual',
         startDate: DateTime.parse(body['startDate']),
         endDate: DateTime.parse(body['endDate']),
         reason: body['reason'],
@@ -215,9 +214,10 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final leaveRequest = LeaveRequest(
+      final leaveRequest = EmployeeContract.LeaveRequest(
         id: id,
         userId: body['userId'],
+        leaveType: body['leaveType'] ?? 'annual',
         startDate: DateTime.parse(body['startDate']),
         endDate: DateTime.parse(body['endDate']),
         reason: body['reason'],
@@ -315,16 +315,14 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final review = PerformanceReview(
+      final review = EmployeeContract.PerformanceReview(
         id: body['id'] ?? DateTime.now().millisecondsSinceEpoch,
         userId: body['userId'],
-        reviewPeriod: body['reviewPeriod'],
-        overallRating: (body['overallRating'] as num?)?.toDouble() ?? 0.0,
-        comments: body['comments'],
-        reviewedBy: body['reviewedBy'],
         reviewDate: DateTime.now(),
+        reviewerId: body['reviewerId'],
+        rating: body['rating'] ?? 5,
+        comments: body['comments'],
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
       );
       
       final useCase = CreatePerformanceReviewUseCase(_performanceReviewRepository);
@@ -345,16 +343,14 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final review = PerformanceReview(
+      final review = EmployeeContract.PerformanceReview(
         id: id,
         userId: body['userId'],
-        reviewPeriod: body['reviewPeriod'],
-        overallRating: (body['overallRating'] as num?)?.toDouble() ?? 0.0,
-        comments: body['comments'],
-        reviewedBy: body['reviewedBy'],
         reviewDate: DateTime.parse(body['reviewDate']),
+        reviewerId: body['reviewerId'],
+        rating: body['rating'] ?? 5,
+        comments: body['comments'],
         createdAt: DateTime.parse(body['createdAt']),
-        updatedAt: DateTime.now(),
       );
       
       final useCase = UpdatePerformanceReviewUseCase(_performanceReviewRepository);

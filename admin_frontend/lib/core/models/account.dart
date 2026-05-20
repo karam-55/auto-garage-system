@@ -26,14 +26,16 @@ class Account {
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
       id: json['id'] as int,
-      code: json['code'] as String,
-      nameAr: json['nameAr'] as String,
-      nameEn: json['nameEn'] as String,
-      accountType: json['accountType'] as String,
-      parentId: json['parentId'] as int?,
-      isActive: json['isActive'] as bool? ?? true,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
+      code: json['code']?.toString() ?? '',
+      nameAr: json['nameAr']?.toString() ?? json['name_ar']?.toString() ?? '',
+      nameEn: json['nameEn']?.toString() ?? json['name_en']?.toString() ?? '',
+      accountType: json['accountType']?.toString() ?? json['account_type']?.toString() ?? 'asset',
+      parentId: json['parentId'] as int? ?? json['parent_id'] as int?,
+      isActive: json['isActive'] as bool? ?? json['is_active'] as bool? ?? true,
+      createdAt: DateTime.parse(json['createdAt']?.toString() ?? json['created_at']?.toString() ?? DateTime.now().toIso8601String()),
+      updatedAt: json['updatedAt'] != null || json['updated_at'] != null
+          ? DateTime.parse(json['updatedAt']?.toString() ?? json['updated_at']?.toString() ?? DateTime.now().toIso8601String())
+          : null,
       children: json['children'] != null
           ? (json['children'] as List).map((j) => Account.fromJson(j as Map<String, dynamic>)).toList()
           : null,

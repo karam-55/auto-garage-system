@@ -181,6 +181,7 @@ void main(List<String> args) async {
     authRoutes.authMiddleware,
   );
   final publicRoutes = PublicRoutes(db);
+  print('DEBUG: PublicRoutes initialized');
   final companySettingsRoutes = CompanySettingsRoutes(
     companySettingsRepository,
     authMiddleware,

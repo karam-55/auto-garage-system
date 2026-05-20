@@ -133,6 +133,7 @@ class PublicRoutes {
   }
 
   Future<Response> _seedSampleData(Request request) async {
+    print('DEBUG: Seed data endpoint called');
     try {
       print('Starting sample data seeding...');
       

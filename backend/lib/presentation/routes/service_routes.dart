@@ -73,14 +73,10 @@ class ServiceRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
 
-    print('DEBUG: Creating service with data: $body');
-
     final name = (body['name'] as String?)?.trim();
     final description = (body['description'] as String?)?.trim();
     final priceSYP = body['priceSYP'];
     final estimatedDurationMinutes = body['estimatedDurationMinutes'];
-
-    print('DEBUG: name=$name, description=$description, priceSYP=$priceSYP, estimatedDurationMinutes=$estimatedDurationMinutes');
 
     // Handle priceSYP type safely
     double? priceSYPDouble;
@@ -92,11 +88,9 @@ class ServiceRoutes {
       try {
         priceSYPDouble = double.parse(priceSYP);
       } catch (e) {
-        print('ERROR: Failed to parse priceSYP: $e');
         return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
       }
     } else {
-      print('ERROR: Invalid priceSYP type: ${priceSYP.runtimeType}');
       return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a number'}));
     }
 
@@ -110,28 +104,23 @@ class ServiceRoutes {
       try {
         estimatedDurationMinutesInt = int.parse(estimatedDurationMinutes);
       } catch (e) {
-        print('ERROR: Failed to parse estimatedDurationMinutes: $e');
         return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be a valid integer'}));
       }
     } else {
-      print('ERROR: Invalid estimatedDurationMinutes type: ${estimatedDurationMinutes.runtimeType}');
       return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be an integer'}));
     }
 
     if (name == null || name.isEmpty || priceSYPDouble == null) {
-      print('ERROR: Missing required fields');
       return Response.badRequest(body: jsonEncode({'error': 'name and priceSYP are required and cannot be empty'}));
     }
 
     // Validate price
     if (priceSYPDouble <= 0) {
-      print('ERROR: priceSYP must be greater than 0');
       return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be greater than 0'}));
     }
 
     // Validate estimated duration if provided
     if (estimatedDurationMinutesInt != null && estimatedDurationMinutesInt < 0) {
-      print('ERROR: estimatedDurationMinutes must be greater than or equal to 0');
       return Response.badRequest(body: jsonEncode({'error': 'estimatedDurationMinutes must be greater than or equal to 0'}));
     }
 
@@ -145,15 +134,10 @@ class ServiceRoutes {
         createdAt: DateTime.now().toUtc(),
       );
 
-      print('DEBUG: Creating service entity: ${service.toJson()}');
-
       final createdService = await _serviceRepository.create(service);
-
-      print('DEBUG: Service created successfully: ${createdService.toJson()}');
 
       return Response.ok(jsonEncode(createdService.toJson()));
     } catch (e) {
-      print('ERROR: Failed to create service: $e');
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to create service: $e'}),
       );

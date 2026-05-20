@@ -746,7 +746,6 @@ class _BookingsScreenState extends State<BookingsScreen> {
             customerData = customerResponse;
           }
         } catch (e) {
-          print('Error fetching customer data: $e');
         }
       }
 

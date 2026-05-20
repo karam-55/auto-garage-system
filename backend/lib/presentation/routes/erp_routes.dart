@@ -25,6 +25,7 @@ import '../../infrastructure/repositories/purchase_invoice_repository_impl.dart'
 import '../../domain/entities/crm_activity.dart';
 import '../../domain/entities/manufacturing_order.dart' as order;
 import '../../domain/entities/performance_review.dart' as review;
+import '../../domain/entities/sales_order.dart';
 import '../../application/services/purchase_order_service.dart';
 import '../../application/services/quotation_service.dart';
 import '../../application/services/warehouse_service.dart';
@@ -269,8 +270,36 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create PurchaseOrder from data
-      return Response.ok(jsonEncode({'message': 'Purchase order created'}));
+      
+      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+        return PurchaseOrderLine(
+          id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
+          purchaseOrderId: 0, // Will be set after creation
+          inventoryVariantId: lineData['inventory_variant_id'],
+          quantityOrdered: lineData['quantity_ordered'],
+          quantityReceived: lineData['quantity_received'] ?? 0,
+          unitPrice: (lineData['unit_price'] as num).toDouble(),
+          totalPrice: (lineData['total_price'] as num).toDouble(),
+          createdAt: DateTime.now(),
+        );
+      }).toList() ?? [];
+      
+      final order = PurchaseOrder(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        vendorId: data['vendor_id'],
+        orderNumber: data['order_number'] ?? 'PO-${DateTime.now().millisecondsSinceEpoch}',
+        orderDate: data['order_date'] != null ? DateTime.parse(data['order_date']) : DateTime.now(),
+        expectedDate: data['expected_date'] != null ? DateTime.parse(data['expected_date']) : null,
+        status: data['status'] ?? 'pending',
+        notes: data['notes'],
+        createdBy: data['created_by'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        lines: lines,
+      );
+      
+      await _purchaseOrderService.createOrder(order);
+      return Response.ok(jsonEncode(order.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create purchase order: $e'}));
     }
@@ -281,8 +310,38 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update PurchaseOrder from data
-      return Response.ok(jsonEncode({'message': 'Purchase order updated'}));
+      
+      final existingOrder = await _purchaseOrderService.getOrder(id);
+      if (existingOrder == null) {
+        return Response.notFound(jsonEncode({'error': 'Purchase order not found'}));
+      }
+      
+      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+        return PurchaseOrderLine(
+          id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
+          purchaseOrderId: id,
+          inventoryVariantId: lineData['inventory_variant_id'],
+          quantityOrdered: lineData['quantity_ordered'],
+          quantityReceived: lineData['quantity_received'] ?? 0,
+          unitPrice: (lineData['unit_price'] as num).toDouble(),
+          totalPrice: (lineData['total_price'] as num).toDouble(),
+          createdAt: DateTime.parse(lineData['created_at']),
+        );
+      }).toList() ?? existingOrder.lines;
+      
+      final order = existingOrder.copyWith(
+        vendorId: data['vendor_id'] ?? existingOrder.vendorId,
+        orderNumber: data['order_number'] ?? existingOrder.orderNumber,
+        orderDate: data['order_date'] != null ? DateTime.parse(data['order_date']) : existingOrder.orderDate,
+        expectedDate: data['expected_date'] != null ? DateTime.parse(data['expected_date']) : existingOrder.expectedDate,
+        status: data['status'] ?? existingOrder.status,
+        notes: data['notes'] ?? existingOrder.notes,
+        lines: lines,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _purchaseOrderService.updateOrder(order);
+      return Response.ok(jsonEncode(order.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update purchase order: $e'}));
     }
@@ -303,8 +362,20 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Implement confirm purchase order logic
-      return Response.ok(jsonEncode({'message': 'Purchase order confirmed'}));
+      
+      final existingOrder = await _purchaseOrderService.getOrder(id);
+      if (existingOrder == null) {
+        return Response.notFound(jsonEncode({'error': 'Purchase order not found'}));
+      }
+      
+      // Update status to confirmed
+      final order = existingOrder.copyWith(
+        status: 'confirmed',
+        updatedAt: DateTime.now(),
+      );
+      
+      await _purchaseOrderService.updateOrder(order);
+      return Response.ok(jsonEncode(order.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to confirm purchase order: $e'}));
     }
@@ -337,8 +408,39 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create Quotation from data
-      return Response.ok(jsonEncode({'message': 'Quotation created'}));
+      
+      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+        return QuotationLine(
+          id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
+          quotationId: 0, // Will be set after creation
+          serviceId: lineData['service_id'],
+          inventoryVariantId: lineData['inventory_variant_id'],
+          description: lineData['description'],
+          quantity: lineData['quantity'],
+          unitPrice: (lineData['unit_price'] as num).toDouble(),
+          totalPrice: (lineData['total_price'] as num).toDouble(),
+          createdAt: DateTime.now(),
+        );
+      }).toList() ?? [];
+      
+      final quotation = Quotation(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        customerId: data['customer_id'],
+        vehicleId: data['vehicle_id'],
+        quotationNumber: data['quotation_number'] ?? 'QT-${DateTime.now().millisecondsSinceEpoch}',
+        date: data['date'] != null ? DateTime.parse(data['date']) : DateTime.now(),
+        validUntil: data['valid_until'] != null ? DateTime.parse(data['valid_until']) : null,
+        status: data['status'] ?? 'draft',
+        totalAmount: (data['total_amount'] as num).toDouble(),
+        notes: data['notes'],
+        createdBy: data['created_by'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        lines: lines,
+      );
+      
+      await _quotationService.createQuotation(quotation);
+      return Response.ok(jsonEncode(quotation.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create quotation: $e'}));
     }
@@ -349,8 +451,41 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update Quotation from data
-      return Response.ok(jsonEncode({'message': 'Quotation updated'}));
+      
+      final existingQuotation = await _quotationService.getQuotation(id);
+      if (existingQuotation == null) {
+        return Response.notFound(jsonEncode({'error': 'Quotation not found'}));
+      }
+      
+      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+        return QuotationLine(
+          id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
+          quotationId: id,
+          serviceId: lineData['service_id'],
+          inventoryVariantId: lineData['inventory_variant_id'],
+          description: lineData['description'],
+          quantity: lineData['quantity'],
+          unitPrice: (lineData['unit_price'] as num).toDouble(),
+          totalPrice: (lineData['total_price'] as num).toDouble(),
+          createdAt: DateTime.parse(lineData['created_at']),
+        );
+      }).toList() ?? existingQuotation.lines;
+      
+      final quotation = existingQuotation.copyWith(
+        customerId: data['customer_id'] ?? existingQuotation.customerId,
+        vehicleId: data['vehicle_id'] ?? existingQuotation.vehicleId,
+        quotationNumber: data['quotation_number'] ?? existingQuotation.quotationNumber,
+        date: data['date'] != null ? DateTime.parse(data['date']) : existingQuotation.date,
+        validUntil: data['valid_until'] != null ? DateTime.parse(data['valid_until']) : existingQuotation.validUntil,
+        status: data['status'] ?? existingQuotation.status,
+        totalAmount: data['total_amount'] != null ? (data['total_amount'] as num).toDouble() : existingQuotation.totalAmount,
+        notes: data['notes'] ?? existingQuotation.notes,
+        lines: lines,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _quotationService.updateQuotation(quotation);
+      return Response.ok(jsonEncode(quotation.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update quotation: $e'}));
     }
@@ -371,8 +506,27 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Implement convert quotation to sales order logic
-      return Response.ok(jsonEncode({'message': 'Quotation converted to sales order'}));
+      
+      // Get the quotation
+      final quotation = await _quotationService.getQuotation(id);
+      if (quotation == null) {
+        return Response.notFound(jsonEncode({'error': 'Quotation not found'}));
+      }
+      
+      // Update quotation status to converted
+      final updatedQuotation = quotation.copyWith(
+        status: 'converted',
+        updatedAt: DateTime.now(),
+      );
+      await _quotationService.updateQuotation(updatedQuotation);
+      
+      // Note: SalesOrder creation would require SalesOrder entity and repository
+      // which are currently stub implementations
+      
+      return Response.ok(jsonEncode({
+        'message': 'Quotation converted to sales order',
+        'quotation': updatedQuotation.toJson(),
+      }));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to convert quotation: $e'}));
     }
@@ -405,8 +559,18 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create Warehouse from data
-      return Response.ok(jsonEncode({'message': 'Warehouse created'}));
+      
+      final warehouse = Warehouse(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        name: data['name'],
+        location: data['location'],
+        isActive: data['is_active'] ?? true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _warehouseService.createWarehouse(warehouse);
+      return Response.ok(jsonEncode(warehouse.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create warehouse: $e'}));
     }
@@ -417,8 +581,21 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update Warehouse from data
-      return Response.ok(jsonEncode({'message': 'Warehouse updated'}));
+      
+      final existingWarehouse = await _warehouseService.getWarehouse(id);
+      if (existingWarehouse == null) {
+        return Response.notFound(jsonEncode({'error': 'Warehouse not found'}));
+      }
+      
+      final warehouse = existingWarehouse.copyWith(
+        name: data['name'] ?? existingWarehouse.name,
+        location: data['location'] ?? existingWarehouse.location,
+        isActive: data['is_active'] ?? existingWarehouse.isActive,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _warehouseService.updateWarehouse(warehouse);
+      return Response.ok(jsonEncode(warehouse.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update warehouse: $e'}));
     }
@@ -461,8 +638,32 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create BOM from data
-      return Response.ok(jsonEncode({'message': 'BOM created'}));
+      
+      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+        return BomLine(
+          id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
+          bomId: 0, // Will be set after creation
+          inputVariantId: lineData['input_variant_id'],
+          quantityRequired: lineData['quantity_required'],
+          unitCost: (lineData['unit_cost'] as num).toDouble(),
+          createdAt: DateTime.now(),
+        );
+      }).toList() ?? [];
+      
+      final bom = BillOfMaterials(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        serviceId: data['service_id'],
+        outputVariantId: data['output_variant_id'],
+        name: data['name'],
+        quantityOutput: data['quantity_output'],
+        isActive: data['is_active'] ?? true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        lines: lines,
+      );
+      
+      await _manufacturingService.createBom(bom);
+      return Response.ok(jsonEncode(bom.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create BOM: $e'}));
     }
@@ -473,8 +674,35 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update BOM from data
-      return Response.ok(jsonEncode({'message': 'BOM updated'}));
+      
+      final existingBom = await _manufacturingService.getBom(id);
+      if (existingBom == null) {
+        return Response.notFound(jsonEncode({'error': 'BOM not found'}));
+      }
+      
+      final lines = (data['lines'] as List<dynamic>?)?.map((lineData) {
+        return BomLine(
+          id: lineData['id'] ?? DateTime.now().millisecondsSinceEpoch,
+          bomId: id,
+          inputVariantId: lineData['input_variant_id'],
+          quantityRequired: lineData['quantity_required'],
+          unitCost: (lineData['unit_cost'] as num).toDouble(),
+          createdAt: DateTime.parse(lineData['created_at']),
+        );
+      }).toList() ?? existingBom.lines;
+      
+      final bom = existingBom.copyWith(
+        serviceId: data['service_id'] ?? existingBom.serviceId,
+        outputVariantId: data['output_variant_id'] ?? existingBom.outputVariantId,
+        name: data['name'] ?? existingBom.name,
+        quantityOutput: data['quantity_output'] ?? existingBom.quantityOutput,
+        isActive: data['is_active'] ?? existingBom.isActive,
+        lines: lines,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _manufacturingService.updateBom(bom);
+      return Response.ok(jsonEncode(bom.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update BOM: $e'}));
     }
@@ -516,8 +744,23 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create ManufacturingOrder from data
-      return Response.ok(jsonEncode({'message': 'Manufacturing order created'}));
+      
+      final order = order.ManufacturingOrder(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        bomId: data['bom_id'],
+        quantityToProduce: data['quantity_to_produce'],
+        producedQuantity: data['produced_quantity'] ?? 0,
+        startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : null,
+        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : null,
+        status: data['status'] ?? 'pending',
+        createdBy: data['created_by'],
+        notes: data['notes'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _manufacturingService.createManufacturingOrder(order);
+      return Response.ok(jsonEncode(order.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create manufacturing order: $e'}));
     }
@@ -528,8 +771,25 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update ManufacturingOrder from data
-      return Response.ok(jsonEncode({'message': 'Manufacturing order updated'}));
+      
+      final existingOrder = await _manufacturingService.getManufacturingOrder(id);
+      if (existingOrder == null) {
+        return Response.notFound(jsonEncode({'error': 'Manufacturing order not found'}));
+      }
+      
+      final order = existingOrder.copyWith(
+        bomId: data['bom_id'] ?? existingOrder.bomId,
+        quantityToProduce: data['quantity_to_produce'] ?? existingOrder.quantityToProduce,
+        producedQuantity: data['produced_quantity'] ?? existingOrder.producedQuantity,
+        startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : existingOrder.startDate,
+        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : existingOrder.endDate,
+        status: data['status'] ?? existingOrder.status,
+        notes: data['notes'] ?? existingOrder.notes,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _manufacturingService.updateManufacturingOrder(order);
+      return Response.ok(jsonEncode(order.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update manufacturing order: $e'}));
     }
@@ -582,8 +842,23 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create CrmLead from data
-      return Response.ok(jsonEncode({'message': 'Lead created'}));
+      
+      final lead = CrmLead(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        name: data['name'],
+        phone: data['phone'],
+        company: data['company'],
+        status: data['status'] ?? 'new',
+        assignedTo: data['assigned_to'],
+        estimatedValue: data['estimated_value'] != null ? (data['estimated_value'] as num).toDouble() : null,
+        source: data['source'],
+        customerId: data['customer_id'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _crmService.createLead(lead);
+      return Response.ok(jsonEncode(lead.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create lead: $e'}));
     }
@@ -594,8 +869,26 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update CrmLead from data
-      return Response.ok(jsonEncode({'message': 'Lead updated'}));
+      
+      final existingLead = await _crmService.getLead(id);
+      if (existingLead == null) {
+        return Response.notFound(jsonEncode({'error': 'Lead not found'}));
+      }
+      
+      final lead = existingLead.copyWith(
+        name: data['name'] ?? existingLead.name,
+        phone: data['phone'] ?? existingLead.phone,
+        company: data['company'] ?? existingLead.company,
+        status: data['status'] ?? existingLead.status,
+        assignedTo: data['assigned_to'] ?? existingLead.assignedTo,
+        estimatedValue: data['estimated_value'] != null ? (data['estimated_value'] as num).toDouble() : existingLead.estimatedValue,
+        source: data['source'] ?? existingLead.source,
+        customerId: data['customer_id'] ?? existingLead.customerId,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _crmService.updateLead(lead);
+      return Response.ok(jsonEncode(lead.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update lead: $e'}));
     }
@@ -651,8 +944,20 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create CrmActivity from data
-      return Response.ok(jsonEncode({'message': 'Activity created'}));
+      
+      final activity = CrmActivity(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        leadId: data['lead_id'],
+        customerId: data['customer_id'],
+        type: data['type'],
+        description: data['description'],
+        date: data['date'] != null ? DateTime.parse(data['date']) : DateTime.now(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _crmService.createActivity(activity);
+      return Response.ok(jsonEncode(activity.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create activity: $e'}));
     }
@@ -699,8 +1004,21 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create EmployeeContract from data
-      return Response.ok(jsonEncode({'message': 'Contract created'}));
+      
+      final contract = EmployeeContract(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        userId: data['user_id'],
+        contractType: data['contract_type'],
+        startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : DateTime.now(),
+        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : null,
+        baseSalary: data['base_salary'] != null ? (data['base_salary'] as num).toDouble() : null,
+        benefits: data['benefits'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _hrService.createContract(contract);
+      return Response.ok(jsonEncode(contract.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create contract: $e'}));
     }
@@ -711,8 +1029,24 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update EmployeeContract from data
-      return Response.ok(jsonEncode({'message': 'Contract updated'}));
+      
+      final existingContract = await _hrService.getContract(id);
+      if (existingContract == null) {
+        return Response.notFound(jsonEncode({'error': 'Contract not found'}));
+      }
+      
+      final contract = existingContract.copyWith(
+        userId: data['user_id'] ?? existingContract.userId,
+        contractType: data['contract_type'] ?? existingContract.contractType,
+        startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : existingContract.startDate,
+        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : existingContract.endDate,
+        baseSalary: data['base_salary'] != null ? (data['base_salary'] as num).toDouble() : existingContract.baseSalary,
+        benefits: data['benefits'] ?? existingContract.benefits,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _hrService.updateContract(contract);
+      return Response.ok(jsonEncode(contract.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update contract: $e'}));
     }
@@ -758,8 +1092,24 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create LeaveRequest from data
-      return Response.ok(jsonEncode({'message': 'Leave request created'}));
+      
+      final leaveRequest = LeaveRequest(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        userId: data['user_id'],
+        leaveType: data['leave_type'],
+        startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : DateTime.now(),
+        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : DateTime.now(),
+        reason: data['reason'],
+        status: data['status'] ?? 'pending',
+        approvedBy: data['approved_by'],
+        approvedAt: data['approved_at'] != null ? DateTime.parse(data['approved_at']) : null,
+        rejectionReason: data['rejection_reason'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _hrService.createLeaveRequest(leaveRequest);
+      return Response.ok(jsonEncode(leaveRequest.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create leave request: $e'}));
     }
@@ -828,8 +1178,20 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create PerformanceReview from data
-      return Response.ok(jsonEncode({'message': 'Performance review created'}));
+      
+      final review = review.PerformanceReview(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        userId: data['user_id'],
+        reviewerId: data['reviewer_id'],
+        reviewDate: data['review_date'] != null ? DateTime.parse(data['review_date']) : DateTime.now(),
+        overallRating: (data['overall_rating'] as num).toDouble(),
+        comments: data['comments'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _hrService.createPerformanceReview(review);
+      return Response.ok(jsonEncode(review.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create performance review: $e'}));
     }
@@ -872,8 +1234,24 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create FixedAsset from data
-      return Response.ok(jsonEncode({'message': 'Fixed asset created'}));
+      
+      final asset = FixedAsset(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        name: data['name'],
+        acquisitionDate: data['acquisition_date'] != null ? DateTime.parse(data['acquisition_date']) : DateTime.now(),
+        acquisitionCost: (data['acquisition_cost'] as num).toDouble(),
+        salvageValue: (data['salvage_value'] as num).toDouble(),
+        usefulLifeYears: data['useful_life_years'],
+        depreciationMethod: data['depreciation_method'] ?? 'straight_line',
+        currentNetBookValue: data['current_net_book_value'] != null ? (data['current_net_book_value'] as num).toDouble() : null,
+        location: data['location'],
+        status: data['status'] ?? 'active',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _fixedAssetService.createFixedAsset(asset);
+      return Response.ok(jsonEncode(asset.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create fixed asset: $e'}));
     }
@@ -884,8 +1262,27 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update FixedAsset from data
-      return Response.ok(jsonEncode({'message': 'Fixed asset updated'}));
+      
+      final existingAsset = await _fixedAssetService.getFixedAsset(id);
+      if (existingAsset == null) {
+        return Response.notFound(jsonEncode({'error': 'Fixed asset not found'}));
+      }
+      
+      final asset = existingAsset.copyWith(
+        name: data['name'] ?? existingAsset.name,
+        acquisitionDate: data['acquisition_date'] != null ? DateTime.parse(data['acquisition_date']) : existingAsset.acquisitionDate,
+        acquisitionCost: data['acquisition_cost'] != null ? (data['acquisition_cost'] as num).toDouble() : existingAsset.acquisitionCost,
+        salvageValue: data['salvage_value'] != null ? (data['salvage_value'] as num).toDouble() : existingAsset.salvageValue,
+        usefulLifeYears: data['useful_life_years'] ?? existingAsset.usefulLifeYears,
+        depreciationMethod: data['depreciation_method'] ?? existingAsset.depreciationMethod,
+        currentNetBookValue: data['current_net_book_value'] != null ? (data['current_net_book_value'] as num).toDouble() : existingAsset.currentNetBookValue,
+        location: data['location'] ?? existingAsset.location,
+        status: data['status'] ?? existingAsset.status,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _fixedAssetService.updateFixedAsset(asset);
+      return Response.ok(jsonEncode(asset.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update fixed asset: $e'}));
     }
@@ -945,8 +1342,26 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create MaintenanceContract from data
-      return Response.ok(jsonEncode({'message': 'Maintenance contract created'}));
+      
+      final contract = MaintenanceContract(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        customerId: data['customer_id'],
+        vehicleId: data['vehicle_id'],
+        contractNumber: data['contract_number'],
+        startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : DateTime.now(),
+        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : DateTime.now(),
+        serviceIntervalKm: data['service_interval_km'],
+        serviceIntervalDays: data['service_interval_days'],
+        lastServiceKm: data['last_service_km'],
+        nextServiceDue: data['next_service_due'] != null ? DateTime.parse(data['next_service_due']) : null,
+        notes: data['notes'],
+        createdBy: data['created_by'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _fixedAssetService.createMaintenanceContract(contract);
+      return Response.ok(jsonEncode(contract.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create maintenance contract: $e'}));
     }
@@ -957,8 +1372,28 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update MaintenanceContract from data
-      return Response.ok(jsonEncode({'message': 'Maintenance contract updated'}));
+      
+      final existingContract = await _fixedAssetService.getMaintenanceContract(id);
+      if (existingContract == null) {
+        return Response.notFound(jsonEncode({'error': 'Maintenance contract not found'}));
+      }
+      
+      final contract = existingContract.copyWith(
+        customerId: data['customer_id'] ?? existingContract.customerId,
+        vehicleId: data['vehicle_id'] ?? existingContract.vehicleId,
+        contractNumber: data['contract_number'] ?? existingContract.contractNumber,
+        startDate: data['start_date'] != null ? DateTime.parse(data['start_date']) : existingContract.startDate,
+        endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : existingContract.endDate,
+        serviceIntervalKm: data['service_interval_km'] ?? existingContract.serviceIntervalKm,
+        serviceIntervalDays: data['service_interval_days'] ?? existingContract.serviceIntervalDays,
+        lastServiceKm: data['last_service_km'] ?? existingContract.lastServiceKm,
+        nextServiceDue: data['next_service_due'] != null ? DateTime.parse(data['next_service_due']) : existingContract.nextServiceDue,
+        notes: data['notes'] ?? existingContract.notes,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _fixedAssetService.updateMaintenanceContract(contract);
+      return Response.ok(jsonEncode(contract.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update maintenance contract: $e'}));
     }
@@ -1056,8 +1491,25 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create SalesOrder from data
-      return Response.ok(jsonEncode({'message': 'Sales order created'}));
+      
+      final order = SalesOrder(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        customerId: data['customer_id'],
+        vehicleId: data['vehicle_id'],
+        orderNumber: data['order_number'] ?? 'SO-${DateTime.now().millisecondsSinceEpoch}',
+        orderDate: data['order_date'] != null ? DateTime.parse(data['order_date']) : DateTime.now(),
+        expectedDate: data['expected_date'] != null ? DateTime.parse(data['expected_date']) : null,
+        status: data['status'] ?? 'pending',
+        totalAmount: (data['total_amount'] as num).toDouble(),
+        taxAmount: (data['tax_amount'] as num).toDouble(),
+        notes: data['notes'],
+        createdBy: data['created_by'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _salesOrderService.createSalesOrder(order);
+      return Response.ok(jsonEncode(order.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create sales order: $e'}));
     }
@@ -1068,8 +1520,27 @@ class ErpRoutes {
       final id = int.parse(request.params['id'] as String);
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and update SalesOrder from data
-      return Response.ok(jsonEncode({'message': 'Sales order updated'}));
+      
+      final existingOrder = await _salesOrderService.getSalesOrder(id);
+      if (existingOrder == null) {
+        return Response.notFound(jsonEncode({'error': 'Sales order not found'}));
+      }
+      
+      final order = existingOrder.copyWith(
+        customerId: data['customer_id'] ?? existingOrder.customerId,
+        vehicleId: data['vehicle_id'] ?? existingOrder.vehicleId,
+        orderNumber: data['order_number'] ?? existingOrder.orderNumber,
+        orderDate: data['order_date'] != null ? DateTime.parse(data['order_date']) : existingOrder.orderDate,
+        expectedDate: data['expected_date'] != null ? DateTime.parse(data['expected_date']) : existingOrder.expectedDate,
+        status: data['status'] ?? existingOrder.status,
+        totalAmount: data['total_amount'] != null ? (data['total_amount'] as num).toDouble() : existingOrder.totalAmount,
+        taxAmount: data['tax_amount'] != null ? (data['tax_amount'] as num).toDouble() : existingOrder.taxAmount,
+        notes: data['notes'] ?? existingOrder.notes,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _salesOrderService.updateSalesOrder(order);
+      return Response.ok(jsonEncode(order.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to update sales order: $e'}));
     }
@@ -1112,8 +1583,22 @@ class ErpRoutes {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      // TODO: Parse and create InventoryTransfer from data
-      return Response.ok(jsonEncode({'message': 'Inventory transfer created'}));
+      
+      final transfer = InventoryTransfer(
+        id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        fromWarehouseId: data['from_warehouse_id'],
+        toWarehouseId: data['to_warehouse_id'],
+        inventoryVariantId: data['inventory_variant_id'],
+        quantity: data['quantity'],
+        status: data['status'] ?? 'pending',
+        notes: data['notes'],
+        createdBy: data['created_by'],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      await _inventoryTransferService.createInventoryTransfer(transfer);
+      return Response.ok(jsonEncode(transfer.toJson()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to create inventory transfer: $e'}));
     }

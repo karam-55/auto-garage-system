@@ -105,7 +105,6 @@ class UpdateBookingStatusUseCase {
           }
         } catch (e) {
           // Don't fail the status update if journal entry creation fails
-          print('Warning: Failed to create journal entry for revenue: $e');
         }
       }
 

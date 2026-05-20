@@ -81,7 +81,6 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen>
         _vatController.text = settings.vatPercentage?.toString() ?? '';
       });
     } catch (e) {
-      print('Error loading accounting settings: $e');
     }
   }
 
@@ -92,7 +91,6 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen>
         _accounts = List<Map<String, dynamic>>.from(response);
       });
     } catch (e) {
-      print('Error loading accounts: $e');
     }
   }
 

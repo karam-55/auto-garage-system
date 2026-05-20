@@ -136,8 +136,6 @@ class InventoryRoutes {
         headers: {'Content-Type': 'application/json'},
       );
     } catch (e) {
-      print('Error creating inventory item: $e');
-      print('Stack trace: ${StackTrace.current}');
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to create inventory item: $e'}),
         headers: {'Content-Type': 'application/json'},
@@ -448,7 +446,6 @@ class InventoryRoutes {
         );
       } catch (e) {
         // Don't fail the request if journal entry creation fails
-        print('Warning: Failed to create journal entry for COGS: $e');
       }
 
       // Regenerate invoice if bookingId is provided
@@ -457,7 +454,6 @@ class InventoryRoutes {
           await _invoiceDataRepository.generateOrGetInvoice(bookingId);
         } catch (e) {
           // Don't fail the request if invoice generation fails
-          print('Warning: Failed to regenerate invoice: $e');
         }
       }
 
@@ -485,12 +481,10 @@ class InventoryRoutes {
                 updatedVariant.quantity,
               );
             } catch (e) {
-              print('Warning: Failed to broadcast low stock alert via WebSocket: $e');
             }
           }
         } catch (e) {
           // Don't fail the request if alert creation fails
-          print('Warning: Failed to create low stock alert: $e');
         }
       }
 

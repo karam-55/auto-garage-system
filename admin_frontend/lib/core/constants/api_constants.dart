@@ -39,6 +39,18 @@ class ApiConstants {
   static const String mechanicBookings = '$apiVersion/mechanics/available-bookings';
   static const String mechanicAssign = '$apiVersion/mechanics/assign';
   
+  // HR endpoints
+  static const String hrContracts = '$apiVersion/hr/contracts';
+  static const String hrLeaveRequests = '$apiVersion/hr/leave-requests';
+  static const String hrPerformanceReviews = '$apiVersion/hr/performance-reviews';
+  static String hrLeaveRequestApprove(String id) => '$apiVersion/hr/leave-requests/$id/approve';
+  static String hrLeaveRequestReject(String id) => '$apiVersion/hr/leave-requests/$id/reject';
+  
+  // CRM endpoints
+  static const String crmLeads = '$apiVersion/crm/leads';
+  static const String crmActivities = '$apiVersion/crm/activities';
+  static String crmLeadConvert(String id) => '$apiVersion/crm/leads/$id/convert';
+  
   // Public endpoints
   static String publicBooking(String token) => '/public/bookings/$token';
 }

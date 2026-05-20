@@ -11,32 +11,16 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
 
   @override
   Future<BookingInvoiceData?> findByBookingId(String bookingId) async {
-    print('DEBUG findByBookingId bookingId: $bookingId');
-    print('DEBUG findByBookingId executing SQL: SELECT * FROM booking_invoice_data WHERE booking_id = @bookingId');
-    print('DEBUG findByBookingId parameter: bookingId=$bookingId');
     final result = await _db.execute(
       Sql.named('SELECT * FROM booking_invoice_data WHERE booking_id = @bookingId'),
       parameters: {'bookingId': bookingId},
     );
 
-    print('DEBUG findByBookingId result count: ${result.length}');
     if (result.isEmpty) {
-      print('DEBUG findByBookingId: No invoice found for booking $bookingId');
-      
-      // Debug: check if any invoices exist at all
-      final allInvoices = await _db.execute(
-        Sql.named('SELECT * FROM booking_invoice_data'),
-      );
-      print('DEBUG findByBookingId total invoices in database: ${allInvoices.length}');
-      if (allInvoices.isNotEmpty) {
-        print('DEBUG findByBookingId all invoices: ${allInvoices.map((r) => r.toColumnMap()).toList()}');
-      }
-      
       return null;
     }
 
     final data = result.first.toColumnMap();
-    print('DEBUG findByBookingId result data: $data');
     
     // Handle services_snapshot - it might be Map or String
     Map<String, dynamic>? servicesSnapshot;
@@ -72,14 +56,11 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       journalEntryId: data['journal_entry_id'] as int?,
     );
     
-    print('DEBUG findByBookingId returning invoice: total=${invoice.totalPrice}, publicToken=${invoice.publicToken}, qrCodeUrl=${invoice.qrCodeUrl}');
     return invoice;
   }
 
   @override
   Future<BookingInvoiceData> create(BookingInvoiceData invoiceData) async {
-    print('DEBUG create invoiceData: ${invoiceData.toJson()}');
-    
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
         Sql.named('''
@@ -105,7 +86,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       );
 
       final data = result.first.toColumnMap();
-      print('DEBUG create result data: $data');
       
       // Handle services_snapshot - it might be Map or String
       Map<String, dynamic>? servicesSnapshot;
@@ -181,7 +161,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         try {
           servicesSnapshot = jsonDecode(data['services_snapshot'] as String) as Map<String, dynamic>;
         } catch (e) {
-          print('DEBUG update: Failed to parse services_snapshot as JSON: $e');
           servicesSnapshot = null;
         }
       } else {
@@ -196,7 +175,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         try {
           partsSnapshot = jsonDecode(data['parts_snapshot'] as String) as Map<String, dynamic>;
         } catch (e) {
-          print('DEBUG update: Failed to parse parts_snapshot as JSON: $e');
           partsSnapshot = null;
         }
       } else {
@@ -222,14 +200,11 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
   @override
   Future<BookingInvoiceData> generateOrGetInvoice(String bookingId) async {
     try {
-      print('DEBUG generateOrGetInvoice bookingId: $bookingId');
       final existingInvoice = await findByBookingId(bookingId);
       if (existingInvoice != null) {
-        print('DEBUG existingInvoice found');
         return existingInvoice;
       }
 
-      print('DEBUG fetching booking from database');
       final bookingResult = await _db.execute(
         Sql.named('SELECT * FROM bookings WHERE id = @bookingId'),
         parameters: {'bookingId': bookingId},
@@ -241,9 +216,7 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
 
       final bookingData = bookingResult.first.toColumnMap();
       final publicToken = bookingData['public_token'] as String?;
-      print('DEBUG publicToken from booking: $publicToken');
 
-      print('DEBUG fetching booking services');
       final servicesResult = await _db.execute(
         Sql.named('''
           SELECT bs.*, s.name as service_name, s.description as service_description
@@ -254,7 +227,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         parameters: {'bookingId': bookingId},
       );
 
-      print('DEBUG services count: ${servicesResult.length}');
       final servicesSnapshot = servicesResult.map((row) {
         final data = row.toColumnMap();
         final priceSYP = data['price_syp'];
@@ -264,7 +236,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         } else if (priceSYP is String) {
           priceSYPDouble = double.tryParse(priceSYP) ?? 0.0;
         }
-        print('DEBUG service: ${data['service_name']}, priceSYP: $priceSYP, converted: $priceSYPDouble');
         return {
           'serviceId': data['service_id'],
           'serviceName': data['service_name'],
@@ -274,7 +245,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         };
       }).toList();
 
-      print('DEBUG fetching parts');
       final partsResult = await _db.execute(
         Sql.named('''
           SELECT it.*, iv.variant_type, iv.selling_price, i.name as item_name
@@ -304,7 +274,6 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         } else if (quantity is num) {
           quantityInt = quantity.toInt();
         }
-        print('DEBUG part: ${data['item_name']}, sellingPrice: $sellingPrice, converted: $sellingPriceDouble, quantity: $quantity, converted: $quantityInt');
         return {
           'itemId': data['item_id'],
           'itemName': data['item_name'],
@@ -319,15 +288,12 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       for (final service in servicesSnapshot) {
         final price = service['priceSYP'] as double;
         totalPrice += price;
-        print('DEBUG adding service price: $price, total so far: $totalPrice');
       }
       for (final part in partsSnapshot) {
         final sellingPrice = part['sellingPrice'] as double;
         final quantity = part['quantity'] as int;
         totalPrice += sellingPrice * quantity;
-        print('DEBUG adding part: price=$sellingPrice, quantity=$quantity, line total=${sellingPrice * quantity}, total so far: $totalPrice');
       }
-      print('DEBUG final total price: $totalPrice');
 
       // Get publicCarId from vehicle for QR code
       final vehicleResult = await _db.execute(
@@ -340,14 +306,11 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         final vehicleData = vehicleResult.first.toColumnMap();
         publicCarId = vehicleData['public_car_id'] as String?;
       }
-      
-      print('DEBUG publicCarId: $publicCarId');
 
       final qrCodeUrl = publicCarId != null
           ? 'https://auto-garage-customer-frontend.pages.dev/?publicCarId=$publicCarId'
           : null;
 
-      print('DEBUG creating invoice data');
       final invoiceData = BookingInvoiceData(
         id: bookingData['id'].toString(),
         bookingId: bookingId,
@@ -359,10 +322,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         qrCodeUrl: qrCodeUrl,
       );
 
-      print('DEBUG saving invoice to database');
       return await create(invoiceData);
     } catch (e) {
-      print('ERROR in generateOrGetInvoice: $e');
       rethrow;
     }
   }

@@ -2,14 +2,17 @@ import '../../domain/entities/expense.dart';
 import '../../domain/entities/journal_entry.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../application/services/journal_service.dart';
+import '../../application/services/accounting_settings_service.dart';
 
 class CreateExpenseUseCase {
   final ExpenseRepository _expenseRepository;
   final JournalService _journalService;
+  final AccountingSettingsService _accountingSettingsService;
 
   CreateExpenseUseCase(
     this._expenseRepository,
     this._journalService,
+    this._accountingSettingsService,
   );
 
   Future<Expense> execute(Expense expense, String createdBy) async {
@@ -17,8 +20,8 @@ class CreateExpenseUseCase {
     final createdExpense = await _expenseRepository.create(expense);
 
     // Create journal entry
-    // TODO: Get cash account ID from accounting settings
-    final cashAccountId = 3; // Default cash account
+    final settings = await _accountingSettingsService.getSettings();
+    final cashAccountId = settings.cashAccountId;
 
     final journalEntry = await _journalService.createJournalEntry(
       date: expense.expenseDate,

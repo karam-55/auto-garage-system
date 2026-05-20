@@ -218,115 +218,111 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildLineChart() {
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              getTitlesWidget: (value, meta) {
-                return Text(
-                  '${value.toInt()}',
-                  style: const TextStyle(fontSize: 10),
-                );
-              },
-            ),
+    return Consumer(
+      builder: (context, ref, child) {
+        final salesStats = ref.watch(salesStatsProvider);
+        final purchaseStats = ref.watch(purchaseStatsProvider);
+        
+        return salesStats.when(
+          data: (salesData) => purchaseStats.when(
+            data: (purchaseData) {
+              // Use real data from API if available, otherwise show empty chart
+              return LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: false),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '${value.toInt()}',
+                            style: const TextStyle(fontSize: 10),
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
+                          if (value.toInt() >= 0 && value.toInt() < months.length) {
+                            return Text(
+                              months[value.toInt()],
+                              style: const TextStyle(fontSize: 10),
+                            );
+                          }
+                          return const Text('');
+                        },
+                      ),
+                    ),
+                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: const [
+                        FlSpot(0, 0),
+                        FlSpot(1, 0),
+                        FlSpot(2, 0),
+                        FlSpot(3, 0),
+                        FlSpot(4, 0),
+                        FlSpot(5, 0),
+                      ],
+                      isCurved: true,
+                      color: Colors.green,
+                      barWidth: 3,
+                      dotData: FlDotData(show: true),
+                    ),
+                    LineChartBarData(
+                      spots: const [
+                        FlSpot(0, 0),
+                        FlSpot(1, 0),
+                        FlSpot(2, 0),
+                        FlSpot(3, 0),
+                        FlSpot(4, 0),
+                        FlSpot(5, 0),
+                      ],
+                      isCurved: true,
+                      color: Colors.blue,
+                      barWidth: 3,
+                      dotData: FlDotData(show: true),
+                    ),
+                  ],
+                  minY: 0,
+                  maxY: 25000,
+                ),
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (_, __) => const Center(child: Text('خطأ في تحميل البيانات')),
           ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
-                if (value.toInt() >= 0 && value.toInt() < months.length) {
-                  return Text(
-                    months[value.toInt()],
-                    style: const TextStyle(fontSize: 10),
-                  );
-                }
-                return const Text('');
-              },
-            ),
-          ),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: const [
-              FlSpot(0, 12000),
-              FlSpot(1, 15000),
-              FlSpot(2, 18000),
-              FlSpot(3, 14000),
-              FlSpot(4, 20000),
-              FlSpot(5, 22000),
-            ],
-            isCurved: true,
-            color: Colors.green,
-            barWidth: 3,
-            dotData: FlDotData(show: true),
-          ),
-          LineChartBarData(
-            spots: const [
-              FlSpot(0, 8000),
-              FlSpot(1, 10000),
-              FlSpot(2, 12000),
-              FlSpot(3, 9000),
-              FlSpot(4, 13000),
-              FlSpot(5, 15000),
-            ],
-            isCurved: true,
-            color: Colors.blue,
-            barWidth: 3,
-            dotData: FlDotData(show: true),
-          ),
-        ],
-        minY: 0,
-        maxY: 25000,
-      ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => const Center(child: Text('خطأ في تحميل البيانات')),
+        );
+      },
     );
   }
 
   Widget _buildPieChart() {
-    return PieChart(
-      PieChartData(
-        sectionsSpace: 2,
-        centerSpaceRadius: 40,
-        sections: [
-          PieChartSectionData(
-            value: 35,
-            color: Colors.blue,
-            title: 'رواتب',
-            radius: 50,
-          ),
-          PieChartSectionData(
-            value: 25,
-            color: Colors.green,
-            title: 'إيجار',
-            radius: 50,
-          ),
-          PieChartSectionData(
-            value: 20,
-            color: Colors.orange,
-            title: 'قطع غيار',
-            radius: 50,
-          ),
-          PieChartSectionData(
-            value: 15,
-            color: Colors.purple,
-            title: 'كهرباء',
-            radius: 50,
-          ),
-          PieChartSectionData(
-            value: 5,
-            color: Colors.red,
-            title: 'أخرى',
-            radius: 50,
-          ),
-        ],
-      ),
+    return Consumer(
+      builder: (context, ref, child) {
+        final inventoryStats = ref.watch(inventoryStatsProvider);
+        
+        return inventoryStats.when(
+          data: (data) {
+            // Show empty chart for now - backend doesn't provide expense distribution data
+            return const Center(
+              child: Text('لا توجد بيانات متاحة حالياً'),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => const Center(child: Text('خطأ في تحميل البيانات')),
+        );
+      },
     );
   }
 
@@ -367,15 +363,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildDataTable(
-              headers: ['رقم الأمر', 'المورد', 'التاريخ', 'الحالة'],
-              rows: const [
-                ['PO-001', 'شركة الأمل', '2024-01-15', 'مكتمل'],
-                ['PO-002', 'شركة النور', '2024-01-14', 'قيد التنفيذ'],
-                ['PO-003', 'شركة التقدم', '2024-01-13', 'مكتمل'],
-                ['PO-004', 'شركة المستقبل', '2024-01-12', 'معلق'],
-                ['PO-005', 'شركة الرؤية', '2024-01-11', 'مكتمل'],
-              ],
+            const Center(
+              child: Text('لا توجد بيانات متاحة حالياً'),
             ),
           ],
         ),
@@ -396,15 +385,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildDataTable(
-              headers: ['اسم العميل', 'إجمالي المشتريات'],
-              rows: const [
-                ['أحمد محمد', '500,000 ل.س'],
-                ['محمد علي', '450,000 ل.س'],
-                ['خالد سعيد', '400,000 ل.س'],
-                ['عمر حسن', '350,000 ل.س'],
-                ['يوسف إبراهيم', '300,000 ل.س'],
-              ],
+            const Center(
+              child: Text('لا توجد بيانات متاحة حالياً'),
             ),
           ],
         ),

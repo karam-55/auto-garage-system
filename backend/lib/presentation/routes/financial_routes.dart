@@ -21,6 +21,8 @@ import '../../application/usecases/create_expense_usecase.dart';
 import '../../application/usecases/reconcile_bank_account_usecase.dart';
 import '../../domain/entities/role.dart';
 import '../../application/services/journal_service.dart';
+import '../../application/services/accounting_settings_service.dart';
+import '../../infrastructure/repositories/company_settings_repository_impl.dart';
 
 class FinancialRoutes {
   final VendorRepository _vendorRepository;
@@ -60,16 +62,18 @@ class FinancialRoutes {
     final bankAccountRepository = BankAccountRepositoryImpl(db);
     final journalRepository = JournalRepositoryImpl(db);
     final accountRepository = AccountRepositoryImpl(db);
+    final companySettingsRepository = CompanySettingsRepositoryImpl(db);
     final journalService = JournalService(journalRepository, accountRepository);
+    final accountingSettingsService = AccountingSettingsService(companySettingsRepository, accountRepository);
     
     final createVendorUseCase = CreateVendorUseCase(vendorRepository);
     final updateVendorUseCase = UpdateVendorUseCase(vendorRepository);
     final deleteVendorUseCase = DeleteVendorUseCase(vendorRepository);
     final getAllVendorsUseCase = GetAllVendorsUseCase(vendorRepository);
-    final createPurchaseInvoiceUseCase = CreatePurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService, accountRepository);
-    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService);
-    final createExpenseUseCase = CreateExpenseUseCase(expenseRepository, journalService);
-    final reconcileBankAccountUseCase = ReconcileBankAccountUseCase(bankAccountRepository, journalRepository, journalService);
+    final createPurchaseInvoiceUseCase = CreatePurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService, accountRepository, accountingSettingsService);
+    final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService, accountingSettingsService);
+    final createExpenseUseCase = CreateExpenseUseCase(expenseRepository, journalService, accountingSettingsService);
+    final reconcileBankAccountUseCase = ReconcileBankAccountUseCase(bankAccountRepository, journalRepository, journalService, accountingSettingsService);
     
     return FinancialRoutes(
       vendorRepository,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../core/services/api_service.dart';
+import '../core/constants/api_constants.dart';
 import 'dart:convert';
 
 class CrmScreen extends StatefulWidget {
-  const CrmScreen({super.key});
+  final ApiService apiService;
+
+  const CrmScreen({super.key, required this.apiService});
 
   @override
   State<CrmScreen> createState() => _CrmScreenState();
@@ -24,30 +27,21 @@ class _CrmScreenState extends State<CrmScreen> {
   Future<void> fetchData() async {
     setState(() => isLoading = true);
     try {
-      final baseUrl = 'YOUR_API_URL';
-      
-      final leadsResponse = await http.get(
-        Uri.parse('$baseUrl/crm/leads'),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'},
-      );
-      final activitiesResponse = await http.get(
-        Uri.parse('$baseUrl/crm/activities'),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'},
-      );
+      final leadsResponse = await widget.apiService.get(ApiConstants.crmLeads);
+      final activitiesResponse = await widget.apiService.get(ApiConstants.crmActivities);
 
-      if (leadsResponse.statusCode == 200) {
+      if (leadsResponse is List) {
         setState(() {
-          leads = jsonDecode(leadsResponse.body);
+          leads = leadsResponse;
           isLoading = false;
         });
       }
-      if (activitiesResponse.statusCode == 200) {
+      if (activitiesResponse is List) {
         setState(() {
-          activities = jsonDecode(activitiesResponse.body);
+          activities = activitiesResponse;
         });
       }
     } catch (e) {
-      print('Error fetching data: $e');
       setState(() => isLoading = false);
     }
   }
@@ -111,7 +105,7 @@ class _CrmScreenState extends State<CrmScreen> {
                     child: Text(lead['name']?.toString()[0] ?? ''),
                   ),
                   title: Text(lead['name'] ?? ''),
-                  subtitle: Text('${lead['email'] ?? ''} - ${lead['phone'] ?? ''}'),
+                  subtitle: Text(lead['phone'] ?? ''),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -213,19 +207,13 @@ class _CrmScreenState extends State<CrmScreen> {
 
   void _convertLead(int id) async {
     try {
-      final response = await http.put(
-        Uri.parse('YOUR_API_URL/crm/leads/$id/convert'),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'},
+      await widget.apiService.put(ApiConstants.crmLeadConvert(id.toString()), {});
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم تحويل العميل المحتمل بنجاح')),
       );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم تحويل العميل المحتمل بنجاح')),
-        );
-        fetchData();
-      }
+      fetchData();
     } catch (e) {
-      print('Error converting lead: $e');
     }
   }
 
@@ -288,7 +276,6 @@ class CreateLeadDialog extends StatefulWidget {
 class _CreateLeadDialogState extends State<CreateLeadDialog> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  late TextEditingController _emailController;
   late TextEditingController _phoneController;
   late TextEditingController _companyController;
   late String _status;
@@ -299,7 +286,6 @@ class _CreateLeadDialogState extends State<CreateLeadDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.lead?['name'] ?? '');
-    _emailController = TextEditingController(text: widget.lead?['email'] ?? '');
     _phoneController = TextEditingController(text: widget.lead?['phone'] ?? '');
     _companyController = TextEditingController(text: widget.lead?['company'] ?? '');
     _status = widget.lead?['status'] ?? 'new';
@@ -308,7 +294,6 @@ class _CreateLeadDialogState extends State<CreateLeadDialog> {
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
     _companyController.dispose();
     super.dispose();
@@ -330,14 +315,10 @@ class _CreateLeadDialogState extends State<CreateLeadDialog> {
                 validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
               ),
               TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'البريد الإلكتروني'),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(labelText: 'رقم الهاتف'),
                 keyboardType: TextInputType.phone,
+                validator: (value) => value?.isEmpty ?? true ? 'مطلوب' : null,
               ),
               TextFormField(
                 controller: _companyController,

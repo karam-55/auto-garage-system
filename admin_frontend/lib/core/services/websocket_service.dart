@@ -47,18 +47,15 @@ class WebSocketService extends ChangeNotifier {
           _handleMessage(message);
         },
         onError: (error) {
-          print('WebSocket error: $error');
           _isConnected = false;
           notifyListeners();
         },
         onDone: () {
-          print('WebSocket connection closed');
           _isConnected = false;
           notifyListeners();
         },
       );
     } catch (e) {
-      print('WebSocket connection error: $e');
       _isConnected = false;
       notifyListeners();
     }
@@ -72,7 +69,6 @@ class WebSocketService extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error parsing WebSocket message: $e');
     }
   }
 

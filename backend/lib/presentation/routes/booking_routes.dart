@@ -251,17 +251,9 @@ class BookingRoutes {
     final servicesData = body['services'] as List<dynamic>?;
     final estimatedCompletionDate = (body['estimatedCompletionDate'] as String?)?.trim();
 
-    // Log for debugging
-    print('DEBUG: Creating booking with data:');
-    print('  customerId: $customerId');
-    print('  vehicleId: $vehicleId');
-    print('  servicesData: $servicesData');
-    print('  estimatedCompletionDate: $estimatedCompletionDate');
-
     if (customerId == null || customerId.isEmpty ||
         vehicleId == null || vehicleId.isEmpty ||
         servicesData == null || servicesData.isEmpty) {
-      print('ERROR: Missing required fields');
       return Response.badRequest(body: jsonEncode({'error': 'customerId, vehicleId, and services are required and cannot be empty'}));
     }
 
@@ -269,12 +261,10 @@ class BookingRoutes {
     for (final serviceData in servicesData) {
       final serviceId = serviceData['serviceId'] as String?;
       final priceSYP = serviceData['priceSYP'];
-      print('DEBUG: Service data: serviceId=$serviceId, priceSYP=$priceSYP, type=${priceSYP.runtimeType}');
       
       // Handle priceSYP type safely
       double? priceSYPDouble;
       if (priceSYP == null) {
-        print('ERROR: priceSYP is null');
         return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid priceSYP'}));
       } else if (priceSYP is num) {
         priceSYPDouble = (priceSYP).toDouble();
@@ -282,16 +272,13 @@ class BookingRoutes {
         try {
           priceSYPDouble = double.parse(priceSYP);
         } catch (e) {
-          print('ERROR: priceSYP is invalid string');
           return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
         }
       } else {
-        print('ERROR: priceSYP has invalid type ${priceSYP.runtimeType}');
         return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a number'}));
       }
       
       if (serviceId == null || serviceId.isEmpty || priceSYPDouble <= 0) {
-        print('ERROR: Invalid service data');
         return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid serviceId and priceSYP > 0'}));
       }
     }
@@ -349,12 +336,6 @@ class BookingRoutes {
 
       // Generate invoice for the new booking
       final invoice = await _invoiceDataRepository.generateOrGetInvoice(createdBooking.id);
-      print('DEBUG: Invoice generated for booking ${createdBooking.id}');
-      print('DEBUG: Invoice total price: ${invoice.totalPrice}');
-      print('DEBUG: Invoice services snapshot: ${invoice.servicesSnapshot}');
-      print('DEBUG: Invoice parts snapshot: ${invoice.partsSnapshot}');
-      print('DEBUG: Invoice public token: ${invoice.publicToken}');
-      print('DEBUG: Invoice QR code URL: ${invoice.qrCodeUrl}');
 
       // Get vehicle to include publicCarId in response
       final vehicle = await _vehicleRepository.findById(vehicleId);
@@ -366,7 +347,6 @@ class BookingRoutes {
 
       return Response.ok(jsonEncode(response));
     } catch (e) {
-      print('ERROR: Failed to create booking: $e');
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to create booking: $e'}),
       );

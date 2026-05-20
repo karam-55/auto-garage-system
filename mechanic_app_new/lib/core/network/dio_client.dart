@@ -27,9 +27,6 @@ class DioClient {
         final token = await _getToken();
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
-          print('🔑 TOKEN SENT: ${options.method} ${options.uri}');
-        } else {
-          print('❌ NO TOKEN: ${options.method} ${options.uri}');
         }
         return handler.next(options);
       },

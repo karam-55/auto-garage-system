@@ -38,7 +38,11 @@ import 'package:backend/infrastructure/repositories/warehouse_repository_impl.da
 import 'package:backend/infrastructure/repositories/bill_of_materials_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/manufacturing_order_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/hr_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/leave_request_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/performance_review_repository_impl.dart';
 import 'package:backend/infrastructure/repositories/fixed_asset_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/crm_repository_impl.dart';
+import 'package:backend/infrastructure/repositories/crm_activity_repository_impl.dart';
 import 'package:backend/presentation/routes/dashboard_routes.dart';
 import 'package:backend/presentation/routes/public_routes.dart';
 import 'package:backend/presentation/routes/company_settings_routes.dart';
@@ -46,6 +50,8 @@ import 'package:backend/presentation/routes/inventory_routes.dart';
 import 'package:backend/presentation/routes/invoice_routes.dart';
 import 'package:backend/presentation/routes/accounting_routes.dart';
 import 'package:backend/presentation/routes/erp_routes.dart';
+import 'package:backend/presentation/routes/hr_routes.dart';
+import 'package:backend/presentation/routes/crm_routes.dart';
 import 'package:backend/presentation/middlewares/auth_middleware.dart';
 import 'package:backend/presentation/middlewares/error_middleware.dart';
 import 'package:backend/presentation/middlewares/json_middleware.dart';
@@ -130,7 +136,11 @@ void main(List<String> args) async {
   final billOfMaterialsRepository = BillOfMaterialsRepositoryImpl(db);
   final manufacturingOrderRepository = ManufacturingOrderRepositoryImpl(db);
   final hrRepository = EmployeeContractRepositoryImpl(db);
+  final leaveRequestRepository = LeaveRequestRepositoryImpl(db);
+  final performanceReviewRepository = PerformanceReviewRepositoryImpl(db);
   final fixedAssetRepository = FixedAssetRepositoryImpl(db);
+  final crmRepository = CrmLeadRepositoryImpl(db);
+  final crmActivityRepository = CrmActivityRepositoryImpl(db);
 
   // Initialize routes
   final authMiddleware = AuthMiddleware(userRepository);
@@ -205,6 +215,17 @@ void main(List<String> args) async {
   final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
   final accountingRoutes = AccountingRoutes.create(db, authMiddleware);
   final erpRoutes = ErpRoutes.create(db, authMiddleware);
+  final hrRoutes = HrRoutes(
+    hrRepository,
+    leaveRequestRepository,
+    performanceReviewRepository,
+    authMiddleware,
+  );
+  final crmRoutes = CrmRoutes(
+    crmRepository,
+    crmActivityRepository,
+    authMiddleware,
+  );
 
   // Create static file handler for uploads directory
   final uploadsDir = Directory('uploads');
@@ -229,6 +250,8 @@ void main(List<String> args) async {
       .add(invoiceRoutes.router.call)
       .add(accountingRoutes.router.call)
       .add(erpRoutes.router.call)
+      .add(hrRoutes.router.call)
+      .add(crmRoutes.router.call)
       .add(webSocket.handler)
       .add((Request request) {
         return Response.notFound('Not Found');

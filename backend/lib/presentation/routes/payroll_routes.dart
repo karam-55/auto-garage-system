@@ -15,6 +15,11 @@ import '../../application/usecases/generate_monthly_salary_payments_usecase.dart
 import '../../application/usecases/pay_salary_usecase.dart';
 import '../../application/usecases/get_monthly_payroll_report_usecase.dart';
 import '../../domain/entities/role.dart';
+import '../../application/services/journal_service.dart';
+import '../../application/services/accounting_settings_service.dart';
+import '../../infrastructure/repositories/company_settings_repository_impl.dart';
+import '../../infrastructure/repositories/journal_repository_impl.dart';
+import '../../infrastructure/repositories/account_repository_impl.dart';
 
 class PayrollRoutes {
   final PayrollSettingsRepository _settingsRepository;
@@ -40,10 +45,16 @@ class PayrollRoutes {
   factory PayrollRoutes.create(DatabaseConnection db, AuthMiddleware authMiddleware) {
     final settingsRepository = PayrollSettingsRepositoryImpl(db);
     final salaryRepository = SalaryPaymentRepositoryImpl(db);
+    final companySettingsRepository = CompanySettingsRepositoryImpl(db);
+    final accountRepository = AccountRepositoryImpl(db);
+    final journalRepository = JournalRepositoryImpl(db);
+    final journalService = JournalService(journalRepository, accountRepository);
+    final accountingSettingsService = AccountingSettingsService(companySettingsRepository, accountRepository);
+    
     final getSettingsUseCase = GetPayrollSettingsUseCase(settingsRepository);
     final updateSettingsUseCase = UpdatePayrollSettingsUseCase(settingsRepository);
     final generatePaymentsUseCase = GenerateMonthlySalaryPaymentsUseCase(salaryRepository, settingsRepository);
-    final paySalaryUseCase = PaySalaryUseCase(salaryRepository, null);
+    final paySalaryUseCase = PaySalaryUseCase(salaryRepository, journalService, accountingSettingsService);
     final getReportUseCase = GetMonthlyPayrollReportUseCase(salaryRepository);
     
     return PayrollRoutes(

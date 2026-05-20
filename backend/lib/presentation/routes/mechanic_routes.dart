@@ -63,21 +63,15 @@ class MechanicRoutes {
 
   Future<Response> _getAvailableBookings(Request request) async {
     try {
-      print('Fetching available bookings for mechanic...');
       final availableBookings = await _bookingRepository.findAvailableForMechanic();
-      print('Found ${availableBookings.length} available bookings');
 
       // Fetch vehicle and customer data for each booking
       final enrichedBookings = await Future.wait(availableBookings.map((booking) async {
         final vehicle = await _vehicleRepository.findById(booking.vehicleId);
         final customer = await _customerRepository.findById(booking.customerId);
 
-        print('Vehicle: ${vehicle?.toJson()}');
-        print('Customer: ${customer?.toJson()}');
-
         // Skip bookings without vehicle or customer data
         if (vehicle == null || customer == null) {
-          print('Skipping booking ${booking.id} due to missing vehicle or customer data');
           return null;
         }
 
@@ -91,10 +85,8 @@ class MechanicRoutes {
       // Filter out null bookings
       final validBookings = enrichedBookings.where((b) => b != null).cast<Map<String, dynamic>>().toList();
 
-      print('Valid bookings: $validBookings');
       return Response.ok(jsonEncode(validBookings));
     } catch (e) {
-      print('Error fetching available bookings: $e');
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get available bookings: $e'}),
       );

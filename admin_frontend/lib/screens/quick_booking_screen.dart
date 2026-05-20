@@ -72,10 +72,7 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
   Future<void> _loadCustomers() async {
     setState(() => _isLoadingCustomers = true);
     try {
-      print('Loading customers from: ${ApiConstants.customers}');
       final response = await widget.apiService.get(ApiConstants.customers);
-      print('Response type: ${response.runtimeType}');
-      print('Response: $response');
       
       List<dynamic> customersList = [];
       
@@ -90,10 +87,8 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
       
       setState(() {
         _customers = List<Map<String, dynamic>>.from(customersList);
-        print('Loaded ${_customers.length} customers');
       });
     } catch (e) {
-      print('Error loading customers: $e');
       if (mounted) {
         ErrorHandler.showError(context, ErrorHandler.parseError(e));
       }
@@ -223,14 +218,10 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
         final bookingId = bookingResponse['id']?.toString();
         if (bookingId != null) {
           try {
-            print('Fetching invoice for booking: $bookingId');
             final invoiceResponse = await widget.apiService.get('${ApiConstants.bookings}/$bookingId/invoice');
-            print('Invoice response type: ${invoiceResponse.runtimeType}');
-            print('Invoice response: $invoiceResponse');
 
             // Fetch booking details to get customer and vehicle info
             final bookingDetailsResponse = await widget.apiService.get('${ApiConstants.bookings}/$bookingId');
-            print('Booking details response: $bookingDetailsResponse');
 
             Map<String, dynamic> invoiceData = {};
             if (invoiceResponse is Map<String, dynamic>) {
@@ -258,8 +249,6 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
               }
             }
 
-            print('Final invoice data: $invoiceData');
-
             // Push invoice screen (don't replace, so back button works)
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -267,7 +256,6 @@ class _QuickBookingScreenState extends State<QuickBookingScreen> {
               ),
             );
           } catch (e) {
-            print('Error fetching invoice: $e');
             // If invoice fetch fails, just go back
             Navigator.of(context).pop();
           }

@@ -24,7 +24,6 @@ class PublicRoutes {
 
   Future<Response> _getCarByPublicId(Request request) async {
     final publicCarId = request.params['publicCarId'];
-    print('DEBUG: Public car request received. publicCarId: $publicCarId');
     
     if (publicCarId == null || publicCarId.isEmpty) {
       return Response.notFound(jsonEncode({'error': 'Public car ID is required'}));
@@ -42,7 +41,6 @@ class PublicRoutes {
       }
 
       final vehicleData = vehicleResult.first.toColumnMap();
-      print('DEBUG: Vehicle data: $vehicleData');
 
       // Get customer data
       final customerResult = await _db.execute(
@@ -85,12 +83,9 @@ class PublicRoutes {
           parameters: {'bookingId': bookingData['id']},
         );
 
-        print('DEBUG public route servicesResult count: ${servicesResult.length}');
         servicesData = servicesResult.map((row) {
           final data = row.toColumnMap();
-          print('DEBUG public route service data: $data');
           final priceSYP = data['price_syp'];
-          print('DEBUG public route priceSYP: $priceSYP (${priceSYP.runtimeType})');
           return {
             'serviceName': data['service_name'],
             'serviceDescription': data['service_description'],
@@ -98,8 +93,6 @@ class PublicRoutes {
             'notes': data['notes'],
           };
         }).toList();
-        
-        print('DEBUG public route servicesData: $servicesData');
       }
 
       // Build response with only safe data
@@ -133,9 +126,7 @@ class PublicRoutes {
   }
 
   Future<Response> _seedSampleData(Request request) async {
-    print('DEBUG: Seed data endpoint called');
     try {
-      print('Starting sample data seeding...');
       
       // Read the SQL file
       final sqlFile = File('lib/infrastructure/database/sample_data.sql');
@@ -159,13 +150,9 @@ class PublicRoutes {
         try {
           await _db.execute(Sql.named(trimmedStatement));
           executed++;
-          if (executed % 10 == 0) {
-            print('Executed $executed statements...');
-          }
         } catch (e) {
           failed++;
           errors.add('Statement failed: $e');
-          print('Failed to execute statement: $e');
         }
       }
       
@@ -176,8 +163,6 @@ class PublicRoutes {
         'errors': errors.take(5).toList(), // Limit errors to first 5
         'message': 'Sample data seeding completed',
       };
-      
-      print('Sample data seeding completed: $executed executed, $failed failed');
       
       return Response.ok(jsonEncode(result));
     } catch (e) {

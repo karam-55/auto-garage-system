@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../core/services/api_service.dart';
+import '../core/constants/api_constants.dart';
 import 'dart:convert';
 
 class HrScreen extends StatefulWidget {
-  const HrScreen({super.key});
+  final ApiService apiService;
+
+  const HrScreen({super.key, required this.apiService});
 
   @override
   State<HrScreen> createState() => _HrScreenState();
@@ -25,39 +28,27 @@ class _HrScreenState extends State<HrScreen> {
   Future<void> fetchData() async {
     setState(() => isLoading = true);
     try {
-      final baseUrl = 'YOUR_API_URL';
-      
-      final contractsResponse = await http.get(
-        Uri.parse('$baseUrl/hr/contracts'),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'},
-      );
-      final leavesResponse = await http.get(
-        Uri.parse('$baseUrl/hr/leave-requests'),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'},
-      );
-      final reviewsResponse = await http.get(
-        Uri.parse('$baseUrl/hr/performance-reviews'),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'},
-      );
+      final contractsResponse = await widget.apiService.get(ApiConstants.hrContracts);
+      final leavesResponse = await widget.apiService.get(ApiConstants.hrLeaveRequests);
+      final reviewsResponse = await widget.apiService.get(ApiConstants.hrPerformanceReviews);
 
-      if (contractsResponse.statusCode == 200) {
+      if (contractsResponse is List) {
         setState(() {
-          contracts = jsonDecode(contractsResponse.body);
+          contracts = contractsResponse;
           isLoading = false;
         });
       }
-      if (leavesResponse.statusCode == 200) {
+      if (leavesResponse is List) {
         setState(() {
-          leaveRequests = jsonDecode(leavesResponse.body);
+          leaveRequests = leavesResponse;
         });
       }
-      if (reviewsResponse.statusCode == 200) {
+      if (reviewsResponse is List) {
         setState(() {
-          performanceReviews = jsonDecode(reviewsResponse.body);
+          performanceReviews = reviewsResponse;
         });
       }
     } catch (e) {
-      print('Error fetching data: $e');
       setState(() => isLoading = false);
     }
   }
@@ -224,37 +215,25 @@ class _HrScreenState extends State<HrScreen> {
 
   void _approveLeaveRequest(int id) async {
     try {
-      final response = await http.put(
-        Uri.parse('YOUR_API_URL/hr/leave-requests/$id/approve'),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'},
+      await widget.apiService.put(ApiConstants.hrLeaveRequestApprove(id.toString()), {});
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم قبول طلب الإجازة')),
       );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم قبول طلب الإجازة')),
-        );
-        fetchData();
-      }
+      fetchData();
     } catch (e) {
-      print('Error approving leave request: $e');
     }
   }
 
   void _rejectLeaveRequest(int id) async {
     try {
-      final response = await http.put(
-        Uri.parse('YOUR_API_URL/hr/leave-requests/$id/reject'),
-        headers: {'Authorization': 'Bearer YOUR_TOKEN'},
+      await widget.apiService.put(ApiConstants.hrLeaveRequestReject(id.toString()), {});
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم رفض طلب الإجازة')),
       );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم رفض طلب الإجازة')),
-        );
-        fetchData();
-      }
+      fetchData();
     } catch (e) {
-      print('Error rejecting leave request: $e');
     }
   }
 

@@ -12,19 +12,15 @@ class BookingWebSocket {
   Handler get handler {
     return webSocketHandler((webSocket, protocol) {
       _connections.add(webSocket);
-      print('WebSocket connected. Total connections: ${_connections.length}');
       
       webSocket.stream.listen(
         (message) {
           // Handle incoming messages
-          print('WebSocket message: $message');
         },
         onDone: () {
           _connections.remove(webSocket);
-          print('WebSocket disconnected. Total connections: ${_connections.length}');
         },
         onError: (error) {
-          print('WebSocket error: $error');
           _connections.remove(webSocket);
         },
       );
@@ -37,7 +33,6 @@ class BookingWebSocket {
       try {
         connection.sink.add(message);
       } catch (e) {
-        print('Failed to send alert to connection: $e');
         _connections.remove(connection);
       }
     }

@@ -47,8 +47,6 @@ class AssignMechanicUseCase {
       );
       await _bookingRepository.update(updatedBooking);
 
-      print('Booking $bookingId status updated to IN_PROGRESS');
-
       return createdAssignment;
     } catch (e) {
       throw ServerFailure('Failed to assign mechanic: $e');

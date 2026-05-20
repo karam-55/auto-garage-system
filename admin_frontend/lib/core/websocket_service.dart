@@ -26,16 +26,12 @@ class WebSocketService {
           }
         },
         onError: (error) {
-          print('WebSocket error: $error');
         },
         onDone: () {
-          print('WebSocket disconnected');
           _reconnect();
         },
       );
-      print('WebSocket connected');
     } catch (e) {
-      print('WebSocket connection failed: $e');
     }
   }
 

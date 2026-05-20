@@ -89,7 +89,6 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
       }
     } catch (e) {
       // Use default values on error
-      print('Failed to load company settings: $e');
     }
   }
 

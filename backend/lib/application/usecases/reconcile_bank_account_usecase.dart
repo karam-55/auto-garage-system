@@ -3,16 +3,19 @@ import '../../domain/entities/journal_entry.dart';
 import '../../domain/repositories/bank_account_repository.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../../application/services/journal_service.dart';
+import '../../application/services/accounting_settings_service.dart';
 
 class ReconcileBankAccountUseCase {
   final BankAccountRepository _bankAccountRepository;
   final JournalRepository _journalRepository;
   final JournalService _journalService;
+  final AccountingSettingsService _accountingSettingsService;
 
   ReconcileBankAccountUseCase(
     this._bankAccountRepository,
     this._journalRepository,
     this._journalService,
+    this._accountingSettingsService,
   );
 
   Future<BankReconciliation> execute(
@@ -53,6 +56,8 @@ class ReconcileBankAccountUseCase {
 
     // If there's a difference, create an adjustment journal entry
     if (difference.abs() > 0.01) {
+      final settings = await _accountingSettingsService.getSettings();
+      
       final adjustmentEntry = await _journalService.createJournalEntry(
         date: statementDate,
         reference: 'BANK-ADJ-${createdReconciliation.id}',
@@ -65,7 +70,7 @@ class ReconcileBankAccountUseCase {
             description: 'فرق التسوية',
           ),
           JournalLineInput(
-            accountId: 1, // TODO: Get adjustment account from settings
+            accountId: settings.depreciationExpenseAccountId, // Using depreciation expense as adjustment account
             debit: difference < 0 ? difference.abs() : 0,
             credit: difference > 0 ? difference : 0,
             description: 'فرق التسوية',

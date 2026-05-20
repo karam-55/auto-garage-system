@@ -2,14 +2,17 @@ import '../../domain/entities/purchase_invoice.dart';
 import '../../domain/entities/journal_entry.dart';
 import '../../domain/repositories/purchase_invoice_repository.dart';
 import '../../application/services/journal_service.dart';
+import '../../application/services/accounting_settings_service.dart';
 
 class PayPurchaseInvoiceUseCase {
   final PurchaseInvoiceRepository _purchaseInvoiceRepository;
   final JournalService _journalService;
+  final AccountingSettingsService _accountingSettingsService;
 
   PayPurchaseInvoiceUseCase(
     this._purchaseInvoiceRepository,
     this._journalService,
+    this._accountingSettingsService,
   );
 
   Future<PurchaseInvoice> execute(
@@ -31,9 +34,9 @@ class PayPurchaseInvoiceUseCase {
     await _purchaseInvoiceRepository.update(updatedInvoice);
 
     // Create journal entry for payment
-    // TODO: Get vendors account ID and cash account ID from accounting settings
-    final vendorsAccountId = 2; // Default vendors account
-    final cashAccountId = 3; // Default cash account
+    final settings = await _accountingSettingsService.getSettings();
+    final vendorsAccountId = settings.payableAccountId; // Using payable account for vendors
+    final cashAccountId = settings.cashAccountId;
 
     final journalEntry = await _journalService.createJournalEntry(
       date: paymentDate,

@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/report_providers.dart';
-import '../../core/services/api_service.dart';
 
-class BalanceSheetScreen extends ConsumerStatefulWidget {
-  final ApiService apiService;
-
-  const BalanceSheetScreen({super.key, required this.apiService});
+class BalanceSheetScreen extends ConsumerWidget {
+  const BalanceSheetScreen({super.key});
 
   @override
-  ConsumerState<BalanceSheetScreen> createState() => _BalanceSheetScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _BalanceSheetScreenContent();
+  }
 }
 
-class _BalanceSheetScreenState extends ConsumerState<BalanceSheetScreen> {
+class _BalanceSheetScreenContent extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_BalanceSheetScreenContent> createState() => _BalanceSheetScreenContentState();
+}
+
+class _BalanceSheetScreenContentState extends ConsumerState<_BalanceSheetScreenContent> {
   DateTime? _asOfDate;
 
   @override

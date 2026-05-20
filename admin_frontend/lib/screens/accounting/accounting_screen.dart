@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/services/api_service.dart';
+import '../../core/providers/report_providers.dart';
 import '../../core/providers/accounting_providers.dart';
 import 'trial_balance_screen.dart';
 import 'profit_loss_screen.dart';
@@ -127,20 +127,19 @@ class ReportsTab extends ConsumerWidget {
   }
 
   void _navigateToReport(BuildContext context, WidgetRef ref, String reportType) {
-    final apiService = ref.read(apiServiceProvider);
     Widget screen;
     switch (reportType) {
       case 'trial_balance':
-        screen = TrialBalanceScreen(apiService: apiService);
+        screen = const TrialBalanceScreen();
         break;
       case 'profit_loss':
-        screen = ProfitLossScreen(apiService: apiService);
+        screen = const ProfitLossScreen();
         break;
       case 'balance_sheet':
-        screen = BalanceSheetScreen(apiService: apiService);
+        screen = const BalanceSheetScreen();
         break;
       case 'general_ledger':
-        screen = GeneralLedgerScreen(apiService: apiService);
+        screen = const GeneralLedgerScreen();
         break;
       case 'cash_flow':
         screen = const CashFlowScreen();

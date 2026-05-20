@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/report_providers.dart';
-import '../../core/services/api_service.dart';
 
-class TrialBalanceScreen extends ConsumerStatefulWidget {
-  final ApiService apiService;
-
-  const TrialBalanceScreen({super.key, required this.apiService});
+class TrialBalanceScreen extends ConsumerWidget {
+  const TrialBalanceScreen({super.key});
 
   @override
-  ConsumerState<TrialBalanceScreen> createState() => _TrialBalanceScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _TrialBalanceScreenContent();
+  }
 }
 
-class _TrialBalanceScreenState extends ConsumerState<TrialBalanceScreen> {
+class _TrialBalanceScreenContent extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_TrialBalanceScreenContent> createState() => _TrialBalanceScreenContentState();
+}
+
+class _TrialBalanceScreenContentState extends ConsumerState<_TrialBalanceScreenContent> {
   DateTime? _fromDate;
   DateTime? _toDate;
   bool _isLoading = false;

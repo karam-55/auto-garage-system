@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/report_providers.dart';
 import '../../core/providers/accounting_providers.dart';
-import '../../core/services/api_service.dart';
 
-class GeneralLedgerScreen extends ConsumerStatefulWidget {
-  final ApiService apiService;
-
-  const GeneralLedgerScreen({super.key, required this.apiService});
+class GeneralLedgerScreen extends ConsumerWidget {
+  const GeneralLedgerScreen({super.key});
 
   @override
-  ConsumerState<GeneralLedgerScreen> createState() => _GeneralLedgerScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _GeneralLedgerScreenContent();
+  }
 }
 
-class _GeneralLedgerScreenState extends ConsumerState<GeneralLedgerScreen> {
+class _GeneralLedgerScreenContent extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_GeneralLedgerScreenContent> createState() => _GeneralLedgerScreenContentState();
+}
+
+class _GeneralLedgerScreenContentState extends ConsumerState<_GeneralLedgerScreenContent> {
   DateTime? _fromDate;
   DateTime? _toDate;
   int? _selectedAccountId;

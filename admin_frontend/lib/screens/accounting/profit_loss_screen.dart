@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/report_providers.dart';
-import '../../core/services/api_service.dart';
 
-class ProfitLossScreen extends ConsumerStatefulWidget {
-  final ApiService apiService;
-
-  const ProfitLossScreen({super.key, required this.apiService});
+class ProfitLossScreen extends ConsumerWidget {
+  const ProfitLossScreen({super.key});
 
   @override
-  ConsumerState<ProfitLossScreen> createState() => _ProfitLossScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _ProfitLossScreenContent();
+  }
 }
 
-class _ProfitLossScreenState extends ConsumerState<ProfitLossScreen> {
+class _ProfitLossScreenContent extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_ProfitLossScreenContent> createState() => _ProfitLossScreenContentState();
+}
+
+class _ProfitLossScreenContentState extends ConsumerState<_ProfitLossScreenContent> {
   DateTime? _fromDate;
   DateTime? _toDate;
 

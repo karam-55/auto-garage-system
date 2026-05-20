@@ -25,7 +25,8 @@ class GetBreakEvenAnalysisUseCase {
         },
       );
 
-      final totalRevenue = (revenueResult.first[0] as num).toDouble();
+      final revenueData = revenueResult.first.toColumnMap();
+      final totalRevenue = double.tryParse(revenueData['total_revenue'].toString()) ?? 0.0;
 
       // 2. إجمالي التكاليف المتغيرة (COGS + أي مصروفات متغيرة)
       // حالياً سنعتبر COGS فقط كتكاليف متغيرة
@@ -46,7 +47,8 @@ class GetBreakEvenAnalysisUseCase {
         },
       );
 
-      final totalVariableCosts = (variableCostsResult.first[0] as num).toDouble();
+      final variableCostsData = variableCostsResult.first.toColumnMap();
+      final totalVariableCosts = double.tryParse(variableCostsData['total_variable_costs'].toString()) ?? 0.0;
 
       // 3. إجمالي التكاليف الثابتة (المصروفات التشغيلية - الإيجار، الرواتب الإدارية، إلخ)
       // سنعتبر جميع حسابات المصروفات (باستثناء COGS) كتكاليف ثابتة
@@ -66,7 +68,8 @@ class GetBreakEvenAnalysisUseCase {
         },
       );
 
-      final totalFixedCosts = (fixedCostsResult.first[0] as num).toDouble();
+      final fixedCostsData = fixedCostsResult.first.toColumnMap();
+      final totalFixedCosts = double.tryParse(fixedCostsData['total_fixed_costs'].toString()) ?? 0.0;
 
       // حسابات نقطة التعادل
       final contributionMargin = totalRevenue - totalVariableCosts;

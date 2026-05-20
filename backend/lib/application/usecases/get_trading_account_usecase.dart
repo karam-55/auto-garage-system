@@ -25,7 +25,8 @@ class GetTradingAccountUseCase {
         },
       );
 
-      final totalRevenue = (revenueResult.first[0] as num).toDouble();
+      final revenueData = revenueResult.first.toColumnMap();
+      final totalRevenue = double.tryParse(revenueData['total_revenue'].toString()) ?? 0.0;
 
       // 2. إجمالي تكلفة البضاعة المباعة (COGS)
       final cogsResult = await session.execute(
@@ -44,7 +45,8 @@ class GetTradingAccountUseCase {
         },
       );
 
-      final totalCogs = (cogsResult.first[0] as num).toDouble();
+      final cogsData = cogsResult.first.toColumnMap();
+      final totalCogs = double.tryParse(cogsData['total_cogs'].toString()) ?? 0.0;
 
       // 3. إجمالي الربح
       final grossProfit = totalRevenue - totalCogs;

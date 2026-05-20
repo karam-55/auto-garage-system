@@ -27,7 +27,8 @@ class GetCashFlowStatementUseCase {
         },
       );
 
-      final netProfit = profitLossResult.first[0] as num;
+      final profitLossData = profitLossResult.first.toColumnMap();
+      final netProfit = double.tryParse(profitLossData['net_profit'].toString()) ?? 0.0;
 
       // 2. التغير في الذمم المدينة (العملاء)
       final receivablesStart = await _getBalanceAtDate(session, 'receivable', startDate.subtract(const Duration(days: 1)));
@@ -86,6 +87,7 @@ class GetCashFlowStatementUseCase {
       },
     );
 
-    return result.first[0] as double;
+    final resultData = result.first.toColumnMap();
+    return double.tryParse(resultData['balance'].toString()) ?? 0.0;
   }
 }

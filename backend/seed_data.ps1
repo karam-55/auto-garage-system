@@ -49,7 +49,8 @@ function Add-Data {
     param(
         [string]$Endpoint,
         [string]$Token,
-        [hashtable]$Data
+        [hashtable]$Data,
+        [string]$Method = "Post"
     )
     
     $headers = @{
@@ -59,7 +60,7 @@ function Add-Data {
     
     try {
         $body = $Data | ConvertTo-Json -Depth 10
-        $response = Invoke-RestMethod -Uri "${baseUrl}${Endpoint}" -Method Post -Headers $headers -Body $body
+        $response = Invoke-RestMethod -Uri "${baseUrl}${Endpoint}" -Method $Method -Headers $headers -Body $body
         return $response
     }
     catch {
@@ -175,7 +176,8 @@ $payrollSettings = @{
     salary_payment_day = 1
 }
 
-$result = Add-Data -Endpoint "/payroll/settings" -Token $token -Data $payrollSettings
+# Use PUT instead of POST for payroll/settings
+$result = Add-Data -Endpoint "/payroll/settings" -Token $token -Data $payrollSettings -Method "PUT"
 if ($result) {
     Write-Host "Added payroll settings"
 }

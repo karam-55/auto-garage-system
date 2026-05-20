@@ -216,8 +216,6 @@ void main(List<String> args) async {
   );
   final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
   final accountingRoutes = AccountingRoutes.create(db, authMiddleware);
-  final financialRoutes = FinancialRoutes.create(db, authMiddleware);
-  final payrollRoutes = PayrollRoutes.create(db, authMiddleware);
   final erpRoutes = ErpRoutes.create(db, authMiddleware);
   final hrRoutes = HrRoutes(
     hrRepository,
@@ -253,8 +251,6 @@ void main(List<String> args) async {
       .add(inventoryRoutes.router.call)
       .add(invoiceRoutes.router.call)
       .add(accountingRoutes.router.call)
-      .add(financialRoutes.router.call)
-      .add(payrollRoutes.router.call)
       .add(erpRoutes.router.call)
       .add(hrRoutes.router.call)
       .add(crmRoutes.router.call)

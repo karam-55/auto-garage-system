@@ -87,6 +87,35 @@ INSERT INTO spare_parts_categories (name_ar, name_en, created_at) VALUES
 ('بطاريات', 'Batteries', NOW()),
 ('فلتر', 'Filters', NOW());
 
+-- Vendors (الموردين)
+INSERT INTO vendors (name, phone, address, tax_number) VALUES
+('مورد أ للقطع الأصلية', '0911123456', 'دمشق، جوبر', '123456789'),
+('مورد ب للقطع التجارية', '0922345678', 'ريف دمشق، عدرا', '987654321'),
+('مورد ج للزيوت', '0933456789', 'حمص، المحطة', '456789123');
+
+-- Sample Expenses (المصاريف)
+INSERT INTO expenses (expense_date, account_id, amount, description, payment_method, created_by) VALUES
+('2024-05-15', 5200, 300000, 'إيجار الكراج لشهر مايو', 'cash', NULL),
+('2024-05-18', 5300, 85000, 'فاتورة كهرباء', 'cash', NULL),
+('2024-05-20', 5300, 45000, 'فاتورة ماء', 'cash', NULL);
+
+-- Bank Accounts (الحسابات البنكية)
+INSERT INTO bank_accounts (account_name, account_number, bank_name, initial_balance, current_balance, account_id, is_active) VALUES
+('الحساب الرئيسي', '1234567890', 'بنك سوريا', 5000000, 5000000, 1110, true),
+('حساب الرواتب', '0987654321', 'بنك سوريا', 2000000, 2000000, 1110, true);
+
+-- Payroll Settings (إعدادات الرواتب)
+INSERT INTO payroll_settings (monthly_work_days, salary_payment_day) VALUES
+(22, 1);
+
+-- Fiscal Periods (الفترات المالية)
+INSERT INTO fiscal_periods (name, start_date, end_date, is_closed) VALUES
+('2024', '2024-01-01', '2024-12-31', false),
+('Q1 2024', '2024-01-01', '2024-03-31', false),
+('Q2 2024', '2024-04-01', '2024-06-30', false),
+('Q3 2024', '2024-07-01', '2024-09-30', false),
+('Q4 2024', '2024-10-01', '2024-12-31', false);
+
 -- Note: The above password hashes are placeholders. 
 -- In production, you must hash the actual passwords using bcrypt.
 -- Example hashing command (using Dart's bcrypt package):

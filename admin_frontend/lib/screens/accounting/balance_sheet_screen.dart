@@ -67,11 +67,39 @@ class _BalanceSheetScreenState extends ConsumerState<BalanceSheetScreen> {
 
     return ref.watch(balanceSheetProvider(params)).when(
       data: (data) {
+        if (data == null || data.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text('لا توجد بيانات متاحة'),
+              ],
+            ),
+          );
+        }
+
         final assets = data['assets'] as List<dynamic>? ?? [];
         final liabilities = data['liabilities'] as List<dynamic>? ?? [];
         final totalAssets = data['totalAssets'] as num? ?? 0;
         final totalLiabilities = data['totalLiabilities'] as num? ?? 0;
         final equity = data['equity'] as num? ?? 0;
+
+        if (assets.isEmpty && liabilities.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text('لا توجد بيانات للأصول والخصوم'),
+                SizedBox(height: 8),
+                Text('أضف قيود يومية أولاً لعرض الميزانية العمومية'),
+              ],
+            ),
+          );
+        }
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),

@@ -92,9 +92,37 @@ class _GeneralLedgerScreenState extends ConsumerState<GeneralLedgerScreen> {
 
     return ref.watch(generalLedgerProvider(params)).when(
       data: (data) {
+        if (data == null || data.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text('لا توجد بيانات متاحة'),
+              ],
+            ),
+          );
+        }
+
         final entries = data['entries'] as List<dynamic>? ?? [];
+        if (entries.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text('لا توجد قيود يومية في النظام'),
+                SizedBox(height: 8),
+                Text('أضف قيود يومية أولاً لعرض دفتر الأستاذ العام'),
+              ],
+            ),
+          );
+        }
 
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(16),

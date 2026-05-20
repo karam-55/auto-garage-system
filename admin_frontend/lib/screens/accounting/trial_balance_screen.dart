@@ -74,13 +74,56 @@ class _TrialBalanceScreenState extends ConsumerState<TrialBalanceScreen> {
 
     return ref.watch(trialBalanceProvider(params)).when(
       data: (data) {
+        if (data == null || data.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text('لا توجد بيانات متاحة'),
+              ],
+            ),
+          );
+        }
+
         final lines = data['lines'] as List<dynamic>? ?? [];
+        if (lines.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text('لا توجد قيود يومية في النظام'),
+                SizedBox(height: 8),
+                Text('أضف قيود يومية أولاً لعرض ميزان المراجعة'),
+              ],
+            ),
+          );
+        }
+
         double totalDebit = 0;
         double totalCredit = 0;
 
-        for (final line in lines) {
-          totalDebit += (line['totalDebit'] as num).toDouble();
-          totalCredit += (line['totalCredit'] as num).toDouble();
+        try {
+          for (final line in lines) {
+            if (line is Map<String, dynamic>) {
+              totalDebit += (line['totalDebit'] as num?)?.toDouble() ?? 0;
+              totalCredit += (line['totalCredit'] as num?)?.toDouble() ?? 0;
+            }
+          }
+        } catch (e) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('خطأ في معالجة البيانات: $e'),
+              ],
+            ),
+          );
         }
 
         return Column(
@@ -95,12 +138,30 @@ class _TrialBalanceScreenState extends ConsumerState<TrialBalanceScreen> {
                   DataColumn(label: Text('دائن'), numeric: true),
                 ],
                 rows: lines.map<DataRow>((line) {
-                  final account = line['account'] as Map<String, dynamic>;
+                  if (line is! Map<String, dynamic>) {
+                    return const DataRow(cells: [
+                      DataCell(Text('-')),
+                      DataCell(Text('خطأ في البيانات')),
+                      DataCell(Text('-')),
+                      DataCell(Text('-')),
+                    ]);
+                  }
+
+                  final account = line['account'] as Map<String, dynamic>?;
+                  if (account == null) {
+                    return const DataRow(cells: [
+                      DataCell(Text('-')),
+                      DataCell(Text('حساب غير موجود')),
+                      DataCell(Text('-')),
+                      DataCell(Text('-')),
+                    ]);
+                  }
+
                   return DataRow(cells: [
-                    DataCell(Text(account['code'] as String)),
-                    DataCell(Text(account['nameAr'] as String)),
-                    DataCell(Text((line['totalDebit'] as num).toStringAsFixed(2))),
-                    DataCell(Text((line['totalCredit'] as num).toStringAsFixed(2))),
+                    DataCell(Text(account['code']?.toString() ?? '-')),
+                    DataCell(Text(account['nameAr']?.toString() ?? '-')),
+                    DataCell(Text((line['totalDebit'] as num?)?.toStringAsFixed(2) ?? '0.00')),
+                    DataCell(Text((line['totalCredit'] as num?)?.toStringAsFixed(2) ?? '0.00')),
                   ]);
                 }).toList(),
               ),
@@ -159,7 +220,14 @@ class _TrialBalanceScreenState extends ConsumerState<TrialBalanceScreen> {
           children: [
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
-            Text('خطأ في تحميل البيانات: $error'),
+            Text('خطأ في تحميل البيانات'),
+            const SizedBox(height: 8),
+            Text(error.toString(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => setState(() {}),
+              child: const Text('إعادة المحاولة'),
+            ),
           ],
         ),
       ),

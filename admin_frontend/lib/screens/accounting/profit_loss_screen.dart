@@ -73,11 +73,39 @@ class _ProfitLossScreenState extends ConsumerState<ProfitLossScreen> {
 
     return ref.watch(profitLossProvider(params)).when(
       data: (data) {
+        if (data == null || data.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text('لا توجد بيانات متاحة'),
+              ],
+            ),
+          );
+        }
+
         final revenues = data['revenues'] as List<dynamic>? ?? [];
         final expenses = data['expenses'] as List<dynamic>? ?? [];
         final totalRevenue = data['totalRevenue'] as num? ?? 0;
         final totalExpense = data['totalExpense'] as num? ?? 0;
         final netProfit = data['netProfit'] as num? ?? 0;
+
+        if (revenues.isEmpty && expenses.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text('لا توجد بيانات للإيرادات والمصروفات'),
+                SizedBox(height: 8),
+                Text('أضف قيود يومية أولاً لعرض قائمة الدخل'),
+              ],
+            ),
+          );
+        }
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),

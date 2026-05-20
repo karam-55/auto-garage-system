@@ -127,11 +127,31 @@ class ReportsTab extends ConsumerWidget {
   }
 
   void _navigateToReport(BuildContext context, WidgetRef ref, String reportType) {
+    final apiService = ref.read(apiServiceProvider);
+    Widget screen;
+    switch (reportType) {
+      case 'trial_balance':
+        screen = TrialBalanceScreen(apiService: apiService);
+        break;
+      case 'profit_loss':
+        screen = ProfitLossScreen(apiService: apiService);
+        break;
+      case 'balance_sheet':
+        screen = BalanceSheetScreen(apiService: apiService);
+        break;
+      case 'general_ledger':
+        screen = GeneralLedgerScreen(apiService: apiService);
+        break;
+      case 'cash_flow':
+        screen = const CashFlowScreen();
+        break;
+      default:
+        screen = AccountingReportScreen(reportType: reportType);
+    }
+    
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => AccountingReportScreen(reportType: reportType),
-      ),
+      MaterialPageRoute(builder: (context) => screen),
     );
   }
 }

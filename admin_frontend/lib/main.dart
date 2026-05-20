@@ -556,6 +556,7 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     const _NavItem(icon: Icons.build_rounded, label: 'عقود الصيانة'),
   ];
 
+
   @override
   void initState() {
     super.initState();
@@ -713,6 +714,7 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
               onThemeToggle: widget.onThemeToggle,
               onLocaleToggle: _onLocaleToggle,
               themeMode: widget.themeMode,
+              destinations: _destinations,
             ),
           Expanded(
             child: AnimatedSwitcher(

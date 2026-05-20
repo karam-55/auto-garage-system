@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
 import '../models/account.dart';
-import 'erp_providers.dart';
+import 'api_provider.dart';
 
 final trialBalanceProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, String?>>((ref, params) async {
   final api = ref.read(apiServiceProvider);

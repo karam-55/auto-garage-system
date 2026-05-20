@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
+import 'api_provider.dart';
 import '../../screens/purchasing/models/purchase_order.dart';
 import '../../screens/sales/models/quotation.dart';
 import '../../screens/sales/models/sales_order.dart';
@@ -13,11 +14,6 @@ import '../../screens/hr/models/leave_request.dart';
 import '../../screens/hr/models/performance_review.dart';
 import '../../screens/fixed_assets/models/fixed_asset.dart';
 import '../../screens/maintenance/models/maintenance_contract.dart';
-
-// API Service Provider
-final apiServiceProvider = Provider<ApiService>((ref) {
-  return ApiService();
-});
 
 // Helper classes for multi-parameter providers
 class UpdateArgs {

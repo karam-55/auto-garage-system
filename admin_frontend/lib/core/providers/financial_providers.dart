@@ -1,6 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
-import 'erp_providers.dart' show apiServiceProvider;
+import 'api_provider.dart';
+
+final fiscalPeriodsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  final response = await api.get('/fiscal-periods');
+  return response as List<dynamic>;
+});
 
 // Vendors
 final vendorsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {

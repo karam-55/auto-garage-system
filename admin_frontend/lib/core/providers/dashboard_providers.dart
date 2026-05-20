@@ -1,5 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'erp_providers.dart' show apiServiceProvider;
+import '../services/api_service.dart';
+import 'api_provider.dart';
+
+final bookingsCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.get('/dashboard/sales-stats');
+  return res;
+});
 
 final salesStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);

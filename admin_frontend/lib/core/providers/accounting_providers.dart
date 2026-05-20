@@ -2,11 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
 import '../models/account.dart';
 import '../models/journal_entry.dart';
-
-// API Service Provider
-final apiServiceProvider = Provider<ApiService>((ref) {
-  return ApiService();
-});
+import 'api_provider.dart';
 
 final accountsProvider = FutureProvider.autoDispose<List<Account>>((ref) async {
   final api = ref.read(apiServiceProvider);

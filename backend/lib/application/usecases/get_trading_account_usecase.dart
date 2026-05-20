@@ -9,7 +9,8 @@ class GetTradingAccountUseCase {
   Future<Map<String, dynamic>> execute(DateTime fromDate, DateTime toDate) async {
     return await _databaseConnection.runInTransaction((session) async {
       // 1. إجمالي الإيرادات (من حسابات الإيرادات)
-      final revenueResult = await session.execute('''
+      final revenueResult = await session.execute(
+        Sql.named('''
         SELECT 
           COALESCE(SUM(jl.credit - jl.debit), 0) as total_revenue
         FROM journal_lines jl
@@ -17,15 +18,18 @@ class GetTradingAccountUseCase {
         JOIN accounts a ON jl.account_id = a.id
         WHERE je.entry_date BETWEEN @fromDate AND @toDate
         AND a.account_type = 'revenue'
-      ''', parameters: {
-        'fromDate': fromDate,
-        'toDate': toDate,
-      });
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
 
       final totalRevenue = (revenueResult.first[0] as num).toDouble();
 
       // 2. إجمالي تكلفة البضاعة المباعة (COGS)
-      final cogsResult = await session.execute('''
+      final cogsResult = await session.execute(
+        Sql.named('''
         SELECT 
           COALESCE(SUM(jl.debit - jl.credit), 0) as total_cogs
         FROM journal_lines jl
@@ -33,10 +37,12 @@ class GetTradingAccountUseCase {
         JOIN accounts a ON jl.account_id = a.id
         WHERE je.entry_date BETWEEN @fromDate AND @toDate
         AND a.account_type = 'cogs'
-      ''', parameters: {
-        'fromDate': fromDate,
-        'toDate': toDate,
-      });
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
 
       final totalCogs = (cogsResult.first[0] as num).toDouble();
 

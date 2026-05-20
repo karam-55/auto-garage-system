@@ -10,7 +10,8 @@ class GetCashFlowStatementUseCase {
     return await _databaseConnection.runInTransaction((session) async {
       // 1. صافي الربح من قائمة الدخل
       // سنستخدم حسابات الإيرادات والمصروفات
-      final profitLossResult = await session.execute('''
+      final profitLossResult = await session.execute(
+        Sql.named('''
         SELECT 
           COALESCE(SUM(CASE WHEN jl.debit > 0 THEN jl.debit ELSE 0 END) - 
                   SUM(CASE WHEN jl.credit > 0 THEN jl.credit ELSE 0 END), 0) as net_profit
@@ -19,10 +20,12 @@ class GetCashFlowStatementUseCase {
         JOIN accounts a ON jl.account_id = a.id
         WHERE je.entry_date BETWEEN @startDate AND @endDate
         AND a.account_type IN ('revenue', 'expense', 'cogs')
-      ''', parameters: {
-        'startDate': startDate,
-        'endDate': endDate,
-      });
+      '''),
+        parameters: {
+          'startDate': startDate,
+          'endDate': endDate,
+        },
+      );
 
       final netProfit = profitLossResult.first[0] as num;
 
@@ -68,7 +71,8 @@ class GetCashFlowStatementUseCase {
       accountTypeFilter = "AND a.account_type = 'liability' AND (a.name_ar LIKE '%مورد%' OR a.name_ar LIKE '%ذمم%')";
     }
 
-    final result = await session.execute('''
+    final result = await session.execute(
+      Sql.named('''
       SELECT 
         COALESCE(SUM(jl.debit - jl.credit), 0) as balance
       FROM journal_lines jl
@@ -76,9 +80,11 @@ class GetCashFlowStatementUseCase {
       JOIN accounts a ON jl.account_id = a.id
       WHERE je.entry_date <= @asOfDate
       $accountTypeFilter
-    ''', parameters: {
-      'asOfDate': asOfDate,
-    });
+    '''),
+      parameters: {
+        'asOfDate': asOfDate,
+      },
+    );
 
     return result.first[0] as double;
   }

@@ -9,7 +9,8 @@ class GetBreakEvenAnalysisUseCase {
   Future<Map<String, dynamic>> execute(DateTime fromDate, DateTime toDate) async {
     return await _databaseConnection.runInTransaction((session) async {
       // 1. إجمالي الإيرادات (من حسابات الإيرادات)
-      final revenueResult = await session.execute('''
+      final revenueResult = await session.execute(
+        Sql.named('''
         SELECT 
           COALESCE(SUM(jl.credit - jl.debit), 0) as total_revenue
         FROM journal_lines jl
@@ -17,17 +18,20 @@ class GetBreakEvenAnalysisUseCase {
         JOIN accounts a ON jl.account_id = a.id
         WHERE je.entry_date BETWEEN @fromDate AND @toDate
         AND a.account_type = 'revenue'
-      ''', parameters: {
-        'fromDate': fromDate,
-        'toDate': toDate,
-      });
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
 
       final totalRevenue = (revenueResult.first[0] as num).toDouble();
 
       // 2. إجمالي التكاليف المتغيرة (COGS + أي مصروفات متغيرة)
       // حالياً سنعتبر COGS فقط كتكاليف متغيرة
       // يمكن إضافة عمود expense_behavior لاحقاً للتمييز بين الثابت والمتغير
-      final variableCostsResult = await session.execute('''
+      final variableCostsResult = await session.execute(
+        Sql.named('''
         SELECT 
           COALESCE(SUM(jl.debit - jl.credit), 0) as total_variable_costs
         FROM journal_lines jl
@@ -35,16 +39,19 @@ class GetBreakEvenAnalysisUseCase {
         JOIN accounts a ON jl.account_id = a.id
         WHERE je.entry_date BETWEEN @fromDate AND @toDate
         AND a.account_type = 'cogs'
-      ''', parameters: {
-        'fromDate': fromDate,
-        'toDate': toDate,
-      });
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
 
       final totalVariableCosts = (variableCostsResult.first[0] as num).toDouble();
 
       // 3. إجمالي التكاليف الثابتة (المصروفات التشغيلية - الإيجار، الرواتب الإدارية، إلخ)
       // سنعتبر جميع حسابات المصروفات (باستثناء COGS) كتكاليف ثابتة
-      final fixedCostsResult = await session.execute('''
+      final fixedCostsResult = await session.execute(
+        Sql.named('''
         SELECT 
           COALESCE(SUM(jl.debit - jl.credit), 0) as total_fixed_costs
         FROM journal_lines jl
@@ -52,10 +59,12 @@ class GetBreakEvenAnalysisUseCase {
         JOIN accounts a ON jl.account_id = a.id
         WHERE je.entry_date BETWEEN @fromDate AND @toDate
         AND a.account_type = 'expense'
-      ''', parameters: {
-        'fromDate': fromDate,
-        'toDate': toDate,
-      });
+      '''),
+        parameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
 
       final totalFixedCosts = (fixedCostsResult.first[0] as num).toDouble();
 

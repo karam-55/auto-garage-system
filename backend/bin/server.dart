@@ -49,6 +49,8 @@ import 'package:backend/presentation/routes/company_settings_routes.dart';
 import 'package:backend/presentation/routes/inventory_routes.dart';
 import 'package:backend/presentation/routes/invoice_routes.dart';
 import 'package:backend/presentation/routes/accounting_routes.dart';
+import 'package:backend/presentation/routes/financial_routes.dart';
+import 'package:backend/presentation/routes/payroll_routes.dart';
 import 'package:backend/presentation/routes/erp_routes.dart';
 import 'package:backend/presentation/routes/hr_routes.dart';
 import 'package:backend/presentation/routes/crm_routes.dart';
@@ -214,6 +216,8 @@ void main(List<String> args) async {
   );
   final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
   final accountingRoutes = AccountingRoutes.create(db, authMiddleware);
+  final financialRoutes = FinancialRoutes.create(db, authMiddleware);
+  final payrollRoutes = PayrollRoutes.create(db, authMiddleware);
   final erpRoutes = ErpRoutes.create(db, authMiddleware);
   final hrRoutes = HrRoutes(
     hrRepository,
@@ -249,6 +253,8 @@ void main(List<String> args) async {
       .add(inventoryRoutes.router.call)
       .add(invoiceRoutes.router.call)
       .add(accountingRoutes.router.call)
+      .add(financialRoutes.router.call)
+      .add(payrollRoutes.router.call)
       .add(erpRoutes.router.call)
       .add(hrRoutes.router.call)
       .add(crmRoutes.router.call)

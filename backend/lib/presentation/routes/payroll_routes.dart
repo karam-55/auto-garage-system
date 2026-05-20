@@ -71,23 +71,12 @@ class PayrollRoutes {
   Router get router {
     final router = Router();
 
-    // GET /payroll/settings
-    router.get('/payroll/settings', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_getSettings)));
-
-    // PUT /payroll/settings
-    router.put('/payroll/settings', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateSettings)));
-
-    // POST /payroll/generate
-    router.post('/payroll/generate', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_generatePayments)));
-
-    // GET /payroll/salaries
-    router.get('/payroll/salaries', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getSalaries)));
-
-    // POST /payroll/salaries/:id/pay
-    router.post('/payroll/salaries/<id>/pay', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_paySalary)));
-
-    // GET /payroll/report
-    router.get('/payroll/report', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getReport)));
+    router.get('/api/payroll/settings', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_getSettings)));
+    router.put('/api/payroll/settings', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateSettings)));
+    router.post('/api/payroll/generate', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_generatePayments)));
+    router.get('/api/payroll/salaries', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getSalaries)));
+    router.post('/api/payroll/salaries/<id>/pay', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_paySalary)));
+    router.get('/api/payroll/report', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getReport)));
 
     return router;
   }

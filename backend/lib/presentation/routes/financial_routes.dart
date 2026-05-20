@@ -104,26 +104,26 @@ class FinancialRoutes {
     final router = Router();
 
     // Vendors
-    router.get('/vendors', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getVendors)));
-    router.post('/vendors', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createVendor)));
-    router.put('/vendors/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateVendor)));
-    router.delete('/vendors/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteVendor)));
+    router.get('/api/vendors', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getVendors)));
+    router.post('/api/vendors', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createVendor)));
+    router.put('/api/vendors/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateVendor)));
+    router.delete('/api/vendors/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteVendor)));
 
     // Purchase Invoices
-    router.get('/purchase-invoices', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseInvoices)));
-    router.post('/purchase-invoices', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createPurchaseInvoice)));
-    router.put('/purchase-invoices/<id>/pay', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_payPurchaseInvoice)));
+    router.get('/api/purchase-invoices', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseInvoices)));
+    router.post('/api/purchase-invoices', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createPurchaseInvoice)));
+    router.put('/api/purchase-invoices/<id>/pay', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_payPurchaseInvoice)));
 
     // Expenses
-    router.get('/expenses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getExpenses)));
-    router.post('/expenses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createExpense)));
-    router.delete('/expenses/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteExpense)));
+    router.get('/api/expenses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getExpenses)));
+    router.post('/api/expenses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createExpense)));
+    router.delete('/api/expenses/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteExpense)));
 
     // Bank Accounts
-    router.get('/bank-accounts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getBankAccounts)));
-    router.post('/bank-accounts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createBankAccount)));
-    router.get('/bank-accounts/<id>/reconciliation', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_getBankReconciliation)));
-    router.post('/bank-accounts/<id>/reconcile', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_reconcileBankAccount)));
+    router.get('/api/bank-accounts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getBankAccounts)));
+    router.post('/api/bank-accounts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createBankAccount)));
+    router.get('/api/bank-accounts/<id>/reconciliation', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_getBankReconciliation)));
+    router.post('/api/bank-accounts/<id>/reconcile', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_reconcileBankAccount)));
 
     return router;
   }

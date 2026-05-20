@@ -143,105 +143,105 @@ class ErpRoutes {
     final router = Router();
 
     // Purchase Orders
-    router.get('/purchase-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseOrders)));
-    router.get('/purchase-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseOrder)));
-    router.post('/purchase-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createPurchaseOrder)));
-    router.put('/purchase-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_updatePurchaseOrder)));
-    router.delete('/purchase-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deletePurchaseOrder)));
-    router.put('/purchase-orders/<id>/confirm', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_confirmPurchaseOrder)));
-    router.put('/purchase-orders/<id>/receive', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_receivePurchaseOrder)));
-    router.post('/purchase-invoices/<id>/pay', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_payPurchaseInvoice)));
+    router.get('/api/purchase-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseOrders)));
+    router.get('/api/purchase-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseOrder)));
+    router.post('/api/purchase-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createPurchaseOrder)));
+    router.put('/api/purchase-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_updatePurchaseOrder)));
+    router.delete('/api/purchase-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deletePurchaseOrder)));
+    router.put('/api/purchase-orders/<id>/confirm', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_confirmPurchaseOrder)));
+    router.put('/api/purchase-orders/<id>/receive', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_receivePurchaseOrder)));
+    router.post('/api/purchase-invoices/<id>/pay', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_payPurchaseInvoice)));
 
     // Quotations
-    router.get('/quotations', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getQuotations)));
-    router.get('/quotations/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getQuotation)));
-    router.post('/quotations', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createQuotation)));
-    router.put('/quotations/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateQuotation)));
-    router.delete('/quotations/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteQuotation)));
-    router.post('/quotations/<id>/convert-to-order', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_convertQuotationToOrder)));
+    router.get('/api/quotations', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getQuotations)));
+    router.get('/api/quotations/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getQuotation)));
+    router.post('/api/quotations', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createQuotation)));
+    router.put('/api/quotations/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateQuotation)));
+    router.delete('/api/quotations/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteQuotation)));
+    router.post('/api/quotations/<id>/convert-to-order', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_convertQuotationToOrder)));
 
     // Warehouses
-    router.get('/warehouses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getWarehouses)));
-    router.get('/warehouses/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getWarehouse)));
-    router.post('/warehouses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createWarehouse)));
-    router.put('/warehouses/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateWarehouse)));
-    router.delete('/warehouses/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteWarehouse)));
+    router.get('/api/warehouses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getWarehouses)));
+    router.get('/api/warehouses/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getWarehouse)));
+    router.post('/api/warehouses', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createWarehouse)));
+    router.put('/api/warehouses/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateWarehouse)));
+    router.delete('/api/warehouses/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteWarehouse)));
 
     // Manufacturing
-    router.get('/manufacturing/boms', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getBoms)));
-    router.get('/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getBom)));
-    router.post('/manufacturing/boms', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createBom)));
-    router.put('/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateBom)));
-    router.delete('/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteBom)));
+    router.get('/api/manufacturing/boms', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getBoms)));
+    router.get('/api/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getBom)));
+    router.post('/api/manufacturing/boms', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createBom)));
+    router.put('/api/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateBom)));
+    router.delete('/api/manufacturing/boms/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteBom)));
 
-    router.get('/manufacturing/orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getManufacturingOrders)));
-    router.get('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getManufacturingOrder)));
-    router.post('/manufacturing/orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createManufacturingOrder)));
-    router.put('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateManufacturingOrder)));
-    router.delete('/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteManufacturingOrder)));
-    router.post('/manufacturing/orders/<id>/complete', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_completeManufacturingOrder)));
+    router.get('/api/manufacturing/orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getManufacturingOrders)));
+    router.get('/api/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getManufacturingOrder)));
+    router.post('/api/manufacturing/orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_createManufacturingOrder)));
+    router.put('/api/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_updateManufacturingOrder)));
+    router.delete('/api/manufacturing/orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteManufacturingOrder)));
+    router.post('/api/manufacturing/orders/<id>/complete', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_completeManufacturingOrder)));
 
     // Sales Orders
-    router.get('/sales-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getSalesOrders)));
-    router.get('/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getSalesOrder)));
-    router.post('/sales-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createSalesOrder)));
-    router.put('/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateSalesOrder)));
-    router.delete('/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteSalesOrder)));
-    router.post('/sales-orders/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createSalesInvoice)));
+    router.get('/api/sales-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getSalesOrders)));
+    router.get('/api/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getSalesOrder)));
+    router.post('/api/sales-orders', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createSalesOrder)));
+    router.put('/api/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateSalesOrder)));
+    router.delete('/api/sales-orders/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteSalesOrder)));
+    router.post('/api/sales-orders/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createSalesInvoice)));
 
     // Inventory Transfers
-    router.get('/inventory-transfers', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getInventoryTransfers)));
-    router.get('/inventory-transfers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getInventoryTransfer)));
-    router.post('/inventory-transfers', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_WAREHOUSE])(_createInventoryTransfer)));
-    router.delete('/inventory-transfers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteInventoryTransfer)));
+    router.get('/api/inventory-transfers', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getInventoryTransfers)));
+    router.get('/api/inventory-transfers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_WAREHOUSE, Role.ACCOUNTANT])(_getInventoryTransfer)));
+    router.post('/api/inventory-transfers', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_WAREHOUSE])(_createInventoryTransfer)));
+    router.delete('/api/inventory-transfers/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteInventoryTransfer)));
 
     // CRM
-    router.get('/crm/leads', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getLeads)));
-    router.get('/crm/leads/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getLead)));
-    router.post('/crm/leads', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createLead)));
-    router.put('/crm/leads/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateLead)));
-    router.put('/crm/leads/<id>/convert', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_convertLead)));
-    router.delete('/crm/leads/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteLead)));
+    router.get('/api/crm/leads', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getLeads)));
+    router.get('/api/crm/leads/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getLead)));
+    router.post('/api/crm/leads', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createLead)));
+    router.put('/api/crm/leads/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateLead)));
+    router.put('/api/crm/leads/<id>/convert', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_convertLead)));
+    router.delete('/api/crm/leads/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteLead)));
 
-    router.get('/crm/activities', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getActivities)));
-    router.get('/crm/activities/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getActivity)));
-    router.post('/crm/activities', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createActivity)));
-    router.delete('/crm/activities/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteActivity)));
+    router.get('/api/crm/activities', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getActivities)));
+    router.get('/api/crm/activities/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getActivity)));
+    router.post('/api/crm/activities', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createActivity)));
+    router.delete('/api/crm/activities/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteActivity)));
 
     // HR
-    router.get('/hr/contracts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getContracts)));
-    router.get('/hr/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getContract)));
-    router.post('/hr/contracts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_createContract)));
-    router.put('/hr/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_updateContract)));
-    router.delete('/hr/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteContract)));
+    router.get('/api/hr/contracts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getContracts)));
+    router.get('/api/hr/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getContract)));
+    router.post('/api/hr/contracts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_createContract)));
+    router.put('/api/hr/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_updateContract)));
+    router.delete('/api/hr/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteContract)));
 
-    router.get('/hr/leave-requests', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getLeaveRequests)));
-    router.get('/hr/leave-requests/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getLeaveRequest)));
-    router.post('/hr/leave-requests', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_createLeaveRequest)));
-    router.put('/hr/leave-requests/<id>/approve', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_approveLeaveRequest)));
-    router.put('/hr/leave-requests/<id>/reject', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_rejectLeaveRequest)));
-    router.delete('/hr/leave-requests/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteLeaveRequest)));
+    router.get('/api/hr/leave-requests', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getLeaveRequests)));
+    router.get('/api/hr/leave-requests/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getLeaveRequest)));
+    router.post('/api/hr/leave-requests', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_createLeaveRequest)));
+    router.put('/api/hr/leave-requests/<id>/approve', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_approveLeaveRequest)));
+    router.put('/api/hr/leave-requests/<id>/reject', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_rejectLeaveRequest)));
+    router.delete('/api/hr/leave-requests/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteLeaveRequest)));
 
-    router.get('/hr/performance-reviews', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getPerformanceReviews)));
-    router.get('/hr/performance-reviews/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getPerformanceReview)));
-    router.post('/hr/performance-reviews', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_createPerformanceReview)));
-    router.delete('/hr/performance-reviews/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deletePerformanceReview)));
+    router.get('/api/hr/performance-reviews', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getPerformanceReviews)));
+    router.get('/api/hr/performance-reviews/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER, Role.ACCOUNTANT])(_getPerformanceReview)));
+    router.post('/api/hr/performance-reviews', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.HR_MANAGER])(_createPerformanceReview)));
+    router.delete('/api/hr/performance-reviews/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deletePerformanceReview)));
 
     // Fixed Assets
-    router.get('/assets', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getFixedAssets)));
-    router.get('/assets/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getFixedAsset)));
-    router.post('/assets', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createFixedAsset)));
-    router.put('/assets/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_updateFixedAsset)));
-    router.delete('/assets/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteFixedAsset)));
-    router.post('/assets/depreciate', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_runDepreciation)));
+    router.get('/api/assets', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getFixedAssets)));
+    router.get('/api/assets/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getFixedAsset)));
+    router.post('/api/assets', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_createFixedAsset)));
+    router.put('/api/assets/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_updateFixedAsset)));
+    router.delete('/api/assets/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteFixedAsset)));
+    router.post('/api/assets/depreciate', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.ACCOUNTANT])(_runDepreciation)));
 
     // Maintenance Contracts
-    router.get('/maintenance/contracts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getMaintenanceContracts)));
-    router.get('/maintenance/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getMaintenanceContract)));
-    router.get('/maintenance/contracts/due', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getDueMaintenanceContracts)));
-    router.post('/maintenance/contracts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createMaintenanceContract)));
-    router.put('/maintenance/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateMaintenanceContract)));
-    router.delete('/maintenance/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteMaintenanceContract)));
+    router.get('/api/maintenance/contracts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getMaintenanceContracts)));
+    router.get('/api/maintenance/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getMaintenanceContract)));
+    router.get('/api/maintenance/contracts/due', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.MANAGER_SALES, Role.ACCOUNTANT])(_getDueMaintenanceContracts)));
+    router.post('/api/maintenance/contracts', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_createMaintenanceContract)));
+    router.put('/api/maintenance/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER_SALES])(_updateMaintenanceContract)));
+    router.delete('/api/maintenance/contracts/<id>', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER])(_deleteMaintenanceContract)));
 
     return router;
   }

@@ -2,44 +2,52 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
 import 'api_provider.dart';
 
-final bookingsCountProvider = FutureProvider.autoDispose<int>((ref) async {
+// Dashboard Stats
+final dashboardStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/dashboard/sales-stats');
-  return res;
+  final res = await api.get('/api/dashboard/stats');
+  return res as Map<String, dynamic>;
 });
 
-final salesStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final revenueStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/dashboard/sales-stats');
-  return res;
+  final res = await api.get('/api/dashboard/revenue');
+  return res as Map<String, dynamic>;
 });
 
-final purchaseStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+// ERP Dashboard Stats
+final salesStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/dashboard/purchase-stats');
-  return res;
+  final res = await api.get('/api/dashboard/sales-stats');
+  return res as Map<String, dynamic>;
 });
 
-final inventoryStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final purchaseStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/dashboard/inventory-stats');
-  return res;
+  final res = await api.get('/api/dashboard/purchase-stats');
+  return res as Map<String, dynamic>;
 });
 
-final manufacturingStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final inventoryStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/dashboard/manufacturing-stats');
-  return res;
+  final res = await api.get('/api/dashboard/inventory-stats');
+  return res as Map<String, dynamic>;
 });
 
-final hrStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final manufacturingStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/dashboard/hr-stats');
-  return res;
+  final res = await api.get('/api/dashboard/manufacturing-stats');
+  return res as Map<String, dynamic>;
 });
 
-final fixedAssetsStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final hrStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/dashboard/fixed-assets-stats');
-  return res;
+  final res = await api.get('/api/dashboard/hr-stats');
+  return res as Map<String, dynamic>;
+});
+
+final fixedAssetsStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  final res = await api.get('/api/dashboard/fixed-assets-stats');
+  return res as Map<String, dynamic>;
 });

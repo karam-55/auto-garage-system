@@ -190,7 +190,7 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
         return;
       }
 
-      await ref.read(generatePayrollProvider({
+      await ref.read(createSalaryPaymentProvider({
         'month_year': monthYear.toIso8601String(),
         'employees': employeesWithSalary,
       }).future);
@@ -240,7 +240,11 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
     if (confirmed != true) return;
 
     try {
-      await ref.read(paySalaryProvider(salaryPaymentId).future);
+      await ref.read(paySalaryProvider({
+        'id': salaryPaymentId,
+        'payment_date': DateTime.now().toIso8601String(),
+        'paid_by_user_id': 'current_user',
+      }).future);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

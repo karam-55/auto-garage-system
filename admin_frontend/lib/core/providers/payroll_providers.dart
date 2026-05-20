@@ -4,33 +4,30 @@ import 'api_provider.dart';
 
 final payrollSettingsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/payroll/settings');
+  final response = await api.get('/api/payroll/settings');
   return response;
 });
 
 final salaryListProvider = FutureProvider.autoDispose.family<List<dynamic>, String?>((ref, monthYear) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/payroll/salaries');
+  final response = await api.get('/api/payroll/salaries${monthYear != null ? '?month_year=$monthYear' : ''}');
   return response as List<dynamic>;
 });
 
-final generatePayrollProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
+final createSalaryPaymentProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/payroll/generate', params);
+  final response = await api.post('/api/payroll/generate', data);
   return response;
 });
 
-final paySalaryProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, int>((ref, salaryPaymentId) async {
+final paySalaryProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/payroll/salaries/$salaryPaymentId/pay', {
-    'payment_date': DateTime.now().toIso8601String(),
-    'paid_by_user_id': 'current_user_id'
-  });
+  final response = await api.post('/api/payroll/salaries/${data['id']}/pay', data);
   return response;
 });
 
 final payrollReportProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, monthYear) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/payroll/report');
+  final response = await api.get('/api/payroll/report?month_year=$monthYear');
   return response;
 });

@@ -58,12 +58,12 @@ class DashboardRoutes {
     router.get('/api/dashboard/revenue', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_getRevenueStats)));
 
     // ERP Dashboard Stats
-    router.get('/dashboard/sales-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getSalesStats)));
-    router.get('/dashboard/purchase-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseStats)));
-    router.get('/dashboard/inventory-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getInventoryStats)));
-    router.get('/dashboard/manufacturing-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getManufacturingStats)));
-    router.get('/dashboard/hr-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER])(_getHrStats)));
-    router.get('/dashboard/fixed-assets-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getFixedAssetsStats)));
+    router.get('/api/dashboard/sales-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getSalesStats)));
+    router.get('/api/dashboard/purchase-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getPurchaseStats)));
+    router.get('/api/dashboard/inventory-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getInventoryStats)));
+    router.get('/api/dashboard/manufacturing-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getManufacturingStats)));
+    router.get('/api/dashboard/hr-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.HR_MANAGER])(_getHrStats)));
+    router.get('/api/dashboard/fixed-assets-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getFixedAssetsStats)));
 
     return router;
   }

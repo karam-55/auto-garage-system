@@ -31,464 +31,464 @@ class ApproveArgs {
 // ========== البيانات المرجعية ==========
 final inventoryVariantsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/inventory/variants');
+  final response = await api.get('/api/inventory/variants');
   return response as List<dynamic>;
 });
 
 final customersProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/customers');
+  final response = await api.get('/api/customers');
   return response as List<dynamic>;
 });
 
 // ========== المشتريات ==========
 final purchaseOrdersProvider = FutureProvider<List<PurchaseOrder>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/purchase-orders');
+  final res = await api.get('/api/purchase-orders');
   return (res as List).map((j) => PurchaseOrder.fromJson(j)).toList();
 });
 
 final purchaseOrderProvider = FutureProvider.family<PurchaseOrder, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/purchase-orders/$id');
+  final res = await api.get('/api/purchase-orders/$id');
   return PurchaseOrder.fromJson(res);
 });
 
 final createPurchaseOrderProvider = FutureProvider.family<PurchaseOrder, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/purchase-orders', data);
+  final res = await api.post('/api/purchase-orders', data);
   return PurchaseOrder.fromJson(res);
 });
 
 final updatePurchaseOrderProvider = FutureProvider.family<PurchaseOrder, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/purchase-orders/${args.id}', args.data);
+  final res = await api.put('/api/purchase-orders/${args.id}', args.data);
   return PurchaseOrder.fromJson(res);
 });
 
 final deletePurchaseOrderProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/purchase-orders/$id');
+  await api.delete('/api/purchase-orders/$id');
 });
 
 final confirmPurchaseOrderProvider = FutureProvider.family<PurchaseOrder, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/purchase-orders/$id/confirm', {});
+  final res = await api.put('/api/purchase-orders/$id/confirm', {});
   return PurchaseOrder.fromJson(res);
 });
 
 final receivePurchaseOrderProvider = FutureProvider.family<PurchaseOrder, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/purchase-orders/${args.id}/receive', args.data);
+  final res = await api.put('/api/purchase-orders/${args.id}/receive', args.data);
   return PurchaseOrder.fromJson(res);
 });
 
 // ========== المبيعات ==========
 final quotationsProvider = FutureProvider<List<Quotation>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/quotations');
+  final res = await api.get('/api/quotations');
   return (res as List).map((j) => Quotation.fromJson(j)).toList();
 });
 
 final quotationProvider = FutureProvider.family<Quotation, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/quotations/$id');
+  final res = await api.get('/api/quotations/$id');
   return Quotation.fromJson(res);
 });
 
 final createQuotationProvider = FutureProvider.family<Quotation, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/quotations', data);
+  final res = await api.post('/api/quotations', data);
   return Quotation.fromJson(res);
 });
 
 final updateQuotationProvider = FutureProvider.family<Quotation, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/quotations/${args.id}', args.data);
+  final res = await api.put('/api/quotations/${args.id}', args.data);
   return Quotation.fromJson(res);
 });
 
 final deleteQuotationProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/quotations/$id');
+  await api.delete('/api/quotations/$id');
 });
 
 final convertQuotationToOrderProvider = FutureProvider.family<SalesOrder, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/quotations/$id/convert-to-order', {});
+  final res = await api.post('/api/quotations/$id/convert-to-order', {});
   return SalesOrder.fromJson(res);
 });
 
 final salesOrdersProvider = FutureProvider<List<SalesOrder>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/sales-orders');
+  final res = await api.get('/api/sales-orders');
   return (res as List).map((j) => SalesOrder.fromJson(j)).toList();
 });
 
 final salesOrderProvider = FutureProvider.family<SalesOrder, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/sales-orders/$id');
+  final res = await api.get('/api/sales-orders/$id');
   return SalesOrder.fromJson(res);
 });
 
 final createSalesOrderProvider = FutureProvider.family<SalesOrder, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/sales-orders', data);
+  final res = await api.post('/api/sales-orders', data);
   return SalesOrder.fromJson(res);
 });
 
 final updateSalesOrderProvider = FutureProvider.family<SalesOrder, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/sales-orders/${args.id}', args.data);
+  final res = await api.put('/api/sales-orders/${args.id}', args.data);
   return SalesOrder.fromJson(res);
 });
 
 final deleteSalesOrderProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/sales-orders/$id');
+  await api.delete('/api/sales-orders/$id');
 });
 
 final createSalesInvoiceProvider = FutureProvider.family<SalesOrder, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/sales-orders/$id/invoice', {});
+  final res = await api.post('/api/sales-orders/$id/invoice', {});
   return SalesOrder.fromJson(res);
 });
 
 // ========== المستودعات ==========
 final warehousesProvider = FutureProvider<List<Warehouse>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/warehouses');
+  final res = await api.get('/api/warehouses');
   return (res as List).map((j) => Warehouse.fromJson(j)).toList();
 });
 
 final warehouseProvider = FutureProvider.family<Warehouse, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/warehouses/$id');
+  final res = await api.get('/api/warehouses/$id');
   return Warehouse.fromJson(res);
 });
 
 final createWarehouseProvider = FutureProvider.family<Warehouse, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/warehouses', data);
+  final res = await api.post('/api/warehouses', data);
   return Warehouse.fromJson(res);
 });
 
 final updateWarehouseProvider = FutureProvider.family<Warehouse, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/warehouses/${args.id}', args.data);
+  final res = await api.put('/api/warehouses/${args.id}', args.data);
   return Warehouse.fromJson(res);
 });
 
 final deleteWarehouseProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/warehouses/$id');
+  await api.delete('/api/warehouses/$id');
 });
 
 final inventoryTransfersProvider = FutureProvider<List<InventoryTransfer>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/inventory-transfers');
+  final res = await api.get('/api/inventory-transfers');
   return (res as List).map((j) => InventoryTransfer.fromJson(j)).toList();
 });
 
 final inventoryTransferProvider = FutureProvider.family<InventoryTransfer, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/inventory-transfers/$id');
+  final res = await api.get('/api/inventory-transfers/$id');
   return InventoryTransfer.fromJson(res);
 });
 
 final createInventoryTransferProvider = FutureProvider.family<InventoryTransfer, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/inventory-transfers', data);
+  final res = await api.post('/api/inventory-transfers', data);
   return InventoryTransfer.fromJson(res);
 });
 
 final deleteInventoryTransferProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/inventory-transfers/$id');
+  await api.delete('/api/inventory-transfers/$id');
 });
 
 // ========== الإنتاج ==========
 final bomsProvider = FutureProvider<List<BillOfMaterials>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/manufacturing/boms');
+  final res = await api.get('/api/manufacturing/boms');
   return (res as List).map((j) => BillOfMaterials.fromJson(j)).toList();
 });
 
 final bomProvider = FutureProvider.family<BillOfMaterials, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/manufacturing/boms/$id');
+  final res = await api.get('/api/manufacturing/boms/$id');
   return BillOfMaterials.fromJson(res);
 });
 
 final createBomProvider = FutureProvider.family<BillOfMaterials, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/manufacturing/boms', data);
+  final res = await api.post('/api/manufacturing/boms', data);
   return BillOfMaterials.fromJson(res);
 });
 
 final updateBomProvider = FutureProvider.family<BillOfMaterials, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/manufacturing/boms/${args.id}', args.data);
+  final res = await api.put('/api/manufacturing/boms/${args.id}', args.data);
   return BillOfMaterials.fromJson(res);
 });
 
 final deleteBomProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/manufacturing/boms/$id');
+  await api.delete('/api/manufacturing/boms/$id');
 });
 
 final manufacturingOrdersProvider = FutureProvider<List<ManufacturingOrder>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/manufacturing/orders');
+  final res = await api.get('/api/manufacturing/orders');
   return (res as List).map((j) => ManufacturingOrder.fromJson(j)).toList();
 });
 
 final manufacturingOrderProvider = FutureProvider.family<ManufacturingOrder, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/manufacturing/orders/$id');
+  final res = await api.get('/api/manufacturing/orders/$id');
   return ManufacturingOrder.fromJson(res);
 });
 
 final createManufacturingOrderProvider = FutureProvider.family<ManufacturingOrder, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/manufacturing/orders', data);
+  final res = await api.post('/api/manufacturing/orders', data);
   return ManufacturingOrder.fromJson(res);
 });
 
 final updateManufacturingOrderProvider = FutureProvider.family<ManufacturingOrder, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/manufacturing/orders/${args.id}', args.data);
+  final res = await api.put('/api/manufacturing/orders/${args.id}', args.data);
   return ManufacturingOrder.fromJson(res);
 });
 
 final completeManufacturingOrderProvider = FutureProvider.family<ManufacturingOrder, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/manufacturing/orders/$id/complete', {});
+  final res = await api.post('/api/manufacturing/orders/$id/complete', {});
   return ManufacturingOrder.fromJson(res);
 });
 
 final deleteManufacturingOrderProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/manufacturing/orders/$id');
+  await api.delete('/api/manufacturing/orders/$id');
 });
 
 // ========== CRM ==========
 final crmLeadsProvider = FutureProvider<List<CrmLead>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/crm/leads');
+  final res = await api.get('/api/crm/leads');
   return (res as List).map((j) => CrmLead.fromJson(j)).toList();
 });
 
 final crmLeadProvider = FutureProvider.family<CrmLead, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/crm/leads/$id');
+  final res = await api.get('/api/crm/leads/$id');
   return CrmLead.fromJson(res);
 });
 
 final createCrmLeadProvider = FutureProvider.family<CrmLead, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/crm/leads', data);
+  final res = await api.post('/api/crm/leads', data);
   return CrmLead.fromJson(res);
 });
 
 final updateCrmLeadProvider = FutureProvider.family<CrmLead, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/crm/leads/${args.id}', args.data);
+  final res = await api.put('/api/crm/leads/${args.id}', args.data);
   return CrmLead.fromJson(res);
 });
 
 final convertLeadProvider = FutureProvider.family<CrmLead, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/crm/leads/$id/convert', {});
+  final res = await api.put('/api/crm/leads/$id/convert', {});
   return CrmLead.fromJson(res);
 });
 
 final deleteCrmLeadProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/crm/leads/$id');
+  await api.delete('/api/crm/leads/$id');
 });
 
 // ========== CRM Activities ==========
 final crmActivitiesProvider = FutureProvider.family<List<CrmActivity>, int>((ref, leadId) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/crm/activities?lead_id=$leadId');
+  final res = await api.get('/api/crm/activities?lead_id=$leadId');
   return (res as List).map((j) => CrmActivity.fromJson(j)).toList();
 });
 
 final crmActivityProvider = FutureProvider.family<CrmActivity, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/crm/activities/$id');
+  final res = await api.get('/api/crm/activities/$id');
   return CrmActivity.fromJson(res);
 });
 
 final createCrmActivityProvider = FutureProvider.family<CrmActivity, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/crm/activities', data);
+  final res = await api.post('/api/crm/activities', data);
   return CrmActivity.fromJson(res);
 });
 
 final deleteCrmActivityProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/crm/activities/$id');
+  await api.delete('/api/crm/activities/$id');
 });
 
 // ========== الموارد البشرية ==========
 final employeeContractsProvider = FutureProvider<List<EmployeeContract>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/hr/contracts');
+  final res = await api.get('/api/hr/contracts');
   return (res as List).map((j) => EmployeeContract.fromJson(j)).toList();
 });
 
 final employeeContractProvider = FutureProvider.family<EmployeeContract, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/hr/contracts/$id');
+  final res = await api.get('/api/hr/contracts/$id');
   return EmployeeContract.fromJson(res);
 });
 
 final createEmployeeContractProvider = FutureProvider.family<EmployeeContract, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/hr/contracts', data);
+  final res = await api.post('/api/hr/contracts', data);
   return EmployeeContract.fromJson(res);
 });
 
 final updateEmployeeContractProvider = FutureProvider.family<EmployeeContract, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/hr/contracts/${args.id}', args.data);
+  final res = await api.put('/api/hr/contracts/${args.id}', args.data);
   return EmployeeContract.fromJson(res);
 });
 
 final deleteEmployeeContractProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/hr/contracts/$id');
+  await api.delete('/api/hr/contracts/$id');
 });
 
 final leaveRequestsProvider = FutureProvider<List<LeaveRequest>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/hr/leave-requests');
+  final res = await api.get('/api/hr/leave-requests');
   return (res as List).map((j) => LeaveRequest.fromJson(j)).toList();
 });
 
 final leaveRequestProvider = FutureProvider.family<LeaveRequest, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/hr/leave-requests/$id');
+  final res = await api.get('/api/hr/leave-requests/$id');
   return LeaveRequest.fromJson(res);
 });
 
 final createLeaveRequestProvider = FutureProvider.family<LeaveRequest, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/hr/leave-requests', data);
+  final res = await api.post('/api/hr/leave-requests', data);
   return LeaveRequest.fromJson(res);
 });
 
 final approveLeaveRequestProvider = FutureProvider.family<LeaveRequest, ApproveArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/hr/leave-requests/${args.id}/approve', {'approved_by': args.approvedBy});
+  final res = await api.put('/api/hr/leave-requests/${args.id}/approve', {'approved_by': args.approvedBy});
   return LeaveRequest.fromJson(res);
 });
 
 final rejectLeaveRequestProvider = FutureProvider.family<LeaveRequest, ApproveArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/hr/leave-requests/${args.id}/reject', {'approved_by': args.approvedBy});
+  final res = await api.put('/api/hr/leave-requests/${args.id}/reject', {'approved_by': args.approvedBy});
   return LeaveRequest.fromJson(res);
 });
 
 final deleteLeaveRequestProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/hr/leave-requests/$id');
+  await api.delete('/api/hr/leave-requests/$id');
 });
 
 // ========== Performance Reviews ==========
 final performanceReviewsProvider = FutureProvider<List<PerformanceReview>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/hr/performance-reviews');
+  final res = await api.get('/api/hr/performance-reviews');
   return (res as List).map((j) => PerformanceReview.fromJson(j)).toList();
 });
 
 final performanceReviewProvider = FutureProvider.family<PerformanceReview, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/hr/performance-reviews/$id');
+  final res = await api.get('/api/hr/performance-reviews/$id');
   return PerformanceReview.fromJson(res);
 });
 
 final createPerformanceReviewProvider = FutureProvider.family<PerformanceReview, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/hr/performance-reviews', data);
+  final res = await api.post('/api/hr/performance-reviews', data);
   return PerformanceReview.fromJson(res);
 });
 
 final deletePerformanceReviewProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/hr/performance-reviews/$id');
+  await api.delete('/api/hr/performance-reviews/$id');
 });
 
 // ========== الأصول الثابتة ==========
 final fixedAssetsProvider = FutureProvider<List<FixedAsset>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/assets');
+  final res = await api.get('/api/assets');
   return (res as List).map((j) => FixedAsset.fromJson(j)).toList();
 });
 
 final fixedAssetProvider = FutureProvider.family<FixedAsset, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/assets/$id');
+  final res = await api.get('/api/assets/$id');
   return FixedAsset.fromJson(res);
 });
 
 final createFixedAssetProvider = FutureProvider.family<FixedAsset, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/assets', data);
+  final res = await api.post('/api/assets', data);
   return FixedAsset.fromJson(res);
 });
 
 final updateFixedAssetProvider = FutureProvider.family<FixedAsset, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/assets/${args.id}', args.data);
+  final res = await api.put('/api/assets/${args.id}', args.data);
   return FixedAsset.fromJson(res);
 });
 
 final deleteFixedAssetProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/assets/$id');
+  await api.delete('/api/assets/$id');
 });
 
 final depreciateFixedAssetProvider = FutureProvider.family<FixedAsset, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/assets/depreciate', {'asset_id': id});
+  final res = await api.post('/api/assets/depreciate', {'asset_id': id});
   return FixedAsset.fromJson(res);
 });
 
 // ========== عقود الصيانة ==========
 final maintenanceContractsProvider = FutureProvider<List<MaintenanceContract>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/maintenance/contracts');
+  final res = await api.get('/api/maintenance/contracts');
   return (res as List).map((j) => MaintenanceContract.fromJson(j)).toList();
 });
 
 final maintenanceContractProvider = FutureProvider.family<MaintenanceContract, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/maintenance/contracts/$id');
+  final res = await api.get('/api/maintenance/contracts/$id');
   return MaintenanceContract.fromJson(res);
 });
 
 final createMaintenanceContractProvider = FutureProvider.family<MaintenanceContract, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.post('/maintenance/contracts', data);
+  final res = await api.post('/api/maintenance/contracts', data);
   return MaintenanceContract.fromJson(res);
 });
 
 final updateMaintenanceContractProvider = FutureProvider.family<MaintenanceContract, UpdateArgs>((ref, args) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.put('/maintenance/contracts/${args.id}', args.data);
+  final res = await api.put('/api/maintenance/contracts/${args.id}', args.data);
   return MaintenanceContract.fromJson(res);
 });
 
 final deleteMaintenanceContractProvider = FutureProvider.family<void, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
-  await api.delete('/maintenance/contracts/$id');
+  await api.delete('/api/maintenance/contracts/$id');
 });
 
 final dueMaintenanceContractsProvider = FutureProvider<List<MaintenanceContract>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final res = await api.get('/maintenance/contracts/due');
+  final res = await api.get('/api/maintenance/contracts/due');
   return (res as List).map((j) => MaintenanceContract.fromJson(j)).toList();
 });

@@ -65,7 +65,10 @@ class DatabaseConnection {
 
   /// Execute a query and return results (for SELECT queries)
   Future<Result> query(String sql, {Map<String, dynamic>? substitutionValues}) async {
-    return await _pool.execute(sql, parameters: substitutionValues);
+    if (substitutionValues != null && substitutionValues.isNotEmpty) {
+      return await _pool.execute(Sql.named(sql), parameters: substitutionValues);
+    }
+    return await _pool.execute(sql);
   }
 
   /// Run a block of code inside a database transaction.
@@ -874,6 +877,9 @@ CREATE TABLE IF NOT EXISTS manufacturing_orders (
     order_date DATE NOT NULL,
     quantity DECIMAL(15,2) NOT NULL DEFAULT 1,
     status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
+    start_date DATE,
+    expected_completion_date DATE,
+    actual_completion_date DATE,
     notes TEXT,
     created_by UUID REFERENCES users(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../domain/entities/maintenance_contract.dart';
 import '../../domain/repositories/maintenance_contract_repository.dart';
 import '../database/database_connection.dart';
@@ -11,9 +12,10 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   Future<MaintenanceContract> create(MaintenanceContract contract) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''INSERT INTO maintenance_contracts (asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at)
-           VALUES (@assetId, @contractNumber, @startDate, @endDate, @provider, @cost, @terms, @status, @createdAt)
-           RETURNING id, created_at''',
+        Sql.named('''
+          INSERT INTO maintenance_contracts (asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at)
+          VALUES (@assetId, @contractNumber, @startDate, @endDate, @provider, @cost, @terms, @status, @createdAt)
+          RETURNING id, created_at'''),
         parameters: {
           'assetId': contract.assetId,
           'contractNumber': contract.contractNumber,
@@ -38,8 +40,8 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   Future<MaintenanceContract?> findById(int id) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
-           FROM maintenance_contracts WHERE id = @id''',
+        Sql.named('''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
+           FROM maintenance_contracts WHERE id = @id'''),
         parameters: {'id': id},
       );
       if (result.isEmpty) return null;
@@ -51,8 +53,8 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   Future<List<MaintenanceContract>> findByAssetId(int assetId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
-           FROM maintenance_contracts WHERE asset_id = @assetId ORDER BY start_date DESC''',
+        Sql.named('''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
+           FROM maintenance_contracts WHERE asset_id = @assetId ORDER BY start_date DESC'''),
         parameters: {'assetId': assetId},
       );
       return result.map(_mapRowToContract).toList();
@@ -63,8 +65,8 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   Future<List<MaintenanceContract>> findByCustomerId(String customerId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
-           FROM maintenance_contracts WHERE customer_id = @customerId ORDER BY start_date DESC''',
+        Sql.named('''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
+           FROM maintenance_contracts WHERE customer_id = @customerId ORDER BY start_date DESC'''),
         parameters: {'customerId': customerId},
       );
       return result.map(_mapRowToContract).toList();
@@ -75,8 +77,8 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   Future<List<MaintenanceContract>> findByVehicleId(String vehicleId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
-           FROM maintenance_contracts WHERE vehicle_id = @vehicleId ORDER BY start_date DESC''',
+        Sql.named('''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
+           FROM maintenance_contracts WHERE vehicle_id = @vehicleId ORDER BY start_date DESC'''),
         parameters: {'vehicleId': vehicleId},
       );
       return result.map(_mapRowToContract).toList();
@@ -100,8 +102,8 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   Future<List<MaintenanceContract>> findByStatus(String status) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
-           FROM maintenance_contracts WHERE status = @status ORDER BY start_date DESC''',
+        Sql.named('''SELECT id, asset_id, contract_number, start_date, end_date, provider, cost, terms, status, created_at, updated_at
+           FROM maintenance_contracts WHERE status = @status ORDER BY start_date DESC'''),
         parameters: {'status': status},
       );
       return result.map(_mapRowToContract).toList();
@@ -123,7 +125,7 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   Future<MaintenanceContract> update(MaintenanceContract contract) async {
     return await _db.runInTransaction((session) async {
       await session.execute(
-        '''UPDATE maintenance_contracts SET
+        Sql.named('''UPDATE maintenance_contracts SET
            asset_id = @assetId,
            contract_number = @contractNumber,
            start_date = @startDate,
@@ -133,7 +135,7 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
            terms = @terms,
            status = @status,
            updated_at = NOW()
-           WHERE id = @id''',
+           WHERE id = @id'''),
         parameters: {
           'id': contract.id,
           'assetId': contract.assetId,
@@ -153,7 +155,7 @@ class MaintenanceContractRepositoryImpl implements MaintenanceContractRepository
   @override
   Future<void> delete(int id) async {
     return await _db.runInTransaction((session) async {
-      await session.execute('DELETE FROM maintenance_contracts WHERE id = @id', parameters: {'id': id});
+      await session.execute(Sql.named('DELETE FROM maintenance_contracts WHERE id = @id'), parameters: {'id': id});
     });
   }
 

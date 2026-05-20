@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../domain/entities/employee_contract.dart';
 import '../../domain/repositories/hr_repository.dart';
 import '../database/database_connection.dart';
@@ -9,18 +10,21 @@ class EmployeeContractRepositoryImpl implements EmployeeContractRepository {
 
   @override
   Future<EmployeeContract> create(EmployeeContract contract) async {
-    final result = await _db.pool.execute('''
-      INSERT INTO employee_contracts (user_id, contract_type, start_date, end_date, base_salary, benefits)
-      VALUES (\$1, \$2, \$3, \$4, \$5, \$6)
-      RETURNING id, created_at, updated_at
-    ''', parameters: {
-      'user_id': contract.userId,
-      'contract_type': contract.contractType,
-      'start_date': contract.startDate,
-      'end_date': contract.endDate,
-      'base_salary': contract.baseSalary,
-      'benefits': contract.benefits,
-    });
+    final result = await _db.pool.execute(
+      Sql.named('''
+        INSERT INTO employee_contracts (user_id, contract_type, start_date, end_date, base_salary, benefits)
+        VALUES (@userId, @contractType, @startDate, @endDate, @baseSalary, @benefits)
+        RETURNING id, created_at, updated_at
+      '''),
+      parameters: {
+        'userId': contract.userId,
+        'contractType': contract.contractType,
+        'startDate': contract.startDate,
+        'endDate': contract.endDate,
+        'baseSalary': contract.baseSalary,
+        'benefits': contract.benefits,
+      },
+    );
 
     final row = result.first;
     final id = row[0] as int;
@@ -36,9 +40,10 @@ class EmployeeContractRepositoryImpl implements EmployeeContractRepository {
 
   @override
   Future<EmployeeContract?> findById(int id) async {
-    final result = await _db.pool.execute('''
-      SELECT * FROM employee_contracts WHERE id = \$1
-    ''', parameters: {'id': id});
+    final result = await _db.pool.execute(
+      Sql.named('SELECT * FROM employee_contracts WHERE id = @id'),
+      parameters: {'id': id},
+    );
 
     if (result.isEmpty) return null;
 
@@ -48,47 +53,52 @@ class EmployeeContractRepositoryImpl implements EmployeeContractRepository {
 
   @override
   Future<List<EmployeeContract>> findByUserId(String userId) async {
-    final result = await _db.pool.execute('''
-      SELECT * FROM employee_contracts WHERE user_id = \$1 ORDER BY start_date DESC
-    ''', parameters: {'user_id': userId});
+    final result = await _db.pool.execute(
+      Sql.named('SELECT * FROM employee_contracts WHERE user_id = @userId ORDER BY start_date DESC'),
+      parameters: {'userId': userId},
+    );
 
     return result.map((row) => _mapRowToContract(row)).toList();
   }
 
   @override
   Future<List<EmployeeContract>> findAll() async {
-    final result = await _db.pool.execute('''
-      SELECT * FROM employee_contracts ORDER BY start_date DESC
-    ''');
+    final result = await _db.pool.execute(
+      'SELECT * FROM employee_contracts ORDER BY start_date DESC',
+    );
 
     return result.map((row) => _mapRowToContract(row)).toList();
   }
 
   @override
   Future<EmployeeContract> update(EmployeeContract contract) async {
-    await _db.pool.execute('''
-      UPDATE employee_contracts
-      SET user_id = \$1, contract_type = \$2, start_date = \$3, end_date = \$4,
-          base_salary = \$5, benefits = \$6, updated_at = NOW()
-      WHERE id = \$7
-    ''', parameters: {
-      'user_id': contract.userId,
-      'contract_type': contract.contractType,
-      'start_date': contract.startDate,
-      'end_date': contract.endDate,
-      'base_salary': contract.baseSalary,
-      'benefits': contract.benefits,
-      'id': contract.id,
-    });
+    await _db.pool.execute(
+      Sql.named('''
+        UPDATE employee_contracts
+        SET user_id = @userId, contract_type = @contractType, start_date = @startDate, end_date = @endDate,
+            base_salary = @baseSalary, benefits = @benefits, updated_at = NOW()
+        WHERE id = @id
+      '''),
+      parameters: {
+        'userId': contract.userId,
+        'contractType': contract.contractType,
+        'startDate': contract.startDate,
+        'endDate': contract.endDate,
+        'baseSalary': contract.baseSalary,
+        'benefits': contract.benefits,
+        'id': contract.id,
+      },
+    );
 
     return contract.copyWith(updatedAt: DateTime.now());
   }
 
   @override
   Future<void> delete(int id) async {
-    await _db.pool.execute('''
-      DELETE FROM employee_contracts WHERE id = \$1
-    ''', parameters: {'id': id});
+    await _db.pool.execute(
+      Sql.named('DELETE FROM employee_contracts WHERE id = @id'),
+      parameters: {'id': id},
+    );
   }
 
   EmployeeContract _mapRowToContract(List<dynamic> row) {

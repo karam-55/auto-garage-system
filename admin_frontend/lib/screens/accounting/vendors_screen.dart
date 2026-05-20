@@ -207,7 +207,7 @@ class _VendorsScreenState extends ConsumerState<VendorsScreen> {
 
     try {
       if (isEditing) {
-        await widget.apiService.put('/vendors/${vendor!['id']}', {
+        await widget.apiService.put('/api/vendors/${vendor!['id']}', {
           'name': nameController.text,
           'phone': phoneController.text,
           'address': addressController.text,

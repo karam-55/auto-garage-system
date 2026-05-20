@@ -11,13 +11,13 @@ final fiscalPeriodsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) as
 // Vendors
 final vendorsProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/vendors');
+  final response = await api.get('/api/vendors');
   return response as List<dynamic>;
 });
 
 final createVendorProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, data) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.post('/vendors', data);
+  final response = await api.post('/api/vendors', data);
   return response;
 });
 
@@ -25,13 +25,14 @@ final updateVendorProvider = FutureProvider.autoDispose.family<Map<String, dynam
   final api = ref.read(apiServiceProvider);
   final id = params['id'] as int;
   final data = params['data'] as Map<String, dynamic>;
-  final response = await api.put('/vendors/$id', data);
+  final response = await api.put('/api/vendors/$id', data);
   return response;
 });
 
-final deleteVendorProvider = FutureProvider.autoDispose.family<void, int>((ref, id) async {
+final deleteVendorProvider = FutureProvider.autoDispose.family<bool, int>((ref, id) async {
   final api = ref.read(apiServiceProvider);
   await api.delete('/api/vendors/$id');
+  return true;
 });
 
 // Purchase Invoices

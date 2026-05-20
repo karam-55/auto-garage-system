@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../domain/entities/leave_request.dart';
 import '../../domain/repositories/leave_request_repository.dart';
 import '../database/database_connection.dart';
@@ -11,9 +12,10 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
   Future<LeaveRequest> create(LeaveRequest request) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, reason, status, created_at)
-           VALUES (@userId, @leaveType, @startDate, @endDate, @reason, @status, @createdAt)
-           RETURNING id, created_at''',
+        Sql.named('''
+          INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, reason, status, created_at)
+          VALUES (@userId, @leaveType, @startDate, @endDate, @reason, @status, @createdAt)
+          RETURNING id, created_at'''),
         parameters: {
           'userId': request.userId,
           'leaveType': request.leaveType,
@@ -36,8 +38,8 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
   Future<LeaveRequest?> findById(int id) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, user_id, leave_type, start_date, end_date, reason, status, approved_by, approved_at, rejection_reason, created_at, updated_at
-           FROM leave_requests WHERE id = @id''',
+        Sql.named('''SELECT id, user_id, leave_type, start_date, end_date, reason, status, approved_by, approved_at, rejection_reason, created_at, updated_at
+           FROM leave_requests WHERE id = @id'''),
         parameters: {'id': id},
       );
       if (result.isEmpty) return null;
@@ -49,8 +51,8 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
   Future<List<LeaveRequest>> findByUserId(String userId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, user_id, leave_type, start_date, end_date, reason, status, approved_by, approved_at, rejection_reason, created_at, updated_at
-           FROM leave_requests WHERE user_id = @userId ORDER BY created_at DESC''',
+        Sql.named('''SELECT id, user_id, leave_type, start_date, end_date, reason, status, approved_by, approved_at, rejection_reason, created_at, updated_at
+           FROM leave_requests WHERE user_id = @userId ORDER BY created_at DESC'''),
         parameters: {'userId': userId},
       );
       return result.map(_mapRowToRequest).toList();
@@ -61,8 +63,8 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
   Future<List<LeaveRequest>> findByStatus(String status) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, user_id, leave_type, start_date, end_date, reason, status, approved_by, approved_at, rejection_reason, created_at, updated_at
-           FROM leave_requests WHERE status = @status ORDER BY created_at DESC''',
+        Sql.named('''SELECT id, user_id, leave_type, start_date, end_date, reason, status, approved_by, approved_at, rejection_reason, created_at, updated_at
+           FROM leave_requests WHERE status = @status ORDER BY created_at DESC'''),
         parameters: {'status': status},
       );
       return result.map(_mapRowToRequest).toList();
@@ -84,7 +86,7 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
   Future<LeaveRequest> update(LeaveRequest request) async {
     return await _db.runInTransaction((session) async {
       await session.execute(
-        '''UPDATE leave_requests SET
+        Sql.named('''UPDATE leave_requests SET
            user_id = @userId,
            leave_type = @leaveType,
            start_date = @startDate,
@@ -95,7 +97,7 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
            approved_at = @approvedAt,
            rejection_reason = @rejectionReason,
            updated_at = NOW()
-           WHERE id = @id''',
+           WHERE id = @id'''),
         parameters: {
           'id': request.id,
           'userId': request.userId,
@@ -116,7 +118,7 @@ class LeaveRequestRepositoryImpl implements LeaveRequestRepository {
   @override
   Future<void> delete(int id) async {
     return await _db.runInTransaction((session) async {
-      await session.execute('DELETE FROM leave_requests WHERE id = @id', parameters: {'id': id});
+      await session.execute(Sql.named('DELETE FROM leave_requests WHERE id = @id'), parameters: {'id': id});
     });
   }
 

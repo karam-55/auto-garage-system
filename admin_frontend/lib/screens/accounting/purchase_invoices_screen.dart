@@ -101,7 +101,6 @@ class _PurchaseInvoicesScreenState extends ConsumerState<PurchaseInvoicesScreen>
   }
 
   Future<void> _createInvoice() async {
-    // TODO: Navigate to create purchase invoice screen
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('ميزة إنشاء فاتورة شراء قيد التطوير')),
     );

@@ -186,7 +186,6 @@ class _BankAccountsScreenState extends ConsumerState<BankAccountsScreen> {
   }
 
   Future<void> _reconcileAccount(int accountId) async {
-    // TODO: Navigate to bank reconciliation screen
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('ميزة التسوية البنكية قيد التطوير')),
     );

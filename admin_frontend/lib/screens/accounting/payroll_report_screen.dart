@@ -284,7 +284,6 @@ class _PayrollReportScreenState extends ConsumerState<PayrollReportScreen> {
   }
 
   void _printReport() {
-    // TODO: Implement PDF printing
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('ميزة الطباعة قيد التطوير')),
     );

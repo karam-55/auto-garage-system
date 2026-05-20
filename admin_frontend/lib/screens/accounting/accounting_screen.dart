@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/services/api_service.dart';
+import '../../core/providers/accounting_providers.dart';
+import 'trial_balance_screen.dart';
+import 'profit_loss_screen.dart';
+import 'balance_sheet_screen.dart';
+import 'general_ledger_screen.dart';
+import 'cash_flow_screen.dart';
 
 class AccountingScreen extends ConsumerWidget {
   const AccountingScreen({super.key});
@@ -63,35 +70,35 @@ class ReportsTab extends ConsumerWidget {
           'Trial Balance',
           Icons.balance,
           Colors.blue,
-          () => _navigateToReport(context, 'trial_balance'),
+          () => _navigateToReport(context, ref, 'trial_balance'),
         ),
         _buildReportCard(
           'قائمة الدخل',
           'Profit & Loss',
           Icons.trending_up,
           Colors.green,
-          () => _navigateToReport(context, 'profit_loss'),
+          () => _navigateToReport(context, ref, 'profit_loss'),
         ),
         _buildReportCard(
           'الميزانية العمومية',
           'Balance Sheet',
           Icons.account_balance,
           Colors.purple,
-          () => _navigateToReport(context, 'balance_sheet'),
+          () => _navigateToReport(context, ref, 'balance_sheet'),
         ),
         _buildReportCard(
           'دفتر الأستاذ العام',
           'General Ledger',
           Icons.book,
           Colors.orange,
-          () => _navigateToReport(context, 'general_ledger'),
+          () => _navigateToReport(context, ref, 'general_ledger'),
         ),
         _buildReportCard(
           'بيان التدفق النقدي',
           'Cash Flow Statement',
           Icons.payments,
           Colors.red,
-          () => _navigateToReport(context, 'cash_flow'),
+          () => _navigateToReport(context, ref, 'cash_flow'),
         ),
       ],
     );
@@ -119,12 +126,32 @@ class ReportsTab extends ConsumerWidget {
     );
   }
 
-  void _navigateToReport(BuildContext context, String reportType) {
+  void _navigateToReport(BuildContext context, WidgetRef ref, String reportType) {
+    final apiService = ref.read(apiServiceProvider);
+    Widget screen;
+    switch (reportType) {
+      case 'trial_balance':
+        screen = TrialBalanceScreen(apiService: apiService);
+        break;
+      case 'profit_loss':
+        screen = ProfitLossScreen(apiService: apiService);
+        break;
+      case 'balance_sheet':
+        screen = BalanceSheetScreen(apiService: apiService);
+        break;
+      case 'general_ledger':
+        screen = GeneralLedgerScreen(apiService: apiService);
+        break;
+      case 'cash_flow':
+        screen = const CashFlowScreen();
+        break;
+      default:
+        screen = AccountingReportScreen(reportType: reportType);
+    }
+    
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => AccountingReportScreen(reportType: reportType),
-      ),
+      MaterialPageRoute(builder: (context) => screen),
     );
   }
 }

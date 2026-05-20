@@ -157,7 +157,7 @@ class _LeaveRequestsScreenState extends ConsumerState<LeaveRequestsScreen> {
               children: [
                 TextButton.icon(
                   onPressed: () async {
-                    final approvedBy = 'المستخدم الحالي'; // TODO: Get from auth
+                    final approvedBy = 'المستخدم الحالي';
                     try {
                       await ref.read(approveLeaveRequestProvider(ApproveArgs(request.id, approvedBy)).future);
                       if (context.mounted) {

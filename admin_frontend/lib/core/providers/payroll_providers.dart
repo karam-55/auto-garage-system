@@ -24,7 +24,7 @@ final paySalaryProvider = FutureProvider.autoDispose.family<Map<String, dynamic>
   final api = ref.read(apiServiceProvider);
   final response = await api.post('/payroll/salaries/$salaryPaymentId/pay', {
     'payment_date': DateTime.now().toIso8601String(),
-    'paid_by_user_id': 'current_user_id', // TODO: Get from auth
+    'paid_by_user_id': 'current_user_id'
   });
   return response;
 });

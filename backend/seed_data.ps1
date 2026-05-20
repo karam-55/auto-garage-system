@@ -69,7 +69,7 @@ function Add-Data {
 }
 
 # Main script
-Write-Host "Starting data seeding..."
+Write-Host "Starting accounting data seeding..."
 
 # Wait a bit to avoid rate limiting
 Start-Sleep -Seconds 5
@@ -83,36 +83,8 @@ if (-not $token) {
 
 Write-Host "Login successful. Token: $token"
 
-# Get existing customers
-Write-Host "Getting existing customers..."
-$customersData = Get-Data -Endpoint "/api/customers" -Token $token
-if ($customersData -and $customersData.data) {
-    $customerIds = $customersData.data | Select-Object -First 5 | ForEach-Object { $_.id }
-    Write-Host "Found $($customerIds.Count) customers"
-    
-    # Add vehicles
-    Write-Host "Adding vehicles..."
-    if ($customerIds.Count -ge 3) {
-        $vehicles = @(
-            @{ customerId = $customerIds[0]; make = "Toyota"; model = "Camry"; year = 2020; licensePlate = "123456"; vin = "VIN001" },
-            @{ customerId = $customerIds[1]; make = "Kia"; model = "Sportage"; year = 2021; licensePlate = "234567"; vin = "VIN002" },
-            @{ customerId = $customerIds[2]; make = "Hyundai"; model = "Elantra"; year = 2019; licensePlate = "345678"; vin = "VIN003" },
-            @{ customerId = $customerIds[3]; make = "Chevrolet"; model = "Cruze"; year = 2022; licensePlate = "456789"; vin = "VIN004" },
-            @{ customerId = $customerIds[4]; make = "Nissan"; model = "Sunny"; year = 2018; licensePlate = "567890"; vin = "VIN005" }
-        )
-        
-        foreach ($vehicle in $vehicles) {
-            $result = Add-Data -Endpoint "/api/vehicles" -Token $token -Data $vehicle
-            if ($result) {
-                Write-Host "Added vehicle: $($vehicle.make) $($vehicle.model)"
-            }
-        }
-    } else {
-        Write-Host "Not enough customers to add vehicles"
-    }
-} else {
-    Write-Host "Failed to get customers"
-}
+# Skip customers and vehicles - they are created automatically
+Write-Host "Skipping customers and vehicles (created automatically)"
 
 # Add accounts (Chart of Accounts)
 Write-Host "Adding accounts (Chart of Accounts)..."
@@ -160,6 +132,9 @@ foreach ($vendor in $vendors) {
     }
 }
 
+# Skip inventory - it's created automatically
+Write-Host "Skipping inventory (created automatically)"
+
 # Add expenses
 Write-Host "Adding expenses..."
 $expenses = @(
@@ -173,56 +148,6 @@ foreach ($expense in $expenses) {
     if ($result) {
         Write-Host "Added expense: $($expense.description)"
     }
-}
-
-# Add inventory items
-Write-Host "Adding inventory items..."
-$inventoryItems = @(
-    @{ name = "Engine Oil 5W-30"; category = "Oil"; unit = "Liter"; lowStockThreshold = 10 },
-    @{ name = "Brake Pads Front"; category = "Brakes"; unit = "Pair"; lowStockThreshold = 5 },
-    @{ name = "Brake Pads Rear"; category = "Brakes"; unit = "Pair"; lowStockThreshold = 5 },
-    @{ name = "Oil Filter"; category = "Filters"; unit = "Piece"; lowStockThreshold = 15 },
-    @{ name = "Air Filter"; category = "Filters"; unit = "Piece"; lowStockThreshold = 10 },
-    @{ name = "Fuel Filter"; category = "Filters"; unit = "Piece"; lowStockThreshold = 10 },
-    @{ name = "Spark Plug"; category = "Ignition"; unit = "Piece"; lowStockThreshold = 20 },
-    @{ name = "Battery 12V"; category = "Electrical"; unit = "Piece"; lowStockThreshold = 5 },
-    @{ name = "Coolant"; category = "Fluids"; unit = "Liter"; lowStockThreshold = 10 },
-    @{ name = "Transmission Oil"; category = "Oil"; unit = "Liter"; lowStockThreshold = 8 }
-)
-
-$itemIds = @()
-foreach ($item in $inventoryItems) {
-    $result = Add-Data -Endpoint "/api/inventory/items" -Token $token -Data $item
-    if ($result) {
-        Write-Host "Added inventory item: $($item.name)"
-        $itemIds += $result.id
-    }
-}
-
-# Add inventory variants
-Write-Host "Adding inventory variants..."
-if ($itemIds.Count -ge 10) {
-    $variants = @(
-        @{ itemId = $itemIds[0]; variantType = "Original"; quantity = 20; costPrice = 45000; sellingPrice = 60000; supplier = "Vendor C - Oils" },
-        @{ itemId = $itemIds[1]; variantType = "Original"; quantity = 10; costPrice = 80000; sellingPrice = 120000; supplier = "Vendor A - Original Parts" },
-        @{ itemId = $itemIds[2]; variantType = "Original"; quantity = 10; costPrice = 80000; sellingPrice = 120000; supplier = "Vendor A - Original Parts" },
-        @{ itemId = $itemIds[3]; variantType = "Original"; quantity = 30; costPrice = 15000; sellingPrice = 25000; supplier = "Vendor A - Original Parts" },
-        @{ itemId = $itemIds[4]; variantType = "Original"; quantity = 20; costPrice = 12000; sellingPrice = 20000; supplier = "Vendor B - Commercial Parts" },
-        @{ itemId = $itemIds[5]; variantType = "Original"; quantity = 20; costPrice = 18000; sellingPrice = 30000; supplier = "Vendor B - Commercial Parts" },
-        @{ itemId = $itemIds[6]; variantType = "Original"; quantity = 50; costPrice = 5000; sellingPrice = 10000; supplier = "Vendor B - Commercial Parts" },
-        @{ itemId = $itemIds[7]; variantType = "Original"; quantity = 8; costPrice = 200000; sellingPrice = 280000; supplier = "Vendor A - Original Parts" },
-        @{ itemId = $itemIds[8]; variantType = "Original"; quantity = 15; costPrice = 25000; sellingPrice = 40000; supplier = "Vendor C - Oils" },
-        @{ itemId = $itemIds[9]; variantType = "Original"; quantity = 12; costPrice = 35000; sellingPrice = 50000; supplier = "Vendor C - Oils" }
-    )
-    
-    foreach ($variant in $variants) {
-        $result = Add-Data -Endpoint "/api/inventory/variants" -Token $token -Data $variant
-        if ($result) {
-            Write-Host "Added inventory variant for item: $($variant.itemId)"
-        }
-    }
-} else {
-    Write-Host "Not enough inventory items to add variants"
 }
 
 # Add fiscal periods

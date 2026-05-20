@@ -90,25 +90,25 @@ Write-Host "Skipping customers and vehicles (created automatically)"
 # Add accounts (Chart of Accounts)
 Write-Host "Adding accounts (Chart of Accounts)..."
 $accounts = @(
-    @{ code = "1000"; name_ar = "Cash"; name_en = "Cash"; parent_id = $null; account_type = "asset"; is_active = $true },
-    @{ code = "1100"; name_ar = "Bank"; name_en = "Bank"; parent_id = $null; account_type = "asset"; is_active = $true },
-    @{ code = "1200"; name_ar = "Accounts Receivable"; name_en = "Accounts Receivable"; parent_id = $null; account_type = "asset"; is_active = $true },
-    @{ code = "1300"; name_ar = "Inventory"; name_en = "Inventory"; parent_id = $null; account_type = "asset"; is_active = $true },
-    @{ code = "1400"; name_ar = "Fixed Assets"; name_en = "Fixed Assets"; parent_id = $null; account_type = "asset"; is_active = $true },
-    @{ code = "2000"; name_ar = "Accounts Payable"; name_en = "Accounts Payable"; parent_id = $null; account_type = "liability"; is_active = $true },
-    @{ code = "2100"; name_ar = "Accrued Salaries"; name_en = "Accrued Salaries"; parent_id = $null; account_type = "liability"; is_active = $true },
-    @{ code = "2200"; name_ar = "Sales Tax Payable"; name_en = "Sales Tax Payable"; parent_id = $null; account_type = "liability"; is_active = $true },
-    @{ code = "3000"; name_ar = "Capital"; name_en = "Capital"; parent_id = $null; account_type = "equity"; is_active = $true },
-    @{ code = "3100"; name_ar = "Retained Earnings"; name_en = "Retained Earnings"; parent_id = $null; account_type = "equity"; is_active = $true },
-    @{ code = "4000"; name_ar = "Service Revenue"; name_en = "Service Revenue"; parent_id = $null; account_type = "revenue"; is_active = $true },
-    @{ code = "4100"; name_ar = "Parts Revenue"; name_en = "Parts Revenue"; parent_id = $null; account_type = "revenue"; is_active = $true },
-    @{ code = "4200"; name_ar = "Other Revenue"; name_en = "Other Revenue"; parent_id = $null; account_type = "revenue"; is_active = $true },
-    @{ code = "5000"; name_ar = "COGS - Parts"; name_en = "COGS - Parts"; parent_id = $null; account_type = "cogs"; is_active = $true },
-    @{ code = "5100"; name_ar = "COGS - Services"; name_en = "COGS - Services"; parent_id = $null; account_type = "cogs"; is_active = $true },
-    @{ code = "5200"; name_ar = "Salaries Expense"; name_en = "Salaries Expense"; parent_id = $null; account_type = "expense"; is_active = $true },
-    @{ code = "5300"; name_ar = "Rent Expense"; name_en = "Rent Expense"; parent_id = $null; account_type = "expense"; is_active = $true },
-    @{ code = "5400"; name_ar = "Utilities Expense"; name_en = "Utilities Expense"; parent_id = $null; account_type = "expense"; is_active = $true },
-    @{ code = "5500"; name_ar = "Other Expenses"; name_en = "Other Expenses"; parent_id = $null; account_type = "expense"; is_active = $true }
+    @{ code = "1000"; name_ar = "Cash"; name_en = "Cash"; account_type = "asset"; is_active = $true },
+    @{ code = "1100"; name_ar = "Bank"; name_en = "Bank"; account_type = "asset"; is_active = $true },
+    @{ code = "1200"; name_ar = "Accounts Receivable"; name_en = "Accounts Receivable"; account_type = "asset"; is_active = $true },
+    @{ code = "1300"; name_ar = "Inventory"; name_en = "Inventory"; account_type = "asset"; is_active = $true },
+    @{ code = "1400"; name_ar = "Fixed Assets"; name_en = "Fixed Assets"; account_type = "asset"; is_active = $true },
+    @{ code = "2000"; name_ar = "Accounts Payable"; name_en = "Accounts Payable"; account_type = "liability"; is_active = $true },
+    @{ code = "2100"; name_ar = "Accrued Salaries"; name_en = "Accrued Salaries"; account_type = "liability"; is_active = $true },
+    @{ code = "2200"; name_ar = "Sales Tax Payable"; name_en = "Sales Tax Payable"; account_type = "liability"; is_active = $true },
+    @{ code = "3000"; name_ar = "Capital"; name_en = "Capital"; account_type = "equity"; is_active = $true },
+    @{ code = "3100"; name_ar = "Retained Earnings"; name_en = "Retained Earnings"; account_type = "equity"; is_active = $true },
+    @{ code = "4000"; name_ar = "Service Revenue"; name_en = "Service Revenue"; account_type = "revenue"; is_active = $true },
+    @{ code = "4100"; name_ar = "Parts Revenue"; name_en = "Parts Revenue"; account_type = "revenue"; is_active = $true },
+    @{ code = "4200"; name_ar = "Other Revenue"; name_en = "Other Revenue"; account_type = "revenue"; is_active = $true },
+    @{ code = "5000"; name_ar = "COGS - Parts"; name_en = "COGS - Parts"; account_type = "cogs"; is_active = $true },
+    @{ code = "5100"; name_ar = "COGS - Services"; name_en = "COGS - Services"; account_type = "cogs"; is_active = $true },
+    @{ code = "5200"; name_ar = "Salaries Expense"; name_en = "Salaries Expense"; account_type = "expense"; is_active = $true },
+    @{ code = "5300"; name_ar = "Rent Expense"; name_en = "Rent Expense"; account_type = "expense"; is_active = $true },
+    @{ code = "5400"; name_ar = "Utilities Expense"; name_en = "Utilities Expense"; account_type = "expense"; is_active = $true },
+    @{ code = "5500"; name_ar = "Other Expenses"; name_en = "Other Expenses"; account_type = "expense"; is_active = $true }
 )
 
 foreach ($account in $accounts) {

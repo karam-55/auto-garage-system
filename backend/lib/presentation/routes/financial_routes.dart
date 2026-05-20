@@ -23,6 +23,13 @@ import '../../domain/entities/role.dart';
 import '../../application/services/journal_service.dart';
 import '../../application/services/accounting_settings_service.dart';
 import '../../infrastructure/repositories/company_settings_repository_impl.dart';
+import '../../infrastructure/repositories/journal_repository_impl.dart';
+import '../../infrastructure/repositories/account_repository_impl.dart';
+import '../../infrastructure/repositories/vendor_repository_impl.dart';
+import '../../infrastructure/repositories/purchase_invoice_repository_impl.dart';
+import '../../infrastructure/repositories/expense_repository_impl.dart';
+import '../../infrastructure/repositories/bank_account_repository_impl.dart';
+import '../../infrastructure/repositories/inventory_variant_repository_impl.dart';
 
 class FinancialRoutes {
   final VendorRepository _vendorRepository;
@@ -63,6 +70,7 @@ class FinancialRoutes {
     final journalRepository = JournalRepositoryImpl(db);
     final accountRepository = AccountRepositoryImpl(db);
     final companySettingsRepository = CompanySettingsRepositoryImpl(db);
+    final inventoryVariantRepository = InventoryVariantRepositoryImpl(db);
     final journalService = JournalService(journalRepository, accountRepository);
     final accountingSettingsService = AccountingSettingsService(companySettingsRepository, accountRepository);
     
@@ -70,7 +78,7 @@ class FinancialRoutes {
     final updateVendorUseCase = UpdateVendorUseCase(vendorRepository);
     final deleteVendorUseCase = DeleteVendorUseCase(vendorRepository);
     final getAllVendorsUseCase = GetAllVendorsUseCase(vendorRepository);
-    final createPurchaseInvoiceUseCase = CreatePurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService, accountRepository, accountingSettingsService);
+    final createPurchaseInvoiceUseCase = CreatePurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService, inventoryVariantRepository, accountingSettingsService);
     final payPurchaseInvoiceUseCase = PayPurchaseInvoiceUseCase(purchaseInvoiceRepository, journalService, accountingSettingsService);
     final createExpenseUseCase = CreateExpenseUseCase(expenseRepository, journalService, accountingSettingsService);
     final reconcileBankAccountUseCase = ReconcileBankAccountUseCase(bankAccountRepository, journalRepository, journalService, accountingSettingsService);

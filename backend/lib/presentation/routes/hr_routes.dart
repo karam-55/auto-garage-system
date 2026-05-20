@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../domain/entities/role.dart';
-import '../../domain/entities/employee_contract.dart';
+import '../../domain/entities/leave_request.dart';
+import '../../domain/entities/performance_review.dart' as review_entity;
 import '../../domain/repositories/hr_repository.dart';
 import '../../domain/repositories/leave_request_repository.dart';
 import '../../domain/repositories/performance_review_repository.dart';
@@ -184,7 +185,7 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final leaveRequest = EmployeeContract.LeaveRequest(
+      final leaveRequest = LeaveRequest(
         id: body['id'] ?? DateTime.now().millisecondsSinceEpoch,
         userId: body['userId'],
         leaveType: body['leaveType'] ?? 'annual',
@@ -214,7 +215,7 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final leaveRequest = EmployeeContract.LeaveRequest(
+      final leaveRequest = LeaveRequest(
         id: id,
         userId: body['userId'],
         leaveType: body['leaveType'] ?? 'annual',
@@ -315,12 +316,15 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final review = EmployeeContract.PerformanceReview(
+      final review = review_entity.PerformanceReview(
         id: body['id'] ?? DateTime.now().millisecondsSinceEpoch,
         userId: body['userId'],
-        reviewDate: DateTime.now(),
         reviewerId: body['reviewerId'],
-        rating: body['rating'] ?? 5,
+        reviewDate: DateTime.now(),
+        overallRating: (body['overallRating'] as num?)?.toDouble() ?? 5.0,
+        strengths: body['strengths'],
+        weaknesses: body['weaknesses'],
+        goals: body['goals'],
         comments: body['comments'],
         createdAt: DateTime.now(),
       );
@@ -343,12 +347,15 @@ class HrRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
     }
     try {
-      final review = EmployeeContract.PerformanceReview(
+      final review = review_entity.PerformanceReview(
         id: id,
         userId: body['userId'],
-        reviewDate: DateTime.parse(body['reviewDate']),
         reviewerId: body['reviewerId'],
-        rating: body['rating'] ?? 5,
+        reviewDate: DateTime.parse(body['reviewDate']),
+        overallRating: (body['overallRating'] as num?)?.toDouble() ?? 5.0,
+        strengths: body['strengths'],
+        weaknesses: body['weaknesses'],
+        goals: body['goals'],
         comments: body['comments'],
         createdAt: DateTime.parse(body['createdAt']),
       );

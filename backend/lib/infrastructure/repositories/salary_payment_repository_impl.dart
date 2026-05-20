@@ -1,15 +1,15 @@
-import 'package:postgres/postgres.dart';
+import '../../infrastructure/database/database_connection.dart';
 import '../../domain/entities/salary_payment.dart';
 import '../../domain/repositories/salary_payment_repository.dart';
 
 class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
-  final Pool _pool;
+  final DatabaseConnection _db;
 
-  SalaryPaymentRepositoryImpl(this._pool);
+  SalaryPaymentRepositoryImpl(this._db);
 
   @override
   Future<SalaryPayment> createPayment(SalaryPayment payment) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''INSERT INTO salary_payments (user_id, month_year, base_salary, working_days, bonuses, deductions, net_salary, payment_date, is_paid, journal_entry_id)
          VALUES (@userId, @monthYear, @baseSalary, @workingDays, @bonuses, @deductions, @netSalary, @paymentDate, @isPaid, @journalEntryId)
          RETURNING id''',
@@ -32,7 +32,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
 
   @override
   Future<SalaryPayment?> findPaymentById(int id) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''SELECT id, user_id, month_year, base_salary, working_days, bonuses, deductions, net_salary, payment_date, is_paid, journal_entry_id 
       FROM salary_payments WHERE id = @id''',
       substitutionValues: {'id': id},
@@ -43,7 +43,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
 
   @override
   Future<List<SalaryPayment>> findAllPayments() async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''SELECT id, user_id, month_year, base_salary, working_days, bonuses, deductions, net_salary, payment_date, is_paid, journal_entry_id 
       FROM salary_payments ORDER BY month_year DESC''',
     );
@@ -52,7 +52,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
 
   @override
   Future<List<SalaryPayment>> findByUserId(String userId) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''SELECT id, user_id, month_year, base_salary, working_days, bonuses, deductions, net_salary, payment_date, is_paid, journal_entry_id 
       FROM salary_payments WHERE user_id = @userId ORDER BY month_year DESC''',
       substitutionValues: {'userId': userId},
@@ -62,7 +62,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
 
   @override
   Future<List<SalaryPayment>> findByMonthYear(DateTime monthYear) async {
-    final result = await _pool.query(
+    final result = await _db.query(
       '''SELECT id, user_id, month_year, base_salary, working_days, bonuses, deductions, net_salary, payment_date, is_paid, journal_entry_id 
       FROM salary_payments WHERE month_year = @monthYear ORDER BY month_year DESC''',
       substitutionValues: {'monthYear': monthYear},
@@ -72,7 +72,7 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
 
   @override
   Future<SalaryPayment> updatePayment(SalaryPayment payment) async {
-    await _pool.query(
+    await _db.query(
       '''UPDATE salary_payments SET
          user_id = @userId,
          month_year = @monthYear,
@@ -104,12 +104,12 @@ class SalaryPaymentRepositoryImpl implements SalaryPaymentRepository {
 
   @override
   Future<void> deletePayment(int id) async {
-    await _pool.query('DELETE FROM salary_payments WHERE id = @id', substitutionValues: {'id': id});
+    await _db.query('DELETE FROM salary_payments WHERE id = @id', substitutionValues: {'id': id});
   }
 
   @override
   Future<SalaryPayment?> markAsPaid(int id, DateTime paymentDate, int journalEntryId) async {
-    await _pool.query(
+    await _db.query(
       '''UPDATE salary_payments SET
          payment_date = @paymentDate,
          is_paid = true,

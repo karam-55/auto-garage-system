@@ -30,9 +30,12 @@ import '../../domain/entities/purchase_order.dart';
 import '../../domain/entities/quotation.dart';
 import '../../domain/entities/warehouse.dart';
 import '../../domain/entities/bill_of_materials.dart';
-import '../../domain/entities/inventory_transfer.dart';
+import '../../domain/entities/inventory_transfer.dart' as inventory_transfer_entity;
+import '../../domain/entities/crm_lead.dart';
+import '../../domain/entities/fixed_asset.dart';
+import '../../domain/entities/maintenance_contract.dart';
 import '../../domain/entities/employee_contract.dart';
-import '../../domain/entities/leave_request.dart';
+import '../../domain/entities/leave_request.dart' as leave_request_entity;
 import '../../application/services/purchase_order_service.dart';
 import '../../application/services/quotation_service.dart';
 import '../../application/services/warehouse_service.dart';
@@ -1106,7 +1109,7 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final leaveRequest = LeaveRequest(
+      final leaveRequest = leave_request_entity.LeaveRequest(
         id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
         userId: data['user_id'],
         leaveType: data['leave_type'],
@@ -1592,7 +1595,7 @@ class ErpRoutes {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       
-      final transfer = InventoryTransfer(
+      final transfer = inventory_transfer_entity.InventoryTransfer(
         id: data['id'] ?? DateTime.now().millisecondsSinceEpoch,
         fromWarehouseId: data['from_warehouse_id'],
         toWarehouseId: data['to_warehouse_id'],

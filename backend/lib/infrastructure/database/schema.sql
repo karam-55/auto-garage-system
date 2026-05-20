@@ -203,6 +203,17 @@ CREATE TABLE IF NOT EXISTS services (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Service Categories table (for categorizing services)
+CREATE TABLE IF NOT EXISTS service_categories (
+    id SERIAL PRIMARY KEY,
+    name_ar VARCHAR(255) NOT NULL,
+    name_en VARCHAR(255) NOT NULL,
+    base_price DECIMAL(12, 2) DEFAULT 0,
+    duration_minutes INTEGER DEFAULT 30,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Bookings table
 CREATE TABLE IF NOT EXISTS bookings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -255,15 +266,29 @@ CREATE TABLE IF NOT EXISTS part_suggestions (
 CREATE TABLE IF NOT EXISTS company_settings (
     id SERIAL PRIMARY KEY,
     company_name VARCHAR(255) NOT NULL DEFAULT 'Garage Go',
+    company_name_en VARCHAR(255),
     company_logo_url TEXT,
+    address TEXT,
+    phone VARCHAR(50),
+    tax_number VARCHAR(100),
+    fiscal_year_start DATE,
+    currency_code VARCHAR(10) DEFAULT 'SAR',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Insert default company settings if not exists
-INSERT INTO company_settings (company_name, created_at, updated_at)
-SELECT 'Garage Go', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+INSERT INTO company_settings (company_name, company_name_en, address, phone, tax_number, fiscal_year_start, currency_code, created_at, updated_at)
+SELECT 'Garage Go', 'Garage Go', 'Riyadh, Saudi Arabia', '+966500000000', '3000000000', '2024-01-01', 'SAR', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 WHERE NOT EXISTS (SELECT 1 FROM company_settings);
+
+-- Spare Parts Categories table (for categorizing inventory items)
+CREATE TABLE IF NOT EXISTS spare_parts_categories (
+    id SERIAL PRIMARY KEY,
+    name_ar VARCHAR(255) NOT NULL,
+    name_en VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Inventory Items table
 CREATE TABLE IF NOT EXISTS inventory_items (

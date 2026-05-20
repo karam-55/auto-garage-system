@@ -3,7 +3,7 @@ import '../services/api_service.dart';
 import '../models/account.dart';
 import 'api_provider.dart';
 
-final trialBalanceProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
+final trialBalanceProvider = FutureProvider.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
   try {
     final api = ref.read(apiServiceProvider);
     final queryParams = <String, String>{};
@@ -26,7 +26,7 @@ final trialBalanceProvider = FutureProvider.autoDispose.family<Map<String, dynam
   }
 });
 
-final profitLossProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
+final profitLossProvider = FutureProvider.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
   try {
     final api = ref.read(apiServiceProvider);
     final queryParams = <String, String>{};
@@ -49,7 +49,7 @@ final profitLossProvider = FutureProvider.autoDispose.family<Map<String, dynamic
   }
 });
 
-final balanceSheetProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
+final balanceSheetProvider = FutureProvider.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
   try {
     final api = ref.read(apiServiceProvider);
     final queryParams = <String, String>{};
@@ -69,7 +69,7 @@ final balanceSheetProvider = FutureProvider.autoDispose.family<Map<String, dynam
   }
 });
 
-final generalLedgerProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
+final generalLedgerProvider = FutureProvider.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
   try {
     final api = ref.read(apiServiceProvider);
     final queryParams = <String, String>{};
@@ -96,7 +96,7 @@ final generalLedgerProvider = FutureProvider.autoDispose.family<Map<String, dyna
 });
 
 // Advanced Reports Providers
-final cashFlowProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, DateTime>>((ref, params) async {
+final cashFlowProvider = FutureProvider.family<Map<String, dynamic>, Map<String, DateTime>>((ref, params) async {
   try {
     final api = ref.read(apiServiceProvider);
     final fromDate = params['from'] as DateTime;
@@ -110,7 +110,7 @@ final cashFlowProvider = FutureProvider.autoDispose.family<Map<String, dynamic>,
   }
 });
 
-final breakEvenProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, DateTime>>((ref, params) async {
+final breakEvenProvider = FutureProvider.family<Map<String, dynamic>, Map<String, DateTime>>((ref, params) async {
   try {
     final api = ref.read(apiServiceProvider);
     final fromDate = params['from'] as DateTime;
@@ -124,7 +124,7 @@ final breakEvenProvider = FutureProvider.autoDispose.family<Map<String, dynamic>
   }
 });
 
-final tradingAccountProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, DateTime>>((ref, params) async {
+final tradingAccountProvider = FutureProvider.family<Map<String, dynamic>, Map<String, DateTime>>((ref, params) async {
   try {
     final api = ref.read(apiServiceProvider);
     final fromDate = params['from'] as DateTime;

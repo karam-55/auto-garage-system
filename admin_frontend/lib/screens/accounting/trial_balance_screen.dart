@@ -79,8 +79,34 @@ class _TrialBalanceScreenContentState extends ConsumerState<_TrialBalanceScreenC
       params['to'] = _toDate;
     }
 
-    return ref.watch(trialBalanceProvider(params)).when(
-      data: (data) {
+    // استخدام FutureBuilder بدلاً من ref.watch لتجنب إعادة التحميل المستمر
+    return FutureBuilder<Map<String, dynamic>>(
+      future: ref.read(trialBalanceProvider(params).future),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('خطأ في تحميل البيانات'),
+                const SizedBox(height: 8),
+                Text(snapshot.error.toString(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => setState(() {}),
+                  child: const Text('إعادة المحاولة'),
+                ),
+              ],
+            ),
+          );
+        }
+        
+        final data = snapshot.data;
         if (data == null || data.isEmpty) {
           return const Center(
             child: Column(
@@ -220,24 +246,6 @@ class _TrialBalanceScreenContentState extends ConsumerState<_TrialBalanceScreenC
           ],
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('خطأ في تحميل البيانات'),
-            const SizedBox(height: 8),
-            Text(error.toString(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => setState(() {}),
-              child: const Text('إعادة المحاولة'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

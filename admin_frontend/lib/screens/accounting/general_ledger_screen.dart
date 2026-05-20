@@ -88,11 +88,16 @@ class _GeneralLedgerScreenContentState extends ConsumerState<_GeneralLedgerScree
   }
 
   Widget _buildGeneralLedger() {
-    final params = <String, String?>{
-      'from': _fromDate?.toIso8601String(),
-      'to': _toDate?.toIso8601String(),
-      'accountId': _selectedAccountId?.toString(),
-    };
+    final params = <String, dynamic>{};
+    if (_fromDate != null) {
+      params['from'] = _fromDate;
+    }
+    if (_toDate != null) {
+      params['to'] = _toDate;
+    }
+    if (_selectedAccountId != null) {
+      params['accountId'] = _selectedAccountId;
+    }
 
     return ref.watch(generalLedgerProvider(params)).when(
       data: (data) {

@@ -71,10 +71,13 @@ class _TrialBalanceScreenContentState extends ConsumerState<_TrialBalanceScreenC
   }
 
   Widget _buildTrialBalance() {
-    final params = <String, String?>{
-      'from': _fromDate?.toIso8601String(),
-      'to': _toDate?.toIso8601String(),
-    };
+    final params = <String, dynamic>{};
+    if (_fromDate != null) {
+      params['from'] = _fromDate;
+    }
+    if (_toDate != null) {
+      params['to'] = _toDate;
+    }
 
     return ref.watch(trialBalanceProvider(params)).when(
       data: (data) {

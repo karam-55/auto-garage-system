@@ -65,9 +65,10 @@ class _BalanceSheetScreenContentState extends ConsumerState<_BalanceSheetScreenC
   }
 
   Widget _buildBalanceSheet() {
-    final params = <String, String?>{
-      'asOfDate': _asOfDate?.toIso8601String(),
-    };
+    final params = <String, dynamic>{};
+    if (_asOfDate != null) {
+      params['asOfDate'] = _asOfDate;
+    }
 
     return ref.watch(balanceSheetProvider(params)).when(
       data: (data) {

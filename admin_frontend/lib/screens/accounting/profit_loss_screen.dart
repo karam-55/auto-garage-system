@@ -70,10 +70,13 @@ class _ProfitLossScreenContentState extends ConsumerState<_ProfitLossScreenConte
   }
 
   Widget _buildProfitLoss() {
-    final params = <String, String?>{
-      'from': _fromDate?.toIso8601String(),
-      'to': _toDate?.toIso8601String(),
-    };
+    final params = <String, dynamic>{};
+    if (_fromDate != null) {
+      params['from'] = _fromDate;
+    }
+    if (_toDate != null) {
+      params['to'] = _toDate;
+    }
 
     return ref.watch(profitLossProvider(params)).when(
       data: (data) {

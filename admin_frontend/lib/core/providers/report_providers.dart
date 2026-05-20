@@ -3,27 +3,71 @@ import '../services/api_service.dart';
 import '../models/account.dart';
 import 'api_provider.dart';
 
-final trialBalanceProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, String?>>((ref, params) async {
+final trialBalanceProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/api/trial-balance');
+  final queryParams = <String, String>{};
+  if (params['from'] != null) {
+    queryParams['from'] = (params['from'] as DateTime).toIso8601String().split('T')[0];
+  }
+  if (params['to'] != null) {
+    queryParams['to'] = (params['to'] as DateTime).toIso8601String().split('T')[0];
+  }
+  if (params['fiscalPeriodId'] != null) {
+    queryParams['fiscalPeriodId'] = params['fiscalPeriodId'].toString();
+  }
+  final queryString = queryParams.isNotEmpty ? '?${queryParams.entries.map((e) => '${e.key}=${e.value}').join('&')}' : '';
+  final response = await api.get('/api/trial-balance$queryString');
   return response;
 });
 
-final profitLossProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, String?>>((ref, params) async {
+final profitLossProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/api/reports/profit-loss');
+  final queryParams = <String, String>{};
+  if (params['from'] != null) {
+    queryParams['from'] = (params['from'] as DateTime).toIso8601String().split('T')[0];
+  }
+  if (params['to'] != null) {
+    queryParams['to'] = (params['to'] as DateTime).toIso8601String().split('T')[0];
+  }
+  if (params['fiscalPeriodId'] != null) {
+    queryParams['fiscalPeriodId'] = params['fiscalPeriodId'].toString();
+  }
+  final queryString = queryParams.isNotEmpty ? '?${queryParams.entries.map((e) => '${e.key}=${e.value}').join('&')}' : '';
+  final response = await api.get('/api/reports/profit-loss$queryString');
   return response;
 });
 
-final balanceSheetProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, String?>>((ref, params) async {
+final balanceSheetProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/api/reports/balance-sheet');
+  final queryParams = <String, String>{};
+  if (params['asOfDate'] != null) {
+    queryParams['asOfDate'] = (params['asOfDate'] as DateTime).toIso8601String().split('T')[0];
+  }
+  if (params['fiscalPeriodId'] != null) {
+    queryParams['fiscalPeriodId'] = params['fiscalPeriodId'].toString();
+  }
+  final queryString = queryParams.isNotEmpty ? '?${queryParams.entries.map((e) => '${e.key}=${e.value}').join('&')}' : '';
+  final response = await api.get('/api/reports/balance-sheet$queryString');
   return response;
 });
 
-final generalLedgerProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, String?>>((ref, params) async {
+final generalLedgerProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, params) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/api/reports/general-ledger');
+  final queryParams = <String, String>{};
+  if (params['from'] != null) {
+    queryParams['from'] = (params['from'] as DateTime).toIso8601String().split('T')[0];
+  }
+  if (params['to'] != null) {
+    queryParams['to'] = (params['to'] as DateTime).toIso8601String().split('T')[0];
+  }
+  if (params['accountId'] != null) {
+    queryParams['accountId'] = params['accountId'].toString();
+  }
+  if (params['fiscalPeriodId'] != null) {
+    queryParams['fiscalPeriodId'] = params['fiscalPeriodId'].toString();
+  }
+  final queryString = queryParams.isNotEmpty ? '?${queryParams.entries.map((e) => '${e.key}=${e.value}').join('&')}' : '';
+  final response = await api.get('/api/reports/general-ledger$queryString');
   return response;
 });
 

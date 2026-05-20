@@ -110,6 +110,39 @@ class DatabaseConnection {
     }
   }
 
+  Future<void> executeSeed() async {
+    try {
+      final seedSql = await _readSeedFile();
+      final statements = seedSql.split(';').where((s) => s.trim().isNotEmpty && !s.trim().startsWith('--'));
+
+      int executed = 0;
+      int failed = 0;
+
+      for (final statement in statements) {
+        try {
+          await _pool.execute(statement.trim());
+          executed++;
+        } catch (e) {
+          failed++;
+          // Ignore duplicate key errors
+          final errorStr = e.toString();
+          if (errorStr.contains('duplicate key') || 
+              errorStr.contains('unique constraint') ||
+              errorStr.contains('already exists')) {
+            _logger.w('Skipping duplicate data: $e');
+          } else {
+            _logger.e('Failed to execute seed statement: $e');
+          }
+        }
+      }
+
+      _logger.i('Seed data executed: $executed statements, $failed failed');
+    } catch (e) {
+      _logger.e('Failed to execute seed data: $e');
+      // Don't rethrow - seed data is optional
+    }
+  }
+
   Future<void> _runMigrations() async {
     try {
       // Add new ERP roles to users table
@@ -186,6 +219,21 @@ class DatabaseConnection {
       _logger.e('Failed to execute migrations: $e');
       // Don't rethrow - migrations are optional
     }
+  }
+
+  Future<String> _readSeedFile() async {
+    // Try to read from file system first
+    try {
+      final file = File('infrastructure/database/seed.sql');
+      if (await file.exists()) {
+        return await file.readAsString();
+      }
+    } catch (e) {
+      _logger.w('Could not read seed.sql file: $e');
+    }
+    
+    // Return empty string if file not found
+    return '';
   }
 
   Future<String> _readSchemaFile() async {

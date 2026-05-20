@@ -102,6 +102,10 @@ void main(List<String> args) async {
     await db.executeSchema();
     logger.i('Database schema executed successfully');
     
+    // Execute seed data
+    await db.executeSeed();
+    logger.i('Seed data executed successfully');
+    
     // Create default admin user if not exists
     await _createDefaultAdminUser(db, jwtSecret);
     

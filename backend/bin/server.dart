@@ -216,6 +216,7 @@ void main(List<String> args) async {
   // Combine all routes
   final handler = Cascade()
       .add(staticHandler)
+      .add(publicRoutes.router.call)
       .add(companySettingsRoutes.router.call)
       .add(authRoutes.router.call)
       .add(customerRoutes.router.call)
@@ -228,7 +229,6 @@ void main(List<String> args) async {
       .add(invoiceRoutes.router.call)
       .add(accountingRoutes.router.call)
       .add(erpRoutes.router.call)
-      .add(publicRoutes.router.call)
       .add(webSocket.handler)
       .add((Request request) {
         return Response.notFound('Not Found');

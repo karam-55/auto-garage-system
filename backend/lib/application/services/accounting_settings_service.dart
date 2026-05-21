@@ -125,11 +125,7 @@ class AccountingSettingsService {
       if (account.code == '2200') accountMap['sales_tax'] = account.id;
     }
     
-    // If any account is missing, throw an error
-    if (accountMap.length < 11) {
-      throw Exception('Default accounts not found. Please run accounting seeder first.');
-    }
-    
+    // Return whatever accounts we found, even if not all 11
     return accountMap;
   }
 

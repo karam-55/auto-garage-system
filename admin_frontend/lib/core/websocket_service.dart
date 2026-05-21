@@ -16,6 +16,7 @@ class WebSocketService {
         wsUrl = wsUrl.replaceFirst('http://', 'ws://');
       }
       final uri = Uri.parse(wsUrl);
+      
       _channel = WebSocketChannel.connect(uri);
       
       _channel!.stream.listen(
@@ -26,12 +27,19 @@ class WebSocketService {
           }
         },
         onError: (error) {
+          print('WebSocket error: $error');
+          // Don't throw error, just log it
         },
         onDone: () {
+          print('WebSocket connection closed');
+          _channel = null;
           _reconnect();
         },
+        cancelOnError: false,
       );
     } catch (e) {
+      print('WebSocket connection failed: $e');
+      // Don't throw error, just log it - WebSocket is optional
     }
   }
 

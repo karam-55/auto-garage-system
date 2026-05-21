@@ -47,17 +47,29 @@ class WebSocketService extends ChangeNotifier {
           _handleMessage(message);
         },
         onError: (error) {
+          print('WebSocket error: $error');
           _isConnected = false;
           notifyListeners();
+          // Don't throw error, just log it - WebSocket is optional
         },
         onDone: () {
+          print('WebSocket connection closed');
           _isConnected = false;
           notifyListeners();
+          // Try to reconnect after delay
+          Future.delayed(const Duration(seconds: 5), () {
+            if (!_isConnected) {
+              connect(userId: userId, role: role);
+            }
+          });
         },
+        cancelOnError: false,
       );
     } catch (e) {
+      print('WebSocket connection failed: $e');
       _isConnected = false;
       notifyListeners();
+      // Don't throw error, just log it - WebSocket is optional
     }
   }
 

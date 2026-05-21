@@ -714,7 +714,87 @@ class _BookingsScreenState extends State<BookingsScreen> {
     );
   }
 
-  Future<void> _showPaymentDialog(BuildContext context, Map<String, dynamic> booking) async {
+  Future<void> _showPaymentOptions(BuildContext context, Map<String, dynamic> booking) async {
+    // Fetch invoice data to get payment information
+    try {
+      final invoiceResponse = await widget.apiService.get('${ApiConstants.bookings}/${booking['id']}/invoice');
+      final invoiceData = invoiceResponse is Map<String, dynamic> ? invoiceResponse : null;
+
+      final totalAmount = (invoiceData?['totalPrice'] as num?)?.toDouble() ?? 0;
+      final amountPaid = (invoiceData?['amountPaid'] as num?)?.toDouble() ?? 0;
+      final amountRemaining = (invoiceData?['amountRemaining'] as num?)?.toDouble() ?? totalAmount;
+
+      showProfessionalDialog(
+        context: context,
+        title: 'خيارات الدفع',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildPaymentInfoRow('إجمالي الفاتورة', totalAmount.toStringAsFixed(2)),
+                  const SizedBox(height: 4),
+                  _buildPaymentInfoRow('المبلغ المدفوع', amountPaid.toStringAsFixed(2)),
+                  const SizedBox(height: 4),
+                  _buildPaymentInfoRow('المتبقي', amountRemaining.toStringAsFixed(2), isHighlight: true),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.payments_rounded, color: Colors.green),
+              title: const Text('دفع كامل'),
+              subtitle: const Text('دفع المبلغ المتبقي بالكامل'),
+              onTap: () {
+                Navigator.pop(context);
+                if (amountRemaining > 0) {
+                  _showPaymentDialog(context, booking, isFull: true);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم دفع الفاتورة بالكامل')));
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.payment_rounded, color: Colors.blue),
+              title: const Text('دفع جزئي'),
+              subtitle: const Text('دفع جزء من المبلغ المتبقي'),
+              onTap: () {
+                Navigator.pop(context);
+                if (amountRemaining > 0) {
+                  _showPaymentDialog(context, booking, isFull: false);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم دفع الفاتورة بالكامل')));
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit_rounded, color: Colors.orange),
+              title: const Text('تعديل الدفعات'),
+              subtitle: const Text('عرض وتعديل سجل الدفعات'),
+              onTap: () {
+                Navigator.pop(context);
+                _showPaymentHistory(context, booking);
+              },
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل بيانات الفاتورة: $e')));
+      }
+    }
+  }
+
+  Future<void> _showPaymentDialog(BuildContext context, Map<String, dynamic> booking, {required bool isFull}) async {
     // Fetch invoice data to get payment information
     try {
       final invoiceResponse = await widget.apiService.get('${ApiConstants.bookings}/${booking['id']}/invoice');
@@ -723,14 +803,16 @@ class _BookingsScreenState extends State<BookingsScreen> {
       final formKey = GlobalKey<FormState>();
       final paymentMethodController = TextEditingController(text: 'cash');
       final paymentAmountController = TextEditingController();
-      
-      String selectedPaymentType = 'full'; // 'full' or 'partial'
-      
+
       // Calculate total amount and remaining
       final totalAmount = (invoiceData?['totalPrice'] as num?)?.toDouble() ?? 0;
       final amountPaid = (invoiceData?['amountPaid'] as num?)?.toDouble() ?? 0;
       final amountRemaining = (invoiceData?['amountRemaining'] as num?)?.toDouble() ?? totalAmount;
-      
+
+      if (isFull) {
+        paymentAmountController.text = amountRemaining.toStringAsFixed(2);
+      }
+
       if (amountRemaining <= 0) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم دفع الفاتورة بالكامل')));
@@ -740,7 +822,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
 
       showProfessionalDialog(
         context: context,
-        title: 'تسجيل دفع',
+        title: isFull ? 'دفع كامل' : 'دفع جزئي',
         content: StatefulBuilder(
           builder: (context, setState) {
             return Form(
@@ -768,39 +850,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
-                  // Payment type selection
-                  const Text('نوع الدفع', style: TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Radio<String>(
-                        value: 'full',
-                        groupValue: selectedPaymentType,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedPaymentType = value!;
-                            paymentAmountController.text = amountRemaining.toStringAsFixed(2);
-                          });
-                        },
-                      ),
-                      const Text('دفع كامل'),
-                      const SizedBox(width: 16),
-                      Radio<String>(
-                        value: 'partial',
-                        groupValue: selectedPaymentType,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedPaymentType = value!;
-                            paymentAmountController.clear();
-                          });
-                        },
-                      ),
-                      const Text('دفع جزئي'),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  
+
                   // Payment method selection
                   const Text('طريقة الدفع', style: TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
@@ -823,7 +873,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     onChanged: (value) => paymentMethodController.text = value!,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Payment amount
                   TextFormField(
                     controller: paymentAmountController,
@@ -861,15 +911,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
           if (formKey.currentState?.validate() ?? false) {
             try {
               final paymentAmount = double.tryParse(paymentAmountController.text) ?? 0;
-              
+
               await widget.apiService.post(
                 '${ApiConstants.bookings}/${booking['id']}/payment',
-                body: {
+                {
                   'payment_method': paymentMethodController.text,
                   'payment_amount': paymentAmount,
                 },
               );
-              
+
               if (mounted) {
                 Navigator.pop(context);
                 _loadBookings();
@@ -886,6 +936,29 @@ class _BookingsScreenState extends State<BookingsScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل بيانات الفاتورة: $e')));
+      }
+    }
+  }
+
+  Future<void> _showPaymentHistory(BuildContext context, Map<String, dynamic> booking) async {
+    // Fetch journal entries for this booking payment
+    try {
+      showProfessionalDialog(
+        context: context,
+        title: 'سجل الدفعات',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('سيتم عرض سجل الدفعات هنا'),
+            const SizedBox(height: 16),
+            const Text('ميزة قيد التطوير'),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
       }
     }
   }
@@ -1187,7 +1260,7 @@ class _BookingCard extends StatelessWidget {
                       ),
                     ),
                     OutlinedButton.icon(
-                      onPressed: () => _showPaymentDialog(context, booking),
+                      onPressed: () => _showPaymentOptions(context, booking),
                       icon: const Icon(Icons.payment_rounded, size: 14),
                       label: const Text('الدفع'),
                       style: OutlinedButton.styleFrom(
@@ -1209,6 +1282,28 @@ class _BookingCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildPaymentInfoRow('المبلغ المستحق', booking['totalPrice']?.toStringAsFixed(2) ?? '0.00'),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildPaymentInfoColumn('المدفوع', booking['amountPaid']?.toStringAsFixed(2) ?? '0.00', Colors.green),
+                          _buildPaymentInfoColumn('المتبقي', booking['amountRemaining']?.toStringAsFixed(2) ?? '0.00', Colors.orange),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -1228,6 +1323,27 @@ class _BookingCard extends StatelessWidget {
         Expanded(
           child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentInfoRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+        Text('$value ل.س', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+      ],
+    );
+  }
+
+  Widget _buildPaymentInfoColumn(String label, String value, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 4),
+        Text('$value ل.س', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
       ],
     );
   }

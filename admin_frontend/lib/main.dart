@@ -525,14 +525,15 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     const _NavItem(icon: Icons.inventory_2_rounded, label: 'المخزون'),
     const _NavItem(icon: Icons.account_balance_rounded, label: 'دليل الحسابات'),
     const _NavItem(icon: Icons.receipt_long_rounded, label: 'القيود اليومية'),
-    const _NavItem(icon: Icons.account_balance_rounded, label: 'المحاسبة'),
-    const _NavItem(icon: Icons.balance_rounded, label: 'ميزان المراجعة'),
-    const _NavItem(icon: Icons.trending_up_rounded, label: 'قائمة الدخل'),
-    const _NavItem(icon: Icons.account_balance_wallet_rounded, label: 'الميزانية العمومية'),
-    const _NavItem(icon: Icons.menu_book_rounded, label: 'دفتر الأستاذ العام'),
-    const _NavItem(icon: Icons.account_balance_rounded, label: 'التدفقات النقدية'),
-    const _NavItem(icon: Icons.show_chart_rounded, label: 'نقطة التعادل'),
-    const _NavItem(icon: Icons.trending_up_rounded, label: 'تقرير المتجارة'),
+    _NavItem(icon: Icons.assessment_rounded, label: 'التقارير المالية', children: [
+      const _NavItem(icon: Icons.balance_rounded, label: 'ميزان المراجعة'),
+      const _NavItem(icon: Icons.trending_up_rounded, label: 'قائمة الدخل'),
+      const _NavItem(icon: Icons.account_balance_wallet_rounded, label: 'الميزانية العمومية'),
+      const _NavItem(icon: Icons.menu_book_rounded, label: 'دفتر الأستاذ العام'),
+      const _NavItem(icon: Icons.account_balance_rounded, label: 'التدفقات النقدية'),
+      const _NavItem(icon: Icons.show_chart_rounded, label: 'نقطة التعادل'),
+      const _NavItem(icon: Icons.trending_up_rounded, label: 'تقرير المتجارة'),
+    ]),
     const _NavItem(icon: Icons.settings_rounded, label: 'إعدادات الرواتب'),
     const _NavItem(icon: Icons.receipt_long_rounded, label: 'كشوف الرواتب'),
     const _NavItem(icon: Icons.description_rounded, label: 'تقرير الرواتب'),
@@ -649,14 +650,14 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       InventoryScreen(apiService: _apiService),
       ChartOfAccountsScreen(apiService: _apiService),
       JournalEntriesScreen(apiService: _apiService),
-      const AccountingScreen(),
-      const TrialBalanceScreen(),
-      const ProfitLossScreen(),
-      const BalanceSheetScreen(),
-      const GeneralLedgerScreen(),
-      const CashFlowScreen(),
-      const BreakEvenScreen(),
-      const TradingAccountScreen(),
+      const AccountingScreen(), // Index 12 - محاسبة (يستخدم كصفحة افتراضية للتقارير المالية)
+      const TrialBalanceScreen(), // Index 13 - ميزان المراجعة
+      const ProfitLossScreen(), // Index 14 - قائمة الدخل
+      const BalanceSheetScreen(), // Index 15 - الميزانية العمومية
+      const GeneralLedgerScreen(), // Index 16 - دفتر الأستاذ العام
+      const CashFlowScreen(), // Index 17 - التدفقات النقدية
+      const BreakEvenScreen(), // Index 18 - نقطة التعادل
+      const TradingAccountScreen(), // Index 19 - تقرير المتجارة
       PayrollSettingsScreen(apiService: _apiService),
       PayrollScreen(apiService: _apiService),
       PayrollReportScreen(apiService: _apiService),
@@ -818,6 +819,67 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
                 itemBuilder: (context, index) {
                   final item = _destinations[index];
                   final isSelected = _selectedIndex == index;
+                  
+                  // Check if item has children
+                  if (item.children != null && item.children!.isNotEmpty) {
+                    return ExpansionTile(
+                      leading: Icon(
+                        item.icon,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey.shade600,
+                      ),
+                      title: Text(
+                        item.label,
+                        style: TextStyle(
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : const Color(0xFF1E293B),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      backgroundColor: isSelected
+                          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
+                          : null,
+                      children: item.children!.map<Widget>((child) {
+                        final childIndex = (index + item.children!.indexOf(child) + 1) as int;
+                        final isChildSelected = _selectedIndex == childIndex;
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16, right: 8, bottom: 4),
+                          child: ListTile(
+                            leading: Icon(
+                              child.icon,
+                              size: 20,
+                              color: isChildSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.grey.shade600,
+                            ),
+                            title: Text(
+                              child.label,
+                              style: TextStyle(
+                                fontWeight: isChildSelected ? FontWeight.w700 : FontWeight.w500,
+                                color: isChildSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : const Color(0xFF1E293B),
+                                fontSize: 14,
+                              ),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            tileColor: isChildSelected
+                                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
+                                : null,
+                            onTap: () => _onDestinationSelected(childIndex),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }
+                  
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: ListTile(

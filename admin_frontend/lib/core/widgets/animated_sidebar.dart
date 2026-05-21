@@ -239,10 +239,11 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
             children = dest.children!.asMap().entries.map((childEntry) {
               final childIndex = childEntry.key;
               final childDest = childEntry.value;
+              // For "التقارير المالية" (index 12), children should be 13, 14, 15, 16, 17, 18, 19
               return _SidebarDestination(
                 icon: childDest.icon,
                 label: childDest.label,
-                index: (index * 100 + childIndex) as int, // Use a unique index for children
+                index: (index + childIndex + 1) as int, // Calculate correct screen index
                 requiredRoles: null,
               );
             }).toList();

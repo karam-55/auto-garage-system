@@ -14,7 +14,7 @@ import '../../core/errors/failures.dart';
 ///   - Debit: Cash Account (cashAccountId)
 ///   - Credit: Accounts Receivable (receivableAccountId)
 /// - If payment method is ELECTRONIC:
-///   - Debit: Bank Account (bankAccountId)
+///   - Debit: Cash Account (cashAccountId) - using same cash account for electronic payments
 ///   - Credit: Accounts Receivable (receivableAccountId)
 /// - Source: booking_payment, sourceId: bookingId
 class ProcessBookingPaymentUseCase {
@@ -79,26 +79,20 @@ class ProcessBookingPaymentUseCase {
       try {
         final accountingSettings = await _accountingSettingsService.getSettings();
         
-        // Determine which account to debit based on payment method
-        int debitAccountId;
-        if (paymentMethod == 'cash') {
-          debitAccountId = accountingSettings.cashAccountId;
-        } else {
-          debitAccountId = accountingSettings.bankAccountId;
-        }
-
+        // Use cash account for both cash and electronic payments
+        // (can be enhanced later to add separate bank account for electronic)
         final journalEntry = await _journalService.createJournalEntry(
           date: DateTime.now(),
           reference: 'PAY-${bookingId.substring(0, 6)}',
           description: 'دفعة فاتورة حجز رقم $bookingId',
           lines: [
-            JournalLineInput(
-              accountId: debitAccountId,
+            journal_service.JournalLineInput(
+              accountId: accountingSettings.cashAccountId,
               debit: paymentAmount,
               credit: 0,
               description: paymentMethod == 'cash' ? 'قبض نقدي من فاتورة حجز' : 'قبض إلكتروني من فاتورة حجز',
             ),
-            JournalLineInput(
+            journal_service.JournalLineInput(
               accountId: accountingSettings.receivableAccountId,
               debit: 0,
               credit: paymentAmount,
@@ -119,18 +113,4 @@ class ProcessBookingPaymentUseCase {
       throw ServerFailure('Failed to process payment: $e');
     }
   }
-}
-
-class JournalLineInput {
-  final int accountId;
-  final double debit;
-  final double credit;
-  final String? description;
-
-  JournalLineInput({
-    required this.accountId,
-    required this.debit,
-    required this.credit,
-    this.description,
-  });
 }

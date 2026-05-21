@@ -106,50 +106,48 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PageTransitionLoading(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'التقارير والإحصائيات',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                Row(
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: _exportToPDF,
-                      icon: const Icon(Icons.picture_as_pdf),
-                      label: const Text('تصدير PDF'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
-                        foregroundColor: Colors.white,
-                      ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'التقارير والإحصائيات',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _exportToPDF,
+                    icon: const Icon(Icons.picture_as_pdf),
+                    label: const Text('تصدير PDF'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6366F1),
+                      foregroundColor: Colors.white,
                     ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      onPressed: _exportToExcel,
-                      icon: const Icon(Icons.table_chart),
-                      label: const Text('تصدير Excel'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF10B981),
-                        foregroundColor: Colors.white,
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: _exportToExcel,
+                    icon: const Icon(Icons.table_chart),
+                    label: const Text('تصدير Excel'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981),
+                      foregroundColor: Colors.white,
                     ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildRevenueCards(),
-            const SizedBox(height: 20),
-            _buildChartPlaceholder(),
-          ],
-        ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildRevenueCards(),
+          const SizedBox(height: 20),
+          _buildChartPlaceholder(),
+        ],
       ),
     );
   }

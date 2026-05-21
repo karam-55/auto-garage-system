@@ -55,7 +55,7 @@ class DashboardRoutes {
     router.get('/api/dashboard/stats', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_getDashboardStats)));
 
     // GET /api/dashboard/revenue
-    router.get('/api/dashboard/revenue', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_getRevenueStats)));
+    router.get('/api/dashboard/revenue', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getRevenueStats)));
 
     // ERP Dashboard Stats
     router.get('/api/dashboard/sales-stats', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.OWNER, Role.MANAGER, Role.ACCOUNTANT])(_getSalesStats)));

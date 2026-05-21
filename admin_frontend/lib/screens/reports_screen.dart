@@ -47,6 +47,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
         _revenueData = response is Map<String, dynamic> ? response : null;
         _isLoading = false;
       });
+      if (_revenueData == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('لا توجد بيانات إيرادات متاحة')),
+          );
+        }
+      }
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {

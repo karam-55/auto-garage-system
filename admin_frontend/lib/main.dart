@@ -611,18 +611,24 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       // Clear tokens from AuthService
       await _authService.logout();
       
-      // Clear token from API service
-      _apiService.clearToken();
-      _apiService.clearRefreshToken();
-      
-      // Reload the page to clear all state
-      html.window.location.reload();
+      // Navigate to login screen
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
       return;
     }
-    setState(() => _selectedIndex = index);
-    if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
-      Navigator.pop(context);
+    
+    // Index 12 is "التقارير المالية" dropdown - don't open a screen, just expand/collapse
+    if (index == 12) {
+      setState(() {
+        _selectedIndex = index;
+      });
+      return;
     }
+    
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   void _onLocaleToggle() async {
@@ -650,7 +656,7 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       InventoryScreen(apiService: _apiService),
       ChartOfAccountsScreen(apiService: _apiService),
       JournalEntriesScreen(apiService: _apiService),
-      const AccountingScreen(), // Index 12 - محاسبة (يستخدم كصفحة افتراضية للتقارير المالية)
+      const SizedBox(), // Index 12 - التقارير المالية (دروب داون - لا يوجد له صفحة مباشرة)
       const TrialBalanceScreen(), // Index 13 - ميزان المراجعة
       const ProfitLossScreen(), // Index 14 - قائمة الدخل
       const BalanceSheetScreen(), // Index 15 - الميزانية العمومية

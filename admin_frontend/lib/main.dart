@@ -560,6 +560,11 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
   @override
   void initState() {
     super.initState();
+    print('GarageDashboardScreen: initState called');
+    print('GarageDashboardScreen: widget.apiService is null: ${widget.apiService == null}');
+    if (widget.apiService == null) {
+      print('GarageDashboardScreen: ERROR - apiService is null!');
+    }
     _apiService = widget.apiService;
     
     // WebSocket disabled - backend does not support WebSocket

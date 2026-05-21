@@ -236,11 +236,18 @@ class BookingRepositoryImpl implements BookingRepository {
       );
       totalCount = countResult.first[0] as int;
 
-      // Get paginated data
+      // Get paginated data with financial information
       final dataQuery = '''
-        SELECT * FROM bookings
+        SELECT 
+          b.*,
+          bid.total_price,
+          bid.amount_paid,
+          bid.amount_remaining,
+          bid.payment_status
+        FROM bookings b
+        LEFT JOIN booking_invoice_data bid ON b.id = bid.booking_id
         $whereClause
-        ORDER BY created_at DESC
+        ORDER BY b.created_at DESC
         LIMIT @limit OFFSET @offset
       ''';
       parameters['limit'] = limit;
@@ -382,6 +389,10 @@ class BookingRepositoryImpl implements BookingRepository {
       createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
       updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
       estimatedCompletionDate: data['estimated_completion_date'] != null ? (data['estimated_completion_date'] is DateTime ? data['estimated_completion_date'] as DateTime : DateTime.parse(data['estimated_completion_date'] as String)) : null,
+      totalPrice: data['total_price'] is num ? (data['total_price'] as num).toDouble() : null,
+      amountPaid: data['amount_paid'] is num ? (data['amount_paid'] as num).toDouble() : null,
+      amountRemaining: data['amount_remaining'] is num ? (data['amount_remaining'] as num).toDouble() : null,
+      paymentStatus: data['payment_status'] as String?,
     );
   }
 }

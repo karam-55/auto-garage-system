@@ -86,13 +86,13 @@ class ProcessBookingPaymentUseCase {
           reference: 'PAY-${bookingId.substring(0, 6)}',
           description: 'دفعة فاتورة حجز رقم $bookingId',
           lines: [
-            journal_service.JournalLineInput(
+            JournalLineInput(
               accountId: accountingSettings.cashAccountId,
               debit: paymentAmount,
               credit: 0,
               description: paymentMethod == 'cash' ? 'قبض نقدي من فاتورة حجز' : 'قبض إلكتروني من فاتورة حجز',
             ),
-            journal_service.JournalLineInput(
+            JournalLineInput(
               accountId: accountingSettings.receivableAccountId,
               debit: 0,
               credit: paymentAmount,

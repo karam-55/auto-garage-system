@@ -147,11 +147,11 @@ class AccountingRoutes {
 
       final account = Account(
         id: 0,
-        code: data['code'] as String,
-        nameAr: data['name_ar'] as String,
-        nameEn: data['name_en'] as String,
+        code: data['code'] as String? ?? '',
+        nameAr: data['name_ar'] as String? ?? '',
+        nameEn: data['name_en'] as String? ?? '',
         parentId: data['parent_id'] as int?,
-        accountType: AccountType.fromString(data['account_type'] as String),
+        accountType: AccountType.fromString(data['account_type'] as String? ?? 'asset'),
         isActive: data['is_active'] as bool? ?? true,
         createdAt: DateTime.now().toUtc(),
       );

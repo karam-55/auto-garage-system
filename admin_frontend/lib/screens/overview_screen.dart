@@ -42,11 +42,9 @@ class _OverviewScreenState extends State<OverviewScreen> with TickerProviderStat
     _staggerController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
     _loadStats();
     
-    // Connect to WebSocket
-    _webSocketService.connect();
-    
-    // Listen for booking updates
-    _webSocketService.addListener(_onBookingUpdate);
+    // WebSocket disabled - backend does not support WebSocket
+    // _webSocketService.connect();
+    // _webSocketService.addListener(_onBookingUpdate);
   }
 
   void _onBookingUpdate() {
@@ -60,8 +58,9 @@ class _OverviewScreenState extends State<OverviewScreen> with TickerProviderStat
   @override
   void dispose() {
     _staggerController.dispose();
-    _webSocketService.removeListener(_onBookingUpdate);
-    _webSocketService.disconnect();
+    // WebSocket disabled - backend does not support WebSocket
+    // _webSocketService.removeListener(_onBookingUpdate);
+    // _webSocketService.disconnect();
     super.dispose();
   }
 

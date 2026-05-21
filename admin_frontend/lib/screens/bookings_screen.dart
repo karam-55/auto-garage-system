@@ -51,11 +51,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
     _searchController.addListener(_onSearchChanged);
     _scrollController.addListener(_onScroll);
     
-    // Connect to WebSocket
-    _webSocketService.connect();
-    
-    // Listen for booking updates
-    _webSocketService.addListener(_onBookingUpdate);
+    // WebSocket disabled - backend does not support WebSocket
+    // _webSocketService.connect();
+    // _webSocketService.addListener(_onBookingUpdate);
   }
 
   void _onBookingUpdate() {
@@ -73,8 +71,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _debounce?.cancel();
-    _webSocketService.removeListener(_onBookingUpdate);
-    _webSocketService.disconnect();
+    // WebSocket disabled - backend does not support WebSocket
+    // _webSocketService.removeListener(_onBookingUpdate);
+    // _webSocketService.disconnect();
     super.dispose();
   }
 

@@ -178,8 +178,8 @@ class _SplashScreenState extends State<SplashScreen> {
         apiService.setToken(_authService.token);
         apiService.setRefreshToken(_authService.refreshToken);
         
-        // Connect to WebSocket
-        webSocketService.connect();
+        // WebSocket disabled - backend does not support WebSocket
+        // webSocketService.connect();
         
         Navigator.pushReplacement(
           context,
@@ -324,8 +324,8 @@ class _LoginScreenState extends State<LoginScreen>
           apiService.setToken(_authService.token);
           apiService.setRefreshToken(_authService.refreshToken);
           
-          // Connect to WebSocket
-          webSocketService.connect();
+          // WebSocket disabled - backend does not support WebSocket
+          // webSocketService.connect();
           
           Navigator.pushReplacement(
             context,
@@ -562,8 +562,8 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     super.initState();
     _apiService = widget.apiService;
     
-    // Listen for low stock alerts
-    webSocketService.addListener(_handleLowStockAlert);
+    // WebSocket disabled - backend does not support WebSocket
+    // webSocketService.addListener(_handleLowStockAlert);
   }
 
   void _handleLowStockAlert(Map<String, dynamic> alert) {
@@ -588,14 +588,15 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
   @override
   void dispose() {
     _apiService.dispose();
-    webSocketService.removeListener(_handleLowStockAlert);
+    // WebSocket disabled - backend does not support WebSocket
+    // webSocketService.removeListener(_handleLowStockAlert);
     super.dispose();
   }
 
   void _onDestinationSelected(int index) async {
     if (index == -1) {
-      // Disconnect WebSocket before logout
-      webSocketService.disconnect();
+      // WebSocket disabled - backend does not support WebSocket
+      // webSocketService.disconnect();
       
       // Clear user data from auth provider
       ProviderScope.containerOf(context).read(authProvider.notifier).clearUser();

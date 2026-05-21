@@ -111,8 +111,7 @@ void main(List<String> args) async {
     // Create default receptionist user if not exists
     await _createDefaultReceptionistUser(db, jwtSecret);
     
-    // Seed default accounting accounts
-    await _seedAccountingAccounts(db);
+    // Note: Accounting accounts seeding removed - use seed_data.ps1 manually if needed
   } catch (e) {
     logger.e('Failed to initialize database: $e');
     rethrow;

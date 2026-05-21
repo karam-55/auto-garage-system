@@ -14,6 +14,7 @@ import '../../domain/repositories/account_repository.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../../application/usecases/create_booking_usecase.dart';
 import '../../application/usecases/update_booking_status_usecase.dart';
+import '../../application/usecases/process_booking_payment_usecase.dart';
 import '../../application/services/journal_service.dart';
 import '../../application/services/accounting_settings_service.dart';
 import '../../infrastructure/database/database_connection.dart';
@@ -74,6 +75,12 @@ class BookingRoutes {
 
     // PATCH /api/bookings/:id/services
     router.patch('/api/bookings/<id>/services', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.RECEPTIONIST)(_updateBookingServices)));
+
+    // POST /api/bookings/:id/payment (accessible by RECEPTIONIST, MANAGER, OWNER)
+    router.post('/api/bookings/<id>/payment', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.RECEPTIONIST, Role.MANAGER, Role.OWNER])(_processPayment)));
+
+    // GET /api/bookings/:id/invoice (accessible by RECEPTIONIST, MANAGER, OWNER)
+    router.get('/api/bookings/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.RECEPTIONIST, Role.MANAGER, Role.OWNER])(_getBookingInvoice)));
 
     // DELETE /api/bookings/:id
     router.delete('/api/bookings/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_deleteBooking)));
@@ -500,6 +507,84 @@ class BookingRoutes {
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to delete booking: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _processPayment(Request request) async {
+    final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
+
+    final body = await JsonMiddleware.parseJsonBody(request);
+    if (body == null) {
+      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
+    }
+
+    final paymentMethod = body['payment_method'] as String?;
+    if (paymentMethod == null || paymentMethod.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'payment_method is required'}));
+    }
+
+    if (paymentMethod != 'cash' && paymentMethod != 'electronic') {
+      return Response.badRequest(body: jsonEncode({'error': 'payment_method must be either "cash" or "electronic"'}));
+    }
+
+    final paymentAmount = body['payment_amount'];
+    double paymentAmountDouble;
+    if (paymentAmount is num) {
+      paymentAmountDouble = paymentAmount.toDouble();
+    } else if (paymentAmount is String) {
+      paymentAmountDouble = double.tryParse(paymentAmount) ?? 0;
+    } else {
+      return Response.badRequest(body: jsonEncode({'error': 'payment_amount must be a number'}));
+    }
+
+    if (paymentAmountDouble <= 0) {
+      return Response.badRequest(body: jsonEncode({'error': 'payment_amount must be greater than 0'}));
+    }
+
+    try {
+      final useCase = ProcessBookingPaymentUseCase(
+        _invoiceDataRepository,
+        _accountRepository,
+        _journalRepository,
+        _journalService,
+        _accountingSettingsService,
+      );
+
+      final userId = request.context['user'] != null ? (request.context['user'] as dynamic).id : null;
+
+      final updatedInvoice = await useCase.execute(
+        bookingId: id,
+        paymentMethod: paymentMethod,
+        paymentAmount: paymentAmountDouble,
+        userId: userId,
+      );
+
+      return Response.ok(jsonEncode(updatedInvoice.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to process payment: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _getBookingInvoice(Request request) async {
+    final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
+    try {
+      final invoiceData = await _invoiceDataRepository.findByBookingId(id);
+      if (invoiceData == null) {
+        return Response.notFound(jsonEncode({'error': 'Invoice not found'}));
+      }
+      return Response.ok(jsonEncode(invoiceData.toJson()));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to fetch invoice: $e'}),
       );
     }
   }

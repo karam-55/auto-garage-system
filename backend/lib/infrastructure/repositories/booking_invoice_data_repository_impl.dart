@@ -54,6 +54,10 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
       qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
       journalEntryId: data['journal_entry_id'] as int?,
+      paymentMethod: data['payment_method'] as String? ?? 'cash',
+      paymentStatus: data['payment_status'] as String? ?? 'unpaid',
+      amountPaid: (data['amount_paid'] is num ? data['amount_paid'] as num : double.tryParse(data['amount_paid'] as String? ?? '0'))?.toDouble() ?? 0,
+      amountRemaining: (data['amount_remaining'] is num ? data['amount_remaining'] as num : double.tryParse(data['amount_remaining'] as String? ?? '0'))?.toDouble() ?? 0,
     );
     
     return invoice;
@@ -64,8 +68,8 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
         Sql.named('''
-          INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at, public_token, qr_code_url, journal_entry_id)
-          VALUES (@id, @bookingId, @servicesSnapshot, @partsSnapshot, @totalPrice, @invoiceCreatedAt, @publicToken, @qrCodeUrl, @journalEntryId)
+          INSERT INTO booking_invoice_data (id, booking_id, services_snapshot, parts_snapshot, total_price, invoice_created_at, public_token, qr_code_url, journal_entry_id, payment_method, payment_status, amount_paid, amount_remaining)
+          VALUES (@id, @bookingId, @servicesSnapshot, @partsSnapshot, @totalPrice, @invoiceCreatedAt, @publicToken, @qrCodeUrl, @journalEntryId, @paymentMethod, @paymentStatus, @amountPaid, @amountRemaining)
           RETURNING *
         '''),
         parameters: {
@@ -82,6 +86,10 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
           'publicToken': invoiceData.publicToken,
           'qrCodeUrl': invoiceData.qrCodeUrl,
           'journalEntryId': invoiceData.journalEntryId,
+          'paymentMethod': invoiceData.paymentMethod,
+          'paymentStatus': invoiceData.paymentStatus,
+          'amountPaid': invoiceData.amountPaid,
+          'amountRemaining': invoiceData.amountRemaining,
         },
       );
 
@@ -119,6 +127,10 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
         qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
         journalEntryId: data['journal_entry_id'] as int?,
+        paymentMethod: data['payment_method'] as String? ?? 'cash',
+        paymentStatus: data['payment_status'] as String? ?? 'unpaid',
+        amountPaid: (data['amount_paid'] is num ? data['amount_paid'] as num : double.tryParse(data['amount_paid'] as String? ?? '0'))?.toDouble() ?? 0,
+        amountRemaining: (data['amount_remaining'] is num ? data['amount_remaining'] as num : double.tryParse(data['amount_remaining'] as String? ?? '0'))?.toDouble() ?? 0,
       );
     });
   }
@@ -133,7 +145,11 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
             total_price = @totalPrice,
             public_token = @publicToken,
             qr_code_url = @qrCodeUrl,
-            journal_entry_id = @journalEntryId
+            journal_entry_id = @journalEntryId,
+            payment_method = @paymentMethod,
+            payment_status = @paymentStatus,
+            amount_paid = @amountPaid,
+            amount_remaining = @amountRemaining
         WHERE booking_id = @bookingId
         RETURNING *
       '''),
@@ -149,6 +165,10 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         'publicToken': invoiceData.publicToken,
         'qrCodeUrl': invoiceData.qrCodeUrl,
         'journalEntryId': invoiceData.journalEntryId,
+        'paymentMethod': invoiceData.paymentMethod,
+        'paymentStatus': invoiceData.paymentStatus,
+        'amountPaid': invoiceData.amountPaid,
+        'amountRemaining': invoiceData.amountRemaining,
       },
     );
 
@@ -194,6 +214,10 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
       publicToken: data['public_token'] is String ? data['public_token'] as String? : null,
       qrCodeUrl: data['qr_code_url'] is String ? data['qr_code_url'] as String? : null,
       journalEntryId: data['journal_entry_id'] as int?,
+      paymentMethod: data['payment_method'] as String? ?? 'cash',
+      paymentStatus: data['payment_status'] as String? ?? 'unpaid',
+      amountPaid: (data['amount_paid'] is num ? data['amount_paid'] as num : double.tryParse(data['amount_paid'] as String? ?? '0'))?.toDouble() ?? 0,
+      amountRemaining: (data['amount_remaining'] is num ? data['amount_remaining'] as num : double.tryParse(data['amount_remaining'] as String? ?? '0'))?.toDouble() ?? 0,
     );
   }
 
@@ -320,6 +344,10 @@ class BookingInvoiceDataRepositoryImpl implements BookingInvoiceDataRepository {
         invoiceCreatedAt: DateTime.now().toUtc(),
         publicToken: publicToken,
         qrCodeUrl: qrCodeUrl,
+        paymentMethod: 'cash',
+        paymentStatus: 'unpaid',
+        amountPaid: 0,
+        amountRemaining: totalPrice,
       );
 
       return await create(invoiceData);

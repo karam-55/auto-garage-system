@@ -714,6 +714,199 @@ class _BookingsScreenState extends State<BookingsScreen> {
     );
   }
 
+  Future<void> _showPaymentDialog(BuildContext context, Map<String, dynamic> booking) async {
+    // Fetch invoice data to get payment information
+    try {
+      final invoiceResponse = await widget.apiService.get('${ApiConstants.bookings}/${booking['id']}/invoice');
+      final invoiceData = invoiceResponse is Map<String, dynamic> ? invoiceResponse : null;
+
+      final formKey = GlobalKey<FormState>();
+      final paymentMethodController = TextEditingController(text: 'cash');
+      final paymentAmountController = TextEditingController();
+      
+      String selectedPaymentType = 'full'; // 'full' or 'partial'
+      
+      // Calculate total amount and remaining
+      final totalAmount = (invoiceData?['totalPrice'] as num?)?.toDouble() ?? 0;
+      final amountPaid = (invoiceData?['amountPaid'] as num?)?.toDouble() ?? 0;
+      final amountRemaining = (invoiceData?['amountRemaining'] as num?)?.toDouble() ?? totalAmount;
+      
+      if (amountRemaining <= 0) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم دفع الفاتورة بالكامل')));
+        }
+        return;
+      }
+
+      showProfessionalDialog(
+        context: context,
+        title: 'تسجيل دفع',
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Show payment info
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildPaymentInfoRow('إجمالي الفاتورة', totalAmount.toStringAsFixed(2)),
+                        const SizedBox(height: 4),
+                        _buildPaymentInfoRow('المبلغ المدفوع', amountPaid.toStringAsFixed(2)),
+                        const SizedBox(height: 4),
+                        _buildPaymentInfoRow('المتبقي', amountRemaining.toStringAsFixed(2), isHighlight: true),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Payment type selection
+                  const Text('نوع الدفع', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Radio<String>(
+                        value: 'full',
+                        groupValue: selectedPaymentType,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedPaymentType = value!;
+                            paymentAmountController.text = amountRemaining.toStringAsFixed(2);
+                          });
+                        },
+                      ),
+                      const Text('دفع كامل'),
+                      const SizedBox(width: 16),
+                      Radio<String>(
+                        value: 'partial',
+                        groupValue: selectedPaymentType,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedPaymentType = value!;
+                            paymentAmountController.clear();
+                          });
+                        },
+                      ),
+                      const Text('دفع جزئي'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Payment method selection
+                  const Text('طريقة الدفع', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: 'cash',
+                    decoration: InputDecoration(
+                      labelText: 'طريقة الدفع',
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'cash', child: Text('نقدي')),
+                      DropdownMenuItem(value: 'electronic', child: Text('إلكتروني')),
+                    ],
+                    onChanged: (value) => paymentMethodController.text = value!,
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Payment amount
+                  TextFormField(
+                    controller: paymentAmountController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'المبلغ',
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'يرجى إدخال المبلغ';
+                      }
+                      final amount = double.tryParse(value);
+                      if (amount == null || amount <= 0) {
+                        return 'المبلغ يجب أن يكون أكبر من صفر';
+                      }
+                      if (amount > amountRemaining) {
+                        return 'المبلغ لا يمكن أن يتجاوز المتبقي';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        onConfirm: () async {
+          if (formKey.currentState?.validate() ?? false) {
+            try {
+              final paymentAmount = double.tryParse(paymentAmountController.text) ?? 0;
+              
+              await widget.apiService.post(
+                '${ApiConstants.bookings}/${booking['id']}/payment',
+                body: {
+                  'payment_method': paymentMethodController.text,
+                  'payment_amount': paymentAmount,
+                },
+              );
+              
+              if (mounted) {
+                Navigator.pop(context);
+                _loadBookings();
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيل الدفع بنجاح')));
+              }
+            } catch (e) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
+              }
+            }
+          }
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل بيانات الفاتورة: $e')));
+      }
+    }
+  }
+
+  Widget _buildPaymentInfoRow(String label, String value, {bool isHighlight = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+        Text(
+          '$value ل.س',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w600,
+            color: isHighlight ? Colors.green : Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
   Future<void> _showInvoiceForBooking(Map<String, dynamic> booking) async {
     final vehicleId = booking['vehicleId']?.toString();
     if (vehicleId == null || vehicleId.isEmpty) {
@@ -991,6 +1184,17 @@ class _BookingCard extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => _showPaymentDialog(context, booking),
+                      icon: const Icon(Icons.payment_rounded, size: 14),
+                      label: const Text('الدفع'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        foregroundColor: Colors.green,
+                        side: const BorderSide(color: Colors.green),
                       ),
                     ),
                     OutlinedButton.icon(

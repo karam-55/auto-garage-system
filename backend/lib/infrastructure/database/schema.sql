@@ -336,7 +336,11 @@ CREATE TABLE IF NOT EXISTS booking_invoice_data (
     invoice_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     public_token VARCHAR(255),
     qr_code_url TEXT,
-    journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL
+    journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL,
+    payment_method VARCHAR(50) DEFAULT 'cash' CHECK (payment_method IN ('cash', 'electronic')),
+    payment_status VARCHAR(50) DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid', 'partial', 'paid')),
+    amount_paid DECIMAL(12, 2) DEFAULT 0,
+    amount_remaining DECIMAL(12, 2) DEFAULT 0
 );
 
 -- Alerts table
@@ -385,6 +389,12 @@ ALTER TABLE inventory_variants ADD COLUMN IF NOT EXISTS cost_price DECIMAL(12, 2
 ALTER TABLE inventory_variants ADD COLUMN IF NOT EXISTS selling_price DECIMAL(12, 2) DEFAULT 0;
 ALTER TABLE company_settings ADD COLUMN IF NOT EXISTS accounting_settings JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE booking_invoice_data ADD COLUMN IF NOT EXISTS journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL;
+
+-- Add payment-related columns to booking_invoice_data for existing tables
+ALTER TABLE booking_invoice_data ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50) DEFAULT 'cash' CHECK (payment_method IN ('cash', 'electronic'));
+ALTER TABLE booking_invoice_data ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50) DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid', 'partial', 'paid'));
+ALTER TABLE booking_invoice_data ADD COLUMN IF NOT EXISTS amount_paid DECIMAL(12, 2) DEFAULT 0;
+ALTER TABLE booking_invoice_data ADD COLUMN IF NOT EXISTS amount_remaining DECIMAL(12, 2) DEFAULT 0;
 
 -- Add salary-related columns to users table
 ALTER TABLE users ADD COLUMN IF NOT EXISTS base_salary DECIMAL(15,2) DEFAULT 0;

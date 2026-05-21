@@ -8,6 +8,10 @@ class BookingInvoiceData {
   final String? publicToken;
   final String? qrCodeUrl;
   final int? journalEntryId;
+  final String paymentMethod;
+  final String paymentStatus;
+  final double amountPaid;
+  final double amountRemaining;
 
   BookingInvoiceData({
     required this.id,
@@ -19,6 +23,10 @@ class BookingInvoiceData {
     this.publicToken,
     this.qrCodeUrl,
     this.journalEntryId,
+    this.paymentMethod = 'cash',
+    this.paymentStatus = 'unpaid',
+    this.amountPaid = 0,
+    this.amountRemaining = 0,
   });
 
   BookingInvoiceData copyWith({
@@ -31,6 +39,10 @@ class BookingInvoiceData {
     String? publicToken,
     String? qrCodeUrl,
     int? journalEntryId,
+    String? paymentMethod,
+    String? paymentStatus,
+    double? amountPaid,
+    double? amountRemaining,
   }) {
     return BookingInvoiceData(
       id: id ?? this.id,
@@ -42,6 +54,10 @@ class BookingInvoiceData {
       publicToken: publicToken ?? this.publicToken,
       qrCodeUrl: qrCodeUrl ?? this.qrCodeUrl,
       journalEntryId: journalEntryId ?? this.journalEntryId,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      amountPaid: amountPaid ?? this.amountPaid,
+      amountRemaining: amountRemaining ?? this.amountRemaining,
     );
   }
 
@@ -56,6 +72,10 @@ class BookingInvoiceData {
       'publicToken': publicToken,
       'qrCodeUrl': qrCodeUrl,
       'journalEntryId': journalEntryId,
+      'paymentMethod': paymentMethod,
+      'paymentStatus': paymentStatus,
+      'amountPaid': amountPaid,
+      'amountRemaining': amountRemaining,
     };
   }
 
@@ -72,6 +92,10 @@ class BookingInvoiceData {
       publicToken: json['publicToken'] as String?,
       qrCodeUrl: json['qrCodeUrl'] as String?,
       journalEntryId: json['journalEntryId'] as int?,
+      paymentMethod: json['paymentMethod'] as String? ?? 'cash',
+      paymentStatus: json['paymentStatus'] as String? ?? 'unpaid',
+      amountPaid: (json['amountPaid'] is num ? json['amountPaid'] as num : double.tryParse(json['amountPaid'] as String? ?? '0'))?.toDouble() ?? 0,
+      amountRemaining: (json['amountRemaining'] is num ? json['amountRemaining'] as num : double.tryParse(json['amountRemaining'] as String? ?? '0'))?.toDouble() ?? 0,
     );
   }
 }

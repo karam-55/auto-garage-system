@@ -30,8 +30,10 @@ import '../../domain/entities/quotation.dart';
 import '../../domain/entities/warehouse.dart';
 import '../../domain/entities/bill_of_materials.dart';
 import '../../domain/entities/crm_lead.dart';
-import '../../domain/entities/fixed_asset.dart';
+import '../../domain/repositories/fixed_asset_repository.dart';
+import '../../domain/repositories/maintenance_contract_repository.dart';
 import '../../domain/entities/maintenance_contract.dart' as maintenance_contract_entity;
+import '../../domain/entities/fixed_asset.dart';
 import '../../domain/entities/employee_contract.dart';
 import '../../domain/entities/leave_request.dart' as leave_request_entity;
 import '../../application/services/purchase_order_service.dart';
@@ -60,6 +62,7 @@ class ErpRoutes {
   final FixedAssetService _fixedAssetService;
   final SalesOrderService _salesOrderService;
   final InventoryTransferService _inventoryTransferService;
+  final MaintenanceContractRepository _maintenanceContractRepository;
   final AuthMiddleware _authMiddleware;
   final ReceivePurchaseOrderUseCase _receivePurchaseOrderUseCase;
   final PayPurchaseInvoiceUseCase _payPurchaseInvoiceUseCase;
@@ -76,6 +79,7 @@ class ErpRoutes {
     this._fixedAssetService,
     this._salesOrderService,
     this._inventoryTransferService,
+    this._maintenanceContractRepository,
     this._authMiddleware,
     this._receivePurchaseOrderUseCase,
     this._payPurchaseInvoiceUseCase,
@@ -131,6 +135,7 @@ class ErpRoutes {
       fixedAssetService,
       salesOrderService,
       inventoryTransferService,
+      maintenanceRepo,
       authMiddleware,
       receivePurchaseOrderUseCase,
       payPurchaseInvoiceUseCase,
@@ -1319,7 +1324,9 @@ class ErpRoutes {
         final contracts = await _fixedAssetService.getContractsByVehicle(vehicleId);
         return Response.ok(jsonEncode(contracts.map((c) => c.toJson()).toList()));
       }
-      return Response.badRequest(body: jsonEncode({'error': 'customer_id or vehicle_id parameter required'}));
+      // Return all contracts if no parameters provided
+      final contracts = await _maintenanceContractRepository.findAll();
+      return Response.ok(jsonEncode(contracts.map((c) => c.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch maintenance contracts: $e'}));
     }

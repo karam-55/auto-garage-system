@@ -84,19 +84,14 @@ Future<void> main() async {
     print('- 15 Services');
     print('- 20 Inventory Items');
     print('- 18 Inventory Variants');
-    print('- 10 Bookings (different statuses)');
-    print('- 12 Booking Services');
-    print('- 6 Mechanic Assignments');
-    print('- 5 Part Suggestions');
     print('- 16 Accounts (Chart of Accounts)');
     print('- Accounting Settings configured');
     print('- 3 Vendors');
-    print('- 1 Purchase Invoice');
-    print('- 2 Expenses');
     print('- 1 Fiscal Period');
     print('- 2 Bank Accounts');
     print('- Payroll Settings');
-    print('- 3 Alerts');
+    print('\nNote: Journal entries, booking services, and other auto-generated data');
+    print('will be created automatically when you add data through the web interface.');
     
   } catch (e) {
     print('Error: $e');

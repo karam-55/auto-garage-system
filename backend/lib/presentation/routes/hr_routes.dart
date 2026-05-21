@@ -156,7 +156,8 @@ class HrRoutes {
   Future<Response> _getAllLeaveRequests(Request request) async {
     try {
       final useCase = GetLeaveRequestUseCase(_leaveRequestRepository);
-      final requests = await useCase.executeByStatus('pending');
+      final status = request.url.queryParameters['status'] ?? 'pending';
+      final requests = await useCase.executeByStatus(status);
       return Response.ok(jsonEncode(requests.map((r) => r.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to get leave requests: $e'}));

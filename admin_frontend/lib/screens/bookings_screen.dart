@@ -1286,25 +1286,28 @@ class _BookingCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildPaymentInfoRow('المبلغ المستحق', booking['totalPrice']?.toStringAsFixed(2) ?? '0.00'),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildPaymentInfoColumn('المدفوع', booking['amountPaid']?.toStringAsFixed(2) ?? '0.00', Colors.green),
-                          _buildPaymentInfoColumn('المتبقي', booking['amountRemaining']?.toStringAsFixed(2) ?? '0.00', Colors.orange),
-                        ],
-                      ),
-                    ],
+                SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildPaymentInfoRow('المبلغ المستحق', booking['totalPrice']?.toStringAsFixed(2) ?? '0.00'),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildPaymentInfoColumn('المدفوع', booking['amountPaid']?.toStringAsFixed(2) ?? '0.00', Colors.green),
+                            _buildPaymentInfoColumn('المتبقي', booking['amountRemaining']?.toStringAsFixed(2) ?? '0.00', Colors.orange),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

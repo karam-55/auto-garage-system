@@ -431,8 +431,9 @@ CREATE TABLE IF NOT EXISTS depreciation_entries (
 -- Maintenance Contracts table
 CREATE TABLE IF NOT EXISTS maintenance_contracts (
     id SERIAL PRIMARY KEY,
-    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-    vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+    asset_id INTEGER REFERENCES fixed_assets(id) ON DELETE CASCADE,
+    customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
+    vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
     contract_number VARCHAR(50),
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
@@ -646,6 +647,7 @@ CREATE TABLE IF NOT EXISTS leave_requests (
     status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled')),
     approved_by UUID REFERENCES users(id),
     approved_at TIMESTAMP WITH TIME ZONE,
+    rejection_reason TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

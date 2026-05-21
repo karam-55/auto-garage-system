@@ -84,7 +84,10 @@ class AccountingSettingsService {
 
   Future<void> saveSettings(AccountingSettings settings) async {
     final currentSettings = await _settingsRepository.getSettings();
-    final updatedSettings = currentSettings!.copyWith(
+    if (currentSettings == null) {
+      throw Exception('Company settings not found');
+    }
+    final updatedSettings = currentSettings.copyWith(
       accountingSettings: settings.toJson(),
     );
     await _settingsRepository.updateSettings(updatedSettings);
@@ -93,17 +96,17 @@ class AccountingSettingsService {
   Future<AccountingSettings> _initializeDefaultSettings() async {
     final defaultAccounts = await _getDefaultAccountIds();
     return AccountingSettings(
-      revenueServiceAccountId: defaultAccounts['revenue_service']!,
-      revenuePartsAccountId: defaultAccounts['revenue_parts']!,
-      cogsPartsAccountId: defaultAccounts['cogs_parts']!,
-      inventoryAccountId: defaultAccounts['inventory']!,
-      cashAccountId: defaultAccounts['cash']!,
-      receivableAccountId: defaultAccounts['receivable']!,
-      payableAccountId: defaultAccounts['payable']!,
-      wipAccountId: defaultAccounts['wip']!,
-      depreciationExpenseAccountId: defaultAccounts['depreciation_expense']!,
-      accumulatedDepreciationAccountId: defaultAccounts['accumulated_depreciation']!,
-      salesTaxAccountId: defaultAccounts['sales_tax']!,
+      revenueServiceAccountId: defaultAccounts['revenue_service'] ?? 0,
+      revenuePartsAccountId: defaultAccounts['revenue_parts'] ?? 0,
+      cogsPartsAccountId: defaultAccounts['cogs_parts'] ?? 0,
+      inventoryAccountId: defaultAccounts['inventory'] ?? 0,
+      cashAccountId: defaultAccounts['cash'] ?? 0,
+      receivableAccountId: defaultAccounts['receivable'] ?? 0,
+      payableAccountId: defaultAccounts['payable'] ?? 0,
+      wipAccountId: defaultAccounts['wip'] ?? 0,
+      depreciationExpenseAccountId: defaultAccounts['depreciation_expense'] ?? 0,
+      accumulatedDepreciationAccountId: defaultAccounts['accumulated_depreciation'] ?? 0,
+      salesTaxAccountId: defaultAccounts['sales_tax'] ?? 0,
     );
   }
 

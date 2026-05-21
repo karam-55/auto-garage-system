@@ -995,7 +995,9 @@ class ErpRoutes {
         final contracts = await _hrService.getContractsByUser(userId);
         return Response.ok(jsonEncode(contracts.map((c) => c.toJson()).toList()));
       }
-      return Response.badRequest(body: jsonEncode({'error': 'user_id parameter required'}));
+      // Return all contracts if no user_id parameter provided
+      final contracts = await _hrService.getAllContracts();
+      return Response.ok(jsonEncode(contracts.map((c) => c.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch contracts: $e'}));
     }
@@ -1078,12 +1080,9 @@ class ErpRoutes {
 
   Future<Response> _getLeaveRequests(Request request) async {
     try {
-      final status = request.url.queryParameters['status'];
-      if (status != null) {
-        final requests = await _hrService.getLeaveRequestsByStatus(status);
-        return Response.ok(jsonEncode(requests.map((r) => r.toJson()).toList()));
-      }
-      return Response.badRequest(body: jsonEncode({'error': 'status parameter required'}));
+      final status = request.url.queryParameters['status'] ?? 'pending';
+      final requests = await _hrService.getLeaveRequestsByStatus(status);
+      return Response.ok(jsonEncode(requests.map((r) => r.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch leave requests: $e'}));
     }
@@ -1169,7 +1168,8 @@ class ErpRoutes {
         final reviews = await _hrService.getPerformanceReviewsByUser(userId);
         return Response.ok(jsonEncode(reviews.map((r) => (r).toJson()).toList()));
       }
-      return Response.badRequest(body: jsonEncode({'error': 'user_id parameter required'}));
+      // Return empty list if no user_id parameter provided
+      return Response.ok(jsonEncode([]));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Failed to fetch performance reviews: $e'}));
     }

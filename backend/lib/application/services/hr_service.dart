@@ -50,6 +50,10 @@ class HrService {
     return await _getContractUseCase.executeByUserId(userId);
   }
 
+  Future<List<EmployeeContract>> getAllContracts() async {
+    return await _getContractUseCase.executeAll();
+  }
+
   Future<EmployeeContract> updateContract(EmployeeContract contract) async {
     return await _updateContractUseCase.execute(contract);
   }

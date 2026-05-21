@@ -36,13 +36,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   void initState() {
     super.initState();
+    print('ReportsScreen: initState called');
     _loadRevenueData();
   }
 
   Future<void> _loadRevenueData() async {
+    print('ReportsScreen: _loadRevenueData called');
     setState(() => _isLoading = true);
     try {
+      print('ReportsScreen: Calling API.get with endpoint: ${ApiConstants.dashboardRevenue}');
       final response = await widget.apiService.get(ApiConstants.dashboardRevenue);
+      print('ReportsScreen: API response received: $response');
       setState(() {
         _revenueData = response is Map<String, dynamic> ? response : null;
         _isLoading = false;
@@ -55,6 +59,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         }
       }
     } catch (e) {
+      print('ReportsScreen: Error loading revenue data: $e');
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

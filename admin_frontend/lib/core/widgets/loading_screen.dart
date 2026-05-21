@@ -191,23 +191,27 @@ class _PageTransitionLoadingState extends State<PageTransitionLoading>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
+    try {
+      _controller = AnimationController(
+        duration: const Duration(milliseconds: 500),
+        vsync: this,
+      );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+      _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+      _slideAnimation = Tween<Offset>(
+        begin: const Offset(0, 0.1),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      );
 
-    _controller.forward();
+      _controller.forward();
+    } catch (e) {
+      print('PageTransitionLoading: Error initializing animations: $e');
+    }
   }
 
   @override
@@ -218,17 +222,22 @@ class _PageTransitionLoadingState extends State<PageTransitionLoading>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return FadeTransition(
-          opacity: _fadeAnimation,
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: widget.child,
-          ),
-        );
-      },
-    );
+    try {
+      return AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(
+              position: _slideAnimation,
+              child: widget.child,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      print('PageTransitionLoading: Error in build: $e');
+      return widget.child;
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../domain/entities/crm_activity.dart';
 import '../../domain/repositories/crm_activity_repository.dart';
 import '../database/database_connection.dart';
@@ -11,9 +12,9 @@ class CrmActivityRepositoryImpl implements CrmActivityRepository {
   Future<CrmActivity> create(CrmActivity activity) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''INSERT INTO crm_activities (lead_id, customer_id, activity_type, description, due_date, is_completed, created_at, created_by)
+        Sql.named('''INSERT INTO crm_activities (lead_id, customer_id, activity_type, description, due_date, is_completed, created_at, created_by)
            VALUES (@leadId, @customerId, @activityType, @description, @dueDate, @isCompleted, @createdAt, @createdBy)
-           RETURNING id, created_at''',
+           RETURNING id, created_at'''),
         parameters: {
           'leadId': activity.leadId,
           'customerId': activity.customerId,
@@ -37,8 +38,8 @@ class CrmActivityRepositoryImpl implements CrmActivityRepository {
   Future<CrmActivity?> findById(int id) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, lead_id, customer_id, activity_type, description, due_date, is_completed, created_at, updated_at, created_by
-           FROM crm_activities WHERE id = @id''',
+        Sql.named('''SELECT id, lead_id, customer_id, activity_type, description, due_date, is_completed, created_at, updated_at, created_by
+           FROM crm_activities WHERE id = @id'''),
         parameters: {'id': id},
       );
       if (result.isEmpty) return null;
@@ -50,8 +51,8 @@ class CrmActivityRepositoryImpl implements CrmActivityRepository {
   Future<List<CrmActivity>> findByLeadId(int leadId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, lead_id, customer_id, activity_type, description, due_date, is_completed, created_at, updated_at, created_by
-           FROM crm_activities WHERE lead_id = @leadId ORDER BY created_at DESC''',
+        Sql.named('''SELECT id, lead_id, customer_id, activity_type, description, due_date, is_completed, created_at, updated_at, created_by
+           FROM crm_activities WHERE lead_id = @leadId ORDER BY created_at DESC'''),
         parameters: {'leadId': leadId},
       );
       return result.map(_mapRowToActivity).toList();
@@ -62,8 +63,8 @@ class CrmActivityRepositoryImpl implements CrmActivityRepository {
   Future<List<CrmActivity>> findByCustomerId(String customerId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, lead_id, customer_id, activity_type, description, due_date, is_completed, created_at, updated_at, created_by
-           FROM crm_activities WHERE customer_id = @customerId ORDER BY created_at DESC''',
+        Sql.named('''SELECT id, lead_id, customer_id, activity_type, description, due_date, is_completed, created_at, updated_at, created_by
+           FROM crm_activities WHERE customer_id = @customerId ORDER BY created_at DESC'''),
         parameters: {'customerId': customerId},
       );
       return result.map(_mapRowToActivity).toList();
@@ -85,7 +86,7 @@ class CrmActivityRepositoryImpl implements CrmActivityRepository {
   Future<CrmActivity> update(CrmActivity activity) async {
     return await _db.runInTransaction((session) async {
       await session.execute(
-        '''UPDATE crm_activities SET
+        Sql.named('''UPDATE crm_activities SET
            lead_id = @leadId,
            customer_id = @customerId,
            activity_type = @activityType,
@@ -93,7 +94,7 @@ class CrmActivityRepositoryImpl implements CrmActivityRepository {
            due_date = @dueDate,
            is_completed = @isCompleted,
            updated_at = NOW()
-           WHERE id = @id''',
+           WHERE id = @id'''),
         parameters: {
           'id': activity.id,
           'leadId': activity.leadId,
@@ -111,7 +112,7 @@ class CrmActivityRepositoryImpl implements CrmActivityRepository {
   @override
   Future<void> delete(int id) async {
     return await _db.runInTransaction((session) async {
-      await session.execute('DELETE FROM crm_activities WHERE id = @id', parameters: {'id': id});
+      await session.execute(Sql.named('DELETE FROM crm_activities WHERE id = @id'), parameters: {'id': id});
     });
   }
 

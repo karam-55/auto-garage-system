@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../domain/entities/performance_review.dart';
 import '../../domain/repositories/performance_review_repository.dart';
 import '../database/database_connection.dart';
@@ -11,9 +12,9 @@ class PerformanceReviewRepositoryImpl implements PerformanceReviewRepository {
   Future<PerformanceReview> create(PerformanceReview review) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''INSERT INTO performance_reviews (user_id, reviewer_id, review_date, overall_rating, strengths, weaknesses, goals, comments, created_at)
+        Sql.named('''INSERT INTO performance_reviews (user_id, reviewer_id, review_date, overall_rating, strengths, weaknesses, goals, comments, created_at)
            VALUES (@userId, @reviewerId, @reviewDate, @overallRating, @strengths, @weaknesses, @goals, @comments, @createdAt)
-           RETURNING id, created_at''',
+           RETURNING id, created_at'''),
         parameters: {
           'userId': review.userId,
           'reviewerId': review.reviewerId,
@@ -38,8 +39,8 @@ class PerformanceReviewRepositoryImpl implements PerformanceReviewRepository {
   Future<PerformanceReview?> findById(int id) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, user_id, reviewer_id, review_date, overall_rating, strengths, weaknesses, goals, comments, created_at, updated_at
-           FROM performance_reviews WHERE id = @id''',
+        Sql.named('''SELECT id, user_id, reviewer_id, review_date, overall_rating, strengths, weaknesses, goals, comments, created_at, updated_at
+           FROM performance_reviews WHERE id = @id'''),
         parameters: {'id': id},
       );
       if (result.isEmpty) return null;
@@ -51,8 +52,8 @@ class PerformanceReviewRepositoryImpl implements PerformanceReviewRepository {
   Future<List<PerformanceReview>> findByUserId(String userId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, user_id, reviewer_id, review_date, overall_rating, strengths, weaknesses, goals, comments, created_at, updated_at
-           FROM performance_reviews WHERE user_id = @userId ORDER BY review_date DESC''',
+        Sql.named('''SELECT id, user_id, reviewer_id, review_date, overall_rating, strengths, weaknesses, goals, comments, created_at, updated_at
+           FROM performance_reviews WHERE user_id = @userId ORDER BY review_date DESC'''),
         parameters: {'userId': userId},
       );
       return result.map(_mapRowToReview).toList();
@@ -74,7 +75,7 @@ class PerformanceReviewRepositoryImpl implements PerformanceReviewRepository {
   Future<PerformanceReview> update(PerformanceReview review) async {
     return await _db.runInTransaction((session) async {
       await session.execute(
-        '''UPDATE performance_reviews SET
+        Sql.named('''UPDATE performance_reviews SET
            user_id = @userId,
            reviewer_id = @reviewerId,
            review_date = @reviewDate,
@@ -84,7 +85,7 @@ class PerformanceReviewRepositoryImpl implements PerformanceReviewRepository {
            goals = @goals,
            comments = @comments,
            updated_at = NOW()
-           WHERE id = @id''',
+           WHERE id = @id'''),
         parameters: {
           'id': review.id,
           'userId': review.userId,
@@ -104,7 +105,7 @@ class PerformanceReviewRepositoryImpl implements PerformanceReviewRepository {
   @override
   Future<void> delete(int id) async {
     return await _db.runInTransaction((session) async {
-      await session.execute('DELETE FROM performance_reviews WHERE id = @id', parameters: {'id': id});
+      await session.execute(Sql.named('DELETE FROM performance_reviews WHERE id = @id'), parameters: {'id': id});
     });
   }
 

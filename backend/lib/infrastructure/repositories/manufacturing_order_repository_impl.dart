@@ -1,3 +1,4 @@
+import 'package:postgres/postgres.dart';
 import '../../domain/entities/manufacturing_order.dart';
 import '../../domain/repositories/manufacturing_order_repository.dart';
 import '../database/database_connection.dart';
@@ -11,9 +12,9 @@ class ManufacturingOrderRepositoryImpl implements ManufacturingOrderRepository {
   Future<ManufacturingOrder> create(ManufacturingOrder order) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''INSERT INTO manufacturing_orders (order_number, bom_id, status, quantity, start_date, expected_completion_date, notes, created_at)
+        Sql.named('''INSERT INTO manufacturing_orders (order_number, bom_id, status, quantity, start_date, expected_completion_date, notes, created_at)
            VALUES (@orderNumber, @bomId, @status, @quantity, @startDate, @expectedCompletionDate, @notes, @createdAt)
-           RETURNING id, created_at''',
+           RETURNING id, created_at'''),
         parameters: {
           'orderNumber': order.orderNumber,
           'bomId': order.bomId,
@@ -37,8 +38,8 @@ class ManufacturingOrderRepositoryImpl implements ManufacturingOrderRepository {
   Future<ManufacturingOrder?> findById(int id) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, order_number, bom_id, status, quantity, start_date, expected_completion_date, actual_completion_date, notes, created_at, updated_at
-           FROM manufacturing_orders WHERE id = @id''',
+        Sql.named('''SELECT id, order_number, bom_id, status, quantity, start_date, expected_completion_date, actual_completion_date, notes, created_at, updated_at
+           FROM manufacturing_orders WHERE id = @id'''),
         parameters: {'id': id},
       );
       if (result.isEmpty) return null;
@@ -50,8 +51,8 @@ class ManufacturingOrderRepositoryImpl implements ManufacturingOrderRepository {
   Future<List<ManufacturingOrder>> findByBomId(int bomId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, order_number, bom_id, status, quantity, start_date, expected_completion_date, actual_completion_date, notes, created_at, updated_at
-           FROM manufacturing_orders WHERE bom_id = @bomId ORDER BY created_at DESC''',
+        Sql.named('''SELECT id, order_number, bom_id, status, quantity, start_date, expected_completion_date, actual_completion_date, notes, created_at, updated_at
+           FROM manufacturing_orders WHERE bom_id = @bomId ORDER BY created_at DESC'''),
         parameters: {'bomId': bomId},
       );
       return result.map(_mapRowToOrder).toList();
@@ -62,8 +63,8 @@ class ManufacturingOrderRepositoryImpl implements ManufacturingOrderRepository {
   Future<List<ManufacturingOrder>> findByStatus(String status) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, order_number, bom_id, status, quantity, start_date, expected_completion_date, actual_completion_date, notes, created_at, updated_at
-           FROM manufacturing_orders WHERE status = @status ORDER BY created_at DESC''',
+        Sql.named('''SELECT id, order_number, bom_id, status, quantity, start_date, expected_completion_date, actual_completion_date, notes, created_at, updated_at
+           FROM manufacturing_orders WHERE status = @status ORDER BY created_at DESC'''),
         parameters: {'status': status},
       );
       return result.map(_mapRowToOrder).toList();
@@ -85,7 +86,7 @@ class ManufacturingOrderRepositoryImpl implements ManufacturingOrderRepository {
   Future<ManufacturingOrder> update(ManufacturingOrder order) async {
     return await _db.runInTransaction((session) async {
       await session.execute(
-        '''UPDATE manufacturing_orders SET
+        Sql.named('''UPDATE manufacturing_orders SET
            order_number = @orderNumber,
            bom_id = @bomId,
            status = @status,
@@ -95,7 +96,7 @@ class ManufacturingOrderRepositoryImpl implements ManufacturingOrderRepository {
            actual_completion_date = @actualCompletionDate,
            notes = @notes,
            updated_at = NOW()
-           WHERE id = @id''',
+           WHERE id = @id'''),
         parameters: {
           'id': order.id,
           'orderNumber': order.orderNumber,
@@ -115,7 +116,7 @@ class ManufacturingOrderRepositoryImpl implements ManufacturingOrderRepository {
   @override
   Future<void> delete(int id) async {
     return await _db.runInTransaction((session) async {
-      await session.execute('DELETE FROM manufacturing_orders WHERE id = @id', parameters: {'id': id});
+      await session.execute(Sql.named('DELETE FROM manufacturing_orders WHERE id = @id'), parameters: {'id': id});
     });
   }
 

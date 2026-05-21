@@ -12,9 +12,9 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
   Future<PurchaseInvoice> create(PurchaseInvoice invoice) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''INSERT INTO purchase_invoices (vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status)
+        Sql.named('''INSERT INTO purchase_invoices (vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status)
            VALUES (@vendorId, @invoiceNumber, @issueDate, @dueDate, @totalAmount, @paidAmount, @status)
-           RETURNING id, created_at''',
+           RETURNING id, created_at'''),
         parameters: {
           'vendorId': invoice.vendorId,
           'invoiceNumber': invoice.invoiceNumber,
@@ -37,8 +37,8 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
   Future<PurchaseInvoice?> findById(int id) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, created_at 
-        FROM purchase_invoices WHERE id = @id''',
+        Sql.named('''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, created_at 
+        FROM purchase_invoices WHERE id = @id'''),
         parameters: {'id': id},
       );
       if (result.isEmpty) return null;
@@ -60,8 +60,8 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
   Future<List<PurchaseInvoice>> findAll({int limit = 100, int offset = 0}) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, created_at 
-        FROM purchase_invoices ORDER BY issue_date DESC LIMIT @limit OFFSET @offset''',
+        Sql.named('''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, created_at 
+        FROM purchase_invoices ORDER BY issue_date DESC LIMIT @limit OFFSET @offset'''),
         parameters: {'limit': limit, 'offset': offset},
       );
       return result.map(_mapRowToPurchaseInvoice).toList();
@@ -72,8 +72,8 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
   Future<List<PurchaseInvoice>> findByVendorId(int vendorId, {int limit = 100, int offset = 0}) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, created_at 
-        FROM purchase_invoices WHERE vendor_id = @vendorId ORDER BY issue_date DESC LIMIT @limit OFFSET @offset''',
+        Sql.named('''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, created_at 
+        FROM purchase_invoices WHERE vendor_id = @vendorId ORDER BY issue_date DESC LIMIT @limit OFFSET @offset'''),
         parameters: {'vendorId': vendorId, 'limit': limit, 'offset': offset},
       );
       return result.map(_mapRowToPurchaseInvoice).toList();
@@ -84,8 +84,8 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
   Future<List<PurchaseInvoice>> findByStatus(String status) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        '''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, created_at 
-        FROM purchase_invoices WHERE status = @status ORDER BY issue_date DESC''',
+        Sql.named('''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, created_at 
+        FROM purchase_invoices WHERE status = @status ORDER BY issue_date DESC'''),
         parameters: {'status': status},
       );
       return result.map(_mapRowToPurchaseInvoice).toList();
@@ -96,7 +96,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
   Future<PurchaseInvoice> update(PurchaseInvoice invoice) async {
     return await _db.runInTransaction((session) async {
       await session.execute(
-        '''UPDATE purchase_invoices SET
+        Sql.named('''UPDATE purchase_invoices SET
            vendor_id = @vendorId,
            invoice_number = @invoiceNumber,
            issue_date = @issueDate,
@@ -104,7 +104,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
            total_amount = @totalAmount,
            paid_amount = @paidAmount,
            status = @status
-           WHERE id = @id''',
+           WHERE id = @id'''),
         parameters: {
           'id': invoice.id,
           'vendorId': invoice.vendorId,
@@ -123,7 +123,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
   @override
   Future<void> delete(int id) async {
     return await _db.runInTransaction((session) async {
-      await session.execute('DELETE FROM purchase_invoices WHERE id = @id', parameters: {'id': id});
+      await session.execute(Sql.named('DELETE FROM purchase_invoices WHERE id = @id'), parameters: {'id': id});
     });
   }
 
@@ -151,7 +151,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
   Future<dynamic> findItemsByInvoiceId(int invoiceId) async {
     return await _db.runInTransaction((session) async {
       final result = await session.execute(
-        'SELECT id, invoice_id, inventory_variant_id, quantity, unit_price, total_price FROM purchase_invoice_items WHERE invoice_id = @invoiceId',
+        Sql.named('SELECT id, invoice_id, inventory_variant_id, quantity, unit_price, total_price FROM purchase_invoice_items WHERE invoice_id = @invoiceId'),
         parameters: {'invoiceId': invoiceId},
       );
       return result.toList();
@@ -194,9 +194,9 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
     return await _db.runInTransaction((session) async {
       // Create purchase invoice
       final invoiceResult = await session.execute(
-        '''INSERT INTO purchase_invoices (vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status)
+        Sql.named('''INSERT INTO purchase_invoices (vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status)
            VALUES (@vendorId, @invoiceNumber, @issueDate, @dueDate, @totalAmount, @paidAmount, @status)
-           RETURNING id, created_at''',
+           RETURNING id, created_at'''),
         parameters: {
           'vendorId': invoice.vendorId,
           'invoiceNumber': invoice.invoiceNumber,
@@ -216,8 +216,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
       // Create items
       for (final item in items) {
         await session.execute(
-          Sql.named('''
-            INSERT INTO purchase_invoice_items (id, invoice_id, inventory_variant_id, quantity, unit_price, total_price)
+          Sql.named('''INSERT INTO purchase_invoice_items (id, invoice_id, inventory_variant_id, quantity, unit_price, total_price)
             VALUES (@id, @invoiceId, @inventoryVariantId, @quantity, @unitPrice, @totalPrice)
           '''),
           parameters: {
@@ -232,8 +231,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
 
         // Update inventory
         await session.execute(
-          Sql.named('''
-            UPDATE inventory_variants
+          Sql.named('''UPDATE inventory_variants
             SET quantity = quantity + @quantity,
                 cost_price = @costPrice,
                 updated_at = @updatedAt
@@ -250,8 +248,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
 
       // Create journal entry
       final journalEntryResult = await session.execute(
-        Sql.named('''
-          INSERT INTO journal_entries (entry_date, reference, description, created_by, created_at)
+        Sql.named('''INSERT INTO journal_entries (entry_date, reference, description, created_by, created_at)
           VALUES (@entryDate, @reference, @description, @createdBy, @createdAt)
           RETURNING id
         '''),
@@ -268,8 +265,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
       // Create journal lines (simplified - would need account IDs from settings)
       // For now, just update invoice with journal entry ID
       await session.execute(
-        Sql.named('''
-          UPDATE purchase_invoices
+        Sql.named('''UPDATE purchase_invoices
           SET journal_entry_id = @journalEntryId
           WHERE id = @id
         '''),
@@ -293,8 +289,8 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
     return await _db.runInTransaction((session) async {
       // Get invoice
       final invoiceResult = await session.execute(
-        '''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status
-           FROM purchase_invoices WHERE id = @id''',
+        Sql.named('''SELECT id, vendor_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status
+           FROM purchase_invoices WHERE id = @id'''),
         parameters: {'id': invoiceId},
       );
       if (invoiceResult.isEmpty) {
@@ -309,8 +305,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
       final newPaidAmount = currentPaidAmount + paymentAmount;
       final newStatus = newPaidAmount >= totalAmount ? 'paid' : 'partial';
       await session.execute(
-        Sql.named('''
-          UPDATE purchase_invoices
+        Sql.named('''UPDATE purchase_invoices
           SET paid_amount = @paidAmount, status = @status
           WHERE id = @id
         '''),
@@ -323,8 +318,7 @@ class PurchaseInvoiceRepositoryImpl implements PurchaseInvoiceRepository {
 
       // Create journal entry for payment
       final journalEntryResult = await session.execute(
-        Sql.named('''
-          INSERT INTO journal_entries (entry_date, reference, description, created_by, created_at)
+        Sql.named('''INSERT INTO journal_entries (entry_date, reference, description, created_by, created_at)
           VALUES (@entryDate, @reference, @description, @createdBy, @createdAt)
           RETURNING id
         '''),

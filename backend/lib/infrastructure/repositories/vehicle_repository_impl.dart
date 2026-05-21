@@ -102,18 +102,18 @@ class VehicleRepositoryImpl implements VehicleRepository {
 
   @override
   Future<List<Vehicle>> findByCustomerId(String customerId, {int limit = 100, int offset = 0}) async {
-    final result = await _db.query(
-      'SELECT id, customer_id, make, model, year, license_plate, color, vin, mileage, created_at FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC LIMIT @limit OFFSET @offset',
-      substitutionValues: {'customerId': customerId, 'limit': limit, 'offset': offset},
+    final result = await _db.execute(
+      Sql.named('SELECT id, customer_id, make, model, year, license_plate, color, vin, mileage, created_at FROM vehicles WHERE customer_id = @customerId ORDER BY created_at DESC LIMIT @limit OFFSET @offset'),
+      parameters: {'customerId': customerId, 'limit': limit, 'offset': offset},
     );
     return result.map(_mapRowToVehicle).toList();
   }
 
   @override
   Future<List<Vehicle>> findAll({int limit = 100, int offset = 0}) async {
-    final result = await _db.query(
-      'SELECT id, customer_id, make, model, year, license_plate, color, vin, mileage, created_at FROM vehicles ORDER BY created_at DESC LIMIT @limit OFFSET @offset',
-      substitutionValues: {'limit': limit, 'offset': offset},
+    final result = await _db.execute(
+      Sql.named('SELECT id, customer_id, make, model, year, license_plate, color, vin, mileage, created_at FROM vehicles ORDER BY created_at DESC LIMIT @limit OFFSET @offset'),
+      parameters: {'limit': limit, 'offset': offset},
     );
     return result.map(_mapRowToVehicle).toList();
   }

@@ -723,11 +723,38 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
               destinations: _destinations,
             ),
           Expanded(
-            child: Container(
-              key: ValueKey<int>(_selectedIndex),
-              child: _selectedIndex < screens.length
-                  ? screens[_selectedIndex]
-                  : const Center(child: Text('صفحة غير موجودة')),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.05, 0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    )),
+                    child: child,
+                  ),
+                );
+              },
+              layoutBuilder: (currentChild, previousChildren) {
+                return Stack(
+                  alignment: Alignment.topLeft,
+                  children: <Widget>[
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                );
+              },
+              child: Container(
+                key: ValueKey<int>(_selectedIndex),
+                child: _selectedIndex < screens.length
+                    ? screens[_selectedIndex]
+                    : const Center(child: Text('صفحة غير موجودة')),
+              ),
             ),
           ),
         ],

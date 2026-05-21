@@ -234,27 +234,11 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
           final dest = entry.value;
           
           // تحويل _NavItem إلى _SidebarDestination
-          List<_SidebarDestination>? children;
-          if (dest.children != null) {
-            children = dest.children!.asMap().entries.map((childEntry) {
-              final childIndex = childEntry.key;
-              final childDest = childEntry.value;
-              // For "التقارير المالية" (index 12), children should be 13, 14, 15, 16, 17, 18, 19
-              return _SidebarDestination(
-                icon: childDest.icon,
-                label: childDest.label,
-                index: (index + childIndex + 1) as int, // Calculate correct screen index
-                requiredRoles: null,
-              );
-            }).toList();
-          }
-          
           return _SidebarDestination(
             icon: dest.icon,
             label: dest.label,
             index: index,
             requiredRoles: null, // للجميع
-            children: children,
           );
         }).toList();
 
@@ -341,14 +325,12 @@ class _SidebarDestination {
   final IconData icon;
   final String label;
   final int index;
-  final List<_SidebarDestination>? children;
   final List<Role>? requiredRoles;
 
   _SidebarDestination({
     required this.icon,
     required this.label,
     required this.index,
-    this.children,
     this.requiredRoles,
   });
 }
@@ -384,7 +366,6 @@ class _AnimatedDestinationItemState extends State<_AnimatedDestinationItem>
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
   bool _isHovered = false;
-  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -416,136 +397,96 @@ class _AnimatedDestinationItemState extends State<_AnimatedDestinationItem>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        MouseRegion(
-          onEnter: (_) => setState(() => _isHovered = true),
-          onExit: (_) => setState(() => _isHovered = false),
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: widget.destination.children != null
-                ? () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  }
-                : _handleTap,
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _controller.isAnimating ? _scaleAnimation.value : 1.0,
-                  child: Opacity(
-                    opacity: _controller.isAnimating ? _opacityAnimation.value : 1.0,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      decoration: BoxDecoration(
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: _handleTap,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _controller.isAnimating ? _scaleAnimation.value : 1.0,
+              child: Opacity(
+                opacity: _controller.isAnimating ? _opacityAnimation.value : 1.0,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: widget.isSelected
+                        ? (widget.isDanger
+                            ? Colors.red.withValues(alpha: 0.15)
+                            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.15))
+                        : (_isHovered
+                            ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
+                            : Colors.transparent),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: widget.isSelected
+                          ? (widget.isDanger
+                              ? Colors.red.withValues(alpha: 0.4)
+                              : Theme.of(context).colorScheme.primary.withValues(alpha: 0.4))
+                          : (_isHovered
+                              ? Theme.of(context).dividerColor.withValues(alpha: 0.5)
+                              : Colors.transparent),
+                      width: widget.isSelected || _isHovered ? 1.5 : 1,
+                    ),
+                    boxShadow: _isHovered && !widget.isSelected
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        widget.destination.icon,
+                        size: 24,
                         color: widget.isSelected
                             ? (widget.isDanger
-                                ? Colors.red.withValues(alpha: 0.15)
-                                : Theme.of(context).colorScheme.primary.withValues(alpha: 0.15))
-                            : (_isHovered
-                                ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
-                                : Colors.transparent),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: widget.isSelected
-                              ? (widget.isDanger
-                                  ? Colors.red.withValues(alpha: 0.4)
-                                  : Theme.of(context).colorScheme.primary.withValues(alpha: 0.4))
-                              : (_isHovered
-                                  ? Theme.of(context).dividerColor.withValues(alpha: 0.5)
-                                  : Colors.transparent),
-                          width: widget.isSelected || _isHovered ? 1.5 : 1,
-                        ),
-                        boxShadow: _isHovered && !widget.isSelected
-                            ? [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ]
-                            : null,
+                                ? Colors.red
+                                : Theme.of(context).colorScheme.primary)
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            widget.destination.icon,
-                            size: 24,
-                            color: widget.isSelected
-                                ? (widget.isDanger
-                                    ? Colors.red
-                                    : Theme.of(context).colorScheme.primary)
-                                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                          if (widget.isExpanded) ...[
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: FadeTransition(
-                                opacity: widget.expandAnimation,
-                                child: SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(-0.2, 0),
-                                    end: Offset.zero,
-                                  ).animate(widget.expandAnimation),
-                                  child: Text(
-                                    widget.destination.label,
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
-                                          color: widget.isSelected
-                                            ? (widget.isDanger
-                                                ? Colors.red
-                                                : Theme.of(context).colorScheme.primary)
-                                            : Theme.of(context).colorScheme.onSurface,
-                                    ),
-                                  ),
+                      if (widget.isExpanded) ...[
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FadeTransition(
+                            opacity: widget.expandAnimation,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(-0.2, 0),
+                                end: Offset.zero,
+                              ).animate(widget.expandAnimation),
+                              child: Text(
+                                widget.destination.label,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
+                                      color: widget.isSelected
+                                          ? (widget.isDanger
+                                              ? Colors.red
+                                              : Theme.of(context).colorScheme.primary)
+                                          : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ),
-                            if (widget.destination.children != null)
-                              Icon(
-                                _isExpanded ? Icons.expand_less : Icons.expand_more,
-                                size: 20,
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                              ),
-                          ],
-                        ],
-                     ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
+                          ),
+                        ),
+                      ],
+                    ],
+                 ),
+                ),
+              ),
+            );
+          },
         ),
-        if (widget.destination.children != null && _isExpanded)
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Column(
-              children: widget.destination.children!.map((child) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: _AnimatedDestinationItem(
-                    destination: child,
-                    isSelected: widget.selectedIndex == child.index,
-                    isExpanded: widget.isExpanded,
-                    expandAnimation: widget.expandAnimation,
-                    onTap: () {
-                      if (widget.onDestinationSelected != null) {
-                        widget.onDestinationSelected!(child.index);
-                      }
-                    },
-                    selectedIndex: widget.selectedIndex,
-                    onDestinationSelected: widget.onDestinationSelected,
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-      ],
+      ),
     );
   }
 }

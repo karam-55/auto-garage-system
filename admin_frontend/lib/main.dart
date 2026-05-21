@@ -59,8 +59,7 @@ import 'core/providers/auth_provider.dart';
 class _NavItem {
   final IconData icon;
   final String label;
-  final List<_NavItem>? children;
-  const _NavItem({required this.icon, required this.label, this.children});
+  const _NavItem({required this.icon, required this.label});
 }
 
 void main() async {
@@ -525,15 +524,13 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     const _NavItem(icon: Icons.inventory_2_rounded, label: 'المخزون'),
     const _NavItem(icon: Icons.account_balance_rounded, label: 'دليل الحسابات'),
     const _NavItem(icon: Icons.receipt_long_rounded, label: 'القيود اليومية'),
-    _NavItem(icon: Icons.assessment_rounded, label: 'التقارير المالية', children: [
-      const _NavItem(icon: Icons.balance_rounded, label: 'ميزان المراجعة'),
-      const _NavItem(icon: Icons.trending_up_rounded, label: 'قائمة الدخل'),
-      const _NavItem(icon: Icons.account_balance_wallet_rounded, label: 'الميزانية العمومية'),
-      const _NavItem(icon: Icons.menu_book_rounded, label: 'دفتر الأستاذ العام'),
-      const _NavItem(icon: Icons.account_balance_rounded, label: 'التدفقات النقدية'),
-      const _NavItem(icon: Icons.show_chart_rounded, label: 'نقطة التعادل'),
-      const _NavItem(icon: Icons.trending_up_rounded, label: 'تقرير المتجارة'),
-    ]),
+    const _NavItem(icon: Icons.balance_rounded, label: 'ميزان المراجعة'),
+    const _NavItem(icon: Icons.trending_up_rounded, label: 'قائمة الدخل'),
+    const _NavItem(icon: Icons.account_balance_wallet_rounded, label: 'الميزانية العمومية'),
+    const _NavItem(icon: Icons.menu_book_rounded, label: 'دفتر الأستاذ العام'),
+    const _NavItem(icon: Icons.account_balance_rounded, label: 'التدفقات النقدية'),
+    const _NavItem(icon: Icons.show_chart_rounded, label: 'نقطة التعادل'),
+    const _NavItem(icon: Icons.trending_up_rounded, label: 'تقرير المتجارة'),
     const _NavItem(icon: Icons.settings_rounded, label: 'إعدادات الرواتب'),
     const _NavItem(icon: Icons.receipt_long_rounded, label: 'كشوف الرواتب'),
     const _NavItem(icon: Icons.description_rounded, label: 'تقرير الرواتب'),
@@ -618,14 +615,6 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       return;
     }
     
-    // Index 12 is "التقارير المالية" dropdown - don't open a screen, just expand/collapse
-    if (index == 12) {
-      setState(() {
-        _selectedIndex = index;
-      });
-      return;
-    }
-    
     setState(() {
       _selectedIndex = index;
     });
@@ -656,36 +645,35 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       InventoryScreen(apiService: _apiService),
       ChartOfAccountsScreen(apiService: _apiService),
       JournalEntriesScreen(apiService: _apiService),
-      const SizedBox(), // Index 12 - التقارير المالية (دروب داون - لا يوجد له صفحة مباشرة)
-      const TrialBalanceScreen(), // Index 13 - ميزان المراجعة
-      const ProfitLossScreen(), // Index 14 - قائمة الدخل
-      const BalanceSheetScreen(), // Index 15 - الميزانية العمومية
-      const GeneralLedgerScreen(), // Index 16 - دفتر الأستاذ العام
-      const CashFlowScreen(), // Index 17 - التدفقات النقدية
-      const BreakEvenScreen(), // Index 18 - نقطة التعادل
-      const TradingAccountScreen(), // Index 19 - تقرير المتجارة
-      PayrollSettingsScreen(apiService: _apiService),
-      PayrollScreen(apiService: _apiService),
-      PayrollReportScreen(apiService: _apiService),
-      VendorsScreen(apiService: _apiService),
-      PurchaseInvoicesScreen(apiService: _apiService),
-      ExpensesScreen(apiService: _apiService),
-      BankAccountsScreen(apiService: _apiService),
-      CompanySettingsScreen(apiService: _apiService),
-      ChangePasswordScreen(apiService: _apiService),
+      const TrialBalanceScreen(), // Index 12 - ميزان المراجعة
+      const ProfitLossScreen(), // Index 13 - قائمة الدخل
+      const BalanceSheetScreen(), // Index 14 - الميزانية العمومية
+      const GeneralLedgerScreen(), // Index 15 - دفتر الأستاذ العام
+      const CashFlowScreen(), // Index 16 - التدفقات النقدية
+      const BreakEvenScreen(), // Index 17 - نقطة التعادل
+      const TradingAccountScreen(), // Index 18 - تقرير المتجارة
+      PayrollSettingsScreen(apiService: _apiService), // Index 19 - إعدادات الرواتب
+      PayrollScreen(apiService: _apiService), // Index 20 - كشوف الرواتب
+      PayrollReportScreen(apiService: _apiService), // Index 21 - تقرير الرواتب
+      VendorsScreen(apiService: _apiService), // Index 22 - الموردين
+      PurchaseInvoicesScreen(apiService: _apiService), // Index 23 - فواتير الشراء
+      ExpensesScreen(apiService: _apiService), // Index 24 - المصاريف
+      BankAccountsScreen(apiService: _apiService), // Index 25 - الحسابات البنكية
+      CompanySettingsScreen(apiService: _apiService), // Index 26 - إعدادات النظام
+      ChangePasswordScreen(apiService: _apiService), // Index 27 - كلمة المرور
       // ERP Screens
-      const PurchaseOrdersScreen(),
-      const QuotationsScreen(),
-      const SalesOrdersScreen(),
-      const WarehousesScreen(),
-      InventoryTransfersScreen(),
-      const BomsScreen(),
-      const ManufacturingOrdersScreen(),
-      const LeadsScreen(),
-      const EmployeeContractsScreen(),
-      const LeaveRequestsScreen(),
-      const FixedAssetsScreen(),
-      const MaintenanceContractsScreen(),
+      const PurchaseOrdersScreen(), // Index 28 - أوامر الشراء
+      const QuotationsScreen(), // Index 29 - عروض الأسعار
+      const SalesOrdersScreen(), // Index 30 - أوامر البيع
+      const WarehousesScreen(), // Index 31 - المستودعات
+      InventoryTransfersScreen(), // Index 32 - نقل المخزون
+      const BomsScreen(), // Index 33 - قوائم المواد
+      const ManufacturingOrdersScreen(), // Index 34 - أوامر الإنتاج
+      const LeadsScreen(), // Index 35 - العملاء المحتملين
+      const EmployeeContractsScreen(), // Index 36 - عقود الموظفين
+      const LeaveRequestsScreen(), // Index 37 - طلبات الإجازة
+      const FixedAssetsScreen(), // Index 38 - الأصول الثابتة
+      const MaintenanceContractsScreen(), // Index 39 - عقود الصيانة
     ];
 
     return Scaffold(
@@ -825,67 +813,6 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
                 itemBuilder: (context, index) {
                   final item = _destinations[index];
                   final isSelected = _selectedIndex == index;
-                  
-                  // Check if item has children
-                  if (item.children != null && item.children!.isNotEmpty) {
-                    return ExpansionTile(
-                      leading: Icon(
-                        item.icon,
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.grey.shade600,
-                      ),
-                      title: Text(
-                        item.label,
-                        style: TextStyle(
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.primary
-                              : const Color(0xFF1E293B),
-                        ),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: isSelected
-                          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
-                          : null,
-                      children: item.children!.map<Widget>((child) {
-                        final childIndex = (index + item.children!.indexOf(child) + 1) as int;
-                        final isChildSelected = _selectedIndex == childIndex;
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 8, bottom: 4),
-                          child: ListTile(
-                            leading: Icon(
-                              child.icon,
-                              size: 20,
-                              color: isChildSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Colors.grey.shade600,
-                            ),
-                            title: Text(
-                              child.label,
-                              style: TextStyle(
-                                fontWeight: isChildSelected ? FontWeight.w700 : FontWeight.w500,
-                                color: isChildSelected
-                                    ? Theme.of(context).colorScheme.primary
-                                    : const Color(0xFF1E293B),
-                                fontSize: 14,
-                              ),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            tileColor: isChildSelected
-                                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
-                                : null,
-                            onTap: () => _onDestinationSelected(childIndex),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  }
-                  
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: ListTile(

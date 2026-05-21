@@ -75,22 +75,29 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen>
 
   Future<void> _loadAccountingSettings() async {
     try {
+      print('Loading accounting settings...');
       final settings = await _accountingService.getSettings();
+      print('Accounting settings loaded: $settings');
       setState(() {
         _accountingSettings = settings;
         _vatController.text = settings.vatPercentage?.toString() ?? '';
+        print('State updated with accounting settings');
       });
     } catch (e) {
+      print('Error loading accounting settings: $e');
     }
   }
 
   Future<void> _loadAccounts() async {
     try {
       final response = await widget.apiService.get('/api/accounts');
+      print('Accounts response: $response');
       setState(() {
         _accounts = List<Map<String, dynamic>>.from(response);
+        print('Loaded ${_accounts.length} accounts');
       });
     } catch (e) {
+      print('Error loading accounts: $e');
     }
   }
 

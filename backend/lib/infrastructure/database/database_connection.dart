@@ -233,6 +233,27 @@ class DatabaseConnection {
         ADD COLUMN IF NOT EXISTS qr_code_url TEXT
       ''');
 
+      // Add payment-related columns to booking_invoice_data for existing tables
+      await _pool.execute('''
+        ALTER TABLE booking_invoice_data 
+        ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50) DEFAULT 'cash' CHECK (payment_method IN ('cash', 'electronic'))
+      ''');
+
+      await _pool.execute('''
+        ALTER TABLE booking_invoice_data 
+        ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50) DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid', 'partial', 'paid'))
+      ''');
+
+      await _pool.execute('''
+        ALTER TABLE booking_invoice_data 
+        ADD COLUMN IF NOT EXISTS amount_paid DECIMAL(12, 2) DEFAULT 0
+      ''');
+
+      await _pool.execute('''
+        ALTER TABLE booking_invoice_data 
+        ADD COLUMN IF NOT EXISTS amount_remaining DECIMAL(12, 2) DEFAULT 0
+      ''');
+
       // Note: Inventory tables (inventory_items, inventory_variants, inventory_transactions,
       // booking_invoice_data, alerts) are now defined in schema.sql and are created
       // during schema execution. Dynamic creation has been removed for better maintainability.

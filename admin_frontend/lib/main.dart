@@ -59,7 +59,8 @@ import 'core/providers/auth_provider.dart';
 class _NavItem {
   final IconData icon;
   final String label;
-  const _NavItem({required this.icon, required this.label});
+  final List<_NavItem>? children;
+  const _NavItem({required this.icon, required this.label, this.children});
 }
 
 void main() async {
@@ -524,14 +525,15 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     const _NavItem(icon: Icons.inventory_2_rounded, label: 'المخزون'),
     const _NavItem(icon: Icons.account_balance_rounded, label: 'دليل الحسابات'),
     const _NavItem(icon: Icons.receipt_long_rounded, label: 'القيود اليومية'),
-    const _NavItem(icon: Icons.assessment_rounded, label: 'التقارير المالية'),
-    const _NavItem(icon: Icons.balance_rounded, label: 'ميزان المراجعة'),
-    const _NavItem(icon: Icons.trending_up_rounded, label: 'قائمة الدخل'),
-    const _NavItem(icon: Icons.account_balance_wallet_rounded, label: 'الميزانية العمومية'),
-    const _NavItem(icon: Icons.menu_book_rounded, label: 'دفتر الأستاذ العام'),
-    const _NavItem(icon: Icons.account_balance_rounded, label: 'التدفقات النقدية'),
-    const _NavItem(icon: Icons.show_chart_rounded, label: 'نقطة التعادل'),
-    const _NavItem(icon: Icons.trending_up_rounded, label: 'تقرير المتجارة'),
+    _NavItem(icon: Icons.assessment_rounded, label: 'التقارير المالية', children: [
+      const _NavItem(icon: Icons.balance_rounded, label: 'ميزان المراجعة'),
+      const _NavItem(icon: Icons.trending_up_rounded, label: 'قائمة الدخل'),
+      const _NavItem(icon: Icons.account_balance_wallet_rounded, label: 'الميزانية العمومية'),
+      const _NavItem(icon: Icons.menu_book_rounded, label: 'دفتر الأستاذ العام'),
+      const _NavItem(icon: Icons.account_balance_rounded, label: 'التدفقات النقدية'),
+      const _NavItem(icon: Icons.show_chart_rounded, label: 'نقطة التعادل'),
+      const _NavItem(icon: Icons.trending_up_rounded, label: 'تقرير المتجارة'),
+    ]),
     const _NavItem(icon: Icons.settings_rounded, label: 'إعدادات الرواتب'),
     const _NavItem(icon: Icons.receipt_long_rounded, label: 'كشوف الرواتب'),
     const _NavItem(icon: Icons.description_rounded, label: 'تقرير الرواتب'),

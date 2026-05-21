@@ -234,11 +234,26 @@ class _AnimatedSidebarState extends State<AnimatedSidebar>
           final dest = entry.value;
           
           // تحويل _NavItem إلى _SidebarDestination
+          List<_SidebarDestination>? children;
+          if (dest.children != null) {
+            children = dest.children!.asMap().entries.map((childEntry) {
+              final childIndex = childEntry.key;
+              final childDest = childEntry.value;
+              return _SidebarDestination(
+                icon: childDest.icon,
+                label: childDest.label,
+                index: (index * 100 + childIndex) as int, // Use a unique index for children
+                requiredRoles: null,
+              );
+            }).toList();
+          }
+          
           return _SidebarDestination(
             icon: dest.icon,
             label: dest.label,
             index: index,
             requiredRoles: null, // للجميع
+            children: children,
           );
         }).toList();
 

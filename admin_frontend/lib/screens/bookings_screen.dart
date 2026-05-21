@@ -460,6 +460,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
               onEdit: () => _showEditBookingDialog(context, _filteredBookings[index]),
               onUpdateStatus: () => _showUpdateStatusDialog(context, _filteredBookings[index]),
               onDelete: () => _deleteBooking(_filteredBookings[index]['id']),
+              onPayment: () => _showPaymentOptions(context, _filteredBookings[index]),
             );
           },
         );
@@ -1098,6 +1099,7 @@ class _BookingCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onUpdateStatus;
   final VoidCallback onDelete;
+  final VoidCallback onPayment;
 
   const _BookingCard({
     required this.booking,
@@ -1105,6 +1107,7 @@ class _BookingCard extends StatelessWidget {
     required this.onEdit,
     required this.onUpdateStatus,
     required this.onDelete,
+    required this.onPayment,
   });
 
   Color _getStatusColor(String status) {
@@ -1260,7 +1263,7 @@ class _BookingCard extends StatelessWidget {
                       ),
                     ),
                     OutlinedButton.icon(
-                      onPressed: () => _showPaymentOptions(context, booking),
+                      onPressed: onPayment,
                       icon: const Icon(Icons.payment_rounded, size: 14),
                       label: const Text('الدفع'),
                       style: OutlinedButton.styleFrom(

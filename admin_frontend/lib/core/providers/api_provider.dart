@@ -3,5 +3,15 @@ import '../services/api_service.dart';
 
 // API Service Provider - Singleton instance for the entire app
 final apiServiceProvider = Provider<ApiService>((ref) {
-  return ApiService();
+  // Use the singleton instance from ApiService factory
+  return ApiService.instance;
+});
+
+// Keep the instance alive during the app lifecycle
+final apiServiceKeepAliveProvider = Provider<ApiService>((ref) {
+  final apiService = ApiService.instance;
+  ref.onDispose(() {
+    // Dispose logic if needed
+  });
+  return apiService;
 });

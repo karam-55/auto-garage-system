@@ -36,7 +36,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   void initState() {
     super.initState();
-    print('ReportsScreen: initState called');
+    print('ReportsScreen: initState called, apiService is null: ${widget.apiService == null}');
+    if (widget.apiService == null) {
+      print('ReportsScreen: ERROR - apiService is null!');
+    }
     _loadRevenueData();
   }
 

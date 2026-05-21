@@ -70137,9 +70137,12 @@ else if(A.k8(a))s=a
 else if(typeof a=="string"){s=A.hJ(a)
 if(s==null)s=0}else s=0
 return A.vC(B.c.V(s,0),A.cj("(\\d{1,3})(?=(\\d{3})+(?!\\d))",!1,!1),new A.bdu(),null)},
-ah(){this.aA()
-A.mQ("ReportsScreen: initState called")
-this.Hm()},
+ah(){var s=this
+s.aA()
+s.a.toString
+A.mQ("ReportsScreen: initState called, apiService is null: false")
+s.a.toString
+s.Hm()},
 Hm(){var s=0,r=A.z(t.H),q=1,p=[],o=this,n,m,l,k,j
 var $async$Hm=A.v(function(a,b){if(a===1){p.push(b)
 s=q}for(;;)switch(s){case 0:A.mQ("ReportsScreen: _loadRevenueData called")

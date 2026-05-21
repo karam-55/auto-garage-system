@@ -16,6 +16,10 @@ class ApiService {
     return _instance!;
   }
 
+  static ApiService createInstance({http.Client? client}) {
+    return ApiService._internal(client ?? http.Client());
+  }
+
   ApiService._internal(this._client) {
     _loadTokensSync();
   }

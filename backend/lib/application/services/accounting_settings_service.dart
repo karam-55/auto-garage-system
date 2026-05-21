@@ -47,17 +47,17 @@ class AccountingSettings {
 
   factory AccountingSettings.fromJson(Map<String, dynamic> json) {
     return AccountingSettings(
-      revenueServiceAccountId: json['revenue_service_account_id'] as int,
-      revenuePartsAccountId: json['revenue_parts_account_id'] as int,
-      cogsPartsAccountId: json['cogs_parts_account_id'] as int,
-      inventoryAccountId: json['inventory_account_id'] as int,
-      cashAccountId: json['cash_account_id'] as int,
-      receivableAccountId: json['receivable_account_id'] as int,
-      payableAccountId: json['payable_account_id'] as int,
-      wipAccountId: json['wip_account_id'] as int,
-      depreciationExpenseAccountId: json['depreciation_expense_account_id'] as int,
-      accumulatedDepreciationAccountId: json['accumulated_depreciation_account_id'] as int,
-      salesTaxAccountId: json['sales_tax_account_id'] as int,
+      revenueServiceAccountId: json['revenue_service_account_id'] as int? ?? 0,
+      revenuePartsAccountId: json['revenue_parts_account_id'] as int? ?? 0,
+      cogsPartsAccountId: json['cogs_parts_account_id'] as int? ?? 0,
+      inventoryAccountId: json['inventory_account_id'] as int? ?? 0,
+      cashAccountId: json['cash_account_id'] as int? ?? 0,
+      receivableAccountId: json['receivable_account_id'] as int? ?? 0,
+      payableAccountId: json['payable_account_id'] as int? ?? 0,
+      wipAccountId: json['wip_account_id'] as int? ?? 0,
+      depreciationExpenseAccountId: json['depreciation_expense_account_id'] as int? ?? 0,
+      accumulatedDepreciationAccountId: json['accumulated_depreciation_account_id'] as int? ?? 0,
+      salesTaxAccountId: json['sales_tax_account_id'] as int? ?? 0,
     );
   }
 }

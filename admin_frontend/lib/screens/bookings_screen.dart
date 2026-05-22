@@ -124,11 +124,48 @@ class _BookingsScreenState extends State<BookingsScreen> {
         _hasNextPage = response['hasNextPage'] ?? false;
         _isLoading = false;
       });
+      
+      // Fetch invoice data for each booking to display financial amounts
+      await _fetchInvoiceDataForBookings();
+      
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في تحميل الحجوزات: $e')));
       }
+    }
+  }
+
+  Future<void> _fetchInvoiceDataForBookings() async {
+    final List<Future<void>> futures = [];
+    
+    for (int i = 0; i < _bookings.length; i++) {
+      final booking = _bookings[i];
+      // Only fetch if financial data is missing or zero
+      final totalPrice = booking['totalPrice'];
+      final amountPaid = booking['amountPaid'];
+      
+      if (totalPrice == null || totalPrice == 0 || amountPaid == null) {
+        futures.add(_fetchInvoiceForBooking(i, booking['id'].toString()));
+      }
+    }
+    
+    await Future.wait(futures);
+  }
+
+  Future<void> _fetchInvoiceForBooking(int index, String bookingId) async {
+    try {
+      final invoiceResponse = await widget.apiService.get('${ApiConstants.bookings}/$bookingId/invoice');
+      if (invoiceResponse is Map<String, dynamic>) {
+        setState(() {
+          _bookings[index]['totalPrice'] = invoiceResponse['totalPrice'] ?? 0;
+          _bookings[index]['amountPaid'] = invoiceResponse['amountPaid'] ?? 0;
+          _bookings[index]['amountRemaining'] = invoiceResponse['amountRemaining'] ?? 0;
+          _bookings[index]['paymentStatus'] = invoiceResponse['paymentStatus'] ?? 'unpaid';
+        });
+      }
+    } catch (e) {
+      // Ignore errors - booking might not have invoice yet
     }
   }
 

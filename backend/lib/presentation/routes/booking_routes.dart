@@ -338,11 +338,8 @@ class BookingRoutes {
         );
       }).toList();
 
-      final useCase = CreateBookingUseCase(_bookingRepository);
+      final useCase = CreateBookingUseCase(_bookingRepository, _invoiceDataRepository);
       final createdBooking = await useCase.execute(booking, services);
-
-      // Generate invoice for the new booking
-      final invoice = await _invoiceDataRepository.generateOrGetInvoice(createdBooking.id);
 
       // Get vehicle to include publicCarId in response
       final vehicle = await _vehicleRepository.findById(vehicleId);

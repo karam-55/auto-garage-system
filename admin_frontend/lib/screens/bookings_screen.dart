@@ -445,7 +445,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
           padding: EdgeInsets.zero,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            childAspectRatio: 2.2,
+            childAspectRatio: 1.8,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
           ),

@@ -457,32 +457,34 @@ class JournalRepositoryImpl implements JournalRepository {
   }
 
   JournalEntry _mapRowToJournalEntry(ResultRow row) {
+    final data = row.toColumnMap();
     return JournalEntry(
-      id: row[0] as int,
-      entryDate: row[1] as DateTime,
-      reference: row[2] as String?,
-      description: row[3] as String?,
-      isReversing: row[4] as bool,
-      reversingDate: row[5] as DateTime?,
-      isReversed: row[6] as bool,
-      createdBy: row[7] as String?,
-      createdAt: row[8] as DateTime,
-      approvedBy: row[9] as String?,
-      approvedAt: row[10] as DateTime?,
-      fiscalPeriodId: row[11] as int?,
+      id: data['id'] is num ? (data['id'] as num).toInt() : 0,
+      entryDate: data['entry_date'] is DateTime ? data['entry_date'] : DateTime.tryParse(data['entry_date'].toString()) ?? DateTime.now(),
+      reference: data['reference'] as String?,
+      description: data['description'] as String?,
+      isReversing: data['is_reversing'] as bool? ?? false,
+      reversingDate: data['reversing_date'] != null ? DateTime.tryParse(data['reversing_date'].toString()) : null,
+      isReversed: data['is_reversed'] as bool? ?? false,
+      createdBy: data['created_by'] as String?,
+      createdAt: data['created_at'] is DateTime ? data['created_at'] : DateTime.tryParse(data['created_at'].toString()) ?? DateTime.now(),
+      approvedBy: data['approved_by'] as String?,
+      approvedAt: data['approved_at'] != null ? DateTime.tryParse(data['approved_at'].toString()) : null,
+      fiscalPeriodId: data['fiscal_period_id'] is num ? (data['fiscal_period_id'] as num).toInt() : null,
     );
   }
 
   JournalLine _mapRowToJournalLine(ResultRow row) {
+    final data = row.toColumnMap();
     return JournalLine(
-      id: row[0] as int,
-      entryId: row[1] as int,
-      accountId: row[2] as int,
-      debit: (row[3] as num).toDouble(),
-      credit: (row[4] as num).toDouble(),
-      description: row[5] as String?,
-      sourceType: row[6] as String?,
-      sourceId: row[7] as String?,
+      id: data['id'] is num ? (data['id'] as num).toInt() : 0,
+      entryId: data['entry_id'] is num ? (data['entry_id'] as num).toInt() : 0,
+      accountId: data['account_id'] is num ? (data['account_id'] as num).toInt() : 0,
+      debit: data['debit'] is num ? (data['debit'] as num).toDouble() : 0.0,
+      credit: data['credit'] is num ? (data['credit'] as num).toDouble() : 0.0,
+      description: data['description'] as String?,
+      sourceType: data['source_type'] as String?,
+      sourceId: data['source_id'] as String?,
     );
   }
 }

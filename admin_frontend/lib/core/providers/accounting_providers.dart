@@ -50,7 +50,8 @@ final journalEntriesProvider = FutureProvider.autoDispose.family<List<JournalEnt
   if (filters.containsKey('to')) {
     queryParams['to'] = filters['to'].toString();
   }
-  final response = await api.get('/api/journal-entries', queryParameters: queryParams.isNotEmpty ? queryParams : null);
+  final queryString = queryParams.isNotEmpty ? '?${Uri(queryParameters: queryParams).query}' : '';
+  final response = await api.get('/api/journal-entries$queryString');
   return (response as List).map((j) => JournalEntry.fromJson(j as Map<String, dynamic>)).toList();
 });
 

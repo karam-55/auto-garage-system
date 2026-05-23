@@ -1,5 +1,6 @@
 -- Add missing indexes for performance optimization
 -- Created: 2026-05-24
+-- Updated for Supabase compatibility
 
 CREATE INDEX IF NOT EXISTS idx_customers_full_name ON customers(full_name);
 CREATE INDEX IF NOT EXISTS idx_services_name ON services(name);
@@ -12,11 +13,11 @@ CREATE INDEX IF NOT EXISTS idx_part_suggestions_created_at ON part_suggestions(c
 CREATE INDEX IF NOT EXISTS idx_inventory_items_name ON inventory_items(name);
 CREATE INDEX IF NOT EXISTS idx_vendors_name ON vendors(name);
 CREATE INDEX IF NOT EXISTS idx_bookings_estimated_completion_date ON bookings(estimated_completion_date);
-CREATE INDEX IF NOT EXISTS idx_bookings_notes ON bookings USING gin(to_tsvector('english', notes));
+CREATE INDEX IF NOT EXISTS idx_bookings_notes ON bookings(notes);
 CREATE INDEX IF NOT EXISTS idx_journal_lines_account_id ON journal_lines(account_id);
 CREATE INDEX IF NOT EXISTS idx_journal_lines_journal_entry_id ON journal_lines(journal_entry_id);
 CREATE INDEX IF NOT EXISTS idx_inventory_transactions_item_id ON inventory_transactions(item_id);
-CREATE INDEX IF NOT EXISTS idx_inventory_transactions_date ON inventory_transactions(transaction_date);
+CREATE INDEX IF NOT EXISTS idx_inventory_transactions_created_at ON inventory_transactions(created_at);
 CREATE INDEX IF NOT EXISTS idx_purchase_orders_vendor_id ON purchase_orders(vendor_id);
 CREATE INDEX IF NOT EXISTS idx_purchase_orders_status ON purchase_orders(status);
 CREATE INDEX IF NOT EXISTS idx_sales_orders_customer_id ON sales_orders(customer_id);

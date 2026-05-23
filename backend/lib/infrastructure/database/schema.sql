@@ -13,7 +13,12 @@ CREATE TABLE IF NOT EXISTS fiscal_periods (
 );
 
 -- 1.1.2 Chart of Accounts
-CREATE TYPE IF NOT EXISTS account_type_enum AS ENUM ('asset', 'liability', 'equity', 'revenue', 'expense', 'cogs');
+DO $$
+BEGIN
+  CREATE TYPE account_type_enum AS ENUM ('asset', 'liability', 'equity', 'revenue', 'expense', 'cogs');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 CREATE TABLE IF NOT EXISTS accounts (
     id SERIAL PRIMARY KEY,
     code VARCHAR(20) NOT NULL UNIQUE,

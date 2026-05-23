@@ -77,9 +77,9 @@ class _JournalEntryDetailsScreenState extends ConsumerState<JournalEntryDetailsS
                               ),
                               const SizedBox(height: 16),
                               _buildInfoRow('التاريخ:', _entry!.date.toLocal().toString().split(' ')[0]),
-                              _buildInfoRow('المرجع:', _entry!.reference),
-                              _buildInfoRow('الوصف:', _entry!.description),
-                              _buildInfoRow('المصدر:', _getSourceTypeLabel(_entry!.sourceType)),
+                              _buildInfoRow('المرجع:', _entry!.reference ?? ''),
+                              _buildInfoRow('الوصف:', _entry!.description ?? ''),
+                              _buildInfoRow('المصدر:', _getSourceTypeLabel(_entry!.sourceType ?? '')),
                               _buildInfoRow('تاريخ الإنشاء:', _entry!.createdAt.toLocal().toString().split(' ')[0]),
                               if (_entry!.sourceId != null)
                                 _buildInfoRow('رقم المصدر:', _entry!.sourceId!),
@@ -134,7 +134,7 @@ class _JournalEntryDetailsScreenState extends ConsumerState<JournalEntryDetailsS
                                       children: [
                                         Padding(
                                           padding: const EdgeInsets.all(8),
-                                          child: Text(line.accountName),
+                                          child: Text(line.accountName ?? ''),
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8),

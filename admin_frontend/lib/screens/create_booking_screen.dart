@@ -339,6 +339,8 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
+          labelColor: Colors.black,
+          unselectedLabelColor: Colors.grey,
           tabs: const [
             Tab(text: 'العميل'),
             Tab(text: 'المركبة'),

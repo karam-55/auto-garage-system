@@ -95,6 +95,10 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen>
       setState(() {
         _accounts = List<Map<String, dynamic>>.from(response);
         print('Loaded ${_accounts.length} accounts');
+        if (_accounts.isNotEmpty) {
+          print('First account keys: ${_accounts.first.keys.toList()}');
+          print('First account: ${_accounts.first}');
+        }
       });
     } catch (e) {
       print('Error loading accounts: $e');
@@ -250,6 +254,8 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen>
               children: [
                 TabBar(
                   controller: _tabController,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.grey,
                   tabs: const [
                     Tab(text: 'معلومات الشركة'),
                     Tab(text: 'الإعدادات المحاسبية'),
@@ -639,7 +645,7 @@ class _CompanySettingsScreenState extends State<CompanySettingsScreen>
         return DropdownMenuItem<int>(
           value: account['id'] as int,
           child: Text(
-            '${account['code']} - ${account['nameAr']}',
+            '${account['code']} - ${account['name_ar']}',
           ),
         );
       }).toList(),

@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garage Go - دليل المستخدم الكامل</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#3498db" stroke-width="3"/>
+                    <path d="M25 50 L40 35 L60 35 L75 50 L75 70 L25 70 Z" fill="#3498db"/>
+                    <circle cx="35" cy="55" r="8" fill="#fff"/>
+                    <circle cx="65" cy="55" r="8" fill="#fff"/>
+                </svg>
+                <span>Garage Go</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#hero">الرئيسية</a></li>
+                <li><a href="#features">الميزات</a></li>
+                <li><a href="#how-to">كيف تستخدم</a></li>
+                <li><a href="#modules">الوحدات</a></li>
+                <li><a href="#benefits">الفوائد</a></li>
+            </ul>
+            <button class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero gradient-animated">
+        <div class="hero-particles">
+            <div class="particle particle-1"></div>
+            <div class="particle particle-2"></div>
+            <div class="particle particle-3"></div>
+            <div class="particle particle-4"></div>
+            <div class="particle particle-5"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="animate-text">نظام</span>
+                    <span class="gradient-text">Garage Go</span>
+                    <span class="animate-text">لإدارة ورش الصيانة</span>
+                </h1>
+                <p class="hero-subtitle animate-fade-up">
+                    الحل المتكامل لإدارة ورشة الصيانة من الحجز إلى الفاتورة
+                </p>
+                <div class="hero-buttons animate-fade-up">
+                    <a href="#how-to" class="btn btn-primary animate-bounce">ابدأ الآن</a>
+                    <a href="#features" class="btn btn-secondary animate-wave">اكتشف الميزات</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-card card-1">
+                    <svg viewBox="0 0 100 100">
+                        <rect x="10" y="20" width="80" height="60" rx="5" fill="#3498db" opacity="0.2"/>
+                        <rect x="15" y="30" width="70" height="40" rx="3" fill="#3498db"/>
+                        <circle cx="25" cy="50" r="5" fill="#fff"/>
+                        <circle cx="75" cy="50" r="5" fill="#fff"/>
+                    </svg>
+                    <span>الحجوزات</span>
+                </div>
+                <div class="floating-card card-2">
+                    <svg viewBox="0 0 100 100">
+                        <rect x="15" y="15" width="70" height="70" rx="5" fill="#2ecc71" opacity="0.2"/>
+                        <rect x="20" y="25" width="60" height="50" rx="3" fill="#2ecc71"/>
+                        <line x1="30" y1="40" x2="70" y2="40" stroke="#fff" stroke-width="2"/>
+                        <line x1="30" y1="50" x2="70" y2="50" stroke="#fff" stroke-width="2"/>
+                        <line x1="30" y1="60" x2="50" y2="60" stroke="#fff" stroke-width="2"/>
+                    </svg>
+                    <span>الفواتير</span>
+                </div>
+                <div class="floating-card card-3">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="35" fill="#e74c3c" opacity="0.2"/>
+                        <circle cx="50" cy="50" r="25" fill="#e74c3c"/>
+                        <path d="M40 50 L50 60 L60 40" stroke="#fff" stroke-width="4" fill="none"/>
+                    </svg>
+                    <span>التقارير</span>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">ميزات النظام</h2>
+            <p class="section-subtitle animate-on-scroll">كل ما تحتاجه لإدارة ورشة الصيانة بنجاح</p>
+            
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll hover-lift stagger-1">
+                    <div class="feature-icon animate-pulse">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#3498db" opacity="0.1"/>
+                            <path d="M30 40 L50 20 L70 40 L70 70 L30 70 Z" fill="#3498db"/>
+                            <rect x="40" y="50" width="20" height="20" fill="#fff"/>
+                        </svg>
+                    </div>
+                    <h3>إدارة الحجوزات</h3>
+                    <p>استقبال حجوزات العملاء بسهولة وتنظيمها حسب الحالة والتاريخ</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll hover-lift stagger-2">
+                    <div class="feature-icon animate-pulse">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#2ecc71" opacity="0.1"/>
+                            <rect x="20" y="30" width="60" height="40" rx="5" fill="#2ecc71"/>
+                            <circle cx="30" cy="50" r="5" fill="#fff"/>
+                            <circle cx="50" cy="50" r="5" fill="#fff"/>
+                            <circle cx="70" cy="50" r="5" fill="#fff"/>
+                        </svg>
+                    </div>
+                    <h3>إدارة المخزون</h3>
+                    <p>تتبع قطع الغيار والمواد وإدارة مستويات المخزون تلقائياً</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll hover-lift stagger-3">
+                    <div class="feature-icon animate-pulse">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#e74c3c" opacity="0.1"/>
+                            <rect x="25" y="25" width="50" height="50" rx="5" fill="#e74c3c"/>
+                            <line x1="35" y1="35" x2="65" y2="35" stroke="#fff" stroke-width="2"/>
+                            <line x1="35" y1="45" x2="65" y2="45" stroke="#fff" stroke-width="2"/>
+                            <line x1="35" y1="55" x2="50" y2="55" stroke="#fff" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>الفواتير والمدفوعات</h3>
+                    <p>إنشاء فواتير احترافية وتتبع المدفوعات بسهولة</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll hover-lift stagger-4">
+                    <div class="feature-icon animate-pulse">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#9b59b6" opacity="0.1"/>
+                            <path d="M30 30 L70 30 L70 70 L30 70 Z" fill="#9b59b6"/>
+                            <path d="M30 40 L70 40" stroke="#fff" stroke-width="2"/>
+                            <path d="M30 50 L70 50" stroke="#fff" stroke-width="2"/>
+                            <path d="M30 60 L50 60" stroke="#fff" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>نظام المحاسبة</h3>
+                    <p>دليل حسابات متكامل وقيود يومية وتقارير مالية شاملة</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll hover-lift stagger-5">
+                    <div class="feature-icon animate-pulse">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#f39c12" opacity="0.1"/>
+                            <circle cx="50" cy="50" r="20" fill="#f39c12"/>
+                            <circle cx="40" cy="45" r="5" fill="#fff"/>
+                            <circle cx="60" cy="45" r="5" fill="#fff"/>
+                            <path d="M40 60 Q50 70 60 60" stroke="#fff" stroke-width="3" fill="none"/>
+                        </svg>
+                    </div>
+                    <h3>إدارة العملاء</h3>
+                    <p>سجل عملاء شامل وتتبع تاريخ الصيانة لكل سيارة</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll hover-lift stagger-6">
+                    <div class="feature-icon animate-pulse">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#1abc9c" opacity="0.1"/>
+                            <rect x="30" y="30" width="40" height="40" rx="5" fill="#1abc9c"/>
+                            <path d="M40 50 L50 60 L60 40" stroke="#fff" stroke-width="3" fill="none"/>
+                        </svg>
+                    </div>
+                    <h3>تطبيق الفنيين</h3>
+                    <p>تطبيق موبايل للفنيين لإدارة مهامهم وتحديث حالة الإصلاح</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Use Section -->
+    <section id="how-to" class="how-to">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">كيف تستخدم النظام؟</h2>
+            <p class="section-subtitle animate-on-scroll">خطوات بسيطة للبدء مع Garage Go</p>
+            
+            <div class="steps-container">
+                <div class="step animate-on-scroll hover-lift stagger-1" data-step="1">
+                    <div class="step-number animate-pulse">1</div>
+                    <div class="step-content">
+                        <h3>إنشاء الحجز</h3>
+                        <p>عند وصول العميل، قم بإنشاء حجز جديد وأدخل بيانات العميل والسيارة والخدمات المطلوبة</p>
+                        <div class="step-visual animate-rotate">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="10" y="10" width="80" height="80" rx="10" fill="#f8f9fa" stroke="#3498db" stroke-width="2"/>
+                                <rect x="20" y="25" width="60" height="8" rx="4" fill="#3498db"/>
+                                <rect x="20" y="40" width="40" height="6" rx="3" fill="#e0e0e0"/>
+                                <rect x="20" y="52" width="50" height="6" rx="3" fill="#e0e0e0"/>
+                                <rect x="20" y="64" width="30" height="6" rx="3" fill="#3498db"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step animate-on-scroll hover-lift stagger-2" data-step="2">
+                    <div class="step-number animate-pulse">2</div>
+                    <div class="step-content">
+                        <h3>تعيين الفني</h3>
+                        <p>اختر الفني المناسب للمهمة وقم بتعيينه للحجز. الفني سيستلم الإشعار على تطبيقه</p>
+                        <div class="step-visual animate-rotate">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="35" r="20" fill="#3498db"/>
+                                <rect x="25" y="55" width="50" height="35" rx="5" fill="#3498db"/>
+                                <circle cx="30" cy="50" r="8" fill="#2ecc71"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step animate-on-scroll hover-lift stagger-3" data-step="3">
+                    <div class="step-number animate-pulse">3</div>
+                    <div class="step-content">
+                        <h3>تنفيذ الإصلاح</h3>
+                        <p>الفني يقوم بتنفيذ الإصلاح ويستخدم قطع الغيار من المخزون ويحدث الحالة</p>
+                        <div class="step-visual animate-rotate">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="15" y="30" width="70" height="40" rx="5" fill="#f39c12"/>
+                                <circle cx="35" cy="50" r="8" fill="#fff"/>
+                                <circle cx="65" cy="50" r="8" fill="#fff"/>
+                                <path d="M45 50 L55 50" stroke="#fff" stroke-width="3"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step animate-on-scroll hover-lift stagger-4" data-step="4">
+                    <div class="step-number animate-pulse">4</div>
+                    <div class="step-content">
+                        <h3>إنشاء الفاتورة</h3>
+                        <p>بعد الانتهاء، قم بإنشاء الفاتورة تلقائياً مع جميع الخدمات والقطع المستخدمة</p>
+                        <div class="step-visual animate-rotate">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="20" y="15" width="60" height="70" rx="5" fill="#2ecc71"/>
+                                <line x1="30" y1="30" x2="70" y2="30" stroke="#fff" stroke-width="2"/>
+                                <line x1="30" y1="40" x2="70" y2="40" stroke="#fff" stroke-width="2"/>
+                                <line x1="30" y1="50" x2="50" y2="50" stroke="#fff" stroke-width="2"/>
+                                <rect x="30" y="65" width="40" height="10" rx="2" fill="#fff"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step animate-on-scroll hover-lift stagger-5" data-step="5">
+                    <div class="step-number animate-pulse">5</div>
+                    <div class="step-content">
+                        <h3>استلام الدفع</h3>
+                        <p>استلم الدفعة من العميل وسجلها في النظام. سيتم تحديث المحاسبة تلقائياً</p>
+                        <div class="step-visual animate-rotate">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="35" fill="#e74c3c" opacity="0.2"/>
+                                <circle cx="50" cy="50" r="25" fill="#e74c3c"/>
+                                <text x="50" y="58" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">$</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step animate-on-scroll hover-lift stagger-6" data-step="6">
+                    <div class="step-number animate-pulse">6</div>
+                    <div class="step-content">
+                        <h3>تسليم السيارة</h3>
+                        <p>سلم السيارة للعميل مع الفاتورة. العميل يمكنه تتبع حالة سيارته عبر الرابط</p>
+                        <div class="step-visual animate-rotate">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="15" y="40" width="70" height="30" rx="5" fill="#9b59b6"/>
+                                <circle cx="30" cy="55" r="8" fill="#fff"/>
+                                <circle cx="70" cy="55" r="8" fill="#fff"/>
+                                <path d="M40 55 L60 55" stroke="#fff" stroke-width="3"/>
+                                <path d="M50 40 L50 25" stroke="#9b59b6" stroke-width="3"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Setup Guide Section -->
+    <section id="setup-guide" class="setup-guide">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">دليل تأسيس النظام من الصفر</h2>
+            <p class="section-subtitle animate-on-scroll">خطوات تفصيلية لإعداد النظام ليصبح جاهزاً لاستقبال الزبائن</p>
+            
+            <!-- Chart of Accounts Setup -->
+            <div class="setup-section animate-on-scroll">
+                <div class="setup-header">
+                    <div class="setup-icon">
+                        <svg viewBox="0 0 100 100">
+                            <rect x="15" y="20" width="70" height="60" rx="5" fill="#3498db"/>
+                            <line x1="25" y1="35" x2="75" y2="35" stroke="#fff" stroke-width="2"/>
+                            <line x1="25" y1="45" x2="75" y2="45" stroke="#fff" stroke-width="2"/>
+                            <line x1="25" y1="55" x2="50" y2="55" stroke="#fff" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>الخطوة 1: تأسيس دليل الحسابات</h3>
+                </div>
+                <div class="setup-content">
+                    <p class="setup-intro">دليل الحسابات هو العمود الفقري لنظام المحاسبة. يجب تأسيسه بشكل صحيح قبل البدء بأي عملية.</p>
+                    
+                    <div class="account-types">
+                        <h4>أنواع الحسابات في نظام المحاسبة:</h4>
+                        
+                        <div class="account-type">
+                            <div class="account-type-header">
+                                <span class="account-type-number">1</span>
+                                <h5>الأصول (Assets)</h5>
+                            </div>
+                            <p>الحسابات التي تمثل ما تملكه الورشة</p>
+                            <div class="account-examples">
+                                <strong>أمثلة:</strong>
+                                <ul>
+                                    <li><strong>الصندوق (1101)</strong> - النقد المتوفر في الصندوق</li>
+                                    <li><strong>البنك (1102)</strong> - الأموال في الحساب البنكي</li>
+                                    <li><strong>العملاء (1200)</strong> - الذمم المدينة للعملاء</li>
+                                    <li><strong>المخزون (1300)</strong> - قيمة قطع الغيار والمواد</li>
+                                    <li><strong>العمل تحت التنفيذ (1400)</strong> - قيمة الإصلاحات الجارية</li>
+                                    <li><strong>الأصول الثابتة (1500)</strong> - المعدات والأجهزة</li>
+                                </ul>
+                            </div>
+                            <div class="setup-step">
+                                <span class="step-badge">كيفية التأسيس:</span>
+                                <p>اذهب إلى دليل الحسابات → إضافة حساب → اختر نوع "أصل" → أدخل الكود (مثلاً 1101) والاسم العربي</p>
+                            </div>
+                        </div>
+
+                        <div class="account-type">
+                            <div class="account-type-header">
+                                <span class="account-type-number">2</span>
+                                <h5>الخصوم (Liabilities)</h5>
+                            </div>
+                            <p>الحسابات التي تمثل ما تدين به الورشة</p>
+                            <div class="account-examples">
+                                <strong>أمثلة:</strong>
+                                <ul>
+                                    <li><strong>الموردين (2100)</strong> - الذمم الدائنة للموردين</li>
+                                    <li><strong>ضريبة القيمة المضافة (2200)</strong> - الضريبة المستحقة للحكومة</li>
+                                    <li><strong>الرواتب المستحقة (2300)</strong> - الرواتب غير المدفوعة</li>
+                                </ul>
+                            </div>
+                            <div class="setup-step">
+                                <span class="step-badge">كيفية التأسيس:</span>
+                                <p>اذهب إلى دليل الحسابات → إضافة حساب → اختر نوع "خصم" → أدخل الكود (مثلاً 2100) والاسم العربي</p>
+                            </div>
+                        </div>
+
+                        <div class="account-type">
+                            <div class="account-type-header">
+                                <span class="account-type-number">3</span>
+                                <h5>حقوق الملكية (Equity)</h5>
+                            </div>
+                            <p>الحسابات التي تمثل استثمار المالك</p>
+                            <div class="account-examples">
+                                <strong>أمثلة:</strong>
+                                <ul>
+                                    <li><strong>رأس المال (3000)</strong> - الاستثمار الأولي</li>
+                                    <li><strong>الأرباح المحتجزة (3100)</strong> - الأرباح غير الموزعة</li>
+                                </ul>
+                            </div>
+                            <div class="setup-step">
+                                <span class="step-badge">كيفية التأسيس:</span>
+                                <p>اذهب إلى دليل الحسابات → إضافة حساب → اختر نوع "حقوق الملكية" → أدخل الكود والاسم</p>
+                            </div>
+                        </div>
+
+                        <div class="account-type">
+                            <div class="account-type-header">
+                                <span class="account-type-number">4</span>
+                                <h5>الإيرادات (Revenue)</h5>
+                            </div>
+                            <p>الحسابات التي تمثل الدخل من الخدمات</p>
+                            <div class="account-examples">
+                                <strong>أمثلة:</strong>
+                                <ul>
+                                    <li><strong>إيرادات الخدمات (4100)</strong> - الدخل من صيانة السيارات</li>
+                                    <li><strong>إيرادات قطع الغيار (4200)</strong> - الدخل من بيع القطع</li>
+                                </ul>
+                            </div>
+                            <div class="setup-step">
+                                <span class="step-badge">كيفية التأسيس:</span>
+                                <p>اذهب إلى دليل الحسابات → إضافة حساب → اختر نوع "إيراد" → أدخل الكود (مثلاً 4100) والاسم العربي</p>
+                            </div>
+                        </div>
+
+                        <div class="account-type">
+                            <div class="account-type-header">
+                                <span class="account-type-number">5</span>
+                                <h5>المصروفات (Expenses)</h5>
+                            </div>
+                            <p>الحسابات التي تمثل التكاليف</p>
+                            <div class="account-examples">
+                                <strong>أمثلة:</strong>
+                                <ul>
+                                    <li><strong>تكلفة البضاعة المباعة (5100)</strong> - تكلفة القطع المستخدمة</li>
+                                    <li><strong>الرواتب (5200)</strong> - رواتب الموظفين</li>
+                                    <li><strong>الإيجار (5300)</strong> - إيجار الورشة</li>
+                                    <li><strong>الكهرباء والماء (5400)</strong> - فواتير الخدمات</li>
+                                    <li><strong>إهلاك الأصول (6100)</strong> - انخفاض قيمة الأصول</li>
+                                </ul>
+                            </div>
+                            <div class="setup-step">
+                                <span class="step-badge">كيفية التأسيس:</span>
+                                <p>اذهب إلى دليل الحسابات → إضافة حساب → اختر نوع "مصروف" → أدخل الكود والاسم</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="important-note">
+                        <div class="note-icon">⚠️</div>
+                        <div class="note-content">
+                            <strong>ملاحظة هامة:</strong>
+                            <p>بعد تأسيس الحسابات، يجب ربطها بالإعدادات المحاسبية. اذهب إلى الإعدادات المحاسبية واختر الحساب المناسب لكل نوع (إيرادات الخدمات، إيرادات القطع، تكلفة القطع، المخزون، الصندوق، العملاء، الموردين، إلخ).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Setup -->
+            <div class="setup-section animate-on-scroll">
+                <div class="setup-header">
+                    <div class="setup-icon">
+                        <svg viewBox="0 0 100 100">
+                            <rect x="15" y="30" width="70" height="40" rx="5" fill="#e74c3c"/>
+                            <circle cx="35" cy="50" r="8" fill="#fff"/>
+                            <circle cx="65" cy="50" r="8" fill="#fff"/>
+                            <path d="M45 50 L55 50" stroke="#fff" stroke-width="3"/>
+                        </svg>
+                    </div>
+                    <h3>الخطوة 2: تأسيس الخدمات</h3>
+                </div>
+                <div class="setup-content">
+                    <p class="setup-intro">الخدمات هي ما تقدمه للعملاء (تغيير زيت، إصلاح فرامل، إلخ)</p>
+                    
+                    <div class="setup-steps-list">
+                        <div class="setup-step-item">
+                            <span class="step-number">1</span>
+                            <div class="step-details">
+                                <h5>إضافة خدمة جديدة</h5>
+                                <p>اذهب إلى الخدمات → إضافة خدمة</p>
+                            </div>
+                        </div>
+                        <div class="setup-step-item">
+                            <span class="step-number">2</span>
+                            <div class="step-details">
+                                <h5>أدخل بيانات الخدمة</h5>
+                                <ul>
+                                    <li><strong>الاسم:</strong> مثلاً "تغيير زيت المحرك"</li>
+                                    <li><strong>الوصف:</strong> مثلاً "تغيير زيت المحرك مع الفلتر"</li>
+                                    <li><strong>السعر:</strong> مثلاً 15000 ل.س</li>
+                                    <li><strong>المدة المقدرة:</strong> مثلاً 60 دقيقة</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="setup-step-item">
+                            <span class="step-number">3</span>
+                            <div class="step-details">
+                                <h5>تفعيل الخدمة</h5>
+                                <p>تأكد من تفعيل الخدمة لتظهر في قائمة الخدمات عند إنشاء الحجز</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="service-examples">
+                        <h4>أمثلة على خدمات شائعة:</h4>
+                        <div class="service-example">
+                            <span class="service-name">تغيير زيت المحرك</span>
+                            <span class="service-price">15,000 ل.س</span>
+                            <span class="service-duration">60 دقيقة</span>
+                        </div>
+                        <div class="service-example">
+                            <span class="service-name">إصلاح الفرامل</span>
+                            <span class="service-price">25,000 ل.س</span>
+                            <span class="service-duration">90 دقيقة</span>
+                        </div>
+                        <div class="service-example">
+                            <span class="service-name">تغيير فلتر الهواء</span>
+                            <span class="service-price">5,000 ل.س</span>
+                            <span class="service-duration">30 دقيقة</span>
+                        </div>
+                        <div class="service-example">
+                            <span class="service-name">فحص عام</span>
+                            <span class="service-price">10,000 ل.س</span>
+                            <span class="service-duration">45 دقيقة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Setup -->
+            <div class="setup-section animate-on-scroll">
+                <div class="setup-header">
+                    <div class="setup-icon">
+                        <svg viewBox="0 0 100 100">
+                            <rect x="20" y="20" width="60" height="60" rx="5" fill="#2ecc71"/>
+                            <rect x="30" y="30" width="40" height="10" rx="2" fill="#fff"/>
+                            <rect x="30" y="45" width="40" height="10" rx="2" fill="#fff"/>
+                            <rect x="30" y="60" width="40" height="10" rx="2" fill="#fff"/>
+                        </svg>
+                    </div>
+                    <h3>الخطوة 3: تأسيس المخزون</h3>
+                </div>
+                <div class="setup-content">
+                    <p class="setup-intro">المخزون يحتوي على قطع الغيار والمواد التي تستخدم في الإصلاحات</p>
+                    
+                    <div class="setup-steps-list">
+                        <div class="setup-step-item">
+                            <span class="step-number">1</span>
+                            <div class="step-details">
+                                <h5>إضافة مادة جديدة</h5>
+                                <p>اذهب إلى المخزون → المواد → إضافة مادة</p>
+                            </div>
+                        </div>
+                        <div class="setup-step-item">
+                            <span class="step-number">2</span>
+                            <div class="step-details">
+                                <h5>أدخل بيانات المادة</h5>
+                                <ul>
+                                    <li><strong>الاسم:</strong> مثلاً "فلتر زيت"</li>
+                                    <li><strong>الوصف:</strong> مثلاً "فلتر زيت لجميع أنواع السيارات"</li>
+                                    <li><strong>السعر:</strong> مثلاً 3,000 ل.س</li>
+                                    <li><strong>الفئة:</strong> مثلاً "فلاتر"</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="setup-step-item">
+                            <span class="step-number">3</span>
+                            <div class="step-details">
+                                <h5>إضافة متغيرات (اختياري)</h5>
+                                <p>إذا كان للمادة أحجام أو ألوان مختلفة، أضف متغيرات (مثلاً: حجم صغير، كبير)</p>
+                            </div>
+                        </div>
+                        <div class="setup-step-item">
+                            <span class="step-number">4</span>
+                            <div class="step-details">
+                                <h5>إضافة الكمية الأولية</h5>
+                                <p>اذهب إلى حركة المخزون → إضافة حركة → اختر "إدخال" → أدخل الكمية</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="inventory-examples">
+                        <h4>أمثلة على مواد شائعة:</h4>
+                        <div class="inventory-example">
+                            <span class="item-name">فلتر زيت</span>
+                            <span class="item-price">3,000 ل.س</span>
+                            <span class="item-quantity">50 قطعة</span>
+                        </div>
+                        <div class="inventory-example">
+                            <span class="item-name">زيت محرك 5W-30</span>
+                            <span class="item-price">25,000 ل.س</span>
+                            <span class="item-quantity">20 عبوة</span>
+                        </div>
+                        <div class="inventory-example">
+                            <span class="item-name">وسادات فرامل</span>
+                            <span class="item-price">15,000 ل.س</span>
+                            <span class="item-quantity">30 زوج</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employees Setup -->
+            <div class="setup-section animate-on-scroll">
+                <div class="setup-header">
+                    <div class="setup-icon">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="35" r="20" fill="#f39c12"/>
+                            <rect x="25" y="55" width="50" height="35" rx="5" fill="#f39c12"/>
+                            <rect x="40" y="25" width="20" height="15" fill="#fff"/>
+                        </svg>
+                    </div>
+                    <h3>الخطوة 4: تأسيس الموظفين</h3>
+                </div>
+                <div class="setup-content">
+                    <p class="setup-intro">الموظفين هم الفنيين والمستقبلين الذين يعملون في الورشة</p>
+                    
+                    <div class="setup-steps-list">
+                        <div class="setup-step-item">
+                            <span class="step-number">1</span>
+                            <div class="step-details">
+                                <h5>إضافة مستخدم جديد</h5>
+                                <p>اذهب إلى الموظفين → إضافة موظف</p>
+                            </div>
+                        </div>
+                        <div class="setup-step-item">
+                            <span class="step-number">2</span>
+                            <div class="step-details">
+                                <h5>أدخل بيانات الموظف</h5>
+                                <ul>
+                                    <li><strong>الاسم الكامل:</strong> مثلاً "أحمد محمد"</li>
+                                    <li><strong>اسم المستخدم:</strong> مثلاً "ahmad"</li>
+                                    <li><strong>كلمة المرور:</strong> مثلاً "ahmad123"</li>
+                                    <li><strong>الدور:</strong> اختر "فني" أو "مستقبل" أو "مدير"</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="setup-step-item">
+                            <span class="step-number">3</span>
+                            <div class="step-details">
+                                <h5>تفعيل الحساب</h5>
+                                <p>تأكد من تفعيل الحساب ليتمكن الموظف من تسجيل الدخول</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="roles-explanation">
+                        <h4>شرح الأدوار:</h4>
+                        <div class="role-item">
+                            <span class="role-name">المالك (Owner)</span>
+                            <p>لديه صلاحيات كاملة على النظام</p>
+                        </div>
+                        <div class="role-item">
+                            <span class="role-name">المدير (Manager)</span>
+                            <p>يمكنه إدارة الحجوزات والمخزون والموظفين</p>
+                        </div>
+                        <div class="role-item">
+                            <span class="role-name">المستقبل (Receptionist)</span>
+                            <p>يمكنه إنشاء الحجوزات وإدارة العملاء</p>
+                        </div>
+                        <div class="role-item">
+                            <span class="role-name">الفني (Mechanic)</span>
+                            <p>يمكنه رؤية الحجوزات المعينة له وتحديث الحالة</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final Setup -->
+            <div class="setup-section animate-on-scroll final-check">
+                <div class="setup-header">
+                    <div class="setup-icon success">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#2ecc71"/>
+                            <path d="M30 50 L45 65 L70 35" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3>الخطوة 5: الفحص النهائي</h3>
+                </div>
+                <div class="setup-content">
+                    <p class="setup-intro">قبل البدء باستقبال الزبائن، تأكد من إتمام الخطوات التالية:</p>
+                    
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check1">
+                            <label for="check1">تأسيس دليل الحسابات بشكل كامل (أقل من 20 حساب أساسي)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check2">
+                            <label for="check2">ربط الحسابات بالإعدادات المحاسبية</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check3">
+                            <label for="check3">إضافة الخدمات الأساسية (على الأقل 5 خدمات)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check4">
+                            <label for="check4">إضافة المواد الأساسية للمخزون</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check5">
+                            <label for="check5">إضافة الموظفين (على الأقل فني واحد ومستقبل واحد)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check6">
+                            <label for="check6">إعداد معلومات الشركة (الاسم، الشعار)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check7">
+                            <label for="check7">اختبار إنشاء حجز تجريبي</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check8">
+                            <label for="check8">اختبار إنشاء فاتورة تجريبية</label>
+                        </div>
+                    </div>
+
+                    <div class="ready-message">
+                        <h4>🎉 تهانينا!</h4>
+                        <p>بعد إتمام جميع الخطوات أعلاه، نظامك جاهز لاستقبال الزبائن!</p>
+                        <a href="#hero" class="btn btn-primary">ابدأ الآن</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modules Section -->
+    <section id="modules" class="modules">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">وحدات النظام</h2>
+            <p class="section-subtitle animate-on-scroll">نظام شامل يغطي جميع جوانب إدارة الورشة</p>
+            
+            <div class="modules-container">
+                <div class="module-card animate-on-scroll hover-lift stagger-1">
+                    <div class="module-header">
+                        <div class="module-icon accounting">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="15" y="20" width="70" height="60" rx="5" fill="#3498db"/>
+                                <line x1="25" y1="35" x2="75" y2="35" stroke="#fff" stroke-width="2"/>
+                                <line x1="25" y1="45" x2="75" y2="45" stroke="#fff" stroke-width="2"/>
+                                <line x1="25" y1="55" x2="50" y2="55" stroke="#fff" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>نظام المحاسبة</h3>
+                    </div>
+                    <div class="module-content">
+                        <ul>
+                            <li>دليل الحسابات الشامل</li>
+                            <li>قيود اليومية</li>
+                            <li>ميزان المراجعة</li>
+                            <li>قائمة الدخل</li>
+                            <li>الميزانية العمومية</li>
+                            <li>دفتر الأستاذ العام</li>
+                            <li>بيان التدفق النقدي</li>
+                        </ul>
+                        <div class="module-benefit">
+                            <span>الفائدة:</span>
+                            <p>تتبع المعاملات المالية بدقة وإعداد التقارير المالية للضرائب والقرارات الإدارية</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card animate-on-scroll hover-lift stagger-2">
+                    <div class="module-header">
+                        <div class="module-icon bookings">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="10" y="15" width="80" height="70" rx="5" fill="#e74c3c"/>
+                                <rect x="20" y="25" width="60" height="10" rx="2" fill="#fff"/>
+                                <rect x="20" y="40" width="40" height="8" rx="2" fill="#fff" opacity="0.7"/>
+                                <rect x="20" y="52" width="50" height="8" rx="2" fill="#fff" opacity="0.7"/>
+                                <rect x="20" y="64" width="30" height="8" rx="2" fill="#fff" opacity="0.7"/>
+                            </svg>
+                        </div>
+                        <h3>نظام الحجوزات</h3>
+                    </div>
+                    <div class="module-content">
+                        <ul>
+                            <li>إنشاء حجوزات جديدة</li>
+                            <li>تعيين الفنيين</li>
+                            <li>تتبع حالة الإصلاح</li>
+                            <li>استهلاك القطع</li>
+                            <li>QR Code للعملاء</li>
+                            <li>تتبع عام للعميل</li>
+                        </ul>
+                        <div class="module-benefit">
+                            <span>الفائدة:</span>
+                            <p>تنظيم جدول العمل وتحسين التواصل مع العملاء وتقليل وقت الانتظار</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card animate-on-scroll hover-lift stagger-3">
+                    <div class="module-header">
+                        <div class="module-icon inventory">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="20" y="20" width="60" height="60" rx="5" fill="#2ecc71"/>
+                                <rect x="30" y="30" width="40" height="10" rx="2" fill="#fff"/>
+                                <rect x="30" y="45" width="40" height="10" rx="2" fill="#fff"/>
+                                <rect x="30" y="60" width="40" height="10" rx="2" fill="#fff"/>
+                            </svg>
+                        </div>
+                        <h3>نظام المخزون</h3>
+                    </div>
+                    <div class="module-content">
+                        <ul>
+                            <li>إدارة المواد والقطع</li>
+                            <li>المتغيرات (أحجام وألوان)</li>
+                            <li>حركة المخزون</li>
+                            <li>تنبيهات النفاد</li>
+                            <li>تقارير المخزون</li>
+                            <li>نقل بين المستودعات</li>
+                        </ul>
+                        <div class="module-benefit">
+                            <span>الفائدة:</span>
+                            <p>تجنب نفاد القطع الهامة وتحسين إدارة المشتريات وتقليل التكاليف</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card animate-on-scroll hover-lift stagger-4">
+                    <div class="module-header">
+                        <div class="module-icon customers">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="35" r="20" fill="#9b59b6"/>
+                                <rect x="25" y="55" width="50" height="35" rx="5" fill="#9b59b6"/>
+                            </svg>
+                        </div>
+                        <h3>إدارة العملاء</h3>
+                    </div>
+                    <div class="module-content">
+                        <ul>
+                            <li>سجل العملاء</li>
+                            <li>تاريخ السيارات</li>
+                            <li>تاريخ الصيانة</li>
+                            <li>العملاء المحتملين</li>
+                            <li>الأنشطة والتواصل</li>
+                        </ul>
+                        <div class="module-benefit">
+                            <span>الفائدة:</span>
+                            <p>بناء علاقات قوية مع العملاء وتحسين خدمة العملاء وزيادة الولاء</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card animate-on-scroll hover-lift stagger-5">
+                    <div class="module-header">
+                        <div class="module-icon hr">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="35" r="20" fill="#f39c12"/>
+                                <rect x="25" y="55" width="50" height="35" rx="5" fill="#f39c12"/>
+                                <rect x="40" y="25" width="20" height="15" fill="#fff"/>
+                            </svg>
+                        </div>
+                        <h3>الموارد البشرية</h3>
+                    </div>
+                    <div class="module-content">
+                        <ul>
+                            <li>عقود الموظفين</li>
+                            <li>طلبات الإجازة</li>
+                            <li>تقييم الأداء</li>
+                            <li>إدارة الرواتب</li>
+                        </ul>
+                        <div class="module-benefit">
+                            <span>الفائدة:</span>
+                            <p>إدارة الموظفين بفعالية وتتبع الإجازات وتقييم الأداء لتحسين الإنتاجية</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card animate-on-scroll hover-lift stagger-6">
+                    <div class="module-header">
+                        <div class="module-icon sales">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="15" y="25" width="70" height="50" rx="5" fill="#1abc9c"/>
+                                <path d="M25 50 L50 30 L75 50 L75 60 L25 60 Z" fill="#fff"/>
+                            </svg>
+                        </div>
+                        <h3>المبيعات والمشتريات</h3>
+                    </div>
+                    <div class="module-content">
+                        <ul>
+                            <li>عروض الأسعار</li>
+                            <li>أوامر البيع</li>
+                            <li>أوامر الشراء</li>
+                            <li>فواتير الشراء</li>
+                            <li>إدارة الموردين</li>
+                        </ul>
+                        <div class="module-benefit">
+                            <span>الفائدة:</span>
+                            <p>إدارة عملية البيع والشراء من العرض إلى التسليم بكفاءة عالية</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">فوائد استخدام النظام</h2>
+            <p class="section-subtitle animate-on-scroll">لماذا تختار Garage Go؟</p>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item animate-on-scroll hover-lift stagger-1">
+                    <div class="benefit-number animate-pulse">01</div>
+                    <h3>توفير الوقت</h3>
+                    <p>تقليل الوقت المستغرق في العمليات اليدوية وزيادة الإنتاجية بنسبة 40%</p>
+                </div>
+
+                <div class="benefit-item animate-on-scroll hover-lift stagger-2">
+                    <div class="benefit-number animate-pulse">02</div>
+                    <h3>تقليل الأخطاء</h3>
+                    <p>القضاء على الأخطاء البشرية في الحسابات والمخزون والفواتير</p>
+                </div>
+
+                <div class="benefit-item animate-on-scroll hover-lift stagger-3">
+                    <div class="benefit-number animate-pulse">03</div>
+                    <h3>تحسين الخدمة</h3>
+                    <p>توفير تجربة أفضل للعملاء من خلال تتبع سريع ودقيق</p>
+                </div>
+
+                <div class="benefit-item animate-on-scroll hover-lift stagger-4">
+                    <div class="benefit-number animate-pulse">04</div>
+                    <h3>قرارات مدروسة</h3>
+                    <p>تقارير مفصلة تساعدك في اتخاذ قرارات إدارية صحيحة</p>
+                </div>
+
+                <div class="benefit-item animate-on-scroll hover-lift stagger-5">
+                    <div class="benefit-number animate-pulse">05</div>
+                    <h3>توفير التكاليف</h3>
+                    <p>تقليل الهدر في المخزون وتحسين إدارة الموارد</p>
+                </div>
+
+                <div class="benefit-item animate-on-scroll hover-lift stagger-6">
+                    <div class="benefit-number animate-pulse">06</div>
+                    <h3>سهولة الاستخدام</h3>
+                    <p>واجهة بسيطة وسهلة التعلم لا تحتاج خبرة تقنية</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2 class="animate-on-scroll animate-fade-in-up">جاهز لتحويل ورشتك؟</h2>
+            <p class="animate-on-scroll animate-fade-in-up stagger-2">ابدأ اليوم وانضم إلى آلاف الورش التي تستخدم Garage Go</p>
+            <a href="#hero" class="btn btn-primary animate-on-scroll animate-bounce stagger-3">ابدأ الآن مجاناً</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg class="logo-icon" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#3498db" stroke-width="3"/>
+                        <path d="M25 50 L40 35 L60 35 L75 50 L75 70 L25 70 Z" fill="#3498db"/>
+                        <circle cx="35" cy="55" r="8" fill="#fff"/>
+                        <circle cx="65" cy="55" r="8" fill="#fff"/>
+                    </svg>
+                    <span>Garage Go</span>
+                </div>
+                <p>نظام إدارة ورش الصيانة المتكامل</p>
+                <p>&copy; 2024 Garage Go. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

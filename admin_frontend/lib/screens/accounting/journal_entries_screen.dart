@@ -225,13 +225,13 @@ class _JournalEntriesScreenState extends ConsumerState<JournalEntriesScreen> {
           ),
         ),
         title: Text(
-          entry.reference,
+          entry.reference ?? '',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(entry.description),
+            Text(entry.description ?? ''),
             const SizedBox(height: 4),
             Row(
               children: [
@@ -265,14 +265,14 @@ class _JournalEntriesScreenState extends ConsumerState<JournalEntriesScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: _getSourceTypeColor(entry.sourceType).withOpacity(0.1),
+                color: _getSourceTypeColor(entry.sourceType ?? '').withOpacity(0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                _getSourceTypeLabel(entry.sourceType),
+                _getSourceTypeLabel(entry.sourceType ?? ''),
                 style: TextStyle(
                   fontSize: 12,
-                  color: _getSourceTypeColor(entry.sourceType),
+                  color: _getSourceTypeColor(entry.sourceType ?? ''),
                 ),
               ),
             ),

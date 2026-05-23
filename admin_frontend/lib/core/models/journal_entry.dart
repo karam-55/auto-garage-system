@@ -25,16 +25,16 @@ class JournalEntry {
 
   factory JournalEntry.fromJson(Map<String, dynamic> json) {
     return JournalEntry(
-      id: json['id'] as int,
-      date: DateTime.parse(json['date'] as String),
-      reference: json['reference'] as String,
-      description: json['description'] as String,
-      lines: (json['lines'] as List).map((j) => JournalLine.fromJson(j as Map<String, dynamic>)).toList(),
-      sourceType: json['sourceType'] as String,
-      sourceId: json['sourceId'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      createdBy: json['createdBy'] as int?,
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      date: DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime.now(),
+      reference: json['reference']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      lines: (json['lines'] as List?)?.map((j) => JournalLine.fromJson(j as Map<String, dynamic>)).toList() ?? [],
+      sourceType: json['sourceType']?.toString() ?? '',
+      sourceId: json['sourceId']?.toString(),
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      createdBy: (json['createdBy'] as num?)?.toInt(),
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'].toString()) : null,
     );
   }
 
@@ -76,12 +76,12 @@ class JournalLine {
 
   factory JournalLine.fromJson(Map<String, dynamic> json) {
     return JournalLine(
-      id: json['id'] as int,
-      accountId: json['accountId'] as int,
-      accountName: json['accountName'] as String? ?? json['account_name'] as String? ?? '',
-      debit: (json['debit'] as num).toDouble(),
-      credit: (json['credit'] as num).toDouble(),
-      description: json['description'] as String?,
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      accountId: (json['accountId'] as num?)?.toInt() ?? 0,
+      accountName: json['accountName']?.toString() ?? json['account_name']?.toString() ?? '',
+      debit: (json['debit'] as num?)?.toDouble() ?? 0.0,
+      credit: (json['credit'] as num?)?.toDouble() ?? 0.0,
+      description: json['description']?.toString(),
     );
   }
 

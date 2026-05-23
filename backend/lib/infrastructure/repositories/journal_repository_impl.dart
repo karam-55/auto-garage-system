@@ -153,7 +153,19 @@ class JournalRepositoryImpl implements JournalRepository {
   Future<List<JournalLine>> findLinesByEntryId(int entryId) async {
     try {
       final result = await _db.execute(
-        Sql.named('SELECT * FROM journal_lines WHERE entry_id = @entryId'),
+        Sql.named('''SELECT 
+          jl.id, 
+          jl.entry_id, 
+          jl.account_id, 
+          a.name as account_name,
+          jl.debit, 
+          jl.credit, 
+          jl.description, 
+          jl.source_type, 
+          jl.source_id 
+        FROM journal_lines jl
+        LEFT JOIN accounts a ON jl.account_id = a.id
+        WHERE jl.entry_id = @entryId'''),
         parameters: {'entryId': entryId},
       );
       return result.map((row) => _mapRowToJournalLine(row)).toList();

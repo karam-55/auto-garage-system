@@ -3,6 +3,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../core/widgets/professional_dialog.dart';
 import '../core/services/api_service.dart';
 import '../core/constants/api_constants.dart';
+import '../core/validators/input_validators.dart';
 import 'invoice_screen.dart';
 
 class CreateBookingScreen extends StatefulWidget {
@@ -111,11 +112,23 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
 
   Future<void> _createBooking() async {
     // Validate all required fields
-    if (_customerNameController.text.isEmpty ||
-        _customerPhoneController.text.isEmpty) {
+    if (_customerNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('يرجى إدخال اسم العميل ورقم الهاتف'),
+          content: Text('يرجى إدخال اسم العميل'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      _tabController.animateTo(0);
+      return;
+    }
+
+    // Validate phone number
+    final phoneError = InputValidators.validatePhone(_customerPhoneController.text);
+    if (phoneError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(phoneError),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -133,6 +146,18 @@ class _CreateBookingScreenState extends State<CreateBookingScreen>
         ),
       );
       _tabController.animateTo(1);
+      return;
+    }
+
+    // Validate service selection
+    if (_selectedServices.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يجب اختيار خدمة واحدة على الأقل'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      _tabController.animateTo(2);
       return;
     }
 

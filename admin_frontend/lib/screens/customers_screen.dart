@@ -27,6 +27,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   int _totalPages = 0;
   bool _hasNextPage = false;
   static const int _pageSize = 20;
+  static const int _maxRecords = 500;
 
   @override
   void initState() {
@@ -48,7 +49,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
   void _onScroll() {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
-      if (_hasNextPage && !_isLoadingMore && !_isLoading) {
+      if (_hasNextPage && !_isLoadingMore && !_isLoading && _customers.length < _maxRecords) {
         _loadMoreCustomers();
       }
     }

@@ -12,6 +12,33 @@ import '../../application/services/auth_service.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
 
+class ValidationException implements Exception {
+  final String message;
+  ValidationException(this.message);
+  
+  @override
+  String toString() => message;
+}
+
+class PasswordValidator {
+  static void validate(String password) {
+    if (password.length < 8) {
+      throw ValidationException('Password must be at least 8 characters');
+    }
+    
+    int categories = 0;
+    if (RegExp(r'[A-Z]').hasMatch(password)) categories++;
+    if (RegExp(r'[a-z]').hasMatch(password)) categories++;
+    if (RegExp(r'[0-9]').hasMatch(password)) categories++;
+    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) categories++;
+    
+    if (categories < 3) {
+      throw ValidationException('Password must contain at least 3 of: uppercase, lowercase, number, special character');
+    }
+  }
+}
+
+
 class AuthRoutes {
   final UserRepository _userRepository;
   final AuthMiddleware _authMiddleware;
@@ -226,8 +253,11 @@ class AuthRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'All fields are required and cannot be empty'}));
     }
 
-    if (password.length < 6) {
-      return Response.badRequest(body: jsonEncode({'error': 'Password must be at least 6 characters'}));
+    try {
+      // Validate password with new security requirements
+      PasswordValidator.validate(password);
+    } catch (e) {
+      return Response.badRequest(body: jsonEncode({'error': e.toString()}));
     }
 
     try {
@@ -278,8 +308,11 @@ class AuthRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'All fields are required and cannot be empty'}));
     }
 
-    if (password.length < 6) {
-      return Response.badRequest(body: jsonEncode({'error': 'Password must be at least 6 characters'}));
+    try {
+      // Validate password with new security requirements
+      PasswordValidator.validate(password);
+    } catch (e) {
+      return Response.badRequest(body: jsonEncode({'error': e.toString()}));
     }
 
     try {

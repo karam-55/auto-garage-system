@@ -58,6 +58,10 @@ import 'package:backend/presentation/middlewares/auth_middleware.dart';
 import 'package:backend/presentation/middlewares/error_middleware.dart';
 import 'package:backend/presentation/middlewares/json_middleware.dart';
 import 'package:backend/presentation/middlewares/logging_middleware.dart';
+import 'package:backend/presentation/middlewares/rate_limit_middleware.dart';
+import 'package:backend/presentation/middlewares/cors_middleware.dart';
+import 'package:backend/presentation/middlewares/csrf_middleware.dart';
+
 import 'package:backend/application/services/auth_service.dart';
 import 'package:backend/application/services/journal_service.dart';
 import 'package:backend/application/services/accounting_settings_service.dart';
@@ -266,9 +270,11 @@ void main(List<String> args) async {
   // Configure middleware pipeline
   final pipeline = Pipeline()
       .addMiddleware(ErrorMiddleware.handleErrors())
-      .addMiddleware(LoggingMiddleware.logRequests())
+      .addMiddleware(createLoggingMiddleware())
       .addMiddleware(JsonMiddleware.jsonContent())
-      .addMiddleware(_corsMiddleware())
+      .addMiddleware(createCorsMiddleware())
+      .addMiddleware(createRateLimitMiddleware())
+      .addMiddleware(CsrfMiddleware().create())
       .addHandler(handler);
 
   // Start server

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/theme/app_theme.dart';
@@ -264,12 +265,13 @@ class _LoginScreenState extends State<LoginScreen>
     _controller.forward();
   }
 
+  final _storage = FlutterSecureStorage();
+
   Future<void> _loadSavedCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final rememberMe = prefs.getBool('remember_me') ?? false;
+    final rememberMe = await _storage.read(key: 'remember_me') == 'true';
     if (rememberMe) {
-      final username = prefs.getString('saved_username');
-      final password = prefs.getString('saved_password');
+      final username = await _storage.read(key: 'saved_username');
+      final password = await _storage.read(key: 'saved_password');
       if (username != null && password != null) {
         setState(() {
           _usernameController.text = username;
@@ -281,15 +283,14 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _saveCredentials(String username, String password) async {
-    final prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
-      await prefs.setBool('remember_me', true);
-      await prefs.setString('saved_username', username);
-      await prefs.setString('saved_password', password);
+      await _storage.write(key: 'remember_me', value: 'true');
+      await _storage.write(key: 'saved_username', value: username);
+      await _storage.write(key: 'saved_password', value: password);
     } else {
-      await prefs.setBool('remember_me', false);
-      await prefs.remove('saved_username');
-      await prefs.remove('saved_password');
+      await _storage.write(key: 'remember_me', value: 'false');
+      await _storage.delete(key: 'saved_username');
+      await _storage.delete(key: 'saved_password');
     }
   }
 

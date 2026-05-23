@@ -27,14 +27,21 @@ class JournalService {
     for (final line in lines) {
       totalDebits += line.debit;
       totalCredits += line.credit;
-      // Validate account exists
-      final account = await _accountRepository.findById(line.accountId);
-      if (account == null) {
-        throw Exception('Account ${line.accountId} not found');
-      }
     }
     if ((totalDebits - totalCredits).abs() > 0.01) {
       throw Exception('Debits ($totalDebits) do not equal credits ($totalCredits)');
+    }
+
+    // Validate all accounts exist in a single query (fix N+1)
+    final accountIds = lines.map((l) => l.accountId).toSet().toList();
+    final accounts = await _accountRepository.findByIds(accountIds);
+    final accountMap = {for (var a in accounts) a.id: a};
+
+    for (final line in lines) {
+      final account = accountMap[line.accountId];
+      if (account == null) {
+        throw Exception('Account ${line.accountId} not found');
+      }
     }
 
     final entry = JournalEntry(
@@ -83,14 +90,21 @@ class JournalService {
     for (final line in lines) {
       totalDebits += line.debit;
       totalCredits += line.credit;
-      // Validate account exists
-      final account = await _accountRepository.findById(line.accountId);
-      if (account == null) {
-        throw Exception('Account ${line.accountId} not found');
-      }
     }
     if ((totalDebits - totalCredits).abs() > 0.01) {
       throw Exception('Debits ($totalDebits) do not equal credits ($totalCredits)');
+    }
+
+    // Validate all accounts exist in a single query (fix N+1)
+    final accountIds = lines.map((l) => l.accountId).toSet().toList();
+    final accounts = await _accountRepository.findByIds(accountIds);
+    final accountMap = {for (var a in accounts) a.id: a};
+
+    for (final line in lines) {
+      final account = accountMap[line.accountId];
+      if (account == null) {
+        throw Exception('Account ${line.accountId} not found');
+      }
     }
 
     final entry = JournalEntry(

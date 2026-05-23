@@ -82,6 +82,9 @@ class BookingRoutes {
     // GET /api/bookings/:id/invoice (accessible by RECEPTIONIST, MANAGER, OWNER)
     router.get('/api/bookings/<id>/invoice', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.RECEPTIONIST, Role.MANAGER, Role.OWNER])(_getBookingInvoice)));
 
+    // GET /api/bookings/batch-invoices (accessible by RECEPTIONIST, MANAGER, OWNER)
+    router.get('/api/bookings/batch-invoices', _authMiddleware.authenticate()(_authMiddleware.requireAnyRole([Role.RECEPTIONIST, Role.MANAGER, Role.OWNER])(_getBatchInvoices)));
+
     // DELETE /api/bookings/:id
     router.delete('/api/bookings/<id>', _authMiddleware.authenticate()(_authMiddleware.requireRole(Role.MANAGER)(_deleteBooking)));
 
@@ -219,9 +222,7 @@ class BookingRoutes {
     }
     try {
       final bookings = await _bookingRepository.findByCustomerId(customerId);
-      return Response.ok(
-        jsonEncode(bookings.map((b) => b.toJson()).toList()),
-      );
+      return Response.ok(jsonEncode(bookings.map((b) => b.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get bookings: $e'}),
@@ -236,9 +237,7 @@ class BookingRoutes {
     }
     try {
       final bookings = await _bookingRepository.findByStatus(status);
-      return Response.ok(
-        jsonEncode(bookings.map((b) => b.toJson()).toList()),
-      );
+      return Response.ok(jsonEncode(bookings.map((b) => b.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get bookings: $e'}),
@@ -247,109 +246,69 @@ class BookingRoutes {
   }
 
   Future<Response> _createBooking(Request request) async {
-    final body = await JsonMiddleware.parseJsonBody(request);
-    if (body == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
-    }
-
-    final customerId = (body['customerId'] as String?)?.trim();
-    final vehicleId = (body['vehicleId'] as String?)?.trim();
-    final notes = (body['notes'] as String?)?.trim();
-    final servicesData = body['services'] as List<dynamic>?;
-    final estimatedCompletionDate = (body['estimatedCompletionDate'] as String?)?.trim();
-
-    if (customerId == null || customerId.isEmpty ||
-        vehicleId == null || vehicleId.isEmpty ||
-        servicesData == null || servicesData.isEmpty) {
-      return Response.badRequest(body: jsonEncode({'error': 'customerId, vehicleId, and services are required and cannot be empty'}));
-    }
-
-    // Validate services data
-    for (final serviceData in servicesData) {
-      final serviceId = serviceData['serviceId'] as String?;
-      final priceSYP = serviceData['priceSYP'];
-      
-      // Handle priceSYP type safely
-      double? priceSYPDouble;
-      if (priceSYP == null) {
-        return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid priceSYP'}));
-      } else if (priceSYP is num) {
-        priceSYPDouble = (priceSYP).toDouble();
-      } else if (priceSYP is String) {
-        try {
-          priceSYPDouble = double.parse(priceSYP);
-        } catch (e) {
-          return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a valid number'}));
-        }
-      } else {
-        return Response.badRequest(body: jsonEncode({'error': 'priceSYP must be a number'}));
-      }
-      
-      if (serviceId == null || serviceId.isEmpty || priceSYPDouble <= 0) {
-        return Response.badRequest(body: jsonEncode({'error': 'Each service must have a valid serviceId and priceSYP > 0'}));
-      }
-    }
-
-    // Validate estimated completion date if provided
-    DateTime? parsedDate;
-    if (estimatedCompletionDate != null && estimatedCompletionDate.isNotEmpty) {
-      try {
-        parsedDate = DateTime.parse(estimatedCompletionDate).toUtc();
-        if (parsedDate.isBefore(DateTime.now().toUtc())) {
-          return Response.badRequest(body: jsonEncode({'error': 'Estimated completion date must be in the future'}));
-        }
-      } catch (e) {
-        return Response.badRequest(body: jsonEncode({'error': 'Invalid estimated completion date format'}));
-      }
-    }
-
     try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      // Validate required fields
+      if (!data.containsKey('customerId') || data['customerId'] == null) {
+        return Response.badRequest(body: jsonEncode({'error': 'customerId is required'}));
+      }
+      if (!data.containsKey('vehicleId') || data['vehicleId'] == null) {
+        return Response.badRequest(body: jsonEncode({'error': 'vehicleId is required'}));
+      }
+      if (!data.containsKey('services') || (data['services'] as List).isEmpty) {
+        return Response.badRequest(body: jsonEncode({'error': 'At least one service is required'}));
+      }
+
+      final customerId = data['customerId'] as String;
+      final vehicleId = data['vehicleId'] as String;
+      final servicesData = data['services'] as List<Map<String, dynamic>>;
+      final notes = data['notes'] as String?;
+      final estimatedCompletionDate = data['estimatedCompletionDate'] != null
+          ? DateTime.parse(data['estimatedCompletionDate'] as String)
+          : null;
+
+      // Create booking entity
       final booking = Booking(
         id: const Uuid().v4(),
         customerId: customerId,
         vehicleId: vehicleId,
         status: BookingStatus.PENDING,
-        publicToken: const Uuid().v4().replaceAll('-', ''),
         notes: notes,
-        createdAt: DateTime.now().toUtc(),
-        estimatedCompletionDate: parsedDate,
+        createdAt: DateTime.now(),
+        estimatedCompletionDate: estimatedCompletionDate,
+        publicToken: const Uuid().v4(),
       );
 
-      final services = servicesData.map((data) {
-        final serviceId = data['serviceId'] as String;
-        final priceSYP = data['priceSYP'];
-        
-        // Handle priceSYP type safely
-        double priceSYPDouble;
-        if (priceSYP is num) {
-          priceSYPDouble = (priceSYP).toDouble();
-        } else if (priceSYP is String) {
-          priceSYPDouble = double.parse(priceSYP);
-        } else {
-          throw Exception('Invalid priceSYP type: ${priceSYP.runtimeType}');
-        }
-        
+      // Create booking services
+      final bookingServices = servicesData.map((serviceData) {
         return BookingService(
-          id: '',
+          id: const Uuid().v4(),
           bookingId: booking.id,
-          serviceId: serviceId,
-          priceSYP: priceSYPDouble,
-          notes: data['notes'] is String ? data['notes'] as String? : null,
+          serviceId: serviceData['serviceId'] as String,
+          priceSYP: (serviceData['priceSYP'] as num).toDouble(),
+          notes: serviceData['notes'] as String?,
         );
       }).toList();
 
-      final useCase = CreateBookingUseCase(_bookingRepository, _invoiceDataRepository);
-      final createdBooking = await useCase.execute(booking, services);
+      // Execute use case
+      final useCase = CreateBookingUseCase(
+        _bookingRepository,
+        _invoiceDataRepository,
+      );
 
-      // Get vehicle to include publicCarId in response
+      final createdBooking = await useCase.execute(booking, bookingServices);
+
+      // Fetch vehicle for publicCarId
       final vehicle = await _vehicleRepository.findById(vehicleId);
 
-      final response = {
+      // Return booking with publicToken
+      return Response.ok(jsonEncode({
         ...createdBooking.toJson(),
-        if (vehicle != null) 'publicCarId': vehicle.publicCarId,
-      };
-
-      return Response.ok(jsonEncode(response));
+        'publicCarId': vehicle?.publicCarId,
+        'services': bookingServices.map((s) => s.toJson()).toList(),
+      }));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to create booking: $e'}),
@@ -362,33 +321,25 @@ class BookingRoutes {
     if (id == null || id.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
     }
-    final body = await JsonMiddleware.parseJsonBody(request);
-    if (body == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
-    }
-
     try {
-      final existingBooking = await _bookingRepository.findById(id);
-      if (existingBooking == null) {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      final booking = await _bookingRepository.findById(id);
+      if (booking == null) {
         return Response.notFound(jsonEncode({'error': 'Booking not found'}));
       }
 
-      final updatedBooking = existingBooking.copyWith(
-        customerId: (body['customerId'] as String?)?.trim() ?? existingBooking.customerId,
-        vehicleId: (body['vehicleId'] as String?)?.trim() ?? existingBooking.vehicleId,
-        status: body['status'] != null
-            ? BookingStatus.fromString((body['status'] as String).trim())
-            : existingBooking.status,
-        notes: (body['notes'] as String?)?.trim(),
-        estimatedCompletionDate: body['estimatedCompletionDate'] != null
-            ? DateTime.parse((body['estimatedCompletionDate'] as String).trim()).toUtc()
-            : existingBooking.estimatedCompletionDate,
-        updatedAt: DateTime.now().toUtc(),
+      final updatedBooking = booking.copyWith(
+        notes: data['notes'] as String?,
+        estimatedCompletionDate: data['estimatedCompletionDate'] != null
+            ? DateTime.parse(data['estimatedCompletionDate'] as String)
+            : null,
       );
 
-      final result = await _bookingRepository.update(updatedBooking);
-      
-      return Response.ok(jsonEncode(result.toJson()));
+      await _bookingRepository.update(updatedBooking);
+
+      return Response.ok(jsonEncode(updatedBooking.toJson()));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to update booking: $e'}),
@@ -401,28 +352,25 @@ class BookingRoutes {
     if (id == null || id.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
     }
-    final body = await JsonMiddleware.parseJsonBody(request);
-    if (body == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
-    }
-
-    final statusStr = (body['status'] as String?)?.trim();
-    if (statusStr == null || statusStr.isEmpty) {
-      return Response.badRequest(body: jsonEncode({'error': 'status is required'}));
-    }
-
     try {
-      final useCase = UpdateBookingStatusUseCase(
-        _bookingRepository,
-        _invoiceDataRepository,
-        _accountRepository,
-        _journalRepository,
-        _journalService,
-        _accountingSettingsService,
-      );
-      final userId = request.context['user'] != null ? (request.context['user'] as dynamic).id : null;
-      final updatedBooking = await useCase.execute(id, BookingStatus.fromString(statusStr), userId: userId);
-      
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final status = data['status'] as String?;
+
+      if (status == null || status.isEmpty) {
+        return Response.badRequest(body: jsonEncode({'error': 'status is required'}));
+      }
+
+      final booking = await _bookingRepository.findById(id);
+      if (booking == null) {
+        return Response.notFound(jsonEncode({'error': 'Booking not found'}));
+      }
+
+      final bookingStatus = BookingStatus.fromString(status);
+      final updatedBooking = booking.copyWith(status: bookingStatus);
+
+      await _bookingRepository.update(updatedBooking);
+
       return Response.ok(jsonEncode(updatedBooking.toJson()));
     } catch (e) {
       return Response.internalServerError(
@@ -436,74 +384,33 @@ class BookingRoutes {
     if (id == null || id.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
     }
-    final body = await JsonMiddleware.parseJsonBody(request);
-    if (body == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
-    }
-
-    final servicesData = body['services'] as List<dynamic>?;
-    if (servicesData == null || servicesData.isEmpty) {
-      return Response.badRequest(body: jsonEncode({'error': 'services array is required'}));
-    }
-
     try {
-      // Delete existing services for this booking
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final servicesData = data['services'] as List<Map<String, dynamic>>;
+
+      // Delete existing services
       await _bookingServiceRepository.deleteByBookingId(id);
 
-      // Add new services
-      for (final data in servicesData) {
-        final serviceId = data['serviceId'] as String;
-        final priceSYP = data['priceSYP'];
-        
-        // Handle priceSYP type safely
-        double priceSYPDouble;
-        if (priceSYP is num) {
-          priceSYPDouble = (priceSYP).toDouble();
-        } else if (priceSYP is String) {
-          priceSYPDouble = double.parse(priceSYP);
-        } else {
-          throw Exception('Invalid priceSYP type: ${priceSYP.runtimeType}');
-        }
-        
-        final service = BookingService(
+      // Create new services
+      final bookingServices = servicesData.map((serviceData) {
+        return BookingService(
           id: const Uuid().v4(),
           bookingId: id,
-          serviceId: serviceId,
-          priceSYP: priceSYPDouble,
-          notes: data['notes'] is String ? data['notes'] as String? : null,
+          serviceId: serviceData['serviceId'] as String,
+          priceSYP: (serviceData['priceSYP'] as num).toDouble(),
+          notes: serviceData['notes'] as String?,
         );
+      }).toList();
+
+      for (final service in bookingServices) {
         await _bookingServiceRepository.create(service);
       }
 
-      // Return updated booking with services
-      final booking = await _bookingRepository.findById(id);
-      if (booking == null) {
-        return Response.notFound(jsonEncode({'error': 'Booking not found'}));
-      }
-
-      final services = await _bookingServiceRepository.findByBookingId(id);
-      return Response.ok(jsonEncode({
-        'booking': booking.toJson(),
-        'services': services.map((s) => s.toJson()).toList(),
-      }));
+      return Response.ok(jsonEncode(bookingServices.map((s) => s.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to update booking services: $e'}),
-      );
-    }
-  }
-
-  Future<Response> _deleteBooking(Request request) async {
-    final id = request.params['id'];
-    if (id == null || id.isEmpty) {
-      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
-    }
-    try {
-      await _bookingRepository.delete(id);
-      return Response.ok(jsonEncode({'message': 'Booking deleted successfully'}));
-    } catch (e) {
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to delete booking: $e'}),
       );
     }
   }
@@ -513,54 +420,56 @@ class BookingRoutes {
     if (id == null || id.isEmpty) {
       return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
     }
-
-    final body = await JsonMiddleware.parseJsonBody(request);
-    if (body == null) {
-      return Response.badRequest(body: jsonEncode({'error': 'Invalid request body'}));
-    }
-
-    final paymentMethod = body['payment_method'] as String?;
-    if (paymentMethod == null || paymentMethod.isEmpty) {
-      return Response.badRequest(body: jsonEncode({'error': 'payment_method is required'}));
-    }
-
-    if (paymentMethod != 'cash' && paymentMethod != 'electronic') {
-      return Response.badRequest(body: jsonEncode({'error': 'payment_method must be either "cash" or "electronic"'}));
-    }
-
-    final paymentAmount = body['payment_amount'];
-    double paymentAmountDouble;
-    if (paymentAmount is num) {
-      paymentAmountDouble = paymentAmount.toDouble();
-    } else if (paymentAmount is String) {
-      paymentAmountDouble = double.tryParse(paymentAmount) ?? 0;
-    } else {
-      return Response.badRequest(body: jsonEncode({'error': 'payment_amount must be a number'}));
-    }
-
-    if (paymentAmountDouble <= 0) {
-      return Response.badRequest(body: jsonEncode({'error': 'payment_amount must be greater than 0'}));
-    }
-
     try {
-      final useCase = ProcessBookingPaymentUseCase(
-        _invoiceDataRepository,
-        _accountRepository,
-        _journalRepository,
-        _journalService,
-        _accountingSettingsService,
-      );
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final paymentMethod = data['payment_method'] as String?;
+      final paymentAmount = data['payment_amount'];
 
-      final userId = request.context['user'] != null ? (request.context['user'] as dynamic).id : null;
+      if (paymentMethod == null || paymentMethod.isEmpty) {
+        return Response.badRequest(body: jsonEncode({'error': 'payment_method is required'}));
+      }
+      if (paymentAmount == null) {
+        return Response.badRequest(body: jsonEncode({'error': 'payment_amount is required'}));
+      }
 
-      final updatedInvoice = await useCase.execute(
-        bookingId: id,
-        paymentMethod: paymentMethod,
-        paymentAmount: paymentAmountDouble,
-        userId: userId,
-      );
+      double paymentAmountDouble;
+      if (paymentAmount is num) {
+        paymentAmountDouble = paymentAmount.toDouble();
+      } else if (paymentAmount is String) {
+        paymentAmountDouble = double.tryParse(paymentAmount) ?? 0.0;
+      } else {
+        return Response.badRequest(body: jsonEncode({'error': 'payment_amount must be a number'}));
+      }
 
-      return Response.ok(jsonEncode(updatedInvoice.toJson()));
+      if (paymentAmountDouble <= 0) {
+        return Response.badRequest(body: jsonEncode({'error': 'payment_amount must be greater than 0'}));
+      }
+
+      try {
+        final useCase = ProcessBookingPaymentUseCase(
+          _invoiceDataRepository,
+          _accountRepository,
+          _journalRepository,
+          _journalService,
+          _accountingSettingsService,
+        );
+
+        final userId = request.context['user'] != null ? (request.context['user'] as dynamic).id : null;
+
+        final updatedInvoice = await useCase.execute(
+          bookingId: id,
+          paymentMethod: paymentMethod,
+          paymentAmount: paymentAmountDouble,
+          userId: userId,
+        );
+
+        return Response.ok(jsonEncode(updatedInvoice.toJson()));
+      } catch (e) {
+        return Response.internalServerError(
+          body: jsonEncode({'error': 'Failed to process payment: $e'}),
+        );
+      }
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to process payment: $e'}),
@@ -582,6 +491,58 @@ class BookingRoutes {
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to fetch invoice: $e'}),
+      );
+    }
+  }
+
+  Future<Response> _getBatchInvoices(Request request) async {
+    final params = request.url.queryParameters;
+    final bookingIds = params['ids']?.split(',') ?? [];
+
+    if (bookingIds.isEmpty) {
+      return Response(400, body: jsonEncode({'error': 'No booking IDs provided'}));
+    }
+
+    try {
+      final invoices = await _getInvoiceDataForBookings(bookingIds);
+      return Response.ok(jsonEncode(invoices));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to fetch batch invoices: $e'}),
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _getInvoiceDataForBookings(List<String> bookingIds) async {
+    final List<Map<String, dynamic>> invoices = [];
+    for (final bookingId in bookingIds) {
+      try {
+        final invoiceData = await _invoiceDataRepository.findByBookingId(bookingId);
+        if (invoiceData != null) {
+          invoices.add({
+            'bookingId': bookingId,
+            'invoice': invoiceData.toJson(),
+          });
+        }
+      } catch (e) {
+        // Skip failed invoices
+        continue;
+      }
+    }
+    return invoices;
+  }
+
+  Future<Response> _deleteBooking(Request request) async {
+    final id = request.params['id'];
+    if (id == null || id.isEmpty) {
+      return Response.badRequest(body: jsonEncode({'error': 'id is required'}));
+    }
+    try {
+      await _bookingRepository.delete(id);
+      return Response.ok(jsonEncode({'message': 'Booking deleted successfully'}));
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to delete booking: $e'}),
       );
     }
   }

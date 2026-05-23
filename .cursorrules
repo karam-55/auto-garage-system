@@ -1,0 +1,663 @@
+# Garage Go - Project Rules & Guidelines
+
+## 📋 Project Overview
+
+**Project Name:** Garage Go (Auto Garage Management System)  
+**Type:** Full-stack ERP + CRM + Accounting System for Auto Garages  
+**Architecture:** Clean Architecture (Domain-Driven Design)  
+**Languages:** Dart (Backend), Flutter (Frontends), HTML/JS (Customer Frontend)  
+**Database:** PostgreSQL with UUID primary keys
+
+---
+
+## 🎯 Core Principles
+
+1. **Clean Architecture First:** Always follow the 4-layer architecture (Domain, Application, Infrastructure, Presentation)
+2. **Null Safety:** Use `String?` for optional fields, always check for null before use
+3. **Field Name Consistency:** Backend uses snake_case in DB, camelCase in entities. Frontend must handle both
+4. **Pagination:** All list endpoints must support `page` and `limit` parameters
+5. **Authentication:** All protected routes require JWT token in `Authorization: Bearer {token}` header
+6. **Role-Based Access:** Use appropriate middleware for each route based on user role
+7. **Error Handling:** Use unified Failure types and ErrorMiddleware for consistent error responses
+8. **Database Transactions:** Use `runInTransaction` for multi-step operations
+9. **Arabic UI:** All user-facing text must use app_localizations for Arabic/English support
+10. **Audit Trail:** All critical operations must generate audit logs
+
+---
+
+## 📝 Code Style Guidelines
+
+### Dart/Backend Code Style
+
+```dart
+// File naming: snake_case for files, camelCase for classes
+// Example: booking_repository.dart, class BookingRepository
+
+// Class naming: PascalCase
+class BookingRepositoryImpl implements BookingRepository {
+  // Private fields with underscore prefix
+  final DatabaseConnection _db;
+  
+  // Constructor with dependency injection
+  BookingRepositoryImpl(this._db);
+  
+  // Method naming: camelCase, descriptive
+  Future<Booking> createBooking(CreateBookingParams params) async {
+    // Always use async/await for async operations
+    try {
+      return await _db.runInTransaction(() async {
+        // Transaction logic here
+      });
+    } catch (e) {
+      throw ServerFailure('Failed to create booking');
+    }
+  }
+}
+
+// Entity naming: PascalCase, no suffix
+class Booking {
+  final String id;
+  final String? customerId;  // Use ? for optional
+  final DateTime createdAt;
+  
+  // Constructor with required and optional parameters
+  Booking({
+    required this.id,
+    this.customerId,
+    required this.createdAt,
+  });
+}
+
+// Use extension methods for utilities
+extension BookingExtension on Booking {
+  bool get isPending => status == BookingStatus.PENDING;
+}
+```
+
+### Flutter/Frontend Code Style
+
+```dart
+// Widget naming: PascalCase with Screen suffix for screens
+class BookingsScreen extends ConsumerStatefulWidget {
+  // Use ConsumerWidget/ConsumerStatefulWidget for Riverpod
+  @override
+  ConsumerState<BookingsScreen> createState() => _BookingsScreenState();
+}
+
+// Provider naming: camelCase with Provider suffix
+final bookingsProvider = FutureProvider.autoDispose<List<Booking>>((ref) async {
+  final apiService = ref.watch(apiServiceProvider);
+  return await apiService.getBookings();
+});
+
+// Use const constructors where possible
+const Text('Hello');
+
+// Use trailing commas for multi-line parameters
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Bookings'),
+    ),
+    body: Consumer(
+      builder: (context, ref, child) {
+        final bookings = ref.watch(bookingsProvider);
+        // ...
+      },
+    ),
+  );
+}
+```
+
+---
+
+## 📁 File Organization
+
+### Backend Structure
+
+```
+backend/
+├── lib/
+│   ├── core/                    # Core utilities and constants
+│   │   ├── errors/              # Custom exceptions and failures
+│   │   └── utils/               # JWT, pagination, constants
+│   ├── domain/                  # Business logic layer
+│   │   ├── entities/            # Business entities (44 entities)
+│   │   ├── repositories/        # Repository interfaces (38 interfaces)
+│   │   └── validators/          # Input validation
+│   ├── application/             # Application logic layer
+│   │   ├── services/            # Business services (13 services)
+│   │   └── usecases/            # Use cases (88 use cases)
+│   ├── infrastructure/          # Implementation layer
+│   │   ├── database/            # DB connection and migrations
+│   │   └── repositories/        # Repository implementations (38 impls)
+│   └── presentation/            # API layer
+│       ├── routes/              # Route handlers (22 route files)
+│       └── middlewares/         # Middleware (4 middlewares)
+├── bin/
+│   └── server.dart              # Entry point
+└── pubspec.yaml
+```
+
+### Admin Frontend Structure
+
+```
+admin_frontend/
+├── lib/
+│   ├── core/                    # Core services and utilities
+│   │   ├── constants/           # API constants
+│   │   ├── models/              # Data models
+│   │   ├── providers/           # Riverpod providers
+│   │   ├── services/            # API services
+│   │   ├── theme/               # App theme
+│   │   ├── utils/               # Utilities and error handling
+│   │   └── widgets/             # Reusable widgets
+│   ├── screens/                 # UI screens (70+ screens)
+│   │   ├── accounting/          # Accounting screens (20 screens)
+│   │   ├── crm/                 # CRM screens
+│   │   ├── fixed_assets/        # Fixed assets screens
+│   │   ├── hr/                  # HR screens
+│   │   ├── manufacturing/        # Manufacturing screens
+│   │   ├── purchasing/          # Purchasing screens
+│   │   ├── sales/               # Sales screens
+│   │   └── warehouse/           # Warehouse screens
+│   ├── l10n/                    # Localizations
+│   └── main.dart                # Entry point
+└── pubspec.yaml
+```
+
+### Mechanic App Structure
+
+```
+mechanic_app_new/
+├── lib/
+│   ├── core/                    # Core utilities
+│   │   ├── constants/           # Backend constants
+│   │   ├── error/               # Error handling
+│   │   ├── network/             # Dio client
+│   │   └── utils/               # Utilities
+│   ├── domain/                  # Domain layer
+│   │   ├── entities/            # Business entities
+│   │   ├── repositories/        # Repository interfaces
+│   │   └── usecases/            # Use cases
+│   ├── data/                    # Data layer
+│   │   ├── datasources/         # Remote/Local data sources
+│   │   ├── models/              # Data models
+│   │   └── repositories/        # Repository implementations
+│   ├── presentation/            # Presentation layer
+│   │   ├── providers/           # State management
+│   │   └── screens/             # UI screens (6 screens)
+│   ├── services/                # Services
+│   ├── l10n/                    # Localizations
+│   └── main.dart                # Entry point
+└── pubspec.yaml
+```
+
+---
+
+## 🔌 API Guidelines
+
+### Endpoint Naming
+
+- Use kebab-case for paths: `/api/journal-entries`, `/api/bookings/:id/invoice`
+- Use plural nouns for collections: `/api/bookings`, `/api/customers`
+- Use singular nouns for single resources: `/api/bookings/:id`
+- Use nested routes for relationships: `/api/bookings/:id/services`
+
+### Request/Response Format
+
+```json
+// Request Body
+{
+  "customerId": "uuid",
+  "vehicleId": "uuid",
+  "services": [
+    {
+      "serviceId": "uuid",
+      "priceSYP": 50000,
+      "notes": "Optional notes"
+    }
+  ]
+}
+
+// Success Response
+{
+  "id": "uuid",
+  "customerId": "uuid",
+  "status": "PENDING",
+  "createdAt": "2026-05-24T10:00:00Z"
+}
+
+// Paginated Response
+{
+  "data": [...],
+  "totalCount": 100,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 5,
+  "hasNextPage": true,
+  "hasPreviousPage": false
+}
+
+// Error Response
+{
+  "error": "Error message",
+  "statusCode": 400
+}
+```
+
+### HTTP Methods
+
+- `GET` - Retrieve resources
+- `POST` - Create resources
+- `PUT` - Update entire resource
+- `PATCH` - Partial update
+- `DELETE` - Delete resource
+
+### Query Parameters
+
+- Pagination: `?page=1&limit=20`
+- Search: `?search=keyword`
+- Filter: `?status=PENDING&from=2026-05-01&to=2026-05-31`
+- Sort: `?sort=createdAt&order=desc`
+
+---
+
+## 🗄️ Database Guidelines
+
+### Table Naming
+
+- Use snake_case: `bookings`, `booking_services`, `journal_entries`
+- Use singular names for junction tables: `booking_service` (not `booking_services`)
+- Use UUID for primary keys: `id UUID PRIMARY KEY DEFAULT gen_random_uuid()`
+
+### Column Naming
+
+- Use snake_case: `customer_id`, `created_at`, `public_token`
+- Use descriptive names: `estimated_completion_date` (not `est_comp_date`)
+- Use appropriate types: `VARCHAR(255)`, `TEXT`, `DECIMAL(12, 2)`, `TIMESTAMP WITH TIME ZONE`
+
+### Foreign Keys
+
+```sql
+-- Always use ON DELETE CASCADE for dependent records
+FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+
+-- Use ON DELETE SET NULL for optional relationships
+FOREIGN KEY (assigned_mechanic_id) REFERENCES users(id) ON DELETE SET NULL
+```
+
+### Indexes
+
+```sql
+-- Create indexes on foreign keys
+CREATE INDEX idx_bookings_customer_id ON bookings(customer_id);
+
+-- Create indexes on frequently queried columns
+CREATE INDEX idx_bookings_status ON bookings(status);
+
+-- Create composite indexes for complex queries
+CREATE INDEX idx_bookings_status_created ON bookings(status, created_at);
+```
+
+### Constraints
+
+```sql
+-- Use CHECK constraints for enums
+CHECK (status IN ('PENDING', 'IN_PROGRESS', 'READY', 'DELIVERED', 'CANCELLED'))
+
+-- Use UNIQUE constraints for unique fields
+UNIQUE (public_token)
+
+-- Use NOT NULL for required fields
+full_name VARCHAR(255) NOT NULL
+```
+
+---
+
+## 💰 Accounting Guidelines
+
+### Journal Entry Rules
+
+1. **Double-Entry Principle:** Every journal entry must have equal debits and credits
+2. **Validation:** Always validate `total_debit == total_credit` before saving
+3. **Account Existence:** Verify all account IDs exist in accounts table
+4. **Fiscal Period:** Journal entries must be within an open fiscal period
+5. **Approval:** Critical entries may require approval before posting
+6. **Reversal:** Use `is_reversing` flag for reversal entries
+7. **Audit Trail:** Track `created_by`, `approved_by`, `approved_at`
+
+### Account Hierarchy
+
+```
+Assets (1xxx)
+├── Current Assets (11xx)
+│   ├── Cash (1010)
+│   └── Bank Accounts (1020)
+└── Fixed Assets (12xx)
+
+Liabilities (2xxx)
+├── Current Liabilities (21xx)
+└── Long-term Liabilities (22xx)
+
+Equity (3xxx)
+├── Capital (31xx)
+└── Retained Earnings (32xx)
+
+Revenue (4xxx)
+├── Service Revenue (4010)
+└── Sales Revenue (4020)
+
+Expenses (5xxx)
+├── Operating Expenses (50xx)
+└── COGS (51xx)
+```
+
+### Automatic Journal Entries
+
+- **Booking Payment:**
+  - Debit: Cash/Bank Account
+  - Credit: Service Revenue
+- **Part Consumption:**
+  - Debit: Cost of Goods Sold
+  - Credit: Inventory
+- **Salary Payment:**
+  - Debit: Salary Expense
+  - Credit: Cash/Bank Account
+
+---
+
+## 🔐 Security Guidelines
+
+### Authentication
+
+- Use JWT tokens with 32+ character secret
+- Implement token refresh mechanism
+- Set appropriate token expiration (access: 15min, refresh: 7days)
+- Use bcrypt for password hashing (cost factor: 10)
+- Implement rate limiting for login (5 attempts/15min)
+
+### Authorization
+
+- Use role-based access control (RBAC)
+- Role hierarchy: OWNER > MANAGER > ACCOUNTANT > RECEPTIONIST > MECHANIC
+- Always validate permissions on both frontend and backend
+- Use middleware for route protection
+
+### Data Protection
+
+- Never log sensitive data (passwords, tokens, API keys)
+- Use environment variables for secrets
+- Implement CORS with specific origins
+- Validate all input on both client and server
+- Use parameterized queries to prevent SQL injection
+
+---
+
+## 🧪 Testing Guidelines
+
+### Backend Testing
+
+```dart
+// Unit test example
+void main() {
+  group('BookingRepository', () {
+    test('createBooking should return booking', () async {
+      // Arrange
+      final mockDb = MockDatabaseConnection();
+      final repository = BookingRepositoryImpl(mockDb);
+      
+      // Act
+      final result = await repository.createBooking(params);
+      
+      // Assert
+      expect(result.id, isNotNull);
+      expect(result.status, BookingStatus.PENDING);
+    });
+  });
+}
+```
+
+### Frontend Testing
+
+```dart
+// Widget test example
+void main() {
+  testWidgets('BookingsScreen displays bookings', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          bookingsProvider.overrideWithValue(AsyncValue.data(testBookings)),
+        ],
+        child: MaterialApp(home: BookingsScreen()),
+      ),
+    );
+    
+    expect(find.text('Booking 1'), findsOneWidget);
+  });
+}
+```
+
+---
+
+## 🚀 Deployment Guidelines
+
+### Environment Variables
+
+Required variables for production:
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - 32+ character secret
+- `JWT_REFRESH_SECRET` - 32+ character secret
+- `PORT` - Server port (default: 8080)
+- `CORS_ORIGIN` - Admin frontend URL
+- `CUSTOMER_CORS_ORIGIN` - Customer frontend URL
+- `MECHANIC_CORS_ORIGIN` - Mechanic app URLs
+
+### Build Commands
+
+```bash
+# Backend
+cd backend
+dart pub get
+dart run build_runner build
+dart bin/server.dart
+
+# Admin Frontend
+cd admin_frontend
+flutter pub get
+flutter build web
+
+# Mechanic App
+cd mechanic_app_new
+flutter pub get
+flutter build apk
+flutter build ios
+
+# Docker
+docker-compose up -d
+docker-compose down
+```
+
+---
+
+## ⚠️ Common Pitfalls & Solutions
+
+### Field Name Mismatches
+
+**Problem:** Backend uses snake_case, Frontend expects camelCase  
+**Solution:** Always verify field names match between API response and Frontend model
+
+### Null Safety Issues
+
+**Problem:** Null reference exceptions in journal entry screens  
+**Solution:** Use `String?` for optional fields, check null before use
+
+### Pagination Not Working
+
+**Problem:** Frontend not sending page/limit parameters  
+**Solution:** Always include `page` and `limit` in API calls
+
+### Authentication Failures
+
+**Problem:** 401 errors despite valid token  
+**Solution:** Check token expiration, implement refresh mechanism
+
+### Database Transaction Failures
+
+**Problem:** Partial updates on error  
+**Solution:** Always use `runInTransaction` for multi-step operations
+
+### Arabic UI Not Displaying
+
+**Problem:** English text showing instead of Arabic  
+**Solution:** Use `AppLocalizations.of(context)!.keyName` for all user-facing text
+
+---
+
+## 📊 Performance Guidelines
+
+### Backend
+
+- Use connection pooling (max 20 connections)
+- Implement pagination for all list endpoints
+- Cache frequently accessed data (company settings, chart of accounts)
+- Use indexes on frequently queried columns
+- Optimize N+1 queries with joins
+
+### Frontend
+
+- Use `const` widgets where possible
+- Implement lazy loading for large lists
+- Use `FutureProvider.autoDispose` for one-time fetches
+- Debounce search inputs
+- Implement image caching
+
+---
+
+## 🔄 Workflow Guidelines
+
+### Adding a New Feature
+
+1. **Domain Layer:** Create entity and repository interface
+2. **Application Layer:** Create use case and service if needed
+3. **Infrastructure Layer:** Implement repository
+4. **Presentation Layer:** Create route handler
+5. **Frontend:** Create model, provider, and screen
+6. **Testing:** Write unit and integration tests
+7. **Documentation:** Update AGENTS.md and relevant docs
+
+### Fixing a Bug
+
+1. Reproduce the issue reliably
+2. Trace the code path to understand the flow
+3. Add targeted logging to isolate the issue
+4. Identify the root cause
+5. Implement the fix
+6. Write a test to prevent regression
+7. Verify the fix addresses the root cause
+
+---
+
+## 📝 Documentation Guidelines
+
+### Code Comments
+
+- Use `///` for documentation comments
+- Comment complex business logic
+- Explain why, not what
+- Keep comments up to date
+
+### API Documentation
+
+- Document all endpoints in OpenAPI format
+- Include request/response examples
+- Document authentication requirements
+- Document error responses
+
+### README Updates
+
+- Update README.md for user-facing changes
+- Update AGENTS.md for AI memory
+- Update relevant audit reports for significant changes
+
+---
+
+## 🎨 UI/UX Guidelines
+
+### Admin Frontend
+
+- Use Material Design 3
+- Implement responsive design
+- Use Arabic (RTL) as primary language
+- Provide English as secondary language
+- Use consistent color scheme
+- Implement loading states
+- Show error messages clearly
+- Use professional dialogs for confirmations
+
+### Mechanic App
+
+- Mobile-first design
+- Large touch targets (min 48x48)
+- Simple, intuitive navigation
+- Offline support for critical features
+- Clear status indicators
+
+### Customer Frontend
+
+- Public access (no authentication)
+- Simple, clean interface
+- Mobile-responsive
+- Dark mode support
+- RTL support for Arabic
+
+---
+
+## 🔍 Code Review Checklist
+
+- [ ] Follows Clean Architecture principles
+- [ ] Uses null-safe types correctly
+- [ ] Field names match between backend and frontend
+- [ ] Implements proper error handling
+- [ ] Uses database transactions for multi-step operations
+- [ ] Includes appropriate authentication/authorization
+- [ ] Implements pagination for list endpoints
+- [ ] Uses app_localizations for user-facing text
+- [ ] Includes unit tests
+- [ ] Updates documentation
+- [ ] Follows code style guidelines
+- [ ] No hardcoded values (use constants/env vars)
+- [ ] No sensitive data in logs
+- [ ] Proper CORS configuration
+
+---
+
+## 📞 Support & Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Failed**
+   - Check DATABASE_URL in .env
+   - Verify PostgreSQL is running
+   - Check firewall settings
+
+2. **JWT Token Invalid**
+   - Check JWT_SECRET matches between services
+   - Verify token expiration
+   - Implement token refresh
+
+3. **Frontend Build Failed**
+   - Run `flutter clean` then `flutter pub get`
+   - Check Dart SDK version (requires ^3.11.5)
+   - Verify all dependencies are compatible
+
+4. **Docker Container Not Starting**
+   - Check docker-compose.yml configuration
+   - Verify port availability
+   - Check container logs: `docker-compose logs -f`
+
+---
+
+**Last Updated:** May 24, 2026  
+**Maintained By:** Development Team  
+**Version:** 1.0.0

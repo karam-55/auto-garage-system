@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../constants/api_constants.dart';
 import 'auth_service.dart';
 
@@ -10,6 +11,7 @@ class ApiService {
   final http.Client _client;
   String? _token;
   String? _refreshToken;
+  late Box _cache;
 
   factory ApiService({http.Client? client}) {
     _instance ??= ApiService._internal(client ?? http.Client());
@@ -22,6 +24,7 @@ class ApiService {
 
   ApiService._internal(this._client) {
     _loadTokensSync();
+    _initCache();
   }
 
   static ApiService get instance => _instance ?? ApiService();
@@ -41,6 +44,11 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('access_token');
     _refreshToken = prefs.getString('refresh_token');
+  }
+
+  Future<void> _initCache() async {
+    await Hive.initFlutter();
+    _cache = await Hive.openBox('api_cache');
   }
 
   // Set token for authentication
@@ -95,14 +103,32 @@ class ApiService {
     }
   }
 
-  // Generic GET request
-  Future<dynamic> get(String endpoint) async {
+  // Generic GET request with caching support
+  Future<dynamic> get(String endpoint, {bool useCache = false, Duration cacheTtl = const Duration(hours: 1)}) async {
     try {
+      if (useCache) {
+        final cached = _cache.get(endpoint);
+        if (cached != null) {
+          final cachedTime = _cache.get('${endpoint}_time') as DateTime?;
+          if (cachedTime != null && DateTime.now().difference(cachedTime) < cacheTtl) {
+            return cached;
+          }
+        }
+      }
+      
       final response = await _client.get(
         Uri.parse('${ApiConstants.baseUrl}$endpoint'),
         headers: _getHeaders(),
       );
-      return await _handleResponse(response, endpoint: endpoint, method: 'GET');
+      
+      final data = await _handleResponse(response, endpoint: endpoint, method: 'GET');
+      
+      if (useCache) {
+        await _cache.put(endpoint, data);
+        await _cache.put('${endpoint}_time', DateTime.now());
+      }
+      
+      return data;
     } catch (e) {
       throw Exception('فشل الاتصال بالخادم: $e');
     }
@@ -245,17 +271,16 @@ class ApiService {
     } else if (response.statusCode == 403) {
       throw Exception('ممنوع: ليس لديك الصلاحية');
     } else if (response.statusCode == 404) {
-      throw Exception('غير موجود');
-    } else if (response.statusCode == 429) {
-      throw Exception('طلبات كثيرة: يرجى الانتظار قليلاً');
-    } else if (response.statusCode == 500) {
-      throw Exception('خطأ في الخادم: يرجى المحاولة لاحقاً');
+      throw Exception('غير موجود: المورد المطلوب غير موجود');
+    } else if (response.statusCode >= 500) {
+      throw Exception('خطأ في الخادم: حدث خطأ في الخادم');
     } else {
-      throw Exception('خطأ غير معروف: ${response.statusCode}');
+      try {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['error'] ?? 'حدث خطأ غير متوقع');
+      } catch (e) {
+        throw Exception('حدث خطأ غير متوقع: ${response.body}');
+      }
     }
-  }
-  
-  void dispose() {
-    _client.close();
   }
 }

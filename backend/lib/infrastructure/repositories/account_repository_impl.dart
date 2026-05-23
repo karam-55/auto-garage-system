@@ -41,6 +41,16 @@ class AccountRepositoryImpl implements AccountRepository {
   }
 
   @override
+  Future<List<Account>> findByIds(List<int> ids) async {
+    if (ids.isEmpty) return [];
+    final result = await _db.execute(
+      Sql.named('SELECT id, code, name_ar, name_en, parent_id, account_type, is_active, created_at FROM accounts WHERE id = ANY(@ids)'),
+      parameters: {'ids': ids},
+    );
+    return result.map(_mapRowToAccount).toList();
+  }
+
+  @override
   Future<Account?> findByCode(String code) async {
     final result = await _db.execute(
       Sql.named('SELECT id, code, name_ar, name_en, parent_id, account_type, is_active, created_at FROM accounts WHERE code = @code'),

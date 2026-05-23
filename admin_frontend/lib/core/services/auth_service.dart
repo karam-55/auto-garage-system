@@ -7,11 +7,23 @@ class AuthService {
   final http.Client _client;
   String? _token;
   String? _refreshToken;
+  int _failedAttempts = 0;
+  DateTime? _lastFailedAttempt;
 
   AuthService({http.Client? client}) : _client = client ?? http.Client();
 
   // Login
   Future<Map<String, dynamic>> login(String username, String password) async {
+    // Check rate limit
+    if (_failedAttempts >= 5 && _lastFailedAttempt != null) {
+      final timeSinceLastFail = DateTime.now().difference(_lastFailedAttempt!);
+      if (timeSinceLastFail < const Duration(minutes: 15)) {
+        throw Exception('محاولات كثيرة فاشلة. يرجى المحاولة بعد 15 دقيقة');
+      } else {
+        _failedAttempts = 0;
+      }
+    }
+    
     try {
       final response = await _client.post(
         Uri.parse('${ApiConstants.baseUrl}${ApiConstants.login}'),
@@ -26,6 +38,7 @@ class AuthService {
         final data = jsonDecode(response.body);
         _token = data['token'];
         _refreshToken = data['refreshToken'];
+        _failedAttempts = 0; // Reset on successful login
         
         // Save tokens to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
@@ -34,9 +47,13 @@ class AuthService {
         
         return data;
       } else {
+        _failedAttempts++;
+        _lastFailedAttempt = DateTime.now();
         throw Exception('فشل تسجيل الدخول');
       }
     } catch (e) {
+      _failedAttempts++;
+      _lastFailedAttempt = DateTime.now();
       throw Exception('خطأ في الاتصال: $e');
     }
   }

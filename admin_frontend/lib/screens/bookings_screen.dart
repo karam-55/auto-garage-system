@@ -32,6 +32,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
   int _totalPages = 0;
   bool _hasNextPage = false;
   static const int _pageSize = 20;
+  static const int _maxRecords = 500;
   final WebSocketService _webSocketService = WebSocketService();
 
   final List<String> _statusOptions = [
@@ -79,7 +80,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
 
   void _onScroll() {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
-      if (_hasNextPage && !_isLoadingMore && !_isLoading) {
+      if (_hasNextPage && !_isLoadingMore && !_isLoading && _bookings.length < _maxRecords) {
         _loadMoreBookings();
       }
     }

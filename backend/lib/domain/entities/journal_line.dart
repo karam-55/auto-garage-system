@@ -2,6 +2,7 @@ class JournalLine {
   final int id;
   final int entryId;
   final int accountId;
+  final String? accountName;
   final double debit;
   final double credit;
   final String? description;
@@ -12,6 +13,7 @@ class JournalLine {
     required this.id,
     required this.entryId,
     required this.accountId,
+    this.accountName,
     required this.debit,
     required this.credit,
     this.description,
@@ -23,6 +25,7 @@ class JournalLine {
     int? id,
     int? entryId,
     int? accountId,
+    String? accountName,
     double? debit,
     double? credit,
     String? description,
@@ -33,6 +36,7 @@ class JournalLine {
       id: id ?? this.id,
       entryId: entryId ?? this.entryId,
       accountId: accountId ?? this.accountId,
+      accountName: accountName ?? this.accountName,
       debit: debit ?? this.debit,
       credit: credit ?? this.credit,
       description: description ?? this.description,
@@ -46,6 +50,7 @@ class JournalLine {
       'id': id,
       'entry_id': entryId,
       'account_id': accountId,
+      'account_name': accountName,
       'debit': debit,
       'credit': credit,
       'description': description,
@@ -59,6 +64,7 @@ class JournalLine {
       id: json['id'] as int,
       entryId: json['entry_id'] as int,
       accountId: json['account_id'] as int,
+      accountName: json['account_name'] as String? ?? json['accountName'] as String?,
       debit: (json['debit'] as num).toDouble(),
       credit: (json['credit'] as num).toDouble(),
       description: json['description'] as String?,

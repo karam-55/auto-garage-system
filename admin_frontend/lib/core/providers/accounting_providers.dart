@@ -37,7 +37,20 @@ final accountByIdProvider = FutureProvider.autoDispose.family<Account, int>((ref
 
 final journalEntriesProvider = FutureProvider.autoDispose.family<List<JournalEntry>, Map<String, dynamic>>((ref, filters) async {
   final api = ref.read(apiServiceProvider);
-  final response = await api.get('/api/journal-entries');
+  final queryParams = <String, String>{};
+  if (filters.containsKey('page')) {
+    queryParams['page'] = filters['page'].toString();
+  }
+  if (filters.containsKey('limit')) {
+    queryParams['limit'] = filters['limit'].toString();
+  }
+  if (filters.containsKey('from')) {
+    queryParams['from'] = filters['from'].toString();
+  }
+  if (filters.containsKey('to')) {
+    queryParams['to'] = filters['to'].toString();
+  }
+  final response = await api.get('/api/journal-entries', queryParameters: queryParams.isNotEmpty ? queryParams : null);
   return (response as List).map((j) => JournalEntry.fromJson(j as Map<String, dynamic>)).toList();
 });
 

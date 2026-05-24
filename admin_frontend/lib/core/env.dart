@@ -2,7 +2,7 @@ class Env {
   // Base URL for API
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'https://auto-garage-system-backend.onrender.com',
+    defaultValue: 'http://178.105.209.59',
   );
 
   // WebSocket URL

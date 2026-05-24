@@ -8,6 +8,7 @@ services:
       POSTGRES_USER: garage
       POSTGRES_PASSWORD: garage123
       POSTGRES_DB: garage_db
+      POSTGRES_HOST_AUTH_METHOD: trust
       # Optimize PostgreSQL for 8GB RAM (CX23)
       POSTGRES_SHARED_BUFFERS: 512MB
       POSTGRES_EFFECTIVE_CACHE_SIZE: 512MB
@@ -46,7 +47,6 @@ services:
       JWT_SECRET: 7f82670b53bd936d32f73af55c021a82
       JWT_REFRESH_SECRET: 673d0b0d0fc538ae34a3d177f682d2ac
       PORT: 8080
-      SKIP_SCHEMA_EXECUTION: "true"
     ports:
       - "8080:8080"
     depends_on:

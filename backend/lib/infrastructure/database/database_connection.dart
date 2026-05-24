@@ -20,18 +20,27 @@ class DatabaseConnection {
   Future<void> initialize() async {
     // In production, read from environment variables directly
     // In development, try to load from .env file
-    final env = DotEnv(includePlatformEnvironment: true);
-    try {
-      env.load();
-    } catch (e) {
-      // Ignore .env file not found errors in production
-      _logger.w('Could not load .env file: $e (this is expected in production)');
-    }
-    
-    final databaseUrl = Platform.environment['DATABASE_URL'] ?? env['DATABASE_URL'];
+    final databaseUrl = Platform.environment['DATABASE_URL'];
     if (databaseUrl == null) {
-      throw Exception('DATABASE_URL environment variable is not set');
+      // Only try to load .env if DATABASE_URL is not in environment
+      final env = DotEnv(includePlatformEnvironment: true);
+      try {
+        env.load();
+      } catch (e) {
+        // Ignore .env file not found errors in production
+        _logger.w('Could not load .env file: $e (this is expected in production)');
+      }
+      
+      final envDatabaseUrl = env['DATABASE_URL'];
+      if (envDatabaseUrl == null) {
+        throw Exception('DATABASE_URL environment variable is not set');
+      }
+      return _initializeWithUrl(envDatabaseUrl);
     }
+    return _initializeWithUrl(databaseUrl);
+  }
+
+  Future<void> _initializeWithUrl(String databaseUrl) async {
 
     // Parse DATABASE_URL safely
     final uri = Uri.parse(databaseUrl);
@@ -58,7 +67,7 @@ class DatabaseConnection {
       ),
     );
 
-    _logger.i('Database pool initialized (max 20 connections)');
+    _logger.i('Database pool initialized (max 20 connections) for $databaseName@$host:$port');
   }
 
   /// Execute a single SQL query using a pooled connection.

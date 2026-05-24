@@ -156,13 +156,22 @@ sleep 15
 
 # Step 13: Run Migrations
 print_step "Step 13: Running database migrations..."
+
+# First, run the main schema to create all tables
+if [ -f "backend/lib/infrastructure/database/schema.sql" ]; then
+    docker-compose exec -T postgres psql -U garage -d garage_db < backend/lib/infrastructure/database/schema.sql
+    print_success "Main schema executed"
+fi
+
+# Then run specific migrations
 if [ -f "migrations/2026-05-24_add_acquisition_date_to_fixed_assets.sql" ]; then
     docker-compose exec -T postgres psql -U garage -d garage_db < migrations/2026-05-24_add_acquisition_date_to_fixed_assets.sql
     print_success "Migration 1 executed"
 fi
 
-if [ -f "migrations/2026-05-24_seed_chart_of_accounts.sql" ; then
+if [ -f "migrations/2026-05-24_seed_chart_of_accounts.sql" ] && [ ! -f ".accounts_seeded" ]; then
     docker-compose exec -T postgres psql -U garage -d garage_db < migrations/2026-05-24_seed_chart_of_accounts.sql
+    touch .accounts_seeded
     print_success "Migration 2 executed"
 fi
 

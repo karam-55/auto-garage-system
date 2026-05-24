@@ -8,6 +8,30 @@ class AccountRepositoryImpl implements AccountRepository {
 
   AccountRepositoryImpl(this._db);
 
+  // Helper function to safely convert dynamic to int
+  int _toInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is String) return int.parse(value);
+    throw ArgumentError('Cannot convert $value to int');
+  }
+
+  // Helper function to safely convert dynamic to int?
+  int? _toIntOrNull(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.parse(value);
+    return null;
+  }
+
+  // Helper function to safely convert dynamic to bool
+  bool _toBool(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is String) return value == 't' || value == 'true' || value == '1';
+    return false;
+  }
+
   @override
   Future<Account> create(Account account) async {
     final result = await _db.execute(
@@ -24,9 +48,10 @@ class AccountRepositoryImpl implements AccountRepository {
       },
     );
     final row = result.first;
+    final data = row.toColumnMap();
     return account.copyWith(
-      id: row['id'] is String ? int.parse(row['id'] as String) : row['id'] as int,
-      createdAt: row['created_at'] as DateTime,
+      id: _toInt(data['id']),
+      createdAt: data['created_at'] as DateTime,
     );
   }
 
@@ -119,15 +144,20 @@ class AccountRepositoryImpl implements AccountRepository {
   }
 
   Account _mapRowToAccount(ResultRow row) {
-    return Account(
-      id: row['id'] is String ? int.parse(row['id'] as String) : row['id'] as int,
-      code: row['code'] as String,
-      nameAr: row['name_ar'] as String,
-      nameEn: row['name_en'] as String,
-      parentId: row['parent_id'] == null ? null : (row['parent_id'] is String ? int.parse(row['parent_id'] as String) : row['parent_id'] as int?),
-      accountType: AccountType.fromString(row['account_type'] as String),
-      isActive: row['is_active'] is String ? row['is_active'] == 't' : row['is_active'] as bool,
-      createdAt: row['created_at'] as DateTime,
-    );
+    try {
+      final data = row.toColumnMap();
+      return Account(
+        id: _toInt(data['id']),
+        code: data['code'] as String,
+        nameAr: data['name_ar'] as String,
+        nameEn: data['name_en'] as String,
+        parentId: _toIntOrNull(data['parent_id']),
+        accountType: AccountType.fromString(data['account_type'] as String),
+        isActive: _toBool(data['is_active']),
+        createdAt: data['created_at'] as DateTime,
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }

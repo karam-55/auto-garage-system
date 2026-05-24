@@ -441,6 +441,9 @@ Middleware _corsMiddleware() {
     'https://auto-garage-staff-frontend.pages.dev',
     'https://auto-garage-customer-frontend.pages.dev',
   ]);
+  
+  // TEMPORARY: Allow all origins for debugging
+  allowedOrigins.add('*');
 
   logger.i('✅ CORS configured for: ${allowedOrigins.join(", ")}');
 

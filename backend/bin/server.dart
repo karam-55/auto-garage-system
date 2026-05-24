@@ -279,7 +279,7 @@ void main(List<String> args) async {
       .addMiddleware(ErrorMiddleware.handleErrors())
       .addMiddleware(createLoggingMiddleware())
       .addMiddleware(JsonMiddleware.jsonContent())
-      .addMiddleware(createCorsMiddleware())
+      .addMiddleware(_corsMiddleware())  // Use the local CORS middleware
       .addMiddleware(createRateLimitMiddleware())
       .addMiddleware(CsrfMiddleware().create())
       .addHandler(handler);

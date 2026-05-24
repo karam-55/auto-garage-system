@@ -48,7 +48,7 @@ services:
       JWT_REFRESH_SECRET: 673d0b0d0fc538ae34a3d177f682d2ac
       PORT: 8080
     volumes:
-      - ./.env:/app/.env:ro
+      - ./backend/.env:/app/.env:ro
     ports:
       - "8080:8080"
     depends_on:

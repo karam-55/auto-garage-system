@@ -42,12 +42,10 @@ services:
       dockerfile: Dockerfile
     container_name: garage_backend
     environment:
-      DATABASE_URL: postgresql://garage:garage123@postgres:5432/garage_db
+      DATABASE_URL: postgresql://garage:garage123@postgres:5432/garage_db?sslmode=disable
       JWT_SECRET: 7f82670b53bd936d32f73af55c021a82
       JWT_REFRESH_SECRET: 673d0b0d0fc538ae34a3d177f682d2ac
       PORT: 8080
-      # Optimize Dart VM for better performance
-      DART_VM_OPTIONS: "--old_gen_heap_size=512 --new_gen_heap_size=512"
     ports:
       - "8080:8080"
     depends_on:

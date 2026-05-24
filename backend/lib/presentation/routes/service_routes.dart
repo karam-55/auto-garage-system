@@ -160,10 +160,16 @@ class ServiceRoutes {
         return Response.notFound(jsonEncode({'error': 'Service not found'}));
       }
 
+      // Validate price if being updated
+      final newPriceSYP = body['priceSYP'] as double?;
+      if (newPriceSYP != null && newPriceSYP <= 0) {
+        return Response.badRequest(body: jsonEncode({'error': 'Price must be greater than zero'}));
+      }
+
       final updatedService = existingService.copyWith(
         name: (body['name'] as String?)?.trim() ?? existingService.name,
         description: (body['description'] as String?)?.trim(),
-        priceSYP: body['priceSYP'] as double? ?? existingService.priceSYP,
+        priceSYP: newPriceSYP ?? existingService.priceSYP,
         estimatedDurationMinutes: body['estimatedDurationMinutes'] as int?,
         isActive: body['isActive'] as bool?,
         updatedAt: DateTime.now().toUtc(),

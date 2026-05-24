@@ -9,6 +9,7 @@ import '../../domain/repositories/booking_repository.dart';
 import '../../domain/repositories/booking_service_repository.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../../domain/repositories/customer_repository.dart';
+import '../../domain/repositories/service_repository.dart';
 import '../../domain/repositories/booking_invoice_data_repository.dart';
 import '../../domain/repositories/account_repository.dart';
 import '../../domain/repositories/journal_repository.dart';
@@ -34,6 +35,7 @@ class BookingRoutes {
   final JournalRepository _journalRepository;
   final JournalService _journalService;
   final AccountingSettingsService _accountingSettingsService;
+  final ServiceRepository _serviceRepository;
 
   BookingRoutes(
     this._bookingRepository,
@@ -47,6 +49,7 @@ class BookingRoutes {
     this._journalRepository,
     this._journalService,
     this._accountingSettingsService,
+    this._serviceRepository,
   );
 
   Router get router {
@@ -296,6 +299,7 @@ class BookingRoutes {
       final useCase = CreateBookingUseCase(
         _bookingRepository,
         _invoiceDataRepository,
+        _serviceRepository,
       );
 
       final createdBooking = await useCase.execute(booking, bookingServices);

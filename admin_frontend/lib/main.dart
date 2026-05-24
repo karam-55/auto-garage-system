@@ -591,7 +591,6 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
 
   @override
   void dispose() {
-    _apiService.dispose();
     // WebSocket disabled - backend does not support WebSocket
     // webSocketService.removeListener(_handleLowStockAlert);
     super.dispose();

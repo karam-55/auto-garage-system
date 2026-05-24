@@ -100,6 +100,22 @@ class VehicleRepositoryImpl implements VehicleRepository {
     }
   }
 
+
+  @override
+  Future<Vehicle?> findByLicensePlate(String licensePlate) async {
+    try {
+      final result = await _db.execute(
+        Sql.named('SELECT * FROM vehicles WHERE license_plate = @licensePlate'),
+        parameters: {'licensePlate': licensePlate},
+      );
+
+      if (result.isEmpty) return null;
+      return _mapRowToVehicle(result.first);
+    } catch (e) {
+      throw DatabaseException('Failed to find vehicle by license plate: $e');
+    }
+  }
+
   @override
   Future<List<Vehicle>> findByCustomerId(String customerId, {int limit = 100, int offset = 0}) async {
     final result = await _db.execute(

@@ -574,5 +574,4 @@ ALTER TABLE purchase_invoices ADD COLUMN IF NOT EXISTS journal_entry_id INTEGER 
 ALTER TABLE expenses ADD COLUMN IF NOT EXISTS journal_entry_id INTEGER REFERENCES journal_entries(id) ON DELETE SET NULL;
 
 -- Add foreign key constraint to purchase_invoice_items after inventory_variants is created
-ALTER TABLE purchase_invoice_items ADD CONSTRAINT IF NOT EXISTS fk_purchase_invoice_items_variant 
-    FOREIGN KEY (inventory_variant_id) REFERENCES inventory_variants(id) ON DELETE SET NULL;
+-- Note: FOREIGN KEY is already defined in table creation, no need to add it separately

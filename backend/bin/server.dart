@@ -179,6 +179,7 @@ void main(List<String> args) async {
     journalRepository,
     journalService,
     accountingSettingsService,
+    serviceRepository,
   );
   final mechanicRoutes = MechanicRoutes(
     mechanicAssignmentRepository,

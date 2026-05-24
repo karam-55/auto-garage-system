@@ -106,6 +106,12 @@ class CustomerRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'Phone number must be 9-15 digits'}));
     }
 
+    // Check for duplicate phone
+    final existingCustomer = await _customerRepository.findByPhone(phone);
+    if (existingCustomer != null) {
+      return Response(400, body: jsonEncode({'error': 'Customer with this phone already exists'}));
+    }
+
     try {
       final customer = Customer(
         id: const Uuid().v4(),

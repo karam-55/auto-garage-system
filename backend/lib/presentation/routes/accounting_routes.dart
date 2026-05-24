@@ -49,8 +49,8 @@ class AccountingRoutes {
     final accountRepository = AccountRepositoryImpl(db);
     final journalRepository = JournalRepositoryImpl(db);
     final journalService = JournalService(journalRepository, accountRepository);
-    final getTrialBalanceUseCase = GetTrialBalanceUseCase(journalRepository, accountRepository);
-    final getProfitLossUseCase = GetProfitLossUseCase(journalRepository, accountRepository);
+    final getTrialBalanceUseCase = GetTrialBalanceUseCase(db);
+    final getProfitLossUseCase = GetProfitLossUseCase(db);
     final getBalanceSheetUseCase = GetBalanceSheetUseCase(journalRepository, accountRepository);
     final getGeneralLedgerUseCase = GetGeneralLedgerUseCase(journalRepository, accountRepository);
     final getCashFlowStatementUseCase = GetCashFlowStatementUseCase(journalRepository);

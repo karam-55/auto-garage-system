@@ -2,7 +2,6 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:postgres/postgres.dart';
 import 'dart:convert';
-import 'dart:io';
 import '../../infrastructure/database/database_connection.dart';
 
 class PublicRoutes {
@@ -15,9 +14,6 @@ class PublicRoutes {
 
     // Public endpoint for customers to view their car booking
     router.get('/public/car/<publicCarId>', _getCarByPublicId);
-    
-    // Endpoint to seed sample data (temporary for development)
-    router.post('/public/seed-data', _seedSampleData);
 
     return router;
   }
@@ -121,53 +117,6 @@ class PublicRoutes {
     } catch (e) {
       return Response.internalServerError(
         body: jsonEncode({'error': 'Failed to get car data: $e'}),
-      );
-    }
-  }
-
-  Future<Response> _seedSampleData(Request request) async {
-    try {
-      
-      // Read the SQL file
-      final sqlFile = File('lib/infrastructure/database/sample_data.sql');
-      if (!await sqlFile.exists()) {
-        return Response.notFound(jsonEncode({'error': 'SQL file not found'}));
-      }
-      
-      final sqlContent = await sqlFile.readAsString();
-      
-      // Split by semicolons and execute each statement
-      final statements = sqlContent.split(';').where((s) => s.trim().isNotEmpty);
-      
-      int executed = 0;
-      int failed = 0;
-      List<String> errors = [];
-      
-      for (final statement in statements) {
-        final trimmedStatement = statement.trim();
-        if (trimmedStatement.isEmpty || trimmedStatement.startsWith('--')) continue;
-        
-        try {
-          await _db.execute(Sql.named(trimmedStatement));
-          executed++;
-        } catch (e) {
-          failed++;
-          errors.add('Statement failed: $e');
-        }
-      }
-      
-      final result = {
-        'success': true,
-        'executed': executed,
-        'failed': failed,
-        'errors': errors.take(5).toList(), // Limit errors to first 5
-        'message': 'Sample data seeding completed',
-      };
-      
-      return Response.ok(jsonEncode(result));
-    } catch (e) {
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to seed sample data: $e'}),
       );
     }
   }

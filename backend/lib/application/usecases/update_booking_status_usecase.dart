@@ -40,6 +40,27 @@ class UpdateBookingStatusUseCase {
         throw NotFoundFailure('Booking not found');
       }
 
+      // Validate status transition
+      final allowedTransitions = {
+        'PENDING': ['IN_PROGRESS', 'CANCELLED'],
+        'IN_PROGRESS': ['WAITING_PARTS', 'READY', 'CANCELLED'],
+        'WAITING_PARTS': ['IN_PROGRESS', 'READY'],
+        'READY': ['DELIVERED'],
+        'DELIVERED': [],
+        'CANCELLED': [],
+      };
+
+      final currentStatus = booking.status.value;
+      final newStatusValue = newStatus.value;
+
+      if (!allowedTransitions.containsKey(currentStatus)) {
+        throw ValidationFailure('Invalid current status');
+      }
+
+      if (!allowedTransitions[currentStatus]!.contains(newStatusValue)) {
+        throw ValidationFailure('Invalid status transition');
+      }
+
       final updatedBooking = booking.copyWith(
         status: newStatus,
         updatedAt: DateTime.now().toUtc(),

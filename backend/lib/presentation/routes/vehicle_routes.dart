@@ -140,6 +140,14 @@ class VehicleRoutes {
       return Response.badRequest(body: jsonEncode({'error': 'customerId, make, model, and a valid year (1900-${DateTime.now().year + 1}) are required'}));
     }
 
+    // Check for duplicate license plate if provided
+    if (licensePlate != null && licensePlate.isNotEmpty) {
+      final existingVehicle = await _vehicleRepository.findByLicensePlate(licensePlate);
+      if (existingVehicle != null) {
+        return Response(400, body: jsonEncode({'error': 'Vehicle with this license plate already exists'}));
+      }
+    }
+
     try {
       final vehicle = Vehicle(
         id: const Uuid().v4(),

@@ -22,7 +22,6 @@ dependencies:
   jwt_decoder: ^2.0.1
   crypto: ^3.0.5
   html: ^0.15.4
-  supabase: ^2.0.0
   pdf: ^3.10.7
   excel: ^4.0.3
   openapi_spec: ^0.7.0

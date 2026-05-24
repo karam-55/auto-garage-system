@@ -607,6 +607,13 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     // webSocketService.addListener(_handleLowStockAlert);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload tokens to ensure they're loaded
+    _apiService.reloadTokens();
+  }
+
   void _handleLowStockAlert(Map<String, dynamic> alert) {
     if (alert['type'] == 'LOW_STOCK' && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -98,16 +98,19 @@ void main(List<String> args) async {
   // Initialize database
   final db = DatabaseConnection.instance;
   try {
+    logger.i('Starting database initialization...');
     await db.initialize();
     logger.i('Database connected successfully');
     
     // Execute schema (in production, you might want to use migrations)
     // Skip schema execution in production if SKIP_SCHEMA_EXECUTION is set
     if (Platform.environment['SKIP_SCHEMA_EXECUTION'] != 'true') {
+      logger.i('Starting schema execution...');
       await db.executeSchema();
       logger.i('Database schema executed successfully');
 
       // Execute seed data
+      logger.i('Starting seed data execution...');
       await db.executeSeed();
       logger.i('Seed data executed successfully');
     } else {
@@ -115,12 +118,17 @@ void main(List<String> args) async {
     }
     
     // Create default admin user if not exists
+    logger.i('Creating default admin user...');
     await _createDefaultAdminUser(db, jwtSecret);
+    logger.i('Default admin user created successfully');
     
     // Create default receptionist user if not exists
+    logger.i('Creating default receptionist user...');
     await _createDefaultReceptionistUser(db, jwtSecret);
+    logger.i('Default receptionist user created successfully');
     
     // Note: Accounting accounts seeding removed - use seed_data.ps1 manually if needed
+    logger.i('Database initialization completed successfully');
   } catch (e) {
     logger.e('Failed to initialize database: $e');
     rethrow;

@@ -111,6 +111,9 @@ class ApiService {
   // Generic GET request with caching support
   Future<dynamic> get(String endpoint, {bool useCache = false, Duration cacheTtl = const Duration(hours: 1)}) async {
     try {
+      // Ensure tokens are loaded before making request
+      await _loadTokens();
+      
       if (useCache) {
         final cached = _cache.get(endpoint);
         if (cached != null) {

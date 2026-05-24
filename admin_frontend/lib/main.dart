@@ -603,6 +603,9 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
     }
     _apiService = widget.apiService;
     
+    // Reload tokens to ensure they're loaded before building UI
+    _apiService.reloadTokens();
+    
     // WebSocket disabled - backend does not support WebSocket
     // webSocketService.addListener(_handleLowStockAlert);
   }
@@ -610,8 +613,6 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Reload tokens to ensure they're loaded
-    _apiService.reloadTokens();
   }
 
   void _handleLowStockAlert(Map<String, dynamic> alert) {

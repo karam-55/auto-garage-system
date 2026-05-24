@@ -435,6 +435,12 @@ Middleware _corsMiddleware() {
   if (mechanicOrigin != null && mechanicOrigin.isNotEmpty) {
     allowedOrigins.addAll(mechanicOrigin.split(',').map((e) => e.trim()));
   }
+  
+  // Add Cloudflare Pages origins as fallback
+  allowedOrigins.addAll([
+    'https://auto-garage-staff-frontend.pages.dev',
+    'https://auto-garage-customer-frontend.pages.dev',
+  ]);
 
   logger.i('✅ CORS configured for: ${allowedOrigins.join(", ")}');
 

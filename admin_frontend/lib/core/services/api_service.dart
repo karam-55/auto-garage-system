@@ -46,6 +46,11 @@ class ApiService {
     _refreshToken = prefs.getString('refresh_token');
   }
 
+  // Force reload tokens (call this after login)
+  Future<void> reloadTokens() async {
+    await _loadTokens();
+  }
+
   Future<void> _initCache() async {
     await Hive.initFlutter();
     _cache = await Hive.openBox('api_cache');

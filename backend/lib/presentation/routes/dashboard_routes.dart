@@ -286,10 +286,10 @@ class DashboardRoutes {
     try {
       final assets = await _fixedAssetRepository.findAll();
       
-      double totalCost = assets.fold(0.0, (sum, asset) => sum + asset.acquisitionCost);
+      double totalCost = assets.fold(0.0, (sum, asset) => sum + (asset.acquisitionCost ?? 0.0));
       double accumulatedDepreciation = assets.fold(0.0, (sum, asset) {
-        final netBookValue = asset.currentNetBookValue ?? asset.acquisitionCost;
-        return sum + (asset.acquisitionCost - netBookValue);
+        final netBookValue = asset.currentNetBookValue ?? (asset.acquisitionCost ?? 0.0);
+        return sum + ((asset.acquisitionCost ?? 0.0) - netBookValue);
       });
       double netBookValue = totalCost - accumulatedDepreciation;
 

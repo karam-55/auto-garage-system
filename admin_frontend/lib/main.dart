@@ -356,7 +356,8 @@ class _LoginScreenState extends State<LoginScreen>
             await prefs.setString('user', jsonEncode(loginData['user']));
           }
           
-          final apiService = ApiService();
+          final apiService = ApiService.instance;
+          await apiService.reloadTokens();
           apiService.setToken(_authService.token);
           apiService.setRefreshToken(_authService.refreshToken);
           
@@ -642,6 +643,10 @@ class _GarageDashboardScreenState extends State<GarageDashboardScreen> {
       
       // Clear tokens from AuthService
       await _authService.logout();
+      
+      // Clear tokens from ApiService
+      _apiService.clearToken();
+      _apiService.clearRefreshToken();
       
       // Navigate to login screen
       if (mounted) {

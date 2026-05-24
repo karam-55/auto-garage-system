@@ -17,6 +17,9 @@ RUN dart pub get
 # Copy source code
 COPY . .
 
+# Exclude migration and seed scripts from production build
+RUN rm -f bin/migrate_database.dart bin/seed_data.dart || true
+
 # Force cache invalidation by creating a dummy file with timestamp
 RUN echo "Build timestamp: $(date)" > /tmp/build_timestamp.txt
 

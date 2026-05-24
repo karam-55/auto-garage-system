@@ -1,14 +1,12 @@
 import 'package:shelf/shelf.dart';
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
-import 'package:dotenv/dotenv.dart';
+import 'dart:io';
 
 Middleware createCorsMiddleware() {
-  final env = DotEnv()..load();
-  
   // Read CORS origins from environment variables
-  final corsOrigin = env['CORS_ORIGIN'] ?? 'http://localhost:3000';
-  final customerCorsOrigin = env['CUSTOMER_CORS_ORIGIN'] ?? 'http://localhost:3000';
-  final mechanicCorsOrigin = env['MECHANIC_CORS_ORIGIN'] ?? 'http://localhost:8081';
+  final corsOrigin = Platform.environment['CORS_ORIGIN'] ?? 'http://localhost:3000';
+  final customerCorsOrigin = Platform.environment['CUSTOMER_CORS_ORIGIN'] ?? 'http://localhost:3000';
+  final mechanicCorsOrigin = Platform.environment['MECHANIC_CORS_ORIGIN'] ?? 'http://localhost:8081';
   
   // Collect all allowed origins
   final allowedOrigins = [

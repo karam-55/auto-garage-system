@@ -1,6 +1,6 @@
 import 'package:postgres/postgres.dart';
 import 'package:supabase/supabase.dart';
-import 'package:dotenv/dotenv.dart';
+import 'dart:io';
 
 /// Migration script to transfer data from Supabase to Render PostgreSQL
 /// 
@@ -11,15 +11,12 @@ import 'package:dotenv/dotenv.dart';
 void main(List<String> args) async {
   print('Starting database migration from Supabase to Render...');
   
-  // Load environment variables
-  final env = DotEnv(includePlatformEnvironment: true)..load();
-  
   // Source: Supabase (remove /rest/v1/ from the end)
-  final supabaseUrl = env['SUPABASE_URL'] ?? 'https://epiqlptgiqskizfgmagj.supabase.co';
-  final supabaseKey = env['SUPABASE_ANON_KEY'] ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwaXFscHRnaXFza2l6ZmdtYWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTY2ODgsImV4cCI6MjA5NDE5MjY4OH0.9__a_Y3mMvpH456Go4MF9TKmObytZO0bOF761wagGuY';
+  final supabaseUrl = Platform.environment['SUPABASE_URL'] ?? 'https://epiqlptgiqskizfgmagj.supabase.co';
+  final supabaseKey = Platform.environment['SUPABASE_ANON_KEY'] ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwaXFscHRnaXFza2l6ZmdtYWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTY2ODgsImV4cCI6MjA5NDE5MjY4OH0.9__a_Y3mMvpH456Go4MF9TKmObytZO0bOF761wagGuY';
   
   // Destination: Render PostgreSQL
-  final renderDbUrl = env['RENDER_DATABASE_URL'] ?? 'postgresql://garage_user:xOqMzT1nTPbHlTWLkpfgRC3Q8bMuoAf8@dpg-d824opgjs32c73dm9fs0-a/auto_garage_9ebq';
+  final renderDbUrl = Platform.environment['RENDER_DATABASE_URL'] ?? 'postgresql://garage_user:xOqMzT1nTPbHlTWLkpfgRC3Q8bMuoAf8@dpg-d824opgjs32c73dm9fs0-a/auto_garage_9ebq';
   
   print('Supabase URL: $supabaseUrl');
   print('Render DB URL: $renderDbUrl');

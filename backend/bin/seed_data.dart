@@ -1,11 +1,8 @@
 import 'package:postgres/postgres.dart';
-import 'package:dotenv/dotenv.dart';
 import 'dart:io';
 
 Future<void> main() async {
-  final env = DotEnv()..load();
-  
-  final databaseUrl = Platform.environment['DATABASE_URL'] ?? env['DATABASE_URL'];
+  final databaseUrl = Platform.environment['DATABASE_URL'];
   if (databaseUrl == null) {
     print('ERROR: DATABASE_URL environment variable is not set');
     exit(1);

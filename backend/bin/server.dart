@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_static/shelf_static.dart';
-import 'package:dotenv/dotenv.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
 import 'package:logger/logger.dart';
@@ -80,16 +79,10 @@ final logger = Logger(
 );
 
 void main(List<String> args) async {
-  // Load environment variables from .env file if it exists (optional)
-  final env = DotEnv();
-  try {
-    env.load();
-  } catch (e) {
-    // .env file not found, continue with environment variables
-  }
+  // Read environment variables directly from system
 
   // JWT Secret from environment (mandatory)
-  final jwtSecret = Platform.environment['JWT_SECRET'] ?? env['JWT_SECRET'];
+  final jwtSecret = Platform.environment['JWT_SECRET'];
   if (jwtSecret == null || jwtSecret.isEmpty) {
     logger.e('❌ FATAL: JWT_SECRET environment variable is not set. Server cannot start securely.');
     exit(1);
@@ -322,7 +315,7 @@ void main(List<String> args) async {
 
   // Start server
   final ip = InternetAddress.anyIPv4;
-  final port = int.parse(env['PORT'] ?? '8080');
+  final port = int.parse(Platform.environment['PORT'] ?? '8080');
 
   final server = await serve(pipeline, ip, port);
   logger.i('Server listening on http://${server.address.host}:${server.port}');
@@ -356,13 +349,7 @@ void main(List<String> args) async {
 }
 
 Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) async {
-  final env = DotEnv();
-  try {
-    env.load();
-  } catch (e) {
-    // .env file not found, continue with environment variables
-  }
-  final adminPassword = Platform.environment['DEFAULT_ADMIN_PASSWORD'] ?? env['DEFAULT_ADMIN_PASSWORD'];
+  final adminPassword = Platform.environment['DEFAULT_ADMIN_PASSWORD'];
   if (adminPassword == null || adminPassword.isEmpty) {
     logger.w('DEFAULT_ADMIN_PASSWORD not set. Skipping default admin creation.');
     logger.w('Set DEFAULT_ADMIN_PASSWORD to create an admin user on startup.');
@@ -396,13 +383,7 @@ Future<void> _createDefaultAdminUser(DatabaseConnection db, String jwtSecret) as
 }
 
 Future<void> _createDefaultReceptionistUser(DatabaseConnection db, String jwtSecret) async {
-  final env = DotEnv();
-  try {
-    env.load();
-  } catch (e) {
-    // .env file not found, continue with environment variables
-  }
-  final receptionistPassword = Platform.environment['DEFAULT_RECEPTIONIST_PASSWORD'] ?? env['DEFAULT_RECEPTIONIST_PASSWORD'];
+  final receptionistPassword = Platform.environment['DEFAULT_RECEPTIONIST_PASSWORD'];
   if (receptionistPassword == null || receptionistPassword.isEmpty) {
     logger.w('DEFAULT_RECEPTIONIST_PASSWORD not set. Skipping default receptionist creation.');
     logger.w('Set DEFAULT_RECEPTIONIST_PASSWORD to create a receptionist user on startup.');
@@ -447,15 +428,9 @@ Future<void> _seedAccountingAccounts(DatabaseConnection db) async {
 }
 
 Middleware _corsMiddleware() {
-  final env = DotEnv();
-  try {
-    env.load();
-  } catch (e) {
-    // .env file not found, continue with environment variables
-  }
-  final allowedOrigin = Platform.environment['CORS_ORIGIN'] ?? env['CORS_ORIGIN'];
-  final customerOrigin = Platform.environment['CUSTOMER_CORS_ORIGIN'] ?? env['CUSTOMER_CORS_ORIGIN'];
-  final mechanicOrigin = Platform.environment['MECHANIC_CORS_ORIGIN'] ?? env['MECHANIC_CORS_ORIGIN'];
+  final allowedOrigin = Platform.environment['CORS_ORIGIN'];
+  final customerOrigin = Platform.environment['CUSTOMER_CORS_ORIGIN'];
+  final mechanicOrigin = Platform.environment['MECHANIC_CORS_ORIGIN'];
 
   if (allowedOrigin == null || allowedOrigin.isEmpty) {
     logger.e('❌ FATAL: CORS_ORIGIN environment variable is not set. Server cannot start securely.');

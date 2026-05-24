@@ -46,6 +46,7 @@ services:
       JWT_SECRET: 7f82670b53bd936d32f73af55c021a82
       JWT_REFRESH_SECRET: 673d0b0d0fc538ae34a3d177f682d2ac
       PORT: 8080
+      SKIP_SCHEMA_EXECUTION: true
     ports:
       - "8080:8080"
     depends_on:

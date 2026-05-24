@@ -88,8 +88,7 @@ ORDER BY tc.table_name, kcu.column_name;
 SELECT 
     schemaname,
     tablename,
-    indexname,
-    pg_size_pretty(pg_relation_size(indexrelid)) AS index_size
+    indexname
 FROM pg_indexes 
 WHERE tablename IN (
     'customers',
@@ -100,4 +99,4 @@ WHERE tablename IN (
     'journal_lines',
     'accounts'
 )
-ORDER BY pg_relation_size(indexrelid) DESC;
+ORDER BY tablename, indexname;

@@ -137,7 +137,7 @@ class AuthRoutes {
         return Response.badRequest(body: jsonEncode({'error': 'Username and password are required'}));
       }
 
-      _recordAttempt(clientIp);
+      // _recordAttempt(clientIp);  // Temporarily disabled for debugging
 
       final user = await _authService.login(username, password);
       final token = await _authService.generateToken(user);

@@ -213,14 +213,20 @@ void main(List<String> args) async {
     fixedAssetRepository,
     authRoutes.authMiddleware,
   );
+  logger.i('Initializing PublicRoutes...');
   final publicRoutes = PublicRoutes(db);
-  print('DEBUG: PublicRoutes initialized');
+  logger.i('PublicRoutes initialized');
+  
+  logger.i('Initializing CompanySettingsRoutes...');
   final companySettingsRoutes = CompanySettingsRoutes(
     companySettingsRepository,
     authMiddleware,
     accountRepository,
     accountingSettingsService,
   );
+  logger.i('CompanySettingsRoutes initialized');
+  
+  logger.i('Initializing InventoryRoutes...');
   final inventoryRoutes = InventoryRoutes(
     inventoryItemRepository,
     inventoryVariantRepository,
@@ -233,22 +239,44 @@ void main(List<String> args) async {
     journalService,
     accountingSettingsService,
   );
+  logger.i('InventoryRoutes initialized');
+  
+  logger.i('Initializing InvoiceRoutes...');
   final invoiceRoutes = InvoiceRoutes(bookingInvoiceDataRepository, authMiddleware);
+  logger.i('InvoiceRoutes initialized');
+  
+  logger.i('Initializing AccountingRoutes...');
   final accountingRoutes = AccountingRoutes.create(db, authMiddleware);
+  logger.i('AccountingRoutes initialized');
+  
+  logger.i('Initializing FinancialRoutes...');
   final financialRoutes = FinancialRoutes.create(db, authMiddleware);
+  logger.i('FinancialRoutes initialized');
+  
+  logger.i('Initializing PayrollRoutes...');
   final payrollRoutes = PayrollRoutes.create(db, authMiddleware);
+  logger.i('PayrollRoutes initialized');
+  
+  logger.i('Initializing ErpRoutes...');
   final erpRoutes = ErpRoutes.create(db, authMiddleware);
+  logger.i('ErpRoutes initialized');
+  
+  logger.i('Initializing HrRoutes...');
   final hrRoutes = HrRoutes(
     hrRepository,
     leaveRequestRepository,
     performanceReviewRepository,
     authMiddleware,
   );
+  logger.i('HrRoutes initialized');
+  
+  logger.i('Initializing CrmRoutes...');
   final crmRoutes = CrmRoutes(
     crmRepository,
     crmActivityRepository,
     authMiddleware,
   );
+  logger.i('CrmRoutes initialized');
 
   // Create static file handler for uploads directory
   final uploadsDir = Directory('uploads');

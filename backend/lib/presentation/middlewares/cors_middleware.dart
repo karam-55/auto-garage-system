@@ -15,6 +15,9 @@ Middleware createCorsMiddleware() {
     corsOrigin,
     customerCorsOrigin,
     mechanicCorsOrigin,
+    // Add production Cloudflare Pages origins as fallback
+    'https://auto-garage-staff-frontend.pages.dev',
+    'https://auto-garage-customer-frontend.pages.dev',
   ];
   
   return (Handler innerHandler) {

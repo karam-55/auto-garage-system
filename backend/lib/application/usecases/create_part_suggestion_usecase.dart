@@ -2,6 +2,7 @@ import '../../domain/entities/part_suggestion.dart';
 import '../../domain/entities/part_suggestion_status.dart';
 import '../../domain/entities/part_type.dart';
 import '../../domain/repositories/part_suggestion_repository.dart';
+import '../../domain/repositories/inventory_item_repository.dart';
 import '../../core/errors/failures.dart';
 import '../services/notification_service.dart';
 import 'package:uuid/uuid.dart';
@@ -9,10 +10,12 @@ import 'package:uuid/uuid.dart';
 class CreatePartSuggestionUseCase {
   final PartSuggestionRepository _partSuggestionRepository;
   final NotificationService _notificationService;
+  final InventoryItemRepository _inventoryItemRepository;
 
   CreatePartSuggestionUseCase(
     this._partSuggestionRepository,
     this._notificationService,
+    this._inventoryItemRepository,
   );
 
   Future<PartSuggestion> execute(
@@ -21,7 +24,16 @@ class CreatePartSuggestionUseCase {
     String partType,
     String description,
     double? priceSYP,
+    String? inventoryItemId,
   ) async {
+    // Validate inventory item exists if inventoryItemId is provided
+    if (inventoryItemId != null && inventoryItemId.isNotEmpty) {
+      final inventoryItem = await _inventoryItemRepository.findById(inventoryItemId);
+      if (inventoryItem == null) {
+        throw ValidationFailure('Part not found in inventory');
+      }
+    }
+
     try {
       final suggestion = PartSuggestion(
         id: const Uuid().v4(),
@@ -32,6 +44,7 @@ class CreatePartSuggestionUseCase {
         priceSYP: priceSYP,
         status: PartSuggestionStatus.PENDING_CUSTOMER_APPROVAL,
         createdAt: DateTime.now().toUtc(),
+        inventoryItemId: inventoryItemId,
       );
 
       final createdSuggestion = await _partSuggestionRepository.create(suggestion);

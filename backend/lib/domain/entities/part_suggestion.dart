@@ -11,6 +11,7 @@ class PartSuggestion {
   final PartSuggestionStatus status;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String? inventoryItemId;
 
   PartSuggestion({
     required this.id,
@@ -22,6 +23,7 @@ class PartSuggestion {
     required this.status,
     required this.createdAt,
     this.updatedAt,
+    this.inventoryItemId,
   });
 
   factory PartSuggestion.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,7 @@ class PartSuggestion {
       updatedAt: json['updatedAt'] != null 
           ? DateTime.parse(json['updatedAt'] as String) 
           : null,
+      inventoryItemId: json['inventoryItemId'] as String?,
     );
   }
 
@@ -51,6 +54,7 @@ class PartSuggestion {
       'status': status.value,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'inventoryItemId': inventoryItemId,
     };
   }
 
@@ -64,6 +68,7 @@ class PartSuggestion {
     PartSuggestionStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? inventoryItemId,
   }) {
     return PartSuggestion(
       id: id ?? this.id,
@@ -75,6 +80,7 @@ class PartSuggestion {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      inventoryItemId: inventoryItemId ?? this.inventoryItemId,
     );
   }
 }

@@ -187,6 +187,7 @@ void main(List<String> args) async {
     bookingRepository,
     vehicleRepository,
     customerRepository,
+    inventoryItemRepository,
     authMiddleware,
   );
   final dashboardRoutes = DashboardRoutes(

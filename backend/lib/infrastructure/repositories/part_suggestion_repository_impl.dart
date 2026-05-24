@@ -18,8 +18,8 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
     try {
       final result = await _db.execute(
         Sql.named('''
-          INSERT INTO part_suggestions (id, booking_id, mechanic_user_id, type, description, price_syp, status, created_at)
-          VALUES (@id, @bookingId, @mechanicUserId, @type, @description, @priceSyp, @status, @createdAt)
+          INSERT INTO part_suggestions (id, booking_id, mechanic_user_id, type, description, price_syp, status, created_at, inventory_item_id)
+          VALUES (@id, @bookingId, @mechanicUserId, @type, @description, @priceSyp, @status, @createdAt, @inventoryItemId)
           RETURNING *
         '''),
         parameters: {
@@ -32,6 +32,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
           'status': suggestion.status.value,
           'createdAt': suggestion.createdAt,
           'updatedAt': suggestion.updatedAt,
+          'inventoryItemId': suggestion.inventoryItemId,
         },
       );
 
@@ -101,7 +102,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
       final result = await _db.execute(
         Sql.named('''
           UPDATE part_suggestions 
-          SET type = @type, description = @description, price_syp = @priceSyp, status = @status, updated_at = @updatedAt
+          SET type = @type, description = @description, price_syp = @priceSyp, status = @status, updated_at = @updatedAt, inventory_item_id = @inventoryItemId
           WHERE id = @id
           RETURNING *
         '''),
@@ -112,6 +113,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
           'priceSyp': suggestion.priceSYP,
           'status': suggestion.status.value,
           'updatedAt': DateTime.now().toUtc(),
+          'inventoryItemId': suggestion.inventoryItemId,
         },
       );
 
@@ -145,6 +147,7 @@ class PartSuggestionRepositoryImpl implements PartSuggestionRepository {
       status: PartSuggestionStatus.fromString(data['status'] as String),
       createdAt: data['created_at'] is DateTime ? data['created_at'] as DateTime : DateTime.parse(data['created_at'] as String),
       updatedAt: data['updated_at'] != null ? (data['updated_at'] is DateTime ? data['updated_at'] as DateTime : DateTime.parse(data['updated_at'] as String)) : null,
+      inventoryItemId: data['inventory_item_id']?.toString(),
     );
   }
 

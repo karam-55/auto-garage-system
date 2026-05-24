@@ -11,6 +11,7 @@ import '../../domain/repositories/part_suggestion_repository.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../../domain/repositories/customer_repository.dart';
+import '../../domain/repositories/inventory_item_repository.dart';
 import '../../application/usecases/assign_mechanic_usecase.dart';
 import '../../application/usecases/create_part_suggestion_usecase.dart';
 import '../middlewares/json_middleware.dart';
@@ -23,6 +24,7 @@ class MechanicRoutes {
   final BookingRepository _bookingRepository;
   final VehicleRepository _vehicleRepository;
   final CustomerRepository _customerRepository;
+  final InventoryItemRepository _inventoryItemRepository;
   final AuthMiddleware _authMiddleware;
 
   MechanicRoutes(
@@ -31,6 +33,7 @@ class MechanicRoutes {
     this._bookingRepository,
     this._vehicleRepository,
     this._customerRepository,
+    this._inventoryItemRepository,
     this._authMiddleware,
   );
 
@@ -274,6 +277,7 @@ class MechanicRoutes {
     final partType = (body['type'] as String?)?.trim();
     final description = (body['description'] as String?)?.trim();
     final priceSYP = body['priceSYP'];
+    final inventoryItemId = (body['inventoryItemId'] as String?)?.trim();
 
     // Handle priceSYP type safely
     double? priceSYPDouble;
@@ -299,6 +303,7 @@ class MechanicRoutes {
       final useCase = CreatePartSuggestionUseCase(
         _partSuggestionRepository,
         NotificationServiceImpl(),
+        _inventoryItemRepository,
       );
       final suggestion = await useCase.execute(
         bookingId,
@@ -306,6 +311,7 @@ class MechanicRoutes {
         partType,
         description,
         priceSYPDouble,
+        inventoryItemId,
       );
       return Response.ok(jsonEncode(suggestion.toJson()));
     } catch (e) {

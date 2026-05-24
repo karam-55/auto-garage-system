@@ -280,8 +280,8 @@ void main(List<String> args) async {
       .addMiddleware(createLoggingMiddleware())
       .addMiddleware(JsonMiddleware.jsonContent())
       .addMiddleware(_corsMiddleware())  // Use the local CORS middleware
-      .addMiddleware(createRateLimitMiddleware())
-      .addMiddleware(CsrfMiddleware().create())
+      // .addMiddleware(createRateLimitMiddleware())  // Temporarily disabled for debugging
+      // .addMiddleware(CsrfMiddleware().create())  // Temporarily disabled for debugging
       .addHandler(handler);
 
   // Start server

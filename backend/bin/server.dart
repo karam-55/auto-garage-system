@@ -102,12 +102,17 @@ void main(List<String> args) async {
     logger.i('Database connected successfully');
     
     // Execute schema (in production, you might want to use migrations)
-    await db.executeSchema();
-    logger.i('Database schema executed successfully');
-    
-    // Execute seed data
-    await db.executeSeed();
-    logger.i('Seed data executed successfully');
+    // Skip schema execution in production if SKIP_SCHEMA_EXECUTION is set
+    if (Platform.environment['SKIP_SCHEMA_EXECUTION'] != 'true') {
+      await db.executeSchema();
+      logger.i('Database schema executed successfully');
+
+      // Execute seed data
+      await db.executeSeed();
+      logger.i('Seed data executed successfully');
+    } else {
+      logger.i('Skipping schema and seed execution (SKIP_SCHEMA_EXECUTION=true)');
+    }
     
     // Create default admin user if not exists
     await _createDefaultAdminUser(db, jwtSecret);

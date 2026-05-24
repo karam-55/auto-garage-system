@@ -20,7 +20,7 @@ class DatabaseConnection {
   Future<void> initialize() async {
     // In production, read from environment variables directly
     // In development, try to load from .env file
-    final env = DotEnv()..load();
+    final env = DotEnv()..load([allowOptional: true]);
     
     final databaseUrl = Platform.environment['DATABASE_URL'] ?? env['DATABASE_URL'];
     if (databaseUrl == null) {
@@ -48,7 +48,7 @@ class DatabaseConnection {
       ],
       settings: PoolSettings(
         maxConnectionCount: 20,
-        sslMode: SslMode.disable,
+        sslMode: SslMode.require,
       ),
     );
 

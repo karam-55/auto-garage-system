@@ -54,7 +54,7 @@ class DatabaseConnection {
       ],
       settings: PoolSettings(
         maxConnectionCount: 20,
-        sslMode: SslMode.require,
+        sslMode: SslMode.disable,
       ),
     );
 

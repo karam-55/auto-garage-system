@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Auto Garage System - Hetzner Deployment Script
-# Optimized for 2 vCPU, 8GB RAM Ubuntu Server (CX23)
-# This script automates the deployment process
+# Auto Garage System - Full Hetzner Deployment Script
+# This script does EVERYTHING on the server
+# Run this on the Hetzner server
 
 set -e  # Exit on error
 
-echo "🚀 Auto Garage System - Hetzner Deployment"
+echo "🚀 Auto Garage System - Full Hetzner Deployment"
 echo "=========================================="
-echo "Server Specs: 2 vCPU, 8GB RAM (CX23)"
-echo "OS: Ubuntu"
+echo "Server: 178.105.209.59"
+echo "Specs: 2 vCPU, 8GB RAM (CX23)"
 echo ""
 
 # Colors for output
@@ -19,7 +19,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
 print_success() {
     echo -e "${GREEN}✓ $1${NC}"
 }
@@ -36,19 +35,17 @@ print_info() {
     echo -e "${BLUE}ℹ $1${NC}"
 }
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then 
-    print_error "Please run as root (use sudo)"
-    exit 1
-fi
+print_step() {
+    echo -e "${BLUE}📋 $1${NC}"
+}
 
 # Step 1: Update System
-echo "📦 Step 1: Updating system..."
+print_step "Step 1: Updating system..."
 apt update && apt upgrade -y
 print_success "System updated"
 
 # Step 2: Install Docker
-echo "🐳 Step 2: Installing Docker..."
+print_step "Step 2: Installing Docker..."
 if ! command -v docker &> /dev/null; then
     curl -fsSL https://get.docker.com -o get-docker.sh
     sh get-docker.sh
@@ -59,7 +56,7 @@ else
 fi
 
 # Step 3: Install Docker Compose
-echo "🔧 Step 3: Installing Docker Compose..."
+print_step "Step 3: Installing Docker Compose..."
 if ! command -v docker-compose &> /dev/null; then
     curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
@@ -69,12 +66,12 @@ else
 fi
 
 # Step 4: Install Additional Tools
-echo "🛠️ Step 4: Installing additional tools..."
+print_step "Step 4: Installing additional tools..."
 apt install -y git curl htop vim net-tools
 print_success "Additional tools installed"
 
 # Step 5: Configure Docker for Optimal Performance
-echo "⚙️ Step 5: Optimizing Docker for 8GB RAM..."
+print_step "Step 5: Optimizing Docker for 8GB RAM..."
 mkdir -p /etc/docker
 cat > /etc/docker/daemon.json <<EOF
 {
@@ -90,36 +87,35 @@ systemctl restart docker
 print_success "Docker optimized"
 
 # Step 6: Create Project Directory
-echo "📁 Step 6: Creating project directory..."
+print_step "Step 6: Creating project directory..."
 mkdir -p /var/www/auto-garage
 cd /var/www/auto-garage
 print_success "Project directory created"
 
-# Step 7: Clone or Copy Project
-echo "📥 Step 7: Setting up project files..."
+# Step 7: Clone Project
+print_step "Step 7: Cloning project from GitHub..."
 if [ -d ".git" ]; then
     print_success "Project already exists, pulling latest changes..."
     git pull
 else
-    if [ -z "$GIT_REPO_URL" ]; then
-        GIT_REPO_URL="https://github.com/karam-55/auto-garage-system.git"
-    fi
-    git clone $GIT_REPO_URL .
+    git clone https://github.com/karam-55/auto-garage-system.git .
     print_success "Project cloned from GitHub"
 fi
 
-# Step 8: Build Frontend (Skip on server, assume pre-built)
-echo "🎨 Step 8: Checking frontend build..."
+# Step 8: Check Frontend Build
+print_step "Step 8: Checking frontend build..."
 if [ -d "admin_frontend/build/web" ]; then
     print_success "Frontend already built"
 else
-    print_warning "Frontend not built. Please build on local machine and upload:"
+    print_warning "Frontend not found. Please build on local machine and upload:"
     print_info "1. On local machine: cd admin_frontend && flutter build web"
-    print_info "2. Upload admin_frontend/build/web to server"
+    print_info "2. Upload admin_frontend/build/web to: /var/www/auto-garage/admin_frontend/"
+    print_info "3. Then run this script again"
+    exit 1
 fi
 
 # Step 9: Generate Secrets
-echo "🔐 Step 9: Generating secrets..."
+print_step "Step 9: Generating secrets..."
 if [ ! -f ".env" ]; then
     cat > .env << EOF
 POSTGRES_PASSWORD=$(openssl rand -hex 16)
@@ -133,13 +129,13 @@ else
 fi
 
 # Step 10: Create Required Directories
-echo "📂 Step 10: Creating required directories..."
+print_step "Step 10: Creating required directories..."
 mkdir -p certbot/conf certbot/www
 mkdir -p migrations
 print_success "Directories created"
 
 # Step 11: Update docker-compose.yml with secrets
-echo "🔧 Step 11: Updating docker-compose.yml with secrets..."
+print_step "Step 11: Updating docker-compose.yml with secrets..."
 if [ -f ".env" ]; then
     source .env
     sed -i "s/garage123/$POSTGRES_PASSWORD/g" docker-compose.yml
@@ -148,35 +144,35 @@ if [ -f ".env" ]; then
     print_success "docker-compose.yml updated with secrets"
 fi
 
-# Step 12: Start Services
-echo "🚀 Step 12: Starting services..."
+# Step 12: Start PostgreSQL
+print_step "Step 12: Starting PostgreSQL..."
 docker-compose down
 docker-compose up -d postgres
 print_success "PostgreSQL started"
 
 # Wait for PostgreSQL
-echo "⏳ Waiting for PostgreSQL to be ready..."
+print_info "Waiting for PostgreSQL to be ready..."
 sleep 15
 
 # Step 13: Run Migrations
-echo "🗄️ Step 13: Running database migrations..."
+print_step "Step 13: Running database migrations..."
 if [ -f "migrations/2026-05-24_add_acquisition_date_to_fixed_assets.sql" ]; then
     docker-compose exec -T postgres psql -U garage -d garage_db < migrations/2026-05-24_add_acquisition_date_to_fixed_assets.sql
     print_success "Migration 1 executed"
 fi
 
-if [ -f "migrations/2026-05-24_seed_chart_of_accounts.sql" ]; then
+if [ -f "migrations/2026-05-24_seed_chart_of_accounts.sql" ; then
     docker-compose exec -T postgres psql -U garage -d garage_db < migrations/2026-05-24_seed_chart_of_accounts.sql
     print_success "Migration 2 executed"
 fi
 
 # Step 14: Start All Services
-echo "🎯 Step 14: Starting all services..."
+print_step "Step 14: Starting all services..."
 docker-compose up -d
 print_success "All services started"
 
 # Step 15: Configure Firewall
-echo "🔒 Step 15: Configuring firewall..."
+print_step "Step 15: Configuring firewall..."
 if command -v ufw &> /dev/null; then
     ufw allow 22/tcp
     ufw allow 80/tcp
@@ -197,9 +193,8 @@ echo ""
 # Step 17: Display Access Information
 echo "🌐 Access Information:"
 echo "====================="
-SERVER_IP=$(curl -s ifconfig.me)
-echo "Backend API: http://$SERVER_IP:8080"
-echo "Frontend: http://$SERVER_IP"
+echo "Backend API: http://178.105.209.59:8080"
+echo "Frontend: http://178.105.209.59"
 echo "Database: postgres://garage:PASSWORD@localhost:5432/garage_db"
 echo ""
 echo "🔑 Default Credentials:"
@@ -217,7 +212,7 @@ echo ""
 # Step 19: Final Instructions
 echo "📋 Next Steps:"
 echo "============"
-echo "1. Test the deployment by accessing: http://$SERVER_IP"
+echo "1. Test the deployment by accessing: http://178.105.209.59"
 echo "2. Login with: admin / admin123"
 echo "3. Monitor logs: docker-compose logs -f"
 echo "4. Monitor resources: htop"

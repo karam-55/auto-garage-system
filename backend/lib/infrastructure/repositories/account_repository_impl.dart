@@ -25,7 +25,7 @@ class AccountRepositoryImpl implements AccountRepository {
     );
     final row = result.first;
     return account.copyWith(
-      id: row['id'] as int,
+      id: row['id'] is String ? int.parse(row['id'] as String) : row['id'] as int,
       createdAt: row['created_at'] as DateTime,
     );
   }
@@ -120,13 +120,13 @@ class AccountRepositoryImpl implements AccountRepository {
 
   Account _mapRowToAccount(ResultRow row) {
     return Account(
-      id: row['id'] as int,
+      id: row['id'] is String ? int.parse(row['id'] as String) : row['id'] as int,
       code: row['code'] as String,
       nameAr: row['name_ar'] as String,
       nameEn: row['name_en'] as String,
-      parentId: row['parent_id'] as int?,
+      parentId: row['parent_id'] == null ? null : (row['parent_id'] is String ? int.parse(row['parent_id'] as String) : row['parent_id'] as int?),
       accountType: AccountType.fromString(row['account_type'] as String),
-      isActive: row['is_active'] as bool,
+      isActive: row['is_active'] is String ? row['is_active'] == 't' : row['is_active'] as bool,
       createdAt: row['created_at'] as DateTime,
     );
   }
